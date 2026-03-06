@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { SchemaRegistry } from "@/lib/schemas";
 import { ContentDocument } from "@/lib/types";
+import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 
 export async function GET(request: Request) {
     try {
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
         const module_type = searchParams.get("module_type");
         const is_public = searchParams.get("is_public");
 
-        const query: Record<string, any> = {};
+        const query: Record<string, string | boolean> = {};
         if (module_type) query.module_type = module_type;
         if (is_public !== null) query.is_public = is_public === "true";
 
@@ -17,9 +17,11 @@ export async function GET(request: Request) {
         const contentColl = db.collection<ContentDocument>("content");
         const results = await contentColl.find(query).sort({ created_at: -1 }).toArray();
 
-        return NextResponse.json({ data: results });
+        return ApiSuccess(results);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch content" }, { status: 500 });
+        console.error("GET /api/content failed:", error);
+        const message = error instanceof Error ? error.message : "Failed to fetch content";
+        return ApiError(message, 500);
     }
 }
 
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
         const { module_type, is_public, payload } = body;
 
         if (!module_type || module_type === "") {
-            return NextResponse.json({ error: "module_type is required" }, { status: 400 });
+            return ApiError("module_type is required", 400);
         }
 
         // Validate using Zod schema if available
@@ -37,10 +39,7 @@ export async function POST(request: Request) {
         if (schema) {
             const parsed = schema.safeParse(payload);
             if (!parsed.success) {
-                return NextResponse.json(
-                    { error: "Validation failed", details: parsed.error.format() },
-                    { status: 400 }
-                );
+                return ApiValidationError(parsed.error.format());
             }
         }
 
@@ -54,10 +53,12 @@ export async function POST(request: Request) {
 
         const db = await getDb();
         const contentColl = db.collection<ContentDocument>("content");
-        const result = await contentColl.insertOne(doc);
+        const result = await contentColl.insertOne(doc as ContentDocument);
 
-        return NextResponse.json({ success: true, insertedId: result.insertedId }, { status: 201 });
+        return ApiSuccess({ ...doc, _id: result.insertedId, insertedId: result.insertedId }, 201);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to create content" }, { status: 500 });
+        console.error("POST /api/content failed:", error);
+        const message = error instanceof Error ? error.message : "Failed to create content";
+        return ApiError(message, 500);
     }
 }

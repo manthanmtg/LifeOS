@@ -27,7 +27,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-50 relative overflow-hidden">
+        <div suppressHydrationWarning className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-50 relative overflow-hidden">
             {/* Background gradients for aesthetics */}
             <div className="absolute top-0 blur-[150px] bg-zinc-800/50 w-full h-[500px] rounded-full -translate-y-1/2" />
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
                             placeholder="Admin Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700 transition-all"
+                            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700 transition-all"
                         />
                     </div>
 

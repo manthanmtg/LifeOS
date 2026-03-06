@@ -1,6 +1,6 @@
 import { getDb } from "./mongodb";
 import { SystemConfig } from "./types";
-import { moduleRegistry as appModules } from "../registry"; // We will create this registry file shortly
+import { moduleRegistry as appModules } from "../registry";
 
 export async function ensureSystemConfig() {
     try {
@@ -10,14 +10,11 @@ export async function ensureSystemConfig() {
         const exists = await systemColl.findOne({ _id: "global" });
 
         if (!exists) {
-            // Default to enabling and making public the core modules initially
             const defaultModuleRegistry: Record<string, { enabled: boolean; isPublic: boolean }> = {};
 
-            // We will initialize this by reading from the code's application registry if defined,
-            // but as a fallback/initial state:
             if (appModules) {
-                Object.keys(appModules).forEach(key => {
-                    defaultModuleRegistry[key] = { enabled: true, isPublic: false };
+                Object.entries(appModules).forEach(([key, mod]) => {
+                    defaultModuleRegistry[key] = { enabled: true, isPublic: (mod as { defaultPublic: boolean }).defaultPublic };
                 });
             }
 
@@ -29,7 +26,31 @@ export async function ensureSystemConfig() {
                 moduleRegistry: defaultModuleRegistry,
             });
             console.log("[Seed] Initialized global system configuration.");
+        } else if (appModules) {
+            // Backfill: add any new modules not yet in the DB
+            const existingRegistry = exists.moduleRegistry || {};
+            const updates: Record<string, { enabled: boolean; isPublic: boolean }> = {};
+            Object.entries(appModules).forEach(([key, mod]) => {
+                if (!existingRegistry[key]) {
+                    updates[key] = { enabled: true, isPublic: (mod as { defaultPublic: boolean }).defaultPublic };
+                }
+            });
+            if (Object.keys(updates).length > 0) {
+                const merged = { ...existingRegistry, ...updates };
+                await systemColl.updateOne({ _id: "global" }, { $set: { moduleRegistry: merged } });
+                console.log(`[Seed] Backfilled ${Object.keys(updates).length} new module(s).`);
+            }
         }
+
+        // Ensure indexes for query performance
+        const contentColl = db.collection("content");
+        await contentColl.createIndex({ module_type: 1 });
+        await contentColl.createIndex({ created_at: -1 });
+        await contentColl.createIndex({ module_type: 1, is_public: 1 });
+
+        const metricsColl = db.collection("metrics");
+        await metricsColl.createIndex({ timestamp: -1 });
+        await metricsColl.createIndex({ path: 1, timestamp: -1 });
     } catch (error) {
         console.error("[Seed] Could not initialize system config:", error);
     }

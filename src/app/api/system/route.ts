@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
+import { ApiSuccess, ApiError } from "@/lib/api-response";
 
 export async function GET() {
     try {
@@ -8,11 +8,12 @@ export async function GET() {
         const systemColl = db.collection<SystemConfig>("system");
         const result = await systemColl.findOne({ _id: "global" });
 
-        if (!result) return NextResponse.json({ error: "Not initialized" }, { status: 404 });
+        if (!result) return ApiError("Not initialized", 404);
 
-        return NextResponse.json({ data: result });
-    } catch (error) {
-        return NextResponse.json({ error: "Internal error" }, { status: 500 });
+        return ApiSuccess(result);
+    } catch (err: unknown) {
+        console.error("GET /api/system failed:", err);
+        return ApiError("Internal engine error", 500);
     }
 }
 
@@ -29,8 +30,9 @@ export async function PUT(request: Request) {
             { $set: body }
         );
 
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        return NextResponse.json({ error: "Internal error" }, { status: 500 });
+        return ApiSuccess({ success: true });
+    } catch (err: unknown) {
+        console.error("PUT /api/system failed:", err);
+        return ApiError("Failed to update system settings", 500);
     }
 }

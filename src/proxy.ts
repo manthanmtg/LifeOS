@@ -5,9 +5,22 @@ import { verifyToken } from '@/lib/auth'
 export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
+    // If already logged in and visiting /login, redirect to /admin
+    if (path === '/login') {
+        const token = request.cookies.get('lifeos_token')?.value;
+        if (token) {
+            const verified = await verifyToken(token);
+            if (verified) {
+                return NextResponse.redirect(new URL('/admin', request.url));
+            }
+        }
+        return NextResponse.next();
+    }
+
     // Protect /admin and sensitive /api routes
     const isProtectedPath = path.startsWith('/admin') ||
         path.startsWith('/api/system') ||
+        path.startsWith('/api/ai-usage') ||
         (path.startsWith('/api/content') && request.method !== 'GET'); // GET /api/content might be public for some modules
 
     if (isProtectedPath) {
@@ -33,5 +46,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/api/system/:path*', '/api/content/:path*'],
+    matcher: ['/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*'],
 }

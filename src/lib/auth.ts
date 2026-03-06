@@ -8,7 +8,7 @@ const getSecretKey = () => {
     return new TextEncoder().encode(secret);
 };
 
-export async function signToken(payload: any) {
+export async function signToken(payload: Record<string, unknown>) {
     const token = await new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
@@ -21,7 +21,7 @@ export async function verifyToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, getSecretKey());
         return payload;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
