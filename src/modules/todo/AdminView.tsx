@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Plus, Search, Calendar, CheckCircle2, Trash2, Edit2, Clock, Filter, CheckSquare, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TodoDocument, TodoPayload } from "./types";
+import { TodoDocument, TodoPayload, TodoPriority } from "./types";
 import { motion, AnimatePresence } from "framer-motion";
 import TodoModal from "./TodoModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -14,6 +14,7 @@ export default function TodoAdminView() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"todo" | "done">("todo");
     const [quickAddTitle, setQuickAddTitle] = useState("");
+    const [quickAddPriority, setQuickAddPriority] = useState<TodoPriority>("medium");
     const [isSaving, setIsSaving] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState<"recent" | "due_date" | "priority">("recent");
@@ -98,6 +99,7 @@ export default function TodoAdminView() {
         setIsSaving(true);
         const payload: TodoPayload = {
             title,
+            priority: quickAddPriority,
             completed: false,
         };
 
@@ -111,6 +113,7 @@ export default function TodoAdminView() {
             if (!res.ok) throw new Error(data.error || "Failed to add todo");
             setTodos(prev => [data.data, ...prev]);
             setQuickAddTitle("");
+            setQuickAddPriority("medium");
             showToast("Task added", "success");
         } catch (err) {
             showToast(err instanceof Error ? err.message : "Failed to add todo", "error");
@@ -258,28 +261,53 @@ export default function TodoAdminView() {
 
             {/* Quick Add & Search */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <form onSubmit={handleQuickAdd} className="lg:col-span-2 relative group flex items-center gap-3">
-                    <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                            <Plus className={cn("w-5 h-5 transition-colors", isSaving ? "text-accent animate-spin" : "text-zinc-500 group-focus-within:text-accent")} />
+                <form onSubmit={handleQuickAdd} className="lg:col-span-2 flex flex-col gap-2">
+                    <div className="relative group flex items-center gap-3">
+                        <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                <Plus className={cn("w-5 h-5 transition-colors", isSaving ? "text-accent animate-spin" : "text-zinc-500 group-focus-within:text-accent")} />
+                            </div>
+                            <input
+                                type="text"
+                                value={quickAddTitle}
+                                onChange={(e) => setQuickAddTitle(e.target.value)}
+                                placeholder="What needs to be done?"
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-12 pr-4 py-4 text-sm text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all placeholder:text-zinc-600 shadow-sm"
+                                disabled={isSaving}
+                            />
                         </div>
-                        <input
-                            type="text"
-                            value={quickAddTitle}
-                            onChange={(e) => setQuickAddTitle(e.target.value)}
-                            placeholder="What needs to be done?"
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-12 pr-4 py-4 text-sm text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all placeholder:text-zinc-600 shadow-sm"
-                            disabled={isSaving}
-                        />
+                        <button
+                            type="button"
+                            onClick={openCreateModal}
+                            className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-zinc-400 hover:text-accent hover:border-accent/40 transition-all shadow-sm"
+                            title="Expanded Task Editor"
+                        >
+                            <Filter className="w-5 h-5 rotate-90" />
+                        </button>
                     </div>
-                    <button
-                        type="button"
-                        onClick={openCreateModal}
-                        className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-zinc-400 hover:text-accent hover:border-accent/40 transition-all shadow-sm"
-                        title="Expanded Task Editor"
-                    >
-                        <Filter className="w-5 h-5 rotate-90" />
-                    </button>
+                    <div className="flex items-center gap-2 px-1">
+                        <Flag className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mr-1">Priority:</span>
+                        {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
+                            <button
+                                key={p}
+                                type="button"
+                                onClick={() => setQuickAddPriority(p)}
+                                className={cn(
+                                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                    quickAddPriority === p
+                                        ? p === "high"
+                                            ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                            : p === "medium"
+                                                ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                                                : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                        : "bg-transparent border-zinc-800 text-zinc-600 hover:text-zinc-400 hover:border-zinc-700"
+                                )}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                    </div>
                 </form>
 
                 <div className="relative">
