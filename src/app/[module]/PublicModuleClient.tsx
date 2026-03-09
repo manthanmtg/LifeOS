@@ -24,6 +24,7 @@ const publicViews: Record<string, ComponentType<{ items: Record<string, unknown>
     expenses: dynamic(() => import("@/modules/expenses/PublicView"), { loading: () => <ViewLoadingFallback /> }),
     "recurring-expenses": dynamic(() => import("@/modules/recurring-expenses/PublicView"), { loading: () => <ViewLoadingFallback /> }),
     calculators: dynamic(() => import("@/modules/calculators/PublicView"), { loading: () => <ViewLoadingFallback /> }),
+    whiteboard: dynamic(() => import("@/modules/whiteboard/PublicView"), { loading: () => <ViewLoadingFallback /> }),
 };
 
 /* ── Module descriptions for public pages ─────────────────────── */
@@ -39,6 +40,7 @@ const moduleDescriptions: Record<string, string> = {
     blog: "Thoughts, guides, and stories.",
     portfolio: "About me, skills, and social links.",
     analytics: "Site analytics and visitor insights.",
+    whiteboard: "Sketches, diagrams, and visual brainstorms.",
 };
 
 interface ModuleVisibility {
@@ -79,7 +81,7 @@ export default function PublicModuleClient({ slug, userName }: Props) {
 
                 if (isAllowed) {
                     setAllowed(true);
-                    return fetch(`/api/content?module_type=${modConfig.contentType}`, { cache: "no-store" })
+                    return fetch(`/api/content?module_type=${modConfig.contentType}&is_public=true`, { cache: "no-store" })
                         .then((r) => r.json())
                         .then((d) => setItems(d.data || []));
                 } else {

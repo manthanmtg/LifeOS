@@ -28,4 +28,5 @@ export const moduleRegistry: Record<string, ModuleConfig> = {
     vehicle: { name: "Vehicle", icon: "Car", defaultPublic: false, contentType: "vehicle" },
     maintenance: { name: "Maintenance", icon: "Wrench", defaultPublic: false, contentType: "maintenance_task" },
     health: { name: "Health", icon: "HeartPulse", defaultPublic: false, contentType: "health_profile" },
+    whiteboard: { name: "Whiteboard", icon: "PenLine", defaultPublic: false, contentType: "whiteboard_note" },
 };

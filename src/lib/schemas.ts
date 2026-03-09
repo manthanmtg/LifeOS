@@ -403,6 +403,18 @@ export const MaintenanceTaskSchema = z.object({
     notes: z.string().optional(),
 });
 
+// --- 21. WHITEBOARD ---
+export const WhiteboardNoteSchema = z.object({
+    name: z.string().min(1, "Whiteboard name is required"),
+    description: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    is_favorite: z.boolean().default(false),
+    color_label: z.enum(["none", "red", "blue", "green", "yellow", "purple", "orange"]).default("none"),
+    elements: z.any().default([]),
+    app_state: z.any().default({}),
+    files: z.any().default({}),
+});
+
 // --- 20. HEALTH PROFILES ---
 export const HealthProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -505,4 +517,5 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
     vehicle: VehicleSchema,
     maintenance_task: MaintenanceTaskSchema,
     health_profile: HealthProfileSchema,
+    whiteboard_note: WhiteboardNoteSchema,
 };

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { moduleRegistry } from "@/registry";
-import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, Menu, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, Menu, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -42,7 +42,7 @@ function renderNavLinks(links: LinkItem[], pathname: string, setMobileOpen: (v: 
 }
 
 const IconMap: Record<string, LucideIcon> = {
-    User, FileText, DollarSign, LayoutDashboard, Settings, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse
+    User, FileText, DollarSign, LayoutDashboard, Settings, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine
 };
 
 interface ModuleVisibility {

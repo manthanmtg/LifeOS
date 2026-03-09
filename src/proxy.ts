@@ -19,7 +19,7 @@ export default async function proxy(request: NextRequest) {
 
     // Protect /admin and sensitive /api routes
     const isProtectedPath = path.startsWith('/admin') ||
-        path.startsWith('/api/system') ||
+        (path.startsWith('/api/system') && request.method !== 'GET') ||
         path.startsWith('/api/ai-usage') ||
         (path.startsWith('/api/content') && request.method !== 'GET'); // GET /api/content might be public for some modules
 
