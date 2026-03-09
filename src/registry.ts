@@ -29,4 +29,5 @@ export const moduleRegistry: Record<string, ModuleConfig> = {
     maintenance: { name: "Maintenance", icon: "Wrench", defaultPublic: false, contentType: "maintenance_task" },
     health: { name: "Health", icon: "HeartPulse", defaultPublic: false, contentType: "health_profile" },
     whiteboard: { name: "Whiteboard", icon: "PenLine", defaultPublic: false, contentType: "whiteboard_note" },
+    binge: { name: "Binge", icon: "Tv", defaultPublic: false, contentType: "binge_item" },
 };
