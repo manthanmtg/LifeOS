@@ -147,7 +147,53 @@ If you don't want to manage a VPS/Docker, you can deploy LifeOS for free (or che
 
 ---
 
-## 9. Email Setup (Cheap/Free Options)
+## 9. Alternative: Deploying on Vercel (Recommended for Next.js)
+
+Since LifeOS is a Next.js application, Vercel (the creators of Next.js) provides the most seamless deployment experience and best performance.
+
+### 1. Connect Repository
+1.  Push your code to **GitHub, GitLab, or Bitbucket**.
+2.  Log in to [Vercel](https://vercel.com/).
+3.  Click **Add New** -> **Project**.
+4.  Import your LifeOS repository.
+
+### 2. Configure Project
+*   **Framework Preset:** Vercel will automatically detect **Next.js**.
+*   **Root Directory:** `./`
+*   **Build & Development Settings:** Leave as defaults.
+*   **Environment Variables:** Add `MONGODB_URI`, `ADMIN_PASSWORD`, and `JWT_SECRET`.
+*   Click **Deploy**.
+
+### 3. Link Namecheap Domain to Vercel
+1.  **In Vercel Dashboard:**
+    *   Go to your project -> **Settings** -> **Domains**.
+    *   Enter your domain (e.g., `my-life-os.xyz`) and click **Add**.
+    *   Vercel will ask if you want to add `www.my-life-os.xyz` as well. Select **"Add [domain] and redirect www to it"** (Recommended).
+2.  **In Namecheap Dashboard:**
+    *   Go to **Domain List** -> Click **Manage** next to your domain.
+    *   Click the **Advanced DNS** tab.
+3.  **Setup DNS Records (The "Standard" Way):**
+    *   **A Record (for the main domain):**
+        *   Type: `A Record`
+        *   Host: `@`
+        *   Value: `76.76.21.21` (Vercel's IP)
+        *   TTL: `Automatic`
+    *   **CNAME Record (for www):**
+        *   Type: `CNAME Record`
+        *   Host: `www`
+        *   Value: `cname.vercel-dns.com.` (Include the dot at the end)
+        *   TTL: `Automatic`
+4.  **Alternative: Nameserver Method (The "Auto-Pilot" Way):**
+    *   If you want Vercel to handle everything (DNS, Subdomains, etc.):
+    *   Vercel will show you 2-4 Nameservers (e.g., `ns1.vercel-dns.com`).
+    *   In Namecheap: Go to **Domain List** -> **Manage** -> **Nameservers**.
+    *   Change from "Namecheap BasicDNS" to **Custom DNS**.
+    *   Paste the Vercel Nameservers and click the **Green Checkmark**.
+5.  **Verification:** Vercel will automatically check the records every few minutes. Once it turns green, your site is live with **Automatic SSL**.
+
+---
+
+## 10. Email Setup (Cheap/Free Options)
 
 Since you are using Namecheap, you have a few ways to get a professional email (e.g., `hello@yourdomain.com`).
 
