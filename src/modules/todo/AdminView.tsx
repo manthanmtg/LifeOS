@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Search, Calendar, CheckCircle2, Trash2, Edit2, Clock, Filter, CheckSquare } from "lucide-react";
+import { Plus, Search, Calendar, CheckCircle2, Trash2, Edit2, Clock, Filter, CheckSquare, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TodoDocument, TodoPayload } from "./types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,7 +16,9 @@ export default function TodoAdminView() {
     const [quickAddTitle, setQuickAddTitle] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState<"recent" | "due_date">("recent");
+    const [sortBy, setSortBy] = useState<"recent" | "due_date" | "priority">("recent");
+
+    const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -215,6 +217,11 @@ export default function TodoAdminView() {
                 if (!b.payload?.due_date) return -1;
                 return new Date(a.payload.due_date).getTime() - new Date(b.payload.due_date).getTime();
             }
+            if (sortBy === "priority") {
+                const pa = PRIORITY_ORDER[a.payload?.priority || "medium"];
+                const pb = PRIORITY_ORDER[b.payload?.priority || "medium"];
+                return pa - pb;
+            }
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
 
@@ -315,6 +322,15 @@ export default function TodoAdminView() {
                         >
                             <Calendar className="w-3 h-3" /> Due Date
                         </button>
+                        <button
+                            onClick={() => setSortBy("priority")}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                                sortBy === "priority" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                            )}
+                        >
+                            <Flag className="w-3 h-3" /> Priority
+                        </button>
                     </div>
                 )}
             </div>
@@ -383,6 +399,22 @@ export default function TodoAdminView() {
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
+
+                                    {todo.payload.priority && (
+                                        <div className={cn(
+                                            "hidden md:flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-[10px] font-bold uppercase tracking-wider shrink-0",
+                                            todo.payload.completed
+                                                ? "bg-zinc-900 border-zinc-800 text-zinc-600"
+                                                : todo.payload.priority === "high"
+                                                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                    : todo.payload.priority === "medium"
+                                                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                                        : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                        )}>
+                                            <Flag className="w-3 h-3" />
+                                            {todo.payload.priority}
+                                        </div>
+                                    )}
 
                                     {todo.payload.due_date && (
                                         <div className={cn(
