@@ -186,7 +186,6 @@ export default function TodoAdminView() {
             setTodos(prev => {
                 const updated = [...prev];
                 updated.splice(lastDeleted.index, 0, lastDeleted.todo);
-                // Future-proofing: Ensure orders are synced if we add DND reordering
                 const reSynced = updated.map((todo, idx) => ({
                     ...todo,
                     payload: { ...todo.payload, order: idx }
@@ -229,7 +228,7 @@ export default function TodoAdminView() {
         });
 
     return (
-        <div className="h-full flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -237,11 +236,12 @@ export default function TodoAdminView() {
                     <p className="text-zinc-500 text-sm">Keep track of your daily objectives</p>
                 </div>
 
-                <div className="flex bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
+                {/* Tab switcher — full-width on mobile */}
+                <div className="flex w-full md:w-auto bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
                     <button
                         onClick={() => setActiveTab("todo")}
                         className={cn(
-                            "px-6 py-2 rounded-xl text-sm font-semibold transition-all",
+                            "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all touch-manipulation",
                             activeTab === "todo" ? "bg-zinc-800 text-zinc-50 shadow-lg" : "text-zinc-500 hover:text-zinc-300"
                         )}
                     >
@@ -250,7 +250,7 @@ export default function TodoAdminView() {
                     <button
                         onClick={() => setActiveTab("done")}
                         className={cn(
-                            "px-6 py-2 rounded-xl text-sm font-semibold transition-all",
+                            "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all touch-manipulation",
                             activeTab === "done" ? "bg-zinc-800 text-zinc-50 shadow-lg" : "text-zinc-500 hover:text-zinc-300"
                         )}
                     >
@@ -261,7 +261,7 @@ export default function TodoAdminView() {
 
             {/* Quick Add & Search */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <form onSubmit={handleQuickAdd} className="lg:col-span-2 flex flex-col gap-2">
+                <form onSubmit={handleQuickAdd} className="lg:col-span-2 flex flex-col gap-3">
                     <div className="relative group flex items-center gap-3">
                         <div className="relative flex-1">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -269,6 +269,8 @@ export default function TodoAdminView() {
                             </div>
                             <input
                                 type="text"
+                                inputMode="text"
+                                enterKeyHint="done"
                                 value={quickAddTitle}
                                 onChange={(e) => setQuickAddTitle(e.target.value)}
                                 placeholder="What needs to be done?"
@@ -276,37 +278,51 @@ export default function TodoAdminView() {
                                 disabled={isSaving}
                             />
                         </div>
+                        {/* Submit quick-add — visible on mobile when there's text */}
+                        {quickAddTitle.trim() && (
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="md:hidden bg-accent text-accent-foreground p-4 rounded-2xl shadow-sm shrink-0 touch-manipulation disabled:opacity-50 transition-all active:scale-95"
+                                aria-label="Add task"
+                            >
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={openCreateModal}
-                            className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-zinc-400 hover:text-accent hover:border-accent/40 transition-all shadow-sm"
+                            className="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-zinc-400 hover:text-accent hover:border-accent/40 transition-all shadow-sm shrink-0 touch-manipulation"
                             title="Expanded Task Editor"
                         >
                             <Filter className="w-5 h-5 rotate-90" />
                         </button>
                     </div>
-                    <div className="flex items-center gap-2 px-1">
-                        <Flag className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
-                        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mr-1">Priority:</span>
-                        {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
-                            <button
-                                key={p}
-                                type="button"
-                                onClick={() => setQuickAddPriority(p)}
-                                className={cn(
-                                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border",
-                                    quickAddPriority === p
-                                        ? p === "high"
-                                            ? "bg-red-500/20 border-red-500/40 text-red-400"
-                                            : p === "medium"
-                                                ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
-                                                : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                                        : "bg-transparent border-zinc-800 text-zinc-600 hover:text-zinc-400 hover:border-zinc-700"
-                                )}
-                            >
-                                {p}
-                            </button>
-                        ))}
+                    {/* Priority pills — scrollable on small screens */}
+                    <div className="overflow-x-auto scrollbar-none -mx-1 px-1">
+                        <div className="flex items-center gap-2 min-w-max">
+                            <Flag className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mr-1">Priority:</span>
+                            {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
+                                <button
+                                    key={p}
+                                    type="button"
+                                    onClick={() => setQuickAddPriority(p)}
+                                    className={cn(
+                                        "px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                        quickAddPriority === p
+                                            ? p === "high"
+                                                ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                                : p === "medium"
+                                                    ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                                                    : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                            : "bg-transparent border-zinc-800 text-zinc-600 hover:text-zinc-400 hover:border-zinc-700"
+                                    )}
+                                >
+                                    {p}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </form>
 
@@ -325,46 +341,48 @@ export default function TodoAdminView() {
             </div>
 
             {/* List Header / Sorting */}
-            <div className="flex items-center justify-between px-2">
-                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
-                    {activeTab === "todo" ? `${filteredTodos.length} Active Tasks` : `${filteredTodos.length} Completed`}
+            <div className="flex items-center justify-between gap-3 px-1">
+                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] shrink-0">
+                    {activeTab === "todo" ? `${filteredTodos.length} Active` : `${filteredTodos.length} Completed`}
                 </span>
 
                 {activeTab === "todo" && (
-                    <div className="flex bg-zinc-900/50 border border-zinc-800 rounded-xl p-1">
-                        <button
-                            onClick={() => setSortBy("recent")}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                sortBy === "recent" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                            )}
-                        >
-                            <Clock className="w-3 h-3" /> Recent
-                        </button>
-                        <button
-                            onClick={() => setSortBy("due_date")}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                sortBy === "due_date" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                            )}
-                        >
-                            <Calendar className="w-3 h-3" /> Due Date
-                        </button>
-                        <button
-                            onClick={() => setSortBy("priority")}
-                            className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                sortBy === "priority" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                            )}
-                        >
-                            <Flag className="w-3 h-3" /> Priority
-                        </button>
+                    <div className="overflow-x-auto scrollbar-none -mr-1 pr-1">
+                        <div className="flex bg-zinc-900/50 border border-zinc-800 rounded-xl p-1 min-w-max">
+                            <button
+                                onClick={() => setSortBy("recent")}
+                                className={cn(
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                                    sortBy === "recent" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                <Clock className="w-3 h-3" /> Recent
+                            </button>
+                            <button
+                                onClick={() => setSortBy("due_date")}
+                                className={cn(
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                                    sortBy === "due_date" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                <Calendar className="w-3 h-3" /> Due
+                            </button>
+                            <button
+                                onClick={() => setSortBy("priority")}
+                                className={cn(
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                                    sortBy === "priority" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                <Flag className="w-3 h-3" /> Priority
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
 
             {/* Task List */}
-            <div className="flex-1 overflow-y-auto min-h-0 -mx-2 px-2 pb-8">
+            <div className="pb-24 md:pb-8">
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3, 4].map(i => (
@@ -382,79 +400,94 @@ export default function TodoAdminView() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className={cn(
-                                        "group bg-zinc-900 border border-zinc-800 p-4 rounded-2xl flex items-center gap-4 hover:border-accent/20 transition-all shadow-sm hover:shadow-accent/5",
+                                        "group bg-zinc-900 border border-zinc-800 p-4 rounded-2xl hover:border-accent/20 transition-all shadow-sm hover:shadow-accent/5",
                                         todo.payload.completed && "opacity-50 grayscale-[0.5]"
                                     )}
                                 >
-                                    <button
-                                        onClick={() => toggleComplete(todo)}
-                                        className="relative group shrink-0"
-                                    >
-                                        <div className={cn(
-                                            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                                            todo.payload.completed
-                                                ? "bg-emerald-500 border-emerald-500"
-                                                : "border-zinc-700 group-hover:border-accent"
-                                        )}>
-                                            {todo.payload.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
-                                            {!todo.payload.completed && <div className="w-2 h-2 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />}
-                                        </div>
-                                    </button>
+                                    {/* Main row */}
+                                    <div className="flex items-center gap-3">
+                                        {/* Checkbox — padded for 44px touch target on mobile */}
+                                        <button
+                                            onClick={() => toggleComplete(todo)}
+                                            className="relative group/check shrink-0 -m-1 p-1 touch-manipulation"
+                                            aria-label={todo.payload.completed ? "Mark as incomplete" : "Mark as complete"}
+                                        >
+                                            <div className={cn(
+                                                "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                                                todo.payload.completed
+                                                    ? "bg-emerald-500 border-emerald-500"
+                                                    : "border-zinc-700 group-hover/check:border-accent"
+                                            )}>
+                                                {todo.payload.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
+                                                {!todo.payload.completed && (
+                                                    <div className="w-2 h-2 rounded-full bg-accent opacity-0 group-hover/check:opacity-100 transition-opacity" />
+                                                )}
+                                            </div>
+                                        </button>
 
-                                    <div className="flex-1 min-w-0 py-1">
-                                        <h3 className={cn(
-                                            "text-sm font-semibold text-zinc-100 truncate transition-all tracking-tight",
-                                            todo.payload.completed && "line-through text-zinc-500"
-                                        )}>
-                                            {todo.payload.title}
-                                        </h3>
-                                        {todo.payload.notes && (
-                                            <p className="text-xs text-zinc-500 truncate mt-0.5 font-medium">{todo.payload.notes}</p>
-                                        )}
+                                        {/* Title + notes */}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className={cn(
+                                                "text-sm font-semibold text-zinc-100 truncate transition-all tracking-tight",
+                                                todo.payload.completed && "line-through text-zinc-500"
+                                            )}>
+                                                {todo.payload.title}
+                                            </h3>
+                                            {todo.payload.notes && (
+                                                <p className="text-xs text-zinc-500 truncate mt-0.5 font-medium">{todo.payload.notes}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Action buttons — min 44px touch targets */}
+                                        <div className="flex items-center gap-0.5 shrink-0">
+                                            <button
+                                                onClick={() => openEditModal(todo)}
+                                                className="p-2.5 text-zinc-600 hover:text-accent hover:bg-accent/10 rounded-xl transition-all touch-manipulation"
+                                                aria-label="Edit task"
+                                            >
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => setConfirmDeleteId(todo._id)}
+                                                className="p-2.5 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all touch-manipulation"
+                                                aria-label="Delete task"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => openEditModal(todo)}
-                                            className="p-2 text-zinc-500 hover:text-accent hover:bg-accent/10 rounded-xl transition-all"
-                                        >
-                                            <Edit2 className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => setConfirmDeleteId(todo._id)}
-                                            className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-
-                                    {todo.payload.priority && (
-                                        <div className={cn(
-                                            "hidden md:flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-[10px] font-bold uppercase tracking-wider shrink-0",
-                                            todo.payload.completed
-                                                ? "bg-zinc-900 border-zinc-800 text-zinc-600"
-                                                : todo.payload.priority === "high"
-                                                    ? "bg-red-500/10 border-red-500/20 text-red-400"
-                                                    : todo.payload.priority === "medium"
-                                                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                                                        : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                                        )}>
-                                            <Flag className="w-3 h-3" />
-                                            {todo.payload.priority}
-                                        </div>
-                                    )}
-
-                                    {todo.payload.due_date && (
-                                        <div className={cn(
-                                            "hidden md:flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-[10px] font-bold uppercase tracking-wider shrink-0",
-                                            todo.payload.completed
-                                                ? "bg-zinc-900 border-zinc-800 text-zinc-600"
-                                                : new Date(todo.payload.due_date) < new Date()
-                                                    ? "bg-red-500/10 border-red-500/20 text-red-400"
-                                                    : "bg-zinc-800 border-zinc-700 text-zinc-400"
-                                        )}>
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(todo.payload.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                    {/* Metadata row — always visible, aligned with title */}
+                                    {(todo.payload.priority || todo.payload.due_date) && (
+                                        <div className="flex items-center gap-2 mt-2 ml-9 flex-wrap">
+                                            {todo.payload.priority && (
+                                                <div className={cn(
+                                                    "flex items-center gap-1 px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                                                    todo.payload.completed
+                                                        ? "bg-zinc-900 border-zinc-800 text-zinc-600"
+                                                        : todo.payload.priority === "high"
+                                                            ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                            : todo.payload.priority === "medium"
+                                                                ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                )}>
+                                                    <Flag className="w-3 h-3" />
+                                                    {todo.payload.priority}
+                                                </div>
+                                            )}
+                                            {todo.payload.due_date && (
+                                                <div className={cn(
+                                                    "flex items-center gap-1 px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                                                    todo.payload.completed
+                                                        ? "bg-zinc-900 border-zinc-800 text-zinc-600"
+                                                        : new Date(todo.payload.due_date) < new Date()
+                                                            ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                            : "bg-zinc-800 border-zinc-700 text-zinc-400"
+                                                )}>
+                                                    <Calendar className="w-3 h-3" />
+                                                    {new Date(todo.payload.due_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </motion.div>
@@ -471,6 +504,15 @@ export default function TodoAdminView() {
                     </div>
                 )}
             </div>
+
+            {/* Mobile FAB — respects iOS safe-area-inset-bottom */}
+            <button
+                onClick={openCreateModal}
+                className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-6 z-40 md:hidden w-14 h-14 bg-accent text-accent-foreground rounded-full shadow-2xl shadow-accent/30 flex items-center justify-center transition-all active:scale-95 touch-manipulation"
+                aria-label="Add task"
+            >
+                <Plus className="w-7 h-7" />
+            </button>
 
             <AnimatePresence>
                 {isModalOpen && (
