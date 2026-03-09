@@ -1,3 +1,4 @@
+// Entry point for the public-facing portfolio page
 import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import PortfolioView from "@/modules/portfolio/View";
