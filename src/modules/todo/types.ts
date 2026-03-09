@@ -1,7 +1,10 @@
+export type TodoPriority = "low" | "medium" | "high";
+
 export interface TodoPayload {
     title: string;
     notes?: string;
     due_date?: string;
+    priority?: TodoPriority;
     completed: boolean;
     completed_at?: string;
     order?: number;

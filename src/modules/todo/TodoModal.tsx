@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X, Calendar, AlignLeft, CheckSquare, Save } from "lucide-react";
-import { TodoDocument, TodoPayload } from "./types";
+import { X, Calendar, AlignLeft, CheckSquare, Save, Flag } from "lucide-react";
+import { TodoDocument, TodoPayload, TodoPriority } from "./types";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface TodoModalProps {
@@ -15,6 +16,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
     const [title, setTitle] = useState(todo?.payload.title || "");
     const [notes, setNotes] = useState(todo?.payload.notes || "");
     const [dueDate, setDueDate] = useState(todo?.payload.due_date ? todo.payload.due_date.split("T")[0] : "");
+    const [priority, setPriority] = useState<TodoPriority>(todo?.payload.priority || "medium");
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +29,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
             title: title.trim(),
             notes: notes.trim() || undefined,
             due_date: dueDate ? new Date(dueDate).toISOString() : undefined,
+            priority,
             completed: todo?.payload.completed || false,
         };
 
@@ -88,6 +91,33 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
                                 rows={4}
                                 className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3.5 text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all resize-none"
                             />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                <Flag className="w-3 h-3" /> Priority
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
+                                    <button
+                                        key={p}
+                                        type="button"
+                                        onClick={() => setPriority(p)}
+                                        className={cn(
+                                            "px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border",
+                                            priority === p
+                                                ? p === "high"
+                                                    ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                                    : p === "medium"
+                                                        ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                                                        : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
+                                        )}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="space-y-2">
