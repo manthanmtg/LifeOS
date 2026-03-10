@@ -494,27 +494,21 @@ export const HealthProfileSchema = z.object({
     tags: z.array(z.string()).default([]),
 });
 
-// --- 22. SLIDES ---
-export const SlideDeckSchema = z.object({
+// --- 22. DECKS ---
+export const DeckSchema = z.object({
     title: z.string().min(1, "Deck title is required"),
     description: z.string().optional(),
-    format: z.enum(["html", "pdf", "pptx", "google_slides", "reveal_js"]).default("html"),
+    format: z.enum(["html", "pdf", "pptx", "google_slides", "reveal_js", "url"]).default("url"),
     visibility: z.enum(["public", "private", "link_only"]).default("private"),
     tags: z.array(z.string()).default([]),
     author: z.string().optional(),
     topic: z.string().optional(),
     folder: z.string().optional(),
-    slide_count: z.number().int().min(0).default(0),
-    slides: z.array(z.object({
-        id: z.string().default(() => crypto.randomUUID()),
-        title: z.string().optional(),
-        content: z.string().default(""),
-        notes: z.string().optional(),
-        order: z.number().int().min(0).default(0),
-    })).default([]),
-    embed_enabled: z.boolean().default(false),
-    file_url: z.string().optional(),
+    deck_url: z.string().optional(),
+    file_name: z.string().optional(),
+    file_size: z.number().optional(),
     thumbnail_url: z.string().optional(),
+    embed_enabled: z.boolean().default(false),
 });
 
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
@@ -541,5 +535,5 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
     maintenance_task: MaintenanceTaskSchema,
     health_profile: HealthProfileSchema,
     whiteboard_note: WhiteboardNoteSchema,
-    slide_deck: SlideDeckSchema,
+    deck: DeckSchema,
 };

@@ -1,12 +1,4 @@
-export interface Slide {
-    id: string;
-    title?: string;
-    content: string;
-    notes?: string;
-    order: number;
-}
-
-export interface SlideDeckItem {
+export interface DeckItem {
     _id: string;
     created_at: string;
     updated_at?: string;
@@ -14,21 +6,21 @@ export interface SlideDeckItem {
     payload: {
         title: string;
         description?: string;
-        format: "html" | "pdf" | "pptx" | "google_slides" | "reveal_js";
+        format: "html" | "pdf" | "pptx" | "google_slides" | "reveal_js" | "url";
         visibility: "public" | "private" | "link_only";
         tags: string[];
         author?: string;
         topic?: string;
         folder?: string;
-        slide_count: number;
-        slides: Slide[];
-        embed_enabled: boolean;
-        file_url?: string;
+        deck_url?: string;
+        file_name?: string;
+        file_size?: number;
         thumbnail_url?: string;
+        embed_enabled: boolean;
     };
 }
 
-export const FORMATS = ["html", "pdf", "pptx", "google_slides", "reveal_js"] as const;
+export const FORMATS = ["html", "pdf", "pptx", "google_slides", "reveal_js", "url"] as const;
 export const VISIBILITIES = ["public", "private", "link_only"] as const;
 
 export const FORMAT_LABELS: Record<string, string> = {
@@ -37,6 +29,7 @@ export const FORMAT_LABELS: Record<string, string> = {
     pptx: "PowerPoint",
     google_slides: "Google Slides",
     reveal_js: "Reveal.js",
+    url: "URL",
 };
 
 export const FORMAT_STYLES: Record<string, string> = {
@@ -45,6 +38,7 @@ export const FORMAT_STYLES: Record<string, string> = {
     pptx: "bg-blue-500/15 text-blue-300 border-blue-500/25",
     google_slides: "bg-green-500/15 text-green-300 border-green-500/25",
     reveal_js: "bg-purple-500/15 text-purple-300 border-purple-500/25",
+    url: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
 };
 
 export const VISIBILITY_LABELS: Record<string, string> = {

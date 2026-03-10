@@ -42,7 +42,7 @@ const moduleDescriptions: Record<string, string> = {
     portfolio: "About me, skills, and social links.",
     analytics: "Site analytics and visitor insights.",
     whiteboard: "Sketches, diagrams, and visual brainstorms.",
-    slides: "Presentations, decks, and visual knowledge sharing.",
+    slides: "Presentation decks — upload or link to your slides.",
 };
 
 interface ModuleVisibility {

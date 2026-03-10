@@ -3,14 +3,14 @@
 import { useMemo, useState, useEffect } from "react";
 import { Presentation, Layers, Globe } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import type { SlideDeckItem } from "./types";
+import type { DeckItem } from "./types";
 
 export default function SlidesWidget() {
-    const [items, setItems] = useState<SlideDeckItem[]>([]);
+    const [items, setItems] = useState<DeckItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/content?module_type=slide_deck")
+        fetch("/api/content?module_type=deck")
             .then((res) => res.json())
             .then((data) => setItems(data.data || []))
             .catch(() => {})
@@ -18,7 +18,6 @@ export default function SlidesWidget() {
     }, []);
 
     const summary = useMemo(() => {
-        const totalSlides = items.reduce((sum, i) => sum + (i.payload.slide_count || 0), 0);
         const publicDecks = items.filter((i) => i.payload.visibility === "public").length;
         const latest = items.length > 0
             ? [...items].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
@@ -26,7 +25,6 @@ export default function SlidesWidget() {
 
         return {
             total: items.length,
-            totalSlides,
             publicDecks,
             latest,
         };
@@ -41,7 +39,7 @@ export default function SlidesWidget() {
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                     <span className="flex items-center gap-1.5 text-blue-400/80">
-                        <Layers className="w-3 h-3" /> {summary.totalSlides} Slides
+                        <Layers className="w-3 h-3" /> {summary.total} Decks
                     </span>
                     <span className="flex items-center gap-1.5 text-green-400/80">
                         <Globe className="w-3 h-3" /> {summary.publicDecks} Public
@@ -52,7 +50,7 @@ export default function SlidesWidget() {
             <div className="py-2 space-y-4">
                 <div>
                     <p className="text-4xl font-bold text-zinc-50 tracking-tight">{summary.total}</p>
-                    <p className="text-xs text-zinc-500 mt-1 font-medium italic">decks created</p>
+                    <p className="text-xs text-zinc-500 mt-1 font-medium italic">decks uploaded</p>
                 </div>
 
                 {summary.latest ? (
@@ -64,10 +62,11 @@ export default function SlidesWidget() {
                                 {summary.latest.payload.title}
                             </p>
                         </div>
-                        <p className="text-[10px] text-zinc-500 mt-1 pl-5">
-                            {summary.latest.payload.slide_count} slide{summary.latest.payload.slide_count !== 1 ? "s" : ""}
-                            {summary.latest.payload.format ? ` · ${summary.latest.payload.format.toUpperCase()}` : ""}
-                        </p>
+                        {summary.latest.payload.format && (
+                            <p className="text-[10px] text-zinc-500 mt-1 pl-5">
+                                {summary.latest.payload.format.toUpperCase()}
+                            </p>
+                        )}
                     </div>
                 ) : (
                     <div className="p-3 rounded-xl border border-dashed border-zinc-800 opacity-40">
