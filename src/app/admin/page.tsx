@@ -31,6 +31,7 @@ const widgetImports: Record<string, ComponentType> = {
     maintenance: dynamic(() => import("@/modules/maintenance/Widget"), { ssr: false, loading: () => <WidgetSkeleton /> }),
     health: dynamic(() => import("@/modules/health/Widget"), { ssr: false, loading: () => <WidgetSkeleton /> }),
     whiteboard: dynamic(() => import("@/modules/whiteboard/Widget"), { ssr: false, loading: () => <WidgetSkeleton /> }),
+    slides: dynamic(() => import("@/modules/slides/Widget"), { ssr: false, loading: () => <WidgetSkeleton /> }),
 };
 
 interface ModuleVisibility {

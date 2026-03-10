@@ -25,6 +25,7 @@ const publicViews: Record<string, ComponentType<{ items: Record<string, unknown>
     "recurring-expenses": dynamic(() => import("@/modules/recurring-expenses/PublicView"), { loading: () => <ViewLoadingFallback /> }),
     calculators: dynamic(() => import("@/modules/calculators/PublicView"), { loading: () => <ViewLoadingFallback /> }),
     whiteboard: dynamic(() => import("@/modules/whiteboard/PublicView"), { loading: () => <ViewLoadingFallback /> }),
+    slides: dynamic(() => import("@/modules/slides/PublicView"), { loading: () => <ViewLoadingFallback /> }),
 };
 
 /* ── Module descriptions for public pages ─────────────────────── */
@@ -41,6 +42,7 @@ const moduleDescriptions: Record<string, string> = {
     portfolio: "About me, skills, and social links.",
     analytics: "Site analytics and visitor insights.",
     whiteboard: "Sketches, diagrams, and visual brainstorms.",
+    slides: "Presentations, decks, and visual knowledge sharing.",
 };
 
 interface ModuleVisibility {
