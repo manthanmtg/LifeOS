@@ -89,15 +89,37 @@ export default function SlidesAdminView() {
         setShowForm(false);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setUploadedFile(file);
-            const ext = file.name.split(".").pop()?.toLowerCase();
-            if (ext === "pdf") setFormat("pdf");
-            else if (ext === "pptx" || ext === "ppt") setFormat("pptx");
-            else if (ext === "html" || ext === "htm") setFormat("html");
+        if (!file) return;
+
+        const ext = file.name.split(".").pop()?.toLowerCase();
+        const allowedTypes = ["pdf", "ppt", "pptx", "html", "htm"];
+        
+        if (!ext || !allowedTypes.includes(ext)) {
+            setFormError("Please upload a PDF, PowerPoint, or HTML file");
+            e.target.value = "";
+            return;
         }
+
+        if (file.size > 10 * 1024 * 1024) {
+            setFormError("File too large (max 10MB)");
+            e.target.value = "";
+            return;
+        }
+
+        setUploadedFile(file);
+        
+        if (ext === "pdf") setFormat("pdf");
+        else if (ext === "pptx" || ext === "ppt") setFormat("pptx");
+        else if (ext === "html" || ext === "htm") setFormat("html");
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            setDeckUrl(base64);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -109,7 +131,7 @@ export default function SlidesAdminView() {
             return;
         }
 
-        if (!deckUrl.trim() && !uploadedFile) {
+        if (!deckUrl.trim()) {
             setFormError("Please provide a URL or upload a file");
             return;
         }
@@ -122,11 +144,6 @@ export default function SlidesAdminView() {
         let finalDeckUrl = deckUrl.trim();
         let fileName = uploadedFile?.name;
         let fileSize = uploadedFile?.size;
-
-        if (uploadedFile) {
-            alert("File upload not yet implemented. For now, please upload your file to a hosting service and provide the URL.");
-            return;
-        }
 
         const payload: Record<string, unknown> = {
             title: title.trim(),
