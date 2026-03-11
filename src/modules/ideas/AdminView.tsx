@@ -42,43 +42,28 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
+import IdeaDetailsModal from "./IdeaDetailsModal";
+import {
+    IDEA_PRIORITY_STYLES,
+    IDEA_STATUS_LABELS,
+    type IdeaRecord,
+} from "./shared";
 
 const STATUSES = ["raw", "exploring", "archived"] as const;
-const STATUS_LABELS: Record<string, string> = {
-    raw: "Raw",
-    exploring: "Exploring",
-    archived: "Archived",
-};
+const STATUS_LABELS = IDEA_STATUS_LABELS;
 const STATUS_STYLES: Record<string, string> = {
     raw: "bg-zinc-500 text-zinc-300 border-zinc-500/25",
     exploring: "bg-blue-500 text-blue-300 border-blue-500/25",
     archived: "bg-zinc-500 text-zinc-500 border-zinc-500/25",
 };
-const PRIORITY_STYLES: Record<string, string> = {
-    high: "bg-red-500/15 text-red-300 border-red-500/25",
-    medium: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    low: "bg-green-500/15 text-green-300 border-green-500/25",
-};
-
-interface Idea {
-    _id: string;
-    created_at: string;
-    payload: {
-        title: string;
-        description?: string;
-        category?: string;
-        status: string;
-        tags: string[];
-        priority: string;
-        promoted_to_portfolio: boolean;
-        order?: number;
-    };
-}
+const PRIORITY_STYLES = IDEA_PRIORITY_STYLES;
+type Idea = IdeaRecord;
 
 interface IdeaCardProps {
     idea: Idea;
     isAnyDragging: boolean;
     isPromotingId: string | null;
+    onOpen: (idea: Idea) => void;
     onPromote: (idea: Idea) => void;
     onEdit: (idea: Idea) => void;
     onDelete: (id: string) => void;
@@ -88,6 +73,7 @@ function SortableIdeaCard({
     idea,
     isAnyDragging,
     isPromotingId,
+    onOpen,
     onPromote,
     onEdit,
     onDelete,
@@ -121,7 +107,14 @@ function SortableIdeaCard({
                     >
                         <GripVertical className="w-3.5 h-3.5" />
                     </button>
-                    <p className="text-xs font-semibold text-zinc-50 line-clamp-2 leading-tight">{idea.payload.title}</p>
+                    <button
+                        type="button"
+                        onClick={() => onOpen(idea)}
+                        className="rounded-md text-start focus:outline-none focus:ring-2 focus:ring-accent/40"
+                        aria-label={`Open details for ${idea.payload.title}`}
+                    >
+                        <p className="text-xs font-semibold text-zinc-50 line-clamp-2 leading-tight">{idea.payload.title}</p>
+                    </button>
                 </div>
                 <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                     {!idea.payload.promoted_to_portfolio && idea.payload.status !== "archived" && (
@@ -162,6 +155,15 @@ function SortableIdeaCard({
                 </span>
                 {idea.payload.category && <span className="text-[9px] text-zinc-500 font-medium uppercase tracking-wider">{idea.payload.category}</span>}
             </div>
+
+            <button
+                type="button"
+                onClick={() => onOpen(idea)}
+                className="ml-4 mt-2 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/40 rounded"
+                aria-label={`View full details for ${idea.payload.title}`}
+            >
+                View details
+            </button>
         </article>
     );
 }
@@ -192,7 +194,7 @@ function DroppableColumn({
         >
             <div className="flex items-center justify-between mb-4 px-1 shrink-0">
                 <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-[0.1em] flex items-center gap-2">
-                    <span className={cn("inline-block w-1.5 h-1.5 rounded-full", STATUS_STYLES[id]?.split(' ')[0] || "bg-zinc-500")} />
+                    <span className={cn("inline-block w-1.5 h-1.5 rounded-full", STATUS_STYLES[id]?.split(" ")[0] || "bg-zinc-500")} />
                     {title}
                 </h3>
                 <span className="text-[10px] font-bold text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-full ring-1 ring-zinc-700/50">
@@ -292,6 +294,7 @@ export default function IdeasAdminView() {
     const [isPromotingId, setIsPromotingId] = useState<string | null>(null);
 
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
 
     // Undo & Delayed Delete state
     const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -995,6 +998,7 @@ export default function IdeasAdminView() {
                                             idea={idea}
                                             isAnyDragging={!!activeId}
                                             isPromotingId={isPromotingId}
+                                            onOpen={setSelectedIdea}
                                             onPromote={handlePromote}
                                             onEdit={handleEdit}
                                             onDelete={handleDelete}
@@ -1012,6 +1016,7 @@ export default function IdeasAdminView() {
                                 idea={idea}
                                 isAnyDragging={false}
                                 isPromotingId={isPromotingId}
+                                onOpen={setSelectedIdea}
                                 onPromote={handlePromote}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
@@ -1052,6 +1057,12 @@ export default function IdeasAdminView() {
                     isVisible={toast.isVisible}
                     action={toast.action}
                     onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+                />
+
+                <IdeaDetailsModal
+                    idea={selectedIdea}
+                    isOpen={!!selectedIdea}
+                    onClose={() => setSelectedIdea(null)}
                 />
             </div>
         </DndContext>
