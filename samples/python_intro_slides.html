@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Python Introduction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #1e1e2f;
+            color: white;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            height: 100vh;
+        }
+
+        .active {
+            display: block;
+        }
+
+        h1 {
+            color: #ffd43b;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            background: #306998;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #ffd43b;
+            color: black;
+        }
+
+        code {
+            background: #333;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide active">
+        <h1>🐍 Python Introduction</h1>
+        <h3>A Beginner Friendly Programming Language</h3>
+        <p>Presented using a simple HTML slideshow.</p>
+    </div>
+
+    <div class="slide">
+        <h1>What is Python?</h1>
+        <ul>
+            <li>High-level programming language</li>
+            <li>Created by Guido van Rossum (1991)</li>
+            <li>Simple and readable syntax</li>
+            <li>Used in web, AI, automation, data science</li>
+        </ul>
+    </div>
+
+    <div class="slide">
+        <h1>Why Learn Python?</h1>
+        <ul>
+            <li>Easy for beginners</li>
+            <li>Huge community support</li>
+            <li>Large number of libraries</li>
+            <li>Used by companies like Google, Netflix, Instagram</li>
+        </ul>
+    </div>
+
+    <div class="slide">
+        <h1>Your First Python Program</h1>
+        <pre>
+<code>
+print("Hello, World!")
+</code>
+</pre>
+        <p>This prints text to the screen.</p>
+    </div>
+
+    <div class="slide">
+        <h1>Python Variables</h1>
+        <pre>
+<code>
+name = "Alice"
+age = 25
+print(name)
+print(age)
+</code>
+</pre>
+        <p>Variables store data.</p>
+    </div>
+
+    <div class="slide">
+        <h1>Python Data Types</h1>
+        <ul>
+            <li>int → 10</li>
+            <li>float → 3.14</li>
+            <li>string → "hello"</li>
+            <li>boolean → True / False</li>
+            <li>list → [1,2,3]</li>
+        </ul>
+    </div>
+
+    <div class="slide">
+        <h1>Python Example</h1>
+        <pre>
+<code>
+for i in range(5):
+    print(i)
+</code>
+</pre>
+        <p>This prints numbers from 0 to 4.</p>
+    </div>
+
+    <div class="slide">
+        <h1>Thank You!</h1>
+        <p>Start coding with Python today 🚀</p>
+    </div>
+
+
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove("active"));
+            slides[index].classList.add("active");
+        }
+
+        function nextSlide() {
+            slideIndex = (slideIndex + 1) % slides.length;
+            showSlide(slideIndex);
+        }
+
+        function prevSlide() {
+            slideIndex = (slideIndex - 1 + slides.length) % slides.length;
+            showSlide(slideIndex);
+        }
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "ArrowRight") nextSlide();
+            if (e.key === "ArrowLeft") prevSlide();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+{
+    # Replace lifeos.example.com with your domain
+    email your-email@example.com
+}
+
+{$DOMAIN} {
+    reverse_proxy app:3000
+
+    # Optional: Gzip compression
+    encode gzip
+
+    # Optional: Performance/Security headers
+    header {
+        # Disable FLoC
+        Permissions-Policy "interest-cohort=()"
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Clickjacking protection
+        X-Frame-Options "SAMEORIGIN"
+        # MIME sniffing protection
+        X-Content-Type-Options "nosniff"
+        # XSS protection
+        X-XSS-Protection "1; mode=block"
+    }
+}
