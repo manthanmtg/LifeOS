@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { moduleRegistry } from "@/registry";
-import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, Menu, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, type LucideIcon } from "lucide-react";
+import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
+import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, Menu, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -42,27 +42,12 @@ function renderNavLinks(links: LinkItem[], pathname: string, setMobileOpen: (v: 
 }
 
 const IconMap: Record<string, LucideIcon> = {
-    User, FileText, DollarSign, LayoutDashboard, Settings, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine
+    User, FileText, DollarSign, LayoutDashboard, Settings, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation
 };
-
-interface ModuleVisibility {
-    enabled: boolean;
-    isPublic: boolean;
-}
-
-interface SystemConfig {
-    site_title?: string;
-    moduleOrder?: string[];
-    moduleRegistry?: Record<string, ModuleVisibility>;
-    orderingStrategy?: "custom" | "name" | "visits";
-    pageVisits?: Record<string, number>;
-}
 
 export default function AdminSidebar() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [moduleOrder, setModuleOrder] = useState<string[]>([]);
-    const [disabledModules, setDisabledModules] = useState<Set<string>>(new Set());
     const [siteTitle, setSiteTitle] = useState("Life OS");
     const [config, setConfig] = useState<SystemConfig | null>(null);
 
@@ -72,16 +57,6 @@ export default function AdminSidebar() {
                 const r = await fetch("/api/system");
                 const d = await r.json();
                 const config = d.data as SystemConfig | undefined;
-                if (config?.moduleOrder) {
-                    setModuleOrder(config.moduleOrder);
-                }
-                if (config?.moduleRegistry) {
-                    const disabled = new Set<string>();
-                    for (const [key, vis] of Object.entries(config.moduleRegistry)) {
-                        if (!vis.enabled) disabled.add(key);
-                    }
-                    setDisabledModules(disabled);
-                }
                 if (config?.site_title) {
                     setSiteTitle(config.site_title);
                 }
@@ -93,37 +68,11 @@ export default function AdminSidebar() {
         loadConfig();
     }, []);
 
-    const unsortedModules = Object.entries(moduleRegistry)
-        .filter(([key]) => !disabledModules.has(key))
-        .map(([key, config]) => ({
-            key,
-            href: `/admin/${key}`,
-            name: config.name,
-            icon: IconMap[config.icon] || User
-        }));
-
-    const sortedModules = [...unsortedModules].sort((a, b) => {
-        const strategy = config?.orderingStrategy || "custom";
-
-        if (strategy === "name") {
-            return a.name.localeCompare(b.name);
-        }
-
-        if (strategy === "visits") {
-            const va = config?.pageVisits?.[a.key] || 0;
-            const vb = config?.pageVisits?.[b.key] || 0;
-            return vb - va;
-        }
-
-        // Default to custom order
-        if (moduleOrder.length === 0) return 0;
-        const ia = moduleOrder.indexOf(a.key);
-        const ib = moduleOrder.indexOf(b.key);
-        if (ia === -1 && ib === -1) return 0;
-        if (ia === -1) return 1;
-        if (ib === -1) return -1;
-        return ia - ib;
-    });
+    const sortedModules = getOrderedAdminModules(config).map((module) => ({
+        href: module.href,
+        name: module.name,
+        icon: IconMap[module.icon] || User
+    }));
 
     const links = [
         { href: "/admin", name: "Dashboard", icon: LayoutDashboard },

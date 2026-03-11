@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ArrowRight, Palette, LayoutDashboard, FileText, DollarSign, User, Settings, Calculator, Wheat } from "lucide-react";
-import { moduleRegistry } from "@/registry";
+import { Search, ArrowRight, Palette, LayoutDashboard, FileText, DollarSign, User, Settings, Calculator, Wheat, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
 
 interface CommandItem {
     id: string;
@@ -16,41 +16,33 @@ interface CommandItem {
 }
 
 const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    User, FileText, DollarSign, LayoutDashboard, Settings, Palette, Calculator, Wheat
+    User, FileText, DollarSign, LayoutDashboard, Settings, Palette, Calculator, Wheat, CreditCard, BookOpen, Library, Lightbulb, Code, Target, BarChart3, CloudRain, CheckSquare, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation
 };
 
 export default function CommandPalette() {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [disabledModules, setDisabledModules] = useState<Set<string>>(new Set());
+    const [config, setConfig] = useState<SystemConfig | null>(null);
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         fetch("/api/system")
             .then((r) => r.json())
-            .then((d) => {
-                const registry: Record<string, { enabled: boolean; isPublic: boolean }> = d.data?.moduleRegistry || {};
-                const disabled = new Set<string>();
-                for (const [key, vis] of Object.entries(registry)) {
-                    if (!vis.enabled) disabled.add(key);
-                }
-                setDisabledModules(disabled);
-            })
+            .then((d) => setConfig((d.data || null) as SystemConfig | null))
             .catch(() => { });
     }, []);
 
     const commands: CommandItem[] = [
         { id: "nav-dashboard", label: "Go to Dashboard", icon: LayoutDashboard, action: () => router.push("/admin") },
-        ...Object.entries(moduleRegistry)
-            .filter(([key]) => !disabledModules.has(key))
-            .map(([key, config]) => ({
-                id: `nav-${key}`,
-                label: `Go to ${config.name}`,
-                description: `Open ${config.name} management`,
-                icon: IconMap[config.icon] || User,
-                action: () => router.push(`/admin/${key}`),
+        ...getOrderedAdminModules(config)
+            .map((module) => ({
+                id: `nav-${module.key}`,
+                label: `Go to ${module.name}`,
+                description: module.description,
+                icon: IconMap[module.icon] || User,
+                action: () => router.push(module.href),
             })),
         { id: "nav-settings", label: "Go to Settings", icon: Settings, action: () => router.push("/admin/settings") },
         { id: "action-theme", label: "Change Theme", description: "Open theme gallery", icon: Palette, action: () => router.push("/admin/settings") },
