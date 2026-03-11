@@ -39,7 +39,7 @@ function useDesktopDialog() {
 }
 
 export default function IdeaDetailsModal({ idea, isOpen, onClose }: IdeaDetailsModalProps) {
-    const [mounted, setMounted] = useState(false);
+    // Removed mounted state
     const [touchStartY, setTouchStartY] = useState<number | null>(null);
     const [swipeOffset, setSwipeOffset] = useState(0);
     const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -59,12 +59,7 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose }: IdeaDetailsM
         ].filter((item) => item.value);
     }, [idea]);
 
-    useLayoutEffect(() => {
-        setMounted(true);
-        return () => {
-            setMounted(false);
-        };
-    }, []);
+// Removed useLayoutEffect for mounted
 
     useEffect(() => {
         if (!isOpen) return;
@@ -114,7 +109,7 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose }: IdeaDetailsM
         };
     }, [isOpen, onClose]);
 
-    if (!mounted) return null;
+    if (typeof document === "undefined") return null;
 
     return createPortal(
         <AnimatePresence>
