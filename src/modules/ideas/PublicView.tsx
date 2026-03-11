@@ -3,42 +3,20 @@
 import { useMemo, useState } from "react";
 import { Lightbulb, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const STATUS_LABELS: Record<string, string> = {
-    raw: "Raw",
-    exploring: "Exploring",
-    archived: "Archived",
-};
-const STATUS_STYLES: Record<string, string> = {
-    raw: "bg-zinc-500/15 text-zinc-300 border-zinc-500/25",
-    exploring: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-    archived: "bg-zinc-500/15 text-zinc-500 border-zinc-500/25",
-};
-const PRIORITY_STYLES: Record<string, string> = {
-    high: "bg-red-500/15 text-red-300 border-red-500/25",
-    medium: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    low: "bg-green-500/15 text-green-300 border-green-500/25",
-};
-
-interface Idea {
-    _id: string;
-    payload: {
-        title: string;
-        description?: string;
-        category?: string;
-        status: string;
-        tags: string[];
-        priority: string;
-        promoted_to_portfolio?: boolean;
-    };
-    created_at: string;
-}
+import IdeaDetailsModal from "./IdeaDetailsModal";
+import {
+    IDEA_PRIORITY_STYLES,
+    IDEA_STATUS_LABELS,
+    IDEA_STATUS_STYLES,
+    type IdeaRecord,
+} from "./shared";
 
 export default function IdeasPublicView({ items }: { items: Record<string, unknown>[] }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [selectedIdea, setSelectedIdea] = useState<IdeaRecord | null>(null);
 
-    const ideas = (items as unknown as Idea[]).filter((idea) => idea.payload.status !== "archived");
+    const ideas = (items as unknown as IdeaRecord[]).filter((idea) => idea.payload.status !== "archived");
 
     const stats = useMemo(() => {
         const total = ideas.length;
@@ -125,11 +103,11 @@ export default function IdeasPublicView({ items }: { items: Record<string, unkno
                                 className={cn(
                                     "px-3 py-1.5 rounded-lg text-xs border transition-colors",
                                     statusFilter === status
-                                        ? STATUS_STYLES[status]
+                                        ? IDEA_STATUS_STYLES[status]
                                         : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300"
                                 )}
                             >
-                                {STATUS_LABELS[status]}
+                                {IDEA_STATUS_LABELS[status]}
                             </button>
                         ))}
                     </div>
@@ -144,33 +122,46 @@ export default function IdeasPublicView({ items }: { items: Record<string, unkno
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {filtered.map((idea) => (
-                        <article key={idea._id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", STATUS_STYLES[idea.payload.status])}>
-                                    {STATUS_LABELS[idea.payload.status]}
-                                </span>
-                                <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", PRIORITY_STYLES[idea.payload.priority] || PRIORITY_STYLES.medium)}>
-                                    {idea.payload.priority}
-                                </span>
-                                {idea.payload.category && <span className="text-[10px] text-zinc-500">{idea.payload.category}</span>}
-                            </div>
-
-                            <p className="text-sm font-medium text-zinc-50 mb-2">{idea.payload.title}</p>
-                            {idea.payload.description && <p className="text-xs text-zinc-400 mb-3 line-clamp-3">{idea.payload.description}</p>}
-
-                            {idea.payload.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mt-auto">
-                                    {idea.payload.tags.slice(0, 5).map((tag) => (
-                                        <span key={tag} className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded">
-                                            {tag}
-                                        </span>
-                                    ))}
+                        <article key={idea._id} className="bg-zinc-900 border border-zinc-800 rounded-xl transition-colors hover:border-zinc-700">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedIdea(idea)}
+                                aria-label={`Open details for ${idea.payload.title}`}
+                                className="block w-full rounded-xl p-4 text-start focus:outline-none focus:ring-2 focus:ring-accent/40"
+                            >
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", IDEA_STATUS_STYLES[idea.payload.status])}>
+                                        {IDEA_STATUS_LABELS[idea.payload.status]}
+                                    </span>
+                                    <span className={cn("text-[10px] px-1.5 py-0.5 rounded border", IDEA_PRIORITY_STYLES[idea.payload.priority] || IDEA_PRIORITY_STYLES.medium)}>
+                                        {idea.payload.priority}
+                                    </span>
+                                    {idea.payload.category && <span className="text-[10px] text-zinc-500">{idea.payload.category}</span>}
                                 </div>
-                            )}
+
+                                <p className="text-sm font-medium text-zinc-50 mb-2">{idea.payload.title}</p>
+                                {idea.payload.description && <p className="text-xs text-zinc-400 mb-3 line-clamp-3">{idea.payload.description}</p>}
+
+                                {idea.payload.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-auto">
+                                        {idea.payload.tags.slice(0, 5).map((tag) => (
+                                            <span key={tag} className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </button>
                         </article>
                     ))}
                 </div>
             )}
+
+            <IdeaDetailsModal
+                idea={selectedIdea}
+                isOpen={!!selectedIdea}
+                onClose={() => setSelectedIdea(null)}
+            />
         </div>
     );
 }
