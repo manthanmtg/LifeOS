@@ -138,7 +138,7 @@ export default function PublicModuleClient({ slug, userName }: Props) {
                         )}
                     </div>
 
-                    <Suspense fallback={<ViewLoadingFallback />}>
+                    <Suspense key={slug} fallback={<ViewLoadingFallback />}>
                         {PublicView ? (
                             <PublicView items={items} />
                         ) : (

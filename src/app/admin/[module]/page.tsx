@@ -25,7 +25,7 @@ export default async function AdminModulePage({
     );
 
     return (
-        <Suspense fallback={<AdminModuleSkeleton />}>
+        <Suspense key={moduleName} fallback={<AdminModuleSkeleton />}>
             <DynamicModuleAdminView />
         </Suspense>
     );
