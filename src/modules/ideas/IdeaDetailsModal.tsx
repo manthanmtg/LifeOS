@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, Clock3, FolderOpen, Tag, X } from "lucide-react";
@@ -59,8 +59,11 @@ export default function IdeaDetailsModal({ idea, isOpen, onClose }: IdeaDetailsM
         ].filter((item) => item.value);
     }, [idea]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setMounted(true);
+        return () => {
+            setMounted(false);
+        };
     }, []);
 
     useEffect(() => {
