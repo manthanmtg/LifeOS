@@ -2,22 +2,24 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 import React from 'react';
+import { routerMocks, navigationState, resetNavigationMocks } from './mocks/navigation';
 
 // Global cleanup after each test
 afterEach(() => {
     cleanup();
+    resetNavigationMocks();
 });
 
 // Mock Next.js router/navigation
 vi.mock('next/navigation', () => ({
-    useRouter: () => ({
-        push: vi.fn(),
-        replace: vi.fn(),
-        prefetch: vi.fn(),
-        back: vi.fn(),
-    }),
-    usePathname: () => '/',
-    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => routerMocks,
+    usePathname: () => navigationState.pathname,
+    useSearchParams: () => navigationState.searchParams,
+}));
+
+vi.mock('next/link', () => ({
+    default: ({ children, href, ...props }: { children?: React.ReactNode; href: string } & Record<string, unknown>) =>
+        React.createElement('a', { href, ...props }, children),
 }));
 
 // Mock window.matchMedia
@@ -42,7 +44,7 @@ vi.mock('lucide-react', () => {
         get: (target, prop) => {
             if (typeof prop === 'string' && /^[A-Z]/.test(prop)) {
                 if (!target[prop]) {
-                    const MockIcon = (props: React.SVGProps<SVGSVGElement>) => React.createElement('div', {
+                    const MockIcon = (props: React.SVGProps<SVGSVGElement>) => React.createElement('svg', {
                         ...props,
                         'data-testid': `icon-${prop.toLowerCase()}`,
                     });
