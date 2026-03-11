@@ -68,7 +68,6 @@ export default function PublicModuleClient({ slug, userName }: Props) {
     }
 
     useEffect(() => {
-        setLoading(true);
         fetch("/api/system", { cache: "no-store" })
             .then((r) => {
                 if (r.status === 401) {
