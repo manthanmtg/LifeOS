@@ -1,26 +1,12 @@
 # 🧠 Life OS
 
-<p align="center">
-  <strong>Your personal command center for life — portfolio, productivity, health & finance.</strong>
-</p>
+**Your personal command center for life — portfolio, productivity, health & finance.**
 
-<p align="center">
-  <a href="https://github.com/manthanmtg/LifeOS/stargazers">
-    <img src="https://img.shields.io/github/stars/manthanmtg/LifeOS?style=flat&color=ffd700" alt="Stars">
-  </a>
-  <a href="https://github.com/manthanmtg/LifeOS/network">
-    <img src="https://img.shields.io/github/forks/manthanmtg/LifeOS?style=flat&color=4ade80" alt="Forks">
-  </a>
-  <a href="https://github.com/manthanmtg/LifeOS/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/manthanmtg/LifeOS?style=flat&color=60a5fa" alt="License">
-  </a>
-  <a href="https://vercel.com">
-    <img src="https://img.shields.io/badge/Built_with-Next.js_16-black?style=flat&color=000000" alt="Next.js">
-  </a>
-  <a href="https://discord.gg">
-    <img src="https://img.shields.io/badge/Join_Community-4ade80?style=flat" alt="Discord">
-  </a>
-</p>
+[![Stars](https://img.shields.io/github/stars/manthanmtg/LifeOS?style=flat&color=ffd700)](https://github.com/manthanmtg/LifeOS/stargazers)
+[![Forks](https://img.shields.io/github/forks/manthanmtg/LifeOS?style=flat&color=4ade80)](https://github.com/manthanmtg/LifeOS/network)
+[![License](https://img.shields.io/github/license/manthanmtg/LifeOS?style=flat&color=60a5fa)](https://github.com/manthanmtg/LifeOS/blob/main/LICENSE)
+[![Next.js](https://img.shields.io/badge/Built_with-Next.js_16-black?style=flat&color=000000)](https://vercel.com)
+[![Discord](https://img.shields.io/badge/Join_Community-4ade80?style=flat)](https://discord.gg)
 
 ---
 
@@ -30,7 +16,7 @@
 
 - **Public Portfolio** — Professional presence that showcases your work, blog, and skills
 - **Private Command Center** — 18 powerful modules for tasks, habits, finance, health & more
-- **100% You** — Full ownership. Your data. Your rules. Self-host anywhere.
+- **100% You** — Full ownership. Your data. Your rules. Self-host anywhere
 - **AI-Powered** — Track AI usage, costs, and integrate intelligent automation
 
 ---
@@ -38,48 +24,41 @@
 ## 🚀 Features
 
 ### 💡 Ideas & Tasks
-| Module | Description |
-|--------|-------------|
-| **Ideas** | Kanban-style idea board. 5 stages: Raw → Exploring → Building → Launched → Archived. Promote winning ideas to your portfolio! |
-| **Compass** | Prioritized task management with P1-P5 levels. Workspace organization for focused execution. |
-| **Todo** | Clean, distraction-free task list with custom UI and quick actions. |
+
+- **Ideas** — Kanban-style idea board. 5 stages: Raw → Exploring → Building → Launched → Archived. Promote winning ideas to your portfolio!
+- **Compass** — Prioritized task management with P1-P5 levels. Workspace organization for focused execution.
+- **Todo** — Clean, distraction-free task list with custom UI and quick actions.
 
 ### ❤️ Health & Habits
-| Module | Description |
-|--------|-------------|
-| **Habit Tracker** | GitHub-style heatmap calendar. Track streaks, color-coded days, daily logging with visual progress. |
-| **Reading Queue** | URL-based queue with priority levels, type filters (article/video/book), read/unread tracking. |
-| **Bookshelf** | Personal library with progress bars, star ratings, reading status, and notes. |
+
+- **Habit Tracker** — GitHub-style heatmap calendar. Track streaks, color-coded days, daily logging with visual progress.
+- **Reading Queue** — URL-based queue with priority levels, type filters (article/video/book), read/unread tracking.
+- **Bookshelf** — Personal library with progress bars, star ratings, reading status, and notes.
 
 ### 💰 Finance
-| Module | Description |
-|--------|-------------|
-| **Expenses** | Daily spending ledger with category tags, smart suggestions, and visual analytics. |
-| **Subscriptions** | Track recurring costs, renewal countdowns, monthly burn rate calculation. |
-| **EMI Tracker** | Loan management with cost distribution charts and payment schedules. |
+
+- **Expenses** — Daily spending ledger with category tags, smart suggestions, and visual analytics.
+- **Subscriptions** — Track recurring costs, renewal countdowns, monthly burn rate calculation.
+- **EMI Tracker** — Loan management with cost distribution charts and payment schedules.
 
 ### 🎯 Goals & Metrics
-| Module | Description |
-|--------|-------------|
-| **Analytics** | Self-hosted page views, device breakdown, top pages, referrers — no third-party scripts! |
-| **AI Usage** | Track token counts across AI providers, monitor costs, optimize spending. |
-| **Crop History** | Agricultural tracking with formulas, area-based analytics for the farming-minded. |
+
+- **Analytics** — Self-hosted page views, device breakdown, top pages, referrers — no third-party scripts!
+- **AI Usage** — Track token counts across AI providers, monitor costs, optimize spending.
+- **Crop History** — Agricultural tracking with formulas, area-based analytics for the farming-minded.
 
 ### 📦 Productivity & More
-| Module | Description |
-|--------|-------------|
-| **Blog** | Markdown editor with dual-pane preview, draft/publish/archive workflow, SEO-friendly. |
-| **Portfolio** | Hero section, bio, skills, social links, "Available for hire" badge. |
-| **Snippets** | Code library with one-click copy, syntax highlighting, favorites. |
-| **Calculators** | Custom math tools with saved calculations. |
-| **Shopping List** | Inventory management with category filters. |
-| **Rain Tracker** | Precipitation logging with area-wise distribution. |
+
+- **Blog** — Markdown editor with dual-pane preview, draft/publish/archive workflow, SEO-friendly.
+- **Portfolio** — Hero section, bio, skills, social links, "Available for hire" badge.
+- **Snippets** — Code library with one-click copy, syntax highlighting, favorites.
+- **Calculators** — Custom math tools with saved calculations.
+- **Shopping List** — Inventory management with category filters.
+- **Rain Tracker** — Precipitation logging with area-wise distribution.
 
 ---
 
 ## 🖥️ Screenshots
-
-<div align="center">
 
 | Admin Dashboard | Portfolio |
 |:---:|:---:|
@@ -88,8 +67,6 @@
 | Ideas Board | Habit Tracker |
 |:---:|:---:|
 | ![Ideas](https://placehold.co/600x400/1a1a2e/FFF?text=Ideas+Board) | ![Habits](https://placehold.co/600x400/1a1a2e/FFF?text=Habit+Tracker) |
-
-</div>
 
 ---
 
@@ -265,6 +242,4 @@ MIT License — see [LICENSE](./LICENSE) for details.
 
 ---
 
-<p align="center">
-  <sub>Built with ❤️ using Next.js, MongoDB & Tailwind</sub>
-</p>
+*Built with ❤️ using Next.js, MongoDB & Tailwind*
