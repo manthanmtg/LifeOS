@@ -1,127 +1,151 @@
 # 🧠 Life OS
 
-A high-fidelity, open-source template framework that acts as a **"Shell"** — dynamically rendering a professional portfolio and a private life-management dashboard.
+<p align="center">
+  <strong>Your personal command center for life — portfolio, productivity, health & finance.</strong>
+</p>
 
-Built with **Next.js 16**, **Tailwind CSS v4**, **MongoDB**, and **Framer Motion**.
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/your-username/LifeOS#MONGODB_URI=&ADMIN_PASSWORD=&JWT_SECRET=)
+<p align="center">
+  <a href="https://github.com/manthanmtg/LifeOS/stargazers">
+    <img src="https://img.shields.io/github/stars/manthanmtg/LifeOS?style=flat&color=ffd700" alt="Stars">
+  </a>
+  <a href="https://github.com/manthanmtg/LifeOS/network">
+    <img src="https://img.shields.io/github/forks/manthanmtg/LifeOS?style=flat&color=4ade80" alt="Forks">
+  </a>
+  <a href="https://github.com/manthanmtg/LifeOS/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/manthanmtg/LifeOS?style=flat&color=60a5fa" alt="License">
+  </a>
+  <a href="https://vercel.com">
+    <img src="https://img.shields.io/badge/Built_with-Next.js_16-black?style=flat&color=000000" alt="Next.js">
+  </a>
+  <a href="https://discord.gg">
+    <img src="https://img.shields.io/badge/Join_Community-4ade80?style=flat" alt="Discord">
+  </a>
+</p>
 
 ---
 
-## ✨ Features
+## ✨ Why Life OS?
 
-- **18 Built-in Modules** — Portfolio, Blog, Expenses, Subscriptions, Reading Queue, Bookshelf, Ideas, Snippets, Habits, Analytics, Compass, Crop History, EMI Tracker, Calculators, Rain Tracker, Shopping List, AI Usage, Todo
-- **Modular Architecture** — Add or remove "micro-app" modules without affecting the core shell
-- **Polymorphic Data Layer** — All module data in a single MongoDB collection, validated by Zod
-- **JWT Authentication** — Password-based admin login with HTTP-only cookies
-- **Dynamic Routing** — `app/admin/[module]` catch-all renders any registered module's AdminView
-- **7 Developer Themes** — One Dark, Dracula, Cyberpunk, Studio Dark, Nordic Light, Midnight One, Vampire
-- **Command Palette** — `Ctrl+K` global search and quick actions
-- **Data Portability** — Full JSON export/import for backup and migration
-- **Self-Hosted Analytics** — Page views, device types, referrers — no third-party scripts
-- **GitHub-Style Habit Heatmap** — Track streaks with a contribution grid
+> **One app. Infinite possibilities.** Your public portfolio, private dashboard, and life operating system — all in one beautiful, self-hosted package.
 
-## 📦 Tech Stack
+- **Public Portfolio** — Professional presence that showcases your work, blog, and skills
+- **Private Command Center** — 18 powerful modules for tasks, habits, finance, health & more
+- **100% You** — Full ownership. Your data. Your rules. Self-host anywhere.
+- **AI-Powered** — Track AI usage, costs, and integrate intelligent automation
+
+---
+
+## 🚀 Features
+
+### 💡 Ideas & Tasks
+| Module | Description |
+|--------|-------------|
+| **Ideas** | Kanban-style idea board. 5 stages: Raw → Exploring → Building → Launched → Archived. Promote winning ideas to your portfolio! |
+| **Compass** | Prioritized task management with P1-P5 levels. Workspace organization for focused execution. |
+| **Todo** | Clean, distraction-free task list with custom UI and quick actions. |
+
+### ❤️ Health & Habits
+| Module | Description |
+|--------|-------------|
+| **Habit Tracker** | GitHub-style heatmap calendar. Track streaks, color-coded days, daily logging with visual progress. |
+| **Reading Queue** | URL-based queue with priority levels, type filters (article/video/book), read/unread tracking. |
+| **Bookshelf** | Personal library with progress bars, star ratings, reading status, and notes. |
+
+### 💰 Finance
+| Module | Description |
+|--------|-------------|
+| **Expenses** | Daily spending ledger with category tags, smart suggestions, and visual analytics. |
+| **Subscriptions** | Track recurring costs, renewal countdowns, monthly burn rate calculation. |
+| **EMI Tracker** | Loan management with cost distribution charts and payment schedules. |
+
+### 🎯 Goals & Metrics
+| Module | Description |
+|--------|-------------|
+| **Analytics** | Self-hosted page views, device breakdown, top pages, referrers — no third-party scripts! |
+| **AI Usage** | Track token counts across AI providers, monitor costs, optimize spending. |
+| **Crop History** | Agricultural tracking with formulas, area-based analytics for the farming-minded. |
+
+### 📦 Productivity & More
+| Module | Description |
+|--------|-------------|
+| **Blog** | Markdown editor with dual-pane preview, draft/publish/archive workflow, SEO-friendly. |
+| **Portfolio** | Hero section, bio, skills, social links, "Available for hire" badge. |
+| **Snippets** | Code library with one-click copy, syntax highlighting, favorites. |
+| **Calculators** | Custom math tools with saved calculations. |
+| **Shopping List** | Inventory management with category filters. |
+| **Rain Tracker** | Precipitation logging with area-wise distribution. |
+
+---
+
+## 🖥️ Screenshots
+
+<div align="center">
+
+| Admin Dashboard | Portfolio |
+|:---:|:---:|
+| ![Admin Dashboard](https://placehold.co/600x400/1a1a2e/FFF?text=Admin+Dashboard) | ![Portfolio](https://placehold.co/600x400/1a1a2e/FFF?text=Portfolio) |
+
+| Ideas Board | Habit Tracker |
+|:---:|:---:|
+| ![Ideas](https://placehold.co/600x400/1a1a2e/FFF?text=Ideas+Board) | ![Habits](https://placehold.co/600x400/1a1a2e/FFF?text=Habit+Tracker) |
+
+</div>
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Styling | Tailwind CSS v4, Framer Motion |
-| Database | MongoDB Atlas |
-| Validation | Zod v4 |
-| Auth | jose (edge-compatible JWT) |
-| Package Manager | pnpm |
+| **Framework** | Next.js 16 (App Router, Turbopack) |
+| **Styling** | Tailwind CSS v4, Framer Motion |
+| **Database** | MongoDB Atlas (polymorphic single collection) |
+| **Validation** | Zod v4 |
+| **Auth** | jose (edge-compatible JWT) |
+| **Deployment** | Vercel, Netlify, or any Node.js host |
 
----
-
-## 🧩 Module Suite
-
-| Module | Type | Description |
-|--------|------|-------------|
-| **Portfolio** | Public | Hero, bio, skills, social links, "Available for hire" badge |
-| **Blog** | Public | Markdown editor, dual-pane preview, draft/publish/archive, SEO |
-| **Expenses** | Private | Daily spending ledger, category tags, smart suggestions |
-| **Subscriptions** | Private | Recurring costs, renewal countdowns, monthly burn |
-| **Reading Queue** | Private | URL-based queue, priority levels, type filters, read/unread |
-| **Bookshelf** | Private | Progress bars, star ratings, status tracking, notes |
-| **Idea Dump** | Private | Kanban-style board, promote to portfolio, 5 status stages |
-| **Snippet Box** | Private | Code library, one-click copy, syntax preview, favorites |
-| **Habit Tracker** | Private | Heatmap calendar, streak counters, color-coded, daily logging |
-| **Analytics** | Private | Sparkline charts, device breakdown, top pages, referrers |
-| **Compass** | Private | Task prioritization, P1-P5 levels, workspace organization |
-| **Crop History** | Private | Agricultural tracking, formulas, area-based analytics |
-| **EMI Tracker** | Private | Loan management, cost distribution, payment schedules |
-| **Calculators** | Private | Custom math tools, recurring calculations |
-| **Rain Tracker** | Private | Precipitation logging, area-wise distribution |
-| **Shopping List** | Private | Inventory management, category filters |
-| **AI Usage** | Private | Tracking token counts and AI costs |
-| **Todo** | Private | Task management with custom UI |
-
----
-
-## 🏗️ Architecture
-
-```mermaid
-graph TB
-    subgraph Client
-        LP[Landing Page / Portfolio]
-        AD[Admin Dashboard]
-        MV[Module AdminViews]
-        CP[Command Palette]
-    end
-
-    subgraph "Next.js App Router"
-        API["/api/content"]
-        SYS["/api/system"]
-        AUTH["/api/auth/login"]
-        MET["/api/metrics"]
-        EXP["/api/export + /api/import"]
-        MW["Middleware (Auth Guard)"]
-    end
-
-    subgraph MongoDB
-        C1["system (config)"]
-        C2["content (polymorphic)"]
-        C3["metrics (analytics)"]
-    end
-
-    LP --> API
-    AD --> API
-    MV --> API
-    CP --> API
-    AD --> SYS
-    MV --> MET
-    MW --> AUTH
-    API --> C2
-    SYS --> C1
-    MET --> C3
-    EXP --> C1 & C2 & C3
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Life OS Architecture                     │
+├─────────────────────────────────────────────────────────────┤
+│  Client (Next.js)                                           │
+│  ├── Public Portfolio / Blog                                │
+│  ├── Admin Dashboard (Bento Grid)                           │
+│  └── 18 Modular AdminViews                                  │
+├─────────────────────────────────────────────────────────────┤
+│  API Layer                                                  │
+│  ├── /api/content — Polymorphic CRUD                       │
+│  ├── /api/auth/login — JWT Authentication                   │
+│  ├── /api/system — Global config                            │
+│  ├── /api/metrics — Self-hosted analytics                  │
+│  └── /api/export / import — Data portability               │
+├─────────────────────────────────────────────────────────────┤
+│  Database (MongoDB)                                        │
+│  ├── system (config)                                        │
+│  ├── content (polymorphic: module_type + payload)          │
+│  └── metrics (analytics events)                            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🏃‍♂️ Quick Start
 
 ### Prerequisites
 
 - **Node.js** ≥ 18
-- **pnpm** — Install via `npm install -g pnpm`
-- **MongoDB Atlas** free cluster ([create one here](https://www.mongodb.com/cloud/atlas/register))
+- **pnpm** — `npm install -g pnpm`
+- **MongoDB Atlas** — [Free cluster](https://www.mongodb.com/cloud/atlas/register)
 
-### 1. Clone the repository
+### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-username/LifeOS.git
+git clone https://github.com/manthanmtg/LifeOS.git
 cd LifeOS
-```
-
-### 2. Install dependencies
-
-```bash
 pnpm install
 ```
 
-### 3. Set up environment variables
+### 2. Environment Variables
 
 ```bash
 cp .env.local.example .env.local
@@ -135,30 +159,70 @@ ADMIN_PASSWORD=YourSecurePassword123
 JWT_SECRET=some-long-random-secret-string
 ```
 
-### 4. Run the development server
+### 3. Run
 
 ```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — your Portfolio will be the first thing visitors see.
+- **Public site:** http://localhost:3000
+- **Admin login:** http://localhost:3000/login
 
-### 5. Access the Admin Portal
-
-1. Navigate to [http://localhost:3000/login](http://localhost:3000/login)
-2. Enter your `ADMIN_PASSWORD`
-3. You'll be redirected to the **Command Center** at `/admin`
-
-> On first run, the database is automatically seeded with default system configuration.
+> 💡 First run auto-seeds the database with default config.
 
 ---
 
-## ☁️ Deploy to Netlify
+## ☁️ Deploy
 
-1. Click the **Deploy to Netlify** button above (or fork + connect manually)
-2. Set the 3 environment variables: `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`
-3. Deploy — the app will auto-seed on first visit
-4. Login at `/login` with your password
+### Vercel (Recommended)
+
+```bash
+npm i -g vercel
+vercel
+```
+
+Set environment variables in Vercel dashboard.
+
+### Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/manthanmtg/LifeOS)
+
+Set `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET` in Netlify dashboard.
+
+### Self-Host (Docker/Railway/Render)
+
+```bash
+pnpm build
+pnpm start
+```
+
+Any Node.js hosting works — just set the environment variables.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] **Mobile App** — React Native companion for iOS/Android
+- [ ] **AI Integration** — Smart suggestions,自动化, GPT-powered insights
+- [ ] **Offline Mode** — PWA with local-first data sync
+- [ ] **Multi-user Support** — Family/team sharing with role-based access
+- [ ] **More Modules** — Budget planner, workout tracker, meal planner
+- [ ] **Plugin System** — Third-party module marketplace
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Here's how to help:
+
+1. **Fork** the repository
+2. Create a feature branch: `git checkout -b feat/awesome-feature`
+3. Make your changes and test: `pnpm lint && pnpm build`
+4. Commit: `git commit -m 'feat: add awesome feature'`
+5. Push: `git push origin feat/awesome-feature`
+6. Open a **Pull Request**
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed conventions.
 
 ---
 
@@ -166,80 +230,41 @@ Open [http://localhost:3000](http://localhost:3000) — your Portfolio will be t
 
 ```
 src/
-├── app/                          # Next.js App Router
-│   ├── page.tsx                  # Public portfolio landing page
+├── app/
+│   ├── page.tsx                    # Public portfolio
 │   ├── admin/
-│   │   ├── page.tsx              # Dashboard (10-widget Bento grid)
-│   │   ├── settings/page.tsx     # Themes, visibility, export/import
-│   │   └── [module]/page.tsx     # Dynamic module routing
+│   │   ├── page.tsx                # Dashboard (Bento grid)
+│   │   ├── settings/               # Theme/export/import
+│   │   └── [module]/               # Dynamic module routes
 │   └── api/
-│       ├── auth/login/           # POST: password → JWT cookie
-│       ├── content/              # GET/POST: polymorphic CRUD
-│       ├── content/[id]/         # GET/PUT/DELETE: single item
-│       ├── system/               # GET/PUT: global config
-│       ├── metrics/              # GET/POST: analytics events
-│       ├── export/               # GET: backup download
-│       └── import/               # POST: restore from backup
+│       ├── auth/login/             # JWT auth
+│       ├── content/                # Polymorphic CRUD
+│       ├── system/                 # Global config
+│       ├── metrics/                # Analytics
+│       └── export/import/          # Backup/restore
 ├── lib/
-│   ├── mongodb.ts                # Cached MongoClient singleton
-│   ├── auth.ts                   # JWT sign/verify (jose)
-│   ├── schemas.ts                # 9 Zod schemas + SchemaRegistry
-│   ├── seed.ts                   # First-run DB initializer
-│   └── utils.ts                  # cn() utility
-├── modules/                      # 18 self-contained modules
-│   ├── portfolio/                # AdminView + Widget + View
-│   ├── blog/                     # AdminView + Widget
-│   ├── expenses/                 # AdminView + Widget
-│   ├── subscriptions/            # AdminView + Widget
-│   ├── reading/                  # AdminView + Widget
-│   ├── bookshelf/                # AdminView + Widget
-│   ├── ideas/                    # AdminView + Widget
-│   ├── snippets/                 # AdminView + Widget
-│   ├── habits/                   # AdminView + Widget
-│   ├── analytics/                # AdminView + Widget
-│   ├── compass/                  # AdminView + Widget
-│   ├── crop-history/             # AdminView + Widget
-│   ├── emi-tracker/              # AdminView + Widget
-│   ├── calculators/              # AdminView + Widget
-│   ├── rain-tracker/             # AdminView + Widget
-│   ├── shopping-list/            # AdminView + Widget
-│   ├── ai-usage/                 # AdminView + Widget
-│   └── todo/                     # AdminView + Widget
-├── components/shell/             # Sidebar, Header, Footer
-├── registry.ts                   # Module slug → config mapping
-└── proxy.ts                      # Auth guard middleware
+│   ├── mongodb.ts                  # MongoDB singleton
+│   ├── auth.ts                     # JWT helpers
+│   ├── schemas.ts                  # Zod validation
+│   ├── seed.ts                     # DB initializer
+│   └── utils.ts                    # Utilities
+├── modules/                        # 18 modules
+│   ├── portfolio/, blog/, expenses/
+│   ├── ideas/, compass/, habits/
+│   └── ... (see full list below)
+├── components/shell/               # Layout components
+├── registry.ts                     # Module config
+└── proxy.ts                        # Auth middleware
 ```
 
 ---
 
-## 🔌 Adding a New Module
+## 📜 License
 
-1. Create `src/modules/your-module/AdminView.tsx`
-2. Add a Zod schema to `src/lib/schemas.ts` and register it in `SchemaRegistry`
-3. Register the module in `src/registry.ts`:
-   ```ts
-   your_module: { name: "Your Module", icon: "Star", defaultPublic: false }
-   ```
-4. Add the icon to `IconMap` in `AdminSidebar.tsx`
-5. Add the widget import to `src/app/admin/page.tsx`
-
-Data automatically saves to the `content` collection under `module_type: "your_module"` — **zero database setup**.
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed conventions.
+MIT License — see [LICENSE](./LICENSE) for details.
 
 ---
 
-## 🛠️ Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server (Turbopack) |
-| `pnpm build` | Create production build |
-| `pnpm start` | Run production server |
-| `pnpm lint` | Run ESLint |
-
----
-
-## 📄 License
-
-This project is licensed under the terms in the [LICENSE](./LICENSE) file.
+<p align="center">
+  <sub>Built with ❤️ using Next.js, MongoDB & Tailwind</sub>
+</p>
