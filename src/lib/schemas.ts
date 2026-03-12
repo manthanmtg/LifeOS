@@ -64,7 +64,7 @@ export const ReadingItemSchema = z.object({
     title: z.string().min(1, "Title is required"),
     source_domain: z.string().optional(),
     priority: z.enum(["high", "medium", "low"]).default("medium"),
-    type: z.enum(["article", "paper", "video", "podcast"]).default("article"),
+    type: z.string().default("article"),
     is_read: z.boolean().default(false),
     read_at: z.string().datetime().optional(),
     notes: z.string().optional(),
