@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
         return {
             beforeFiles: [
                 {
-                    source: "/((?!api|admin|_next|static|favicon.ico).*)",
+                    source: "/:path((?!api|admin|_next|static|favicon.ico).*)",
                     has: [
                         {
                             type: "host",
