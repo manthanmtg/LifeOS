@@ -20,14 +20,27 @@ export async function GET() {
 export async function PUT(request: Request) {
     try {
         const body = await request.json();
-        // E.g. { active_theme: "dracula", moduleRegistry: { ... } }
+        
+        // Define allowed fields to prevent mass assignment/overwriting critical system state
+        const allowedFields = ["active_theme"];
+        const updateData: Record<string, string | number | boolean> = {};
+        
+        for (const field of allowedFields) {
+            if (body[field] !== undefined) {
+                updateData[field] = body[field];
+            }
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return ApiError("No valid fields to update", 400);
+        }
 
         const db = await getDb();
         const systemColl = db.collection<SystemConfig>("system");
 
         await systemColl.updateOne(
             { _id: "global" },
-            { $set: body }
+            { $set: updateData }
         );
 
         return ApiSuccess({ success: true });

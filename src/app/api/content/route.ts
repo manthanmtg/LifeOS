@@ -2,16 +2,32 @@ import { getDb } from "@/lib/mongodb";
 import { SchemaRegistry } from "@/lib/schemas";
 import { ContentDocument } from "@/lib/types";
 import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const module_type = searchParams.get("module_type");
-        const is_public = searchParams.get("is_public");
+        const requested_is_public = searchParams.get("is_public");
+
+        // Authentication check
+        const cookieStore = await cookies();
+        const token = cookieStore.get("lifeos_token")?.value;
+        const isAdmin = token ? !!(await verifyToken(token)) : false;
 
         const query: Record<string, string | boolean> = {};
         if (module_type) query.module_type = module_type;
-        if (is_public !== null) query.is_public = is_public === "true";
+        
+        if (isAdmin) {
+            // Admin can see everything, or filter by public status
+            if (requested_is_public !== null) {
+                query.is_public = requested_is_public === "true";
+            }
+        } else {
+            // General public can ONLY see public content
+            query.is_public = true;
+        }
 
         const db = await getDb();
         const contentColl = db.collection<ContentDocument>("content");

@@ -3,6 +3,8 @@ import { SchemaRegistry } from "@/lib/schemas";
 import { ContentDocument } from "@/lib/types";
 import { ObjectId } from "mongodb";
 import { ApiSuccess, ApiError, ApiValidationError, ApiNotFound } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -16,6 +18,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         const result = await contentColl.findOne({ _id: new ObjectId(id) });
 
         if (!result) return ApiNotFound();
+
+        // Security check for private documents
+        if (!result.is_public) {
+            const cookieStore = await cookies();
+            const token = cookieStore.get("lifeos_token")?.value;
+            const isAdmin = token ? !!(await verifyToken(token)) : false;
+
+            if (!isAdmin) {
+                return ApiError("Unauthorized", 401);
+            }
+        }
+
         return ApiSuccess(result);
     } catch (error) {
         console.error("GET /api/content/[id] failed:", error);

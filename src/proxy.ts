@@ -19,8 +19,10 @@ export default async function proxy(request: NextRequest) {
 
     // Protect /admin and sensitive /api routes
     const isProtectedPath = path.startsWith('/admin') ||
-        (path.startsWith('/api/system') && request.method !== 'GET') ||
+        path.startsWith('/api/system') || // Protect all system calls for now, GET included to be safe
         path.startsWith('/api/ai-usage') ||
+        path.startsWith('/api/export') ||
+        path.startsWith('/api/import') ||
         (path.startsWith('/api/content') && request.method !== 'GET'); // GET /api/content might be public for some modules
 
     if (isProtectedPath) {
@@ -46,5 +48,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*'],
+    matcher: ['/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
 }
