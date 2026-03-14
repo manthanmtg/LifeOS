@@ -2,18 +2,20 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     async rewrites() {
-        return [
-            {
-                source: "/:path*",
-                has: [
-                    {
-                        type: "host",
-                        value: "life.manthanby.cv",
-                    },
-                ],
-                destination: "/admin/:path*",
-            },
-        ];
+        return {
+            beforeFiles: [
+                {
+                    source: "/((?!api|admin|_next|static|favicon.ico).*)",
+                    has: [
+                        {
+                            type: "host",
+                            value: process.env.ADMIN_DOMAIN || "localhost",
+                        },
+                    ],
+                    destination: "/admin/:path*",
+                },
+            ],
+        };
     },
 };
 

@@ -4,6 +4,13 @@ import { verifyToken } from '@/lib/auth'
 
 export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
+    const hostname = request.headers.get("host") || "";
+    
+    // Debug log for host-based routing
+    const adminDomain = process.env.ADMIN_DOMAIN || "";
+    if (adminDomain && hostname.includes(adminDomain)) {
+        console.log(`[Proxy] Host: ${hostname}, Path: ${path}`);
+    }
 
     // If already logged in and visiting /admin/login, redirect to /admin
     if (path === '/admin/login') {
