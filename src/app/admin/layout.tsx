@@ -1,10 +1,20 @@
+"use client";
+
 import AdminSidebar from "@/components/shell/AdminSidebar";
 import AdminHeader from "@/components/shell/AdminHeader";
 import CommandPalette from "@/components/ui/CommandPalette";
 import ZenModeProvider from "@/components/ZenMode";
 import PageVisitTracker from "@/components/shell/PageVisitTracker";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    const isLoginPage = pathname === "/admin/login";
+
+    if (isLoginPage) {
+        return <>{children}</>;
+    }
+
     return (
         <ZenModeProvider>
             <div className="flex h-screen bg-zinc-950 text-zinc-50 font-sans overflow-hidden">
