@@ -92,7 +92,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
                             {link.label}
                         </Link>
                     ))}
-                    <Link href="/login" className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors font-medium">
+                    <Link href="/admin/login" className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors font-medium">
                         Admin
                     </Link>
                 </nav>
@@ -119,7 +119,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
                                     {link.label}
                                 </Link>
                             ))}
-                            <Link href="/login" onClick={() => setMobileOpen(false)}
+                            <Link href="/admin/login" onClick={() => setMobileOpen(false)}
                                 className="block px-3 py-2.5 rounded-md text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50 font-medium min-h-[44px] flex items-center">
                                 Admin
                             </Link>

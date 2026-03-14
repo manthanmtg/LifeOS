@@ -5,8 +5,8 @@ import { verifyToken } from '@/lib/auth'
 export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
-    // If already logged in and visiting /login, redirect to /admin
-    if (path === '/login') {
+    // If already logged in and visiting /admin/login, redirect to /admin
+    if (path === '/admin/login') {
         const token = request.cookies.get('lifeos_token')?.value;
         if (token) {
             const verified = await verifyToken(token);
@@ -32,7 +32,7 @@ export default async function proxy(request: NextRequest) {
             if (path.startsWith('/api')) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
-            return NextResponse.redirect(new URL('/login', request.url));
+            return NextResponse.redirect(new URL('/admin/login', request.url));
         }
 
         const verifiedToken = await verifyToken(token);
@@ -40,7 +40,7 @@ export default async function proxy(request: NextRequest) {
             if (path.startsWith('/api')) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
-            return NextResponse.redirect(new URL('/login', request.url));
+            return NextResponse.redirect(new URL('/admin/login', request.url));
         }
     }
 
@@ -48,5 +48,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
+    matcher: ['/admin/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
 }

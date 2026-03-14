@@ -117,7 +117,7 @@ export default function PublicModuleClient({ slug, userName }: Props) {
 
     if (allowed === false) {
         if (unauthorized) {
-            router.push("/login");
+            router.push("/admin/login");
             return null;
         }
         notFound();
