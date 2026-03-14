@@ -5,32 +5,43 @@ import { verifyToken } from '@/lib/auth'
 export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
     const hostname = request.headers.get("host") || "";
-    
-    // Debug log for host-based routing
     const adminDomain = process.env.ADMIN_DOMAIN || "";
-    if (adminDomain && hostname.includes(adminDomain)) {
+    const isAdminHost = adminDomain && hostname.includes(adminDomain);
+
+    // Debug log for host-based routing
+    if (isAdminHost) {
         console.log(`[Proxy] Host: ${hostname}, Path: ${path}`);
     }
 
-    // If already logged in and visiting /admin/login, redirect to /admin
-    if (path === '/admin/login') {
+    // Determine if the path is /login or /admin/login (both should be public)
+    const isLoginPath = path === '/admin/login' || path === '/login';
+
+    // If already logged in and visiting login page, redirect to dashboard
+    if (isLoginPath) {
         const token = request.cookies.get('lifeos_token')?.value;
         if (token) {
             const verified = await verifyToken(token);
             if (verified) {
-                return NextResponse.redirect(new URL('/admin', request.url));
+                // On admin host, "/" is the dashboard. On others, it's "/admin"
+                const dashboardUrl = isAdminHost ? '/' : '/admin';
+                return NextResponse.redirect(new URL(dashboardUrl, request.url));
             }
         }
         return NextResponse.next();
     }
 
-    // Protect /admin and sensitive /api routes
-    const isProtectedPath = path.startsWith('/admin') ||
-        path.startsWith('/api/system') || // Protect all system calls for now, GET included to be safe
+    // Protect paths:
+    // 1. Any path starting with /admin
+    // 2. Sensitive /api routes
+    // 3. ANY path on the ADMIN_DOMAIN (the "shell" itself)
+    const isProtectedPath = 
+        path.startsWith('/admin') ||
+        path.startsWith('/api/system') ||
         path.startsWith('/api/ai-usage') ||
         path.startsWith('/api/export') ||
         path.startsWith('/api/import') ||
-        (path.startsWith('/api/content') && request.method !== 'GET'); // GET /api/content might be public for some modules
+        (path.startsWith('/api/content') && request.method !== 'GET') ||
+        (isAdminHost && !path.startsWith('/api') && !path.startsWith('/_next') && !path.startsWith('/static'));
 
     if (isProtectedPath) {
         const token = request.cookies.get('lifeos_token')?.value;
@@ -39,6 +50,7 @@ export default async function proxy(request: NextRequest) {
             if (path.startsWith('/api')) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
+            // Redirect to admin login
             return NextResponse.redirect(new URL('/admin/login', request.url));
         }
 
@@ -55,5 +67,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
