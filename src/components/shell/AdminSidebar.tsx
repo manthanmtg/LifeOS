@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
-import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, Menu, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Settings, User, FileText, DollarSign, LogOut, CreditCard, X, BookOpen, Library, Lightbulb, Code, Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, ExternalLink, Bot, Users, Car, Wrench, Home, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import GlobalModuleSearch from "@/components/shell/GlobalModuleSearch";
@@ -90,16 +90,14 @@ export default function AdminSidebar() {
         { href: "/admin/settings", name: "System Settings", icon: Settings }
     ];
 
+    useEffect(() => {
+        const handler = () => setMobileOpen(true);
+        window.addEventListener("open-mobile-sidebar", handler);
+        return () => window.removeEventListener("open-mobile-sidebar", handler);
+    }, []);
+
     return (
         <>
-            {/* Mobile hamburger trigger */}
-            <button
-                onClick={() => setMobileOpen(true)}
-                className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300"
-            >
-                <Menu className="w-5 h-5" />
-            </button>
-
             {/* Mobile drawer overlay */}
             <AnimatePresence>
                 {mobileOpen && (

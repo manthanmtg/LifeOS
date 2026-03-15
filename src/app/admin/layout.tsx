@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <AdminSidebar />
                 <PageVisitTracker />
                 <main className="flex-1 overflow-y-auto bg-zinc-950 relative">
-                    <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-16 lg:pt-8">
+                    <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-14 lg:pt-8">
                         <AdminHeader />
                         {children}
                     </div>

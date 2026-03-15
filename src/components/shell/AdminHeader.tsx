@@ -9,7 +9,7 @@ import {
     User, FileText, DollarSign, CreditCard, BookOpen, Library, Lightbulb, Code,
     Target, BarChart3, Calculator, Wheat, CloudRain, CheckSquare, Bot, Users,
     Car, Wrench, Map, ShoppingBag, HeartPulse, PenLine, Tv, Presentation,
-    Sparkles, type LucideIcon
+    Sparkles, Menu, type LucideIcon
 } from "lucide-react";
 
 const IconMap: Record<string, LucideIcon> = {
@@ -71,31 +71,45 @@ export default function AdminHeader() {
 
     return (
         <>
-            {/* Mobile: Fixed top bar next to hamburger */}
-            <div className="lg:hidden fixed top-0 left-14 right-0 z-40 bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-800/50">
-                <nav className="flex items-center gap-0.5 overflow-x-auto no-scrollbar px-2 py-2.5">
-                    {topModules.map((mod) => {
-                        const Icon = mod.icon;
-                        const isActive = currentModule === mod.slug;
-                        return (
-                            <Link
-                                key={mod.slug}
-                                href={`/admin/${mod.slug}`}
-                                className={cn(
-                                    "relative flex items-center justify-center p-2 rounded-lg transition-all duration-200 shrink-0",
-                                    isActive
-                                        ? "bg-accent/15 text-accent"
-                                        : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
-                                )}
-                            >
-                                <Icon className="w-4 h-4" />
-                                {isActive && (
-                                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
-                                )}
-                            </Link>
-                        );
-                    })}
-                </nav>
+            {/* Mobile: Unified top bar — hamburger + quick-access icons */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/50">
+                <div className="flex items-center h-12">
+                    {/* Hamburger */}
+                    <button
+                        onClick={() => window.dispatchEvent(new Event("open-mobile-sidebar"))}
+                        className="flex items-center justify-center w-12 h-12 text-zinc-400 hover:text-zinc-200 active:bg-zinc-800/60 transition-colors shrink-0"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+
+                    {/* Divider */}
+                    <div className="w-px h-5 bg-zinc-800 shrink-0" />
+
+                    {/* Quick Access Icons */}
+                    <nav className="flex items-center gap-0.5 overflow-x-auto no-scrollbar px-2 flex-1">
+                        {topModules.map((mod) => {
+                            const Icon = mod.icon;
+                            const isActive = currentModule === mod.slug;
+                            return (
+                                <Link
+                                    key={mod.slug}
+                                    href={`/admin/${mod.slug}`}
+                                    className={cn(
+                                        "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0",
+                                        isActive
+                                            ? "bg-accent/15 text-accent"
+                                            : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+                                    )}
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {isActive && (
+                                        <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
+                                    )}
+                                </Link>
+                            );
+                        })}
+                    </nav>
+                </div>
             </div>
 
             {/* Desktop: Standard header */}
