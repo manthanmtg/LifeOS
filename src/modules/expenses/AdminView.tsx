@@ -28,12 +28,12 @@ const CATEGORY_COLORS: Record<string, string> = {
     Shopping: "bg-rose-500/15 text-rose-400 border-rose-500/20",
     Education: "bg-indigo-500/15 text-indigo-400 border-indigo-500/20",
     Travel: "bg-teal-500/15 text-teal-400 border-teal-500/20",
-    Insurance: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-    Investments: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+    Insurance: "bg-warning/15 text-warning border-warning/20",
+    Investments: "bg-success/15 text-success border-success/20",
     Subscriptions: "bg-violet-500/15 text-violet-400 border-violet-500/20",
     "Personal Care": "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/20",
     "Gifts/Donations": "bg-pink-500/15 text-pink-400 border-pink-500/20",
-    Taxes: "bg-red-500/15 text-red-400 border-red-500/20",
+    Taxes: "bg-danger/15 text-danger border-danger/20",
     "Business Expenses": "bg-slate-500/15 text-slate-400 border-slate-500/20",
     "Home Maintenance": "bg-stone-500/15 text-stone-400 border-stone-500/20",
     Childcare: "bg-lime-500/15 text-lime-400 border-lime-500/20",
@@ -585,7 +585,7 @@ export default function ExpensesAdminView() {
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-zinc-500">Monthly Budget</span>
-                                    <span className={totalFiltered > settings.monthlyBudget ? "text-red-400 font-semibold" : "text-emerald-400 font-semibold"}>
+                                    <span className={totalFiltered > settings.monthlyBudget ? "text-danger font-semibold" : "text-success font-semibold"}>
                                         {sym}{formatNumber(settings.monthlyBudget, settings.numberFormat)}
                                     </span>
                                 </div>
@@ -594,7 +594,7 @@ export default function ExpensesAdminView() {
                                         initial={{ width: 0 }}
                                         animate={{ width: `${Math.min(100, (totalFiltered / settings.monthlyBudget) * 100)}%` }}
                                         transition={{ duration: 1, ease: "easeOut" }}
-                                        className={cn("h-full rounded-full transition-colors", totalFiltered > settings.monthlyBudget ? "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" : "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]")}
+                                        className={cn("h-full rounded-full transition-colors", totalFiltered > settings.monthlyBudget ? "bg-danger shadow-[0_0_10px_rgba(var(--danger),0.5)]" : "bg-success shadow-[0_0_10px_rgba(var(--success),0.5)]")}
                                     />
                                 </div>
                                 <p className="text-xs text-zinc-500 text-right">
@@ -758,7 +758,7 @@ export default function ExpensesAdminView() {
                                                             disabled={isDeletingId === exp._id}
                                                             aria-label="Delete expense"
                                                             title="Delete expense"
-                                                            className="p-2 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
+                                                            className="p-2 text-zinc-400 hover:text-danger hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
                                                         >
                                                             {isDeletingId === exp._id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                                         </button>
@@ -896,7 +896,7 @@ export default function ExpensesAdminView() {
                                 </div>
 
                                 <div className="pt-4 flex items-center justify-between border-t border-zinc-800/60 mt-6">
-                                    <span className="text-red-400 text-sm font-medium">{formError}</span>
+                                    <span className="text-danger text-sm font-medium">{formError}</span>
                                     <div className="flex gap-3 ml-auto">
                                         <button type="button" onClick={resetForm} className="px-5 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 rounded-xl transition-colors">
                                             Cancel
@@ -1038,7 +1038,7 @@ export default function ExpensesAdminView() {
                                                     {cat}
                                                     <button
                                                         onClick={() => handleRemoveCategory(cat)}
-                                                        className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10 p-0.5 rounded transition-colors"
+                                                        className="text-zinc-500 hover:text-danger hover:bg-danger/10 p-0.5 rounded transition-colors"
                                                         title={`Remove ${cat}`}
                                                     >
                                                         <X className="w-3.5 h-3.5" />

@@ -54,8 +54,8 @@ export default function TodoWidget() {
                     ))}
 
                     {activeTodos.length === 0 && recentlyDone.length > 0 && (
-                        <div className="flex items-center gap-3 px-3 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-xl">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/60 shrink-0" />
+                        <div className="flex items-center gap-3 px-3 py-2 bg-success/5 border border-success/10 rounded-xl">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-success/60 shrink-0" />
                             <span className="text-[11px] text-zinc-500 truncate line-through italic">Zero pending items</span>
                         </div>
                     )}

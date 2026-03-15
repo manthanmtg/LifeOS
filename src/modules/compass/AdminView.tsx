@@ -7,7 +7,7 @@ import { CompassTask } from "./types";
 import WorkspaceModal from "./WorkspaceModal";
 
 const PRIORITY_MAP = {
-    p1: { label: "P1: Urgent", color: "text-red-400 bg-red-400/10" },
+    p1: { label: "P1: Urgent", color: "text-danger bg-danger/10" },
     p2: { label: "P2: High", color: "text-orange-400 bg-orange-400/10" },
     p3: { label: "P3: Normal", color: "text-blue-400 bg-blue-400/10" },
     p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10" },
@@ -17,8 +17,8 @@ const PRIORITY_MAP = {
 const COLUMNS = [
     { id: "backlog", title: "Backlog", color: "bg-zinc-800" },
     { id: "in_progress", title: "In Progress", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-    { id: "review", title: "Review", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-    { id: "done", title: "Done", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+    { id: "review", title: "Review", color: "bg-warning/20 text-warning border-warning/30" },
+    { id: "done", title: "Done", color: "bg-success/20 text-success border-success/30" },
 ] as const;
 
 export default function CompassAdminView() {
@@ -338,8 +338,8 @@ export default function CompassAdminView() {
                     className={cn(
                         "fixed bottom-8 left-1/2 -translate-x-1/2 px-8 py-4 rounded-3xl border-2 flex items-center justify-center gap-3 transition-all duration-300 z-40 bg-zinc-950/90 backdrop-blur-md shadow-2xl",
                         draggedOverCol === "delete"
-                            ? "border-red-500 scale-110 text-red-500"
-                            : "border-red-500/30 text-red-400/70"
+                            ? "border-danger scale-110 text-danger"
+                            : "border-danger/30 text-danger/70"
                     )}
                     onDragOver={(e) => handleDragOver(e, "delete")}
                     onDragLeave={() => setDraggedOverCol(null)}

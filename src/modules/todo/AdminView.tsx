@@ -312,10 +312,10 @@ export default function TodoAdminView() {
                                         "px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border",
                                         quickAddPriority === p
                                             ? p === "high"
-                                                ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                                ? "bg-danger/20 border-danger/40 text-danger"
                                                 : p === "medium"
-                                                    ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
-                                                    : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                                    ? "bg-warning/20 border-warning/40 text-warning"
+                                                    : "bg-success/20 border-success/40 text-success"
                                             : "bg-transparent border-zinc-800 text-zinc-600 hover:text-zinc-400 hover:border-zinc-700"
                                     )}
                                 >
@@ -415,7 +415,7 @@ export default function TodoAdminView() {
                                             <div className={cn(
                                                 "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
                                                 todo.payload.completed
-                                                    ? "bg-emerald-500 border-emerald-500"
+                                                    ? "bg-success border-success"
                                                     : "border-zinc-700 group-hover/check:border-accent"
                                             )}>
                                                 {todo.payload.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
@@ -466,10 +466,10 @@ export default function TodoAdminView() {
                                                     todo.payload.completed
                                                         ? "bg-zinc-900 border-zinc-800 text-zinc-600"
                                                         : todo.payload.priority === "high"
-                                                            ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                            ? "bg-danger/10 border-danger/20 text-danger"
                                                             : todo.payload.priority === "medium"
-                                                                ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                                                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                                ? "bg-warning/10 border-warning/20 text-warning"
+                                                                : "bg-success/10 border-success/20 text-success"
                                                 )}>
                                                     <Flag className="w-3 h-3" />
                                                     {todo.payload.priority}

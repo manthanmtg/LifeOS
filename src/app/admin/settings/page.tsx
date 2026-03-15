@@ -573,7 +573,7 @@ export default function SettingsPage() {
                                                             "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             !state.enabled
                                                                 ? "bg-zinc-950 text-zinc-600 border border-zinc-800/50 cursor-not-allowed"
-                                                                : state.isPublic ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
+                                                                : state.isPublic ? "bg-success/10 text-success border border-success/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         {state.isPublic ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -630,7 +630,7 @@ export default function SettingsPage() {
                                                             "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             !state.enabled
                                                                 ? "bg-zinc-950 text-zinc-600 border border-zinc-800/50 cursor-not-allowed"
-                                                                : state.isPublic ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
+                                                                : state.isPublic ? "bg-success/10 text-success border border-success/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         {state.isPublic ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -883,18 +883,18 @@ export default function SettingsPage() {
                                                                 initial={{ opacity: 0, y: 8 }}
                                                                 animate={{ opacity: 1, y: 0 }}
                                                                 exit={{ opacity: 0, y: -8 }}
-                                                                className="absolute inset-0 flex items-center justify-center bg-emerald-500/[0.06] rounded-2xl border-2 border-emerald-500/30 backdrop-blur-sm"
+                                                                className="absolute inset-0 flex items-center justify-center bg-success/[0.06] rounded-2xl border-2 border-success/30 backdrop-blur-sm"
                                                             >
                                                                 <div className="flex items-center gap-2.5">
                                                                     <motion.div
                                                                         initial={{ scale: 0 }}
                                                                         animate={{ scale: 1 }}
                                                                         transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.1 }}
-                                                                        className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center"
+                                                                        className="w-8 h-8 bg-success/20 rounded-full flex items-center justify-center"
                                                                     >
-                                                                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                                                        <CheckCircle2 className="w-5 h-5 text-success" />
                                                                     </motion.div>
-                                                                    <span className="text-sm font-semibold text-emerald-400">Icon uploaded!</span>
+                                                                    <span className="text-sm font-semibold text-success">Icon uploaded!</span>
                                                                 </div>
                                                             </motion.div>
                                                         )}
@@ -938,14 +938,14 @@ export default function SettingsPage() {
                             {/* MongoDB Cluster Card */}
                             <div className="bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border border-zinc-800/60 rounded-3xl p-6 lg:p-8 overflow-hidden relative">
                                 {/* Background glow effect */}
-                                <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+                                <div className="absolute top-0 right-0 w-96 h-96 bg-success/5 rounded-full blur-3xl pointer-events-none" />
                                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
 
                                 {/* Header */}
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                                            <Server className="w-6 h-6 text-emerald-400" />
+                                        <div className="p-3 bg-success/10 rounded-2xl border border-success/20">
+                                            <Server className="w-6 h-6 text-success" />
                                         </div>
                                         <div>
                                             <h2 className="text-xl font-bold text-zinc-50 tracking-tight">MongoDB Cluster</h2>
@@ -1012,7 +1012,7 @@ export default function SettingsPage() {
                                         </div>
                                         <span className={cn(
                                             "text-sm font-bold",
-                                            (dbStats?.limits?.usagePercent || 0) > 80 ? "text-red-400" : (dbStats?.limits?.usagePercent || 0) > 50 ? "text-amber-400" : "text-emerald-400"
+                                            (dbStats?.limits?.usagePercent || 0) > 80 ? "text-danger" : (dbStats?.limits?.usagePercent || 0) > 50 ? "text-warning" : "text-success"
                                         )}>
                                             {dbStatsLoading ? "—" : `${dbStats?.limits?.usagePercent?.toFixed(1) || "0.0"}%`}
                                         </span>
@@ -1024,7 +1024,7 @@ export default function SettingsPage() {
                                             transition={{ duration: 1, ease: "easeOut" }}
                                             className={cn(
                                                 "h-full rounded-full",
-                                                (dbStats?.limits?.usagePercent || 0) > 80 ? "bg-gradient-to-r from-red-500 to-red-400" : (dbStats?.limits?.usagePercent || 0) > 50 ? "bg-gradient-to-r from-amber-500 to-amber-400" : "bg-gradient-to-r from-emerald-500 to-emerald-400"
+                                                (dbStats?.limits?.usagePercent || 0) > 80 ? "bg-gradient-to-r from-danger to-danger" : (dbStats?.limits?.usagePercent || 0) > 50 ? "bg-gradient-to-r from-warning to-warning" : "bg-gradient-to-r from-success to-success"
                                             )}
                                         />
                                     </div>
@@ -1103,7 +1103,7 @@ export default function SettingsPage() {
                                         <input ref={fileRef} type="file" accept=".json" onChange={handleImport} className="hidden" disabled={importing} />
                                     </label>
                                     {importResult && (
-                                        <p className={cn("text-xs font-semibold relative z-10", importResult.startsWith("Error") || importResult.includes("failed") ? "text-red-400" : "text-emerald-400")}>
+                                        <p className={cn("text-xs font-semibold relative z-10", importResult.startsWith("Error") || importResult.includes("failed") ? "text-danger" : "text-success")}>
                                             {importResult}
                                         </p>
                                     )}

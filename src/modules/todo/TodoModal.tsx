@@ -129,10 +129,10 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
                                         "px-3 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border touch-manipulation",
                                         priority === p
                                             ? p === "high"
-                                                ? "bg-red-500/20 border-red-500/40 text-red-400"
+                                                ? "bg-danger/20 border-danger/40 text-danger"
                                                 : p === "medium"
-                                                    ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
-                                                    : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                                                    ? "bg-warning/20 border-warning/40 text-warning"
+                                                    : "bg-success/20 border-success/40 text-success"
                                             : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700"
                                     )}
                                 >

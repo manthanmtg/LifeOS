@@ -50,20 +50,20 @@ export default function CompassWidget() {
 
                 <div className="flex flex-col gap-2">
                     {critical.length > 0 && (
-                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-xl">
-                            <span className="flex items-center gap-1.5 text-red-400">
+                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest px-3 py-2 bg-danger/10 border border-danger/20 rounded-xl">
+                            <span className="flex items-center gap-1.5 text-danger">
                                 <AlertCircle className="w-3 h-3" /> Critical Path
                             </span>
-                            <span className="text-red-400">{critical.length}</span>
+                            <span className="text-danger">{critical.length}</span>
                         </div>
                     )}
 
                     {review.length > 0 && (
-                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest px-3 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                            <span className="flex items-center gap-1.5 text-yellow-400">
+                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest px-3 py-2 bg-warning/10 border border-warning/20 rounded-xl">
+                            <span className="flex items-center gap-1.5 text-warning">
                                 <CheckCircle className="w-3 h-3" /> Under Review
                             </span>
-                            <span className="text-yellow-400">{review.length}</span>
+                            <span className="text-warning">{review.length}</span>
                         </div>
                     )}
                 </div>

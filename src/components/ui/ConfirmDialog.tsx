@@ -40,7 +40,7 @@ export default function ConfirmDialog({
                         className="relative w-full max-w-sm bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl p-6"
                     >
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${variant === "danger" ? "bg-red-500/10 text-red-500" : "bg-amber-500/10 text-amber-500"
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${variant === "danger" ? "bg-danger/10 text-danger" : "bg-warning/10 text-warning"
                                 }`}>
                                 <AlertTriangle className="w-6 h-6" />
                             </div>
@@ -65,8 +65,8 @@ export default function ConfirmDialog({
                                         onClose();
                                     }}
                                     className={`flex-1 px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg ${variant === "danger"
-                                        ? "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20"
-                                        : "bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/20"
+                                        ? "bg-danger text-white hover:bg-danger-muted shadow-danger/20"
+                                        : "bg-warning text-zinc-900 hover:bg-warning-muted shadow-warning/20"
                                         }`}
                                 >
                                     {confirmLabel}

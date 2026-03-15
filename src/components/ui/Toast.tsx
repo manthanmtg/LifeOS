@@ -31,9 +31,9 @@ export default function Toast({ message, type, isVisible, onClose, duration = 40
     }[type];
 
     const colors = {
-        success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-        error: "border-red-500/20 bg-red-500/10 text-red-400",
-        info: "border-blue-500/20 bg-blue-500/10 text-blue-400"
+        success: "border-success/20 bg-success/10 text-success",
+        error: "border-danger/20 bg-danger/10 text-danger",
+        info: "border-accent/20 bg-accent/10 text-accent"
     }[type];
 
     return (
