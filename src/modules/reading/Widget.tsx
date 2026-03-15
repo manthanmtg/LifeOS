@@ -62,8 +62,8 @@ export default function ReadingWidget() {
                 </div>
 
                 {summary.topHighPriority && (
-                    <div className="p-3 rounded-xl border border-red-500/10 bg-red-500/5">
-                        <p className="text-[10px] uppercase font-bold tracking-widest text-red-500/60 mb-1.5 inline-flex items-center gap-1.5">
+                    <div className="p-3 rounded-xl border border-danger/10 bg-danger/5">
+                        <p className="text-[10px] uppercase font-bold tracking-widest text-danger/60 mb-1.5 inline-flex items-center gap-1.5">
                             <ArrowUpCircle className="w-3 h-3" /> Priority Load
                         </p>
                         <p className="text-[13px] text-zinc-300 font-medium line-clamp-1 leading-relaxed">{summary.topHighPriority.payload.title}</p>

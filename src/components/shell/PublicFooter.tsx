@@ -26,7 +26,7 @@ export default function PublicFooter() {
         <footer className="border-t border-zinc-800 py-8 mt-auto">
             <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
                 <p className="flex items-center gap-1.5">
-                    Built with <Heart className="w-3.5 h-3.5 text-red-400" /> using Life OS
+                    Built with <Heart className="w-3.5 h-3.5 text-danger" /> using Life OS
                 </p>
                 {socialLinks.filter((l) => l.platform && l.url).length > 0 && (
                     <div className="flex items-center gap-4">

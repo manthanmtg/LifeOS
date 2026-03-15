@@ -317,11 +317,11 @@ const handleEdit = (item: DeckItem) => {
                             </div>
                             <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                                 <p className="text-xs text-zinc-500">Public</p>
-                                <p className="text-lg font-semibold text-green-300">{stats.publicDecks}</p>
+                                <p className="text-lg font-semibold text-success">{stats.publicDecks}</p>
                             </div>
                             <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                                 <p className="text-xs text-zinc-500">Folders</p>
-                                <p className="text-lg font-semibold text-yellow-300">{stats.folderCount}</p>
+                                <p className="text-lg font-semibold text-warning">{stats.folderCount}</p>
                             </div>
                         </div>
                     </div>
@@ -340,7 +340,7 @@ const handleEdit = (item: DeckItem) => {
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
                                 <label htmlFor="deck-title" className="block text-xs text-zinc-500 mb-1.5">
-                                    Title <span className="text-red-400">*</span>
+                                    Title <span className="text-danger">*</span>
                                 </label>
                                 <input
                                     id="deck-title"
@@ -531,7 +531,7 @@ const handleEdit = (item: DeckItem) => {
 
                             <div className="md:col-span-2 flex justify-end gap-3">
                                 {formError && (
-                                    <span className="text-red-400 text-xs self-center">{formError}</span>
+                                    <span className="text-danger text-xs self-center">{formError}</span>
                                 )}
                                 <button
                                     type="button"
@@ -740,7 +740,7 @@ const handleEdit = (item: DeckItem) => {
                                             className={cn(
                                                 "p-1.5 rounded-lg transition-colors",
                                                 item.is_public
-                                                    ? "text-emerald-400 hover:bg-emerald-500/10"
+                                                    ? "text-success hover:bg-success/10"
                                                     : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
                                             )}
                                             title={item.is_public ? "Make private" : "Make public"}
@@ -761,7 +761,7 @@ const handleEdit = (item: DeckItem) => {
                                                 }
                                             }}
                                             disabled={isDeletingId === item._id}
-                                            className="p-1.5 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                            className="p-1.5 rounded-lg text-danger/60 hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
                                             title="Delete"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />

@@ -354,7 +354,7 @@ export default function PortfolioAdminView() {
                     <div className="flex items-center gap-2">
                         <span className={cn(
                             "text-xs px-2.5 py-1 rounded-full border",
-                            isDirty ? "bg-yellow-500/10 text-yellow-300 border-yellow-500/20" : "bg-green-500/10 text-green-300 border-green-500/20"
+                            isDirty ? "bg-warning/10 text-warning border-warning/20" : "bg-success/10 text-success border-success/20"
                         )}>
                             {isDirty ? "Unsaved changes" : "All changes saved"}
                         </span>
@@ -380,7 +380,7 @@ export default function PortfolioAdminView() {
                 {status && (
                     <div className={cn(
                         "relative mt-4 text-sm rounded-xl px-4 py-3 border",
-                        status.kind === "success" ? "bg-green-500/10 border-green-500/20 text-green-300" : "bg-red-500/10 border-red-500/20 text-red-300"
+                        status.kind === "success" ? "bg-success/10 border-success/20 text-success" : "bg-danger/10 border-danger/20 text-danger"
                     )}>
                         {status.text}
                     </div>
@@ -437,7 +437,7 @@ export default function PortfolioAdminView() {
                     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold text-zinc-300">Narrative & Availability</h3>
-                            <span className={cn("text-xs", profile.bio.length > 1000 ? "text-red-400" : "text-zinc-500")}>{profile.bio.length}/1000</span>
+                            <span className={cn("text-xs", profile.bio.length > 1000 ? "text-danger" : "text-zinc-500")}>{profile.bio.length}/1000</span>
                         </div>
                         <label htmlFor="profile-bio" className="sr-only">Bio</label>
                         <textarea
@@ -504,7 +504,7 @@ export default function PortfolioAdminView() {
                             {profile.skills.map((skill) => (
                                 <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-xs font-medium rounded-full">
                                     {skill}
-                                    <button onClick={() => removeSkill(skill)} className="hover:text-red-300 transition-colors" aria-label={`Remove ${skill}`}>
+                                    <button onClick={() => removeSkill(skill)} className="hover:text-danger transition-colors" aria-label={`Remove ${skill}`}>
                                         ×
                                     </button>
                                 </span>
@@ -556,13 +556,13 @@ export default function PortfolioAdminView() {
                                                 disabled={saving}
                                                 className={cn(
                                                     "w-full bg-zinc-800 border rounded-lg px-3 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40",
-                                                    urlOk ? "border-zinc-700" : "border-red-500/50"
+                                                    urlOk ? "border-zinc-700" : "border-danger/50"
                                                 )}
                                             />
                                             <button
                                                 onClick={() => removeSocialLink(i)}
                                                 disabled={saving}
-                                                className="p-2 text-zinc-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                                                className="p-2 text-zinc-500 hover:text-danger transition-colors disabled:opacity-50"
                                                 aria-label="Remove social link"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -638,7 +638,7 @@ export default function PortfolioAdminView() {
                                             <button
                                                 onClick={() => deleteResume(res._id)}
                                                 disabled={uploadingResume}
-                                                className="p-1.5 text-zinc-500 hover:text-red-400 transition-colors"
+                                                className="p-1.5 text-zinc-500 hover:text-danger transition-colors"
                                                 aria-label="Delete resume"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
@@ -689,8 +689,8 @@ export default function PortfolioAdminView() {
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     {profile.available_for_hire && (
-                                        <span className="inline-flex items-center gap-1.5 px-2 py-1 mb-2 text-[10px] font-medium bg-green-500/15 text-green-300 border border-green-500/20 rounded-full">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
+                                        <span className="inline-flex items-center gap-1.5 px-2 py-1 mb-2 text-[10px] font-medium bg-success/15 text-success border border-success/20 rounded-full">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                                             Available
                                         </span>
                                     )}

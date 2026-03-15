@@ -130,17 +130,17 @@ type DetailTab = "overview" | "medications" | "vaccinations" | "visits" | "lab_r
 const PROFILE_TYPE_CONFIG: Record<ProfileType, { label: string; color: string; bg: string; border: string; icon: typeof User }> = {
     self: { label: "Self", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: User },
     family: { label: "Family", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: Users },
-    pet: { label: "Pet", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: PawPrint },
+    pet: { label: "Pet", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20", icon: PawPrint },
 };
 
 const CONDITION_STATUS_CONFIG: Record<ConditionStatus, { label: string; color: string; bg: string }> = {
-    active: { label: "Active", color: "text-red-400", bg: "bg-red-500/10" },
-    managed: { label: "Managed", color: "text-amber-400", bg: "bg-amber-500/10" },
-    resolved: { label: "Resolved", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+    active: { label: "Active", color: "text-danger", bg: "bg-danger/10" },
+    managed: { label: "Managed", color: "text-warning", bg: "bg-warning/10" },
+    resolved: { label: "Resolved", color: "text-success", bg: "bg-success/10" },
 };
 
 const MEDICATION_STATUS_CONFIG: Record<MedicationStatus, { label: string; color: string; bg: string }> = {
-    active: { label: "Active", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+    active: { label: "Active", color: "text-success", bg: "bg-success/10" },
     completed: { label: "Completed", color: "text-blue-400", bg: "bg-blue-500/10" },
     discontinued: { label: "Discontinued", color: "text-zinc-400", bg: "bg-zinc-500/10" },
 };
@@ -148,7 +148,7 @@ const MEDICATION_STATUS_CONFIG: Record<MedicationStatus, { label: string; color:
 const VISIT_TYPE_CONFIG: Record<VisitType, { label: string; color: string }> = {
     checkup: { label: "Checkup", color: "text-blue-400" },
     consultation: { label: "Consultation", color: "text-purple-400" },
-    emergency: { label: "Emergency", color: "text-red-400" },
+    emergency: { label: "Emergency", color: "text-danger" },
     surgery: { label: "Surgery", color: "text-orange-400" },
     lab_test: { label: "Lab Test", color: "text-teal-400" },
     follow_up: { label: "Follow-up", color: "text-cyan-400" },
@@ -158,17 +158,17 @@ const VISIT_TYPE_CONFIG: Record<VisitType, { label: string; color: string }> = {
 };
 
 const LAB_STATUS_CONFIG: Record<LabStatus, { label: string; color: string; bg: string; border: string }> = {
-    normal: { label: "Normal", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20" },
-    borderline: { label: "Borderline", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
-    abnormal: { label: "Abnormal", color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20" },
+    normal: { label: "Normal", color: "text-success", bg: "bg-success/10", border: "border-success/20" },
+    borderline: { label: "Borderline", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
+    abnormal: { label: "Abnormal", color: "text-danger", bg: "bg-danger/10", border: "border-danger/20" },
 };
 
 const DOC_TYPE_CONFIG: Record<DocType, { label: string; color: string }> = {
     prescription: { label: "Prescription", color: "text-blue-400" },
-    bill: { label: "Bill", color: "text-amber-400" },
+    bill: { label: "Bill", color: "text-warning" },
     lab_report: { label: "Lab Report", color: "text-teal-400" },
     discharge_summary: { label: "Discharge", color: "text-purple-400" },
-    insurance: { label: "Insurance", color: "text-green-400" },
+    insurance: { label: "Insurance", color: "text-success" },
     imaging: { label: "Imaging", color: "text-cyan-400" },
     other: { label: "Other", color: "text-zinc-400" },
 };
@@ -217,9 +217,9 @@ function dueBadge(dateStr?: string, label?: string) {
     if (status === "none") return null;
     const days = daysUntil(dateStr)!;
     const config = {
-        overdue: { text: `${label ? label + ": " : ""}Overdue ${Math.abs(days)}d`, bg: "bg-red-500/10", border: "border-red-500/20", color: "text-red-400" },
-        warning: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-amber-500/10", border: "border-amber-500/20", color: "text-amber-400" },
-        ok: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-emerald-500/10", border: "border-emerald-500/20", color: "text-emerald-400" },
+        overdue: { text: `${label ? label + ": " : ""}Overdue ${Math.abs(days)}d`, bg: "bg-danger/10", border: "border-danger/20", color: "text-danger" },
+        warning: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-warning/10", border: "border-warning/20", color: "text-warning" },
+        ok: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-success/10", border: "border-success/20", color: "text-success" },
     }[status];
     return (
         <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", config.bg, config.border, config.color)}>
@@ -261,10 +261,10 @@ function calculateBMI(heightCm?: number, weightKg?: number): number | null {
 }
 
 function bmiCategory(bmi: number): { label: string; color: string } {
-    if (bmi < 18.5) return { label: "Underweight", color: "text-amber-400" };
-    if (bmi < 25) return { label: "Normal", color: "text-emerald-400" };
-    if (bmi < 30) return { label: "Overweight", color: "text-amber-400" };
-    return { label: "Obese", color: "text-red-400" };
+    if (bmi < 18.5) return { label: "Underweight", color: "text-warning" };
+    if (bmi < 25) return { label: "Normal", color: "text-success" };
+    if (bmi < 30) return { label: "Overweight", color: "text-warning" };
+    return { label: "Obese", color: "text-danger" };
 }
 
 // ─── Shared form elements ────────────────────────────────────────────────────
@@ -763,9 +763,9 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Allergies</label>
                                     <div className="flex flex-wrap gap-2 mb-2">
                                         {formData.allergies.map((a, i) => (
-                                            <span key={i} className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-500/10 border border-red-500/20 text-red-400">
+                                            <span key={i} className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-danger/10 border border-danger/20 text-danger">
                                                 {a}
-                                                <button onClick={() => setFormData(f => ({ ...f, allergies: f.allergies.filter((_, j) => j !== i) }))} className="hover:text-red-300">
+                                                <button onClick={() => setFormData(f => ({ ...f, allergies: f.allergies.filter((_, j) => j !== i) }))} className="hover:text-danger">
                                                     <X className="w-3 h-3" />
                                                 </button>
                                             </span>
@@ -888,7 +888,7 @@ export default function HealthAdminView() {
                                 </span>
                                 {p.relation && <span className="text-xs text-zinc-500">{p.relation}</span>}
                                 {p.blood_group !== "unknown" && (
-                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger">
                                         <Droplets className="w-3 h-3 inline mr-1" />{p.blood_group}
                                     </span>
                                 )}
@@ -899,8 +899,8 @@ export default function HealthAdminView() {
                         <button onClick={() => openEditProfile(selectedProfile)} className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors">
                             <Edit3 className="w-4 h-4 text-zinc-400" />
                         </button>
-                        <button onClick={() => setConfirmDelete({ open: true, id: selectedProfile._id, name: p.name })} className="p-2 rounded-xl bg-zinc-900 border border-red-900/30 hover:bg-red-950/50 transition-colors">
-                            <Trash2 className="w-4 h-4 text-red-400" />
+                        <button onClick={() => setConfirmDelete({ open: true, id: selectedProfile._id, name: p.name })} className="p-2 rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors">
+                            <Trash2 className="w-4 h-4 text-danger" />
                         </button>
                     </div>
                 </div>
@@ -960,7 +960,7 @@ export default function HealthAdminView() {
                                 <p className={cn(labelCls, "mb-3")}>Allergies</p>
                                 <div className="flex flex-wrap gap-2">
                                     {p.allergies.map((a, i) => (
-                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-red-500/10 border border-red-500/20 text-red-400">{a}</span>
+                                        <span key={i} className="px-3 py-1 rounded-full text-xs font-medium bg-danger/10 border border-danger/20 text-danger">{a}</span>
                                     ))}
                                 </div>
                             </div>
@@ -990,7 +990,7 @@ export default function HealthAdminView() {
                                                 </span>
                                                 <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                     <button onClick={() => openConditionForm(c)} className="p-1 rounded hover:bg-zinc-800"><Edit3 className="w-3 h-3 text-zinc-500" /></button>
-                                                    <button onClick={() => deleteSubRecord("conditions", c.id)} className="p-1 rounded hover:bg-red-950/50"><Trash2 className="w-3 h-3 text-red-400" /></button>
+                                                    <button onClick={() => deleteSubRecord("conditions", c.id)} className="p-1 rounded hover:bg-danger/50"><Trash2 className="w-3 h-3 text-danger" /></button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1084,7 +1084,7 @@ export default function HealthAdminView() {
                                                     </div>
                                                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                         <button onClick={() => openMedicationForm(med)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
-                                                        <button onClick={() => deleteSubRecord("medications", med.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                                                        <button onClick={() => deleteSubRecord("medications", med.id)} className="p-1.5 rounded-lg hover:bg-danger/50"><Trash2 className="w-3.5 h-3.5 text-danger" /></button>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -1180,7 +1180,7 @@ export default function HealthAdminView() {
                                                 </div>
                                                 <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                     <button onClick={() => openVaccinationForm(vac)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
-                                                    <button onClick={() => deleteSubRecord("vaccinations", vac.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                                                    <button onClick={() => deleteSubRecord("vaccinations", vac.id)} className="p-1.5 rounded-lg hover:bg-danger/50"><Trash2 className="w-3.5 h-3.5 text-danger" /></button>
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -1275,7 +1275,7 @@ export default function HealthAdminView() {
                                                         )}
                                                         <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                             <button onClick={() => openVisitForm(visit)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
-                                                            <button onClick={() => deleteSubRecord("visits", visit.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                                                            <button onClick={() => deleteSubRecord("visits", visit.id)} className="p-1.5 rounded-lg hover:bg-danger/50"><Trash2 className="w-3.5 h-3.5 text-danger" /></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1429,7 +1429,7 @@ export default function HealthAdminView() {
                                                                     </div>
                                                                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity">
                                                                         <button onClick={() => openLabForm(r)} className="p-1 rounded hover:bg-zinc-800"><Edit3 className="w-3 h-3 text-zinc-500" /></button>
-                                                                        <button onClick={() => deleteSubRecord("lab_results", r.id)} className="p-1 rounded hover:bg-red-950/50"><Trash2 className="w-3 h-3 text-red-400" /></button>
+                                                                        <button onClick={() => deleteSubRecord("lab_results", r.id)} className="p-1 rounded hover:bg-danger/50"><Trash2 className="w-3 h-3 text-danger" /></button>
                                                                     </div>
                                                                 </div>
                                                             );
@@ -1569,7 +1569,7 @@ export default function HealthAdminView() {
                                                 </div>
                                                 <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                     <button onClick={() => openMeasurementForm(m)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
-                                                    <button onClick={() => deleteSubRecord("measurements", m.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                                                    <button onClick={() => deleteSubRecord("measurements", m.id)} className="p-1.5 rounded-lg hover:bg-danger/50"><Trash2 className="w-3.5 h-3.5 text-danger" /></button>
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -1650,7 +1650,7 @@ export default function HealthAdminView() {
                                                     </div>
                                                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                         <button onClick={() => openDocForm(doc)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
-                                                        <button onClick={() => deleteSubRecord("documents", doc.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                                                        <button onClick={() => deleteSubRecord("documents", doc.id)} className="p-1.5 rounded-lg hover:bg-danger/50"><Trash2 className="w-3.5 h-3.5 text-danger" /></button>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -1753,16 +1753,16 @@ export default function HealthAdminView() {
 
             {/* Alerts banner */}
             {profileAlerts.length > 0 && (
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4">
+                <div className="bg-warning/5 border border-warning/20 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="w-4 h-4 text-amber-400" />
-                        <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">{profileAlerts.length} Alert{profileAlerts.length !== 1 ? "s" : ""}</p>
+                        <AlertTriangle className="w-4 h-4 text-warning" />
+                        <p className="text-xs font-bold text-warning uppercase tracking-widest">{profileAlerts.length} Alert{profileAlerts.length !== 1 ? "s" : ""}</p>
                     </div>
                     <div className="space-y-2">
                         {profileAlerts.slice(0, 5).map((a, i) => (
                             <div key={i} className="flex items-center justify-between text-xs">
                                 <span className="text-zinc-300">{a.profileName} — {a.label}</span>
-                                <span className={cn("font-medium", a.status === "overdue" ? "text-red-400" : "text-amber-400")}>
+                                <span className={cn("font-medium", a.status === "overdue" ? "text-danger" : "text-warning")}>
                                     {a.status === "overdue" ? `Overdue ${Math.abs(daysUntil(a.date)!)}d` : `${daysUntil(a.date)}d left`}
                                 </span>
                             </div>
@@ -1825,7 +1825,7 @@ export default function HealthAdminView() {
                                         </div>
                                     </div>
                                     {pl.blood_group !== "unknown" && (
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 shrink-0">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger shrink-0">
                                             {pl.blood_group}
                                         </span>
                                     )}
@@ -1834,7 +1834,7 @@ export default function HealthAdminView() {
                                 <div className="mt-4 flex items-center gap-3 text-xs text-zinc-500">
                                     {activeCondCount > 0 && (
                                         <span className="flex items-center gap-1">
-                                            <AlertCircle className="w-3 h-3 text-amber-400" /> {activeCondCount} condition{activeCondCount !== 1 ? "s" : ""}
+                                            <AlertCircle className="w-3 h-3 text-warning" /> {activeCondCount} condition{activeCondCount !== 1 ? "s" : ""}
                                         </span>
                                     )}
                                     {activeMedCount > 0 && (
@@ -1850,9 +1850,9 @@ export default function HealthAdminView() {
                                 </div>
 
                                 {alerts > 0 && (
-                                    <div className="mt-3 p-2 rounded-xl border border-amber-500/20 bg-amber-500/5 flex items-center gap-2">
-                                        <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
-                                        <span className="text-[11px] text-amber-300 font-medium">{alerts} alert{alerts !== 1 ? "s" : ""} need attention</span>
+                                    <div className="mt-3 p-2 rounded-xl border border-warning/20 bg-warning/5 flex items-center gap-2">
+                                        <AlertTriangle className="w-3 h-3 text-warning shrink-0" />
+                                        <span className="text-[11px] text-warning font-medium">{alerts} alert{alerts !== 1 ? "s" : ""} need attention</span>
                                     </div>
                                 )}
                             </motion.div>

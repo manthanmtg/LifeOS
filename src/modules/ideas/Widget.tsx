@@ -47,7 +47,7 @@ export default function IdeasWidget() {
             href="/admin/ideas"
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                    <span className="flex items-center gap-1.5 text-green-400">
+                    <span className="flex items-center gap-1.5 text-success">
                         <Sparkles className="w-3 h-3" /> {stats.promoted} Promoted
                     </span>
                     <span>{stats.exploring} Exploring</span>

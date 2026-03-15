@@ -12,8 +12,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 const STATUS_STYLES: Record<string, string> = {
     want_to_read: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-    reading: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    completed: "bg-green-500/15 text-green-300 border-green-500/25",
+    reading: "bg-warning/15 text-warning border-warning/25",
+    completed: "bg-success/15 text-success border-success/25",
     abandoned: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };
 
@@ -97,11 +97,11 @@ export default function BookshelfPublicView({ items }: { items: Record<string, u
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Reading</p>
-                            <p className="text-lg font-semibold text-yellow-300">{stats.reading}</p>
+                            <p className="text-lg font-semibold text-warning">{stats.reading}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Completed</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.completed}</p>
+                            <p className="text-lg font-semibold text-success">{stats.completed}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Avg Rating</p>
@@ -200,7 +200,7 @@ export default function BookshelfPublicView({ items }: { items: Record<string, u
                                                                         key={star}
                                                                         className={cn(
                                                                             "w-3.5 h-3.5",
-                                                                            star <= (book.payload.rating || 0) ? "text-yellow-400" : "text-zinc-700"
+                                                                            star <= (book.payload.rating || 0) ? "text-warning" : "text-zinc-700"
                                                                         )}
                                                                         fill={star <= (book.payload.rating || 0) ? "currentColor" : "none"}
                                                                     />

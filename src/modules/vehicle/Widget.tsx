@@ -101,7 +101,7 @@ export default function VehicleWidget() {
             href="/admin/vehicle"
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5 text-amber-400/80">
+                    <span className="flex items-center gap-1.5 text-warning/80">
                         <Fuel className="w-3 h-3" />
                         {summary.fuelCostThisMonth > 0
                             ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
@@ -125,10 +125,10 @@ export default function VehicleWidget() {
                 </div>
 
                 {summary.alertCount > 0 ? (
-                    <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                    <div className="p-3 rounded-xl border border-warning/20 bg-warning/5">
                         <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                            <p className="text-[13px] text-amber-300 font-medium leading-relaxed">
+                            <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
+                            <p className="text-[13px] text-warning font-medium leading-relaxed">
                                 {summary.alertCount} expiry/service alert{summary.alertCount !== 1 ? "s" : ""}
                             </p>
                         </div>

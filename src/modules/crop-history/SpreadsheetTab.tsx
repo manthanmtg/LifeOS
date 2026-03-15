@@ -94,7 +94,7 @@ function YoYBadge({ current, previous }: { current: number; previous: number }) 
     return (
         <span className={cn(
             "inline-flex items-center gap-0.5 text-[9px] font-medium px-1 py-0.5 rounded ml-1",
-            isUp ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"
+            isUp ? "text-success bg-success/10" : "text-danger bg-danger/10"
         )}>
             {isUp ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
             {isUp ? "+" : ""}{pct.toFixed(1)}%
@@ -177,7 +177,7 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
     if (!crops?.length) {
         return (
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center py-12 shadow-sm">
-                <AlertTriangle className="w-10 h-10 text-yellow-500 mx-auto mb-3 opacity-80" />
+                <AlertTriangle className="w-10 h-10 text-warning mx-auto mb-3 opacity-80" />
                 <h3 className="text-lg font-medium text-zinc-200">No Crop Types Found</h3>
                 <p className="text-zinc-500 mt-1">Please configure your crops and areas in the Crop Settings tab first.</p>
             </div>
@@ -350,7 +350,7 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                 {crops.map((c: CropConfig) => (
                     <button key={c.id} onClick={() => setActiveCropId(c.id)}
                         className={cn("px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap",
-                            c.id === activeCrop.id ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-inner"
+                            c.id === activeCrop.id ? "bg-success/15 text-success border border-success/30 shadow-inner"
                                 : "bg-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
                         )}>
                         {c.name}
@@ -371,7 +371,7 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                         <button onClick={handleSaveAll} disabled={isSaving}
-                            className="text-xs md:text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50">
+                            className="text-xs md:text-sm font-medium bg-success-muted hover:bg-success text-white px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50">
                             {isSaving && !savingPeriod ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                             Save All
                         </button>
@@ -380,7 +380,7 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                                 <input autoFocus value={newPeriodValue} onChange={e => setNewPeriodValue(e.target.value)}
                                     onKeyDown={e => { if (e.key === 'Enter') handleAddPeriod(); if (e.key === 'Escape') setShowAddPeriod(false); }}
                                     placeholder="e.g. 2026-27" className="w-24 md:w-28 bg-transparent text-sm text-zinc-100 outline-none placeholder-zinc-500 font-mono" />
-                                <button onClick={handleAddPeriod} className="text-emerald-400 hover:text-emerald-300 p-1"><Plus className="w-4 h-4" /></button>
+                                <button onClick={handleAddPeriod} className="text-success hover:text-success p-1"><Plus className="w-4 h-4" /></button>
                                 <button onClick={() => setShowAddPeriod(false)} className="text-zinc-500 hover:text-zinc-300 p-1"><X className="w-4 h-4" /></button>
                             </div>
                         ) : (
@@ -417,10 +417,10 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                                                 <span className="font-semibold text-zinc-200">{period}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <button onClick={() => handleSavePeriod(period)} disabled={isSaving} className="text-emerald-500 hover:text-emerald-400 p-1" title="Save this period">
+                                                <button onClick={() => handleSavePeriod(period)} disabled={isSaving} className="text-success hover:text-success p-1" title="Save this period">
                                                     {savingPeriod === period ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                                                 </button>
-                                                <button onClick={() => handleDeletePeriod(period)} className="text-zinc-600 hover:text-red-400 p-1" title="Delete period">
+                                                <button onClick={() => handleDeletePeriod(period)} className="text-zinc-600 hover:text-danger p-1" title="Delete period">
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
@@ -455,7 +455,7 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                                                                 <input type="number"
                                                                     value={localData[period]?.source_data?.[area.id]?.[f.id] ?? ''}
                                                                     onChange={(e) => handleSourceChange(period, area.id, f.id, e.target.value)}
-                                                                    className="w-24 bg-transparent border-none text-right text-zinc-300 font-mono focus:ring-1 focus:ring-emerald-500/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                                    className="w-24 bg-transparent border-none text-right text-zinc-300 font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                                     placeholder="-" />
                                                                 {pIdx > 0 && val > 0 && <YoYBadge current={val} previous={prevVal} />}
                                                             </div>
@@ -503,9 +503,9 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
 
                             {/* Summary Fields */}
                             {activeCrop.summaryFields.length > 0 && (
-                                <tr className="bg-emerald-950/10 hover:bg-emerald-950/20 transition-colors border-t-2 border-zinc-800">
+                                <tr className="bg-success-muted/10 hover:bg-success-muted/20 transition-colors border-t-2 border-zinc-800">
                                     <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
-                                        <div className="font-semibold text-emerald-400 text-xs md:text-sm">Period Inputs</div>
+                                        <div className="font-semibold text-success text-xs md:text-sm">Period Inputs</div>
                                         <div className="text-[10px] text-zinc-500 mt-1 hidden md:block">Values per period</div>
                                     </td>
                                     {schedulePeriods.map((period: string, pIdx: number) => (
@@ -517,15 +517,15 @@ export function SpreadsheetTab({ activeCrop, crops, areas, records, schedulePeri
                                                     const prevVal = prevPeriod ? (Number(localData[prevPeriod]?.summary_data?.[f.id]) || 0) : 0;
                                                     return (
                                                         <div key={f.id} className="flex justify-between items-center px-4 py-2 hover:bg-zinc-800/50">
-                                                            <span className="text-xs text-emerald-500/70 w-16 md:w-24 shrink-0 truncate" title={`${f.name}${f.unit ? ` (${f.unit})` : ''}`}>
+                                                            <span className="text-xs text-success/70 w-16 md:w-24 shrink-0 truncate" title={`${f.name}${f.unit ? ` (${f.unit})` : ''}`}>
                                                                 {f.name}
-                                                                {f.unit && <span className="text-emerald-700 ml-0.5 text-[10px]">{f.unit}</span>}
+                                                                {f.unit && <span className="text-success-muted ml-0.5 text-[10px]">{f.unit}</span>}
                                                             </span>
                                                             <div className="flex items-center gap-1">
                                                                 <input type="number"
                                                                     value={localData[period]?.summary_data?.[f.id] ?? ''}
                                                                     onChange={(e) => handleSummaryChange(period, f.id, e.target.value)}
-                                                                    className="w-24 bg-transparent border-none text-right text-emerald-300 font-mono focus:ring-1 focus:ring-emerald-500/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                                    className="w-24 bg-transparent border-none text-right text-success font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                                     placeholder="-" />
                                                                 {pIdx > 0 && val > 0 && <YoYBadge current={val} previous={prevVal} />}
                                                             </div>

@@ -81,9 +81,9 @@ const CATEGORY_COLORS: Record<Category, string> = {
     vehicle: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
     electronics: "bg-purple-500/15 text-purple-400 border-purple-500/20",
     plumbing: "bg-sky-500/15 text-sky-400 border-sky-500/20",
-    electrical: "bg-yellow-500/15 text-yellow-400 border-yellow-500/20",
+    electrical: "bg-warning/15 text-warning border-warning/20",
     hvac: "bg-teal-500/15 text-teal-400 border-teal-500/20",
-    garden: "bg-green-500/15 text-green-400 border-green-500/20",
+    garden: "bg-success/15 text-success border-success/20",
     cleaning: "bg-pink-500/15 text-pink-400 border-pink-500/20",
     insurance: "bg-indigo-500/15 text-indigo-400 border-indigo-500/20",
     subscription: "bg-violet-500/15 text-violet-400 border-violet-500/20",
@@ -91,16 +91,16 @@ const CATEGORY_COLORS: Record<Category, string> = {
 };
 
 const STATUS_STYLES: Record<Status, string> = {
-    overdue: "bg-red-500/15 text-red-400 border-red-500/20",
-    upcoming: "bg-green-500/15 text-green-400 border-green-500/20",
-    completed: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+    overdue: "bg-danger/15 text-danger border-danger/20",
+    upcoming: "bg-success/15 text-success border-success/20",
+    completed: "bg-success/15 text-success border-success/20",
     skipped: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
 };
 
 const PRIORITY_DOT: Record<Priority, string> = {
-    high: "bg-red-400",
-    medium: "bg-amber-400",
-    low: "bg-green-400",
+    high: "bg-danger",
+    medium: "bg-warning",
+    low: "bg-success",
 };
 
 const CURR_SYM: Record<string, string> = {
@@ -461,9 +461,9 @@ export default function MaintenanceAdminView() {
             {/* ── Stat Cards ─────────────────────────────────────────────── */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard label="Total Tasks" value={stats.total} icon={Wrench} color="text-zinc-400" bgColor="bg-zinc-500/10" />
-                <StatCard label="Overdue" value={stats.overdue} icon={AlertTriangle} color="text-red-400" bgColor="bg-red-500/10" highlight={stats.overdue > 0} />
-                <StatCard label="Due Soon" value={stats.dueSoon} icon={Clock} color="text-amber-400" bgColor="bg-amber-500/10" />
-                <StatCard label="Completed" value={stats.completedThisMonth} icon={CheckCircle2} color="text-emerald-400" bgColor="bg-emerald-500/10" sublabel="this month" />
+                <StatCard label="Overdue" value={stats.overdue} icon={AlertTriangle} color="text-danger" bgColor="bg-danger/10" highlight={stats.overdue > 0} />
+                <StatCard label="Due Soon" value={stats.dueSoon} icon={Clock} color="text-warning" bgColor="bg-warning/10" />
+                <StatCard label="Completed" value={stats.completedThisMonth} icon={CheckCircle2} color="text-success" bgColor="bg-success/10" sublabel="this month" />
             </div>
 
             {/* ── Search & Filters ───────────────────────────────────────── */}
@@ -602,7 +602,7 @@ export default function MaintenanceAdminView() {
                                         <span>Next due</span>
                                         <span className={cn(
                                             "font-medium",
-                                            p.status === "overdue" ? "text-red-400" : days !== null && days <= 30 ? "text-amber-400" : "text-zinc-300"
+                                            p.status === "overdue" ? "text-danger" : days !== null && days <= 30 ? "text-warning" : "text-zinc-300"
                                         )}>
                                             {formatDate(p.next_due)}
                                             {days !== null && (
@@ -629,7 +629,7 @@ export default function MaintenanceAdminView() {
                                             <div
                                                 className={cn(
                                                     "h-full rounded-full transition-all duration-500",
-                                                    progress >= 100 ? "bg-red-500" : progress >= 75 ? "bg-amber-500" : "bg-emerald-500"
+                                                    progress >= 100 ? "bg-danger" : progress >= 75 ? "bg-warning" : "bg-success"
                                                 )}
                                                 style={{ width: `${Math.min(progress, 100)}%` }}
                                             />
@@ -654,7 +654,7 @@ export default function MaintenanceAdminView() {
                                     {p.status !== "completed" && (
                                         <button
                                             onClick={() => openMarkComplete(task)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-success/10 text-success hover:bg-success/20 border border-success/20 transition-colors"
                                         >
                                             <Check className="w-3.5 h-3.5" /> Complete
                                         </button>
@@ -677,7 +677,7 @@ export default function MaintenanceAdminView() {
                                     </button>
                                     <button
                                         onClick={() => setDeletingId(task._id)}
-                                        className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                        className="p-1.5 rounded-lg text-zinc-500 hover:text-danger hover:bg-danger/10 transition-colors"
                                         title="Delete"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -763,7 +763,7 @@ export default function MaintenanceAdminView() {
                                                 onClick={() => setForm((f) => ({ ...f, is_recurring: !f.is_recurring }))}
                                                 className={cn(
                                                     "w-10 h-6 rounded-full transition-colors relative",
-                                                    form.is_recurring ? "bg-emerald-500" : "bg-zinc-700"
+                                                    form.is_recurring ? "bg-success" : "bg-zinc-700"
                                                 )}
                                             >
                                                 <span className={cn(
@@ -840,7 +840,7 @@ export default function MaintenanceAdminView() {
                                             onClick={() => setForm((f) => ({ ...f, reminder_enabled: !f.reminder_enabled }))}
                                             className={cn(
                                                 "w-10 h-6 rounded-full transition-colors relative",
-                                                form.reminder_enabled ? "bg-emerald-500" : "bg-zinc-700"
+                                                form.reminder_enabled ? "bg-success" : "bg-zinc-700"
                                             )}
                                         >
                                             <span className={cn(
@@ -890,7 +890,7 @@ export default function MaintenanceAdminView() {
                                         <div className="space-y-2 max-h-48 overflow-y-auto">
                                             {[...form.history].reverse().map((h) => (
                                                 <div key={h.id} className="flex items-start gap-3 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs">
-                                                    <div className="w-2 h-2 mt-1 rounded-full bg-emerald-500 shrink-0" />
+                                                    <div className="w-2 h-2 mt-1 rounded-full bg-success shrink-0" />
                                                     <div className="flex-1 min-w-0 space-y-0.5">
                                                         <p className="text-zinc-300 font-medium">{formatDate(h.completed_at)}</p>
                                                         {h.vendor && <p className="text-zinc-500">Vendor: {h.vendor}</p>}
@@ -987,7 +987,7 @@ export default function MaintenanceAdminView() {
                                 <button
                                     onClick={confirmMarkComplete}
                                     disabled={saving}
-                                    className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-500 transition-colors disabled:opacity-40"
+                                    className="flex items-center gap-2 px-5 py-2 rounded-xl bg-success-muted text-white font-medium text-sm hover:bg-success transition-colors disabled:opacity-40"
                                 >
                                     <CheckCircle2 className="w-4 h-4" /> {saving ? "Saving..." : "Confirm"}
                                 </button>
@@ -1031,9 +1031,9 @@ export default function MaintenanceAdminView() {
                                                     {/* Timeline dot */}
                                                     <div className={cn(
                                                         "absolute left-0 top-1.5 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center",
-                                                        i === 0 ? "border-emerald-500 bg-emerald-500/20" : "border-zinc-700 bg-zinc-900"
+                                                        i === 0 ? "border-success bg-success/20" : "border-zinc-700 bg-zinc-900"
                                                     )}>
-                                                        <div className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-emerald-400" : "bg-zinc-600")} />
+                                                        <div className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-success" : "bg-zinc-600")} />
                                                     </div>
 
                                                     <div className="flex-1 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs space-y-1">
@@ -1075,8 +1075,8 @@ export default function MaintenanceAdminView() {
                             className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm shadow-2xl p-6 space-y-4"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                    <Trash2 className="w-5 h-5 text-red-400" />
+                                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
+                                    <Trash2 className="w-5 h-5 text-danger" />
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-bold text-zinc-100">Delete Task</h3>
@@ -1092,7 +1092,7 @@ export default function MaintenanceAdminView() {
                                 </button>
                                 <button
                                     onClick={() => deleteTask(deletingId)}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-medium text-sm hover:bg-red-500 transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-danger-muted text-white font-medium text-sm hover:bg-danger transition-colors"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
@@ -1152,13 +1152,13 @@ function StatCard({
     return (
         <div className={cn(
             "bg-zinc-900 border rounded-2xl p-4 flex items-center gap-4 transition-colors",
-            highlight ? "border-red-500/30 bg-red-950/10" : "border-zinc-800"
+            highlight ? "border-danger/30 bg-danger/10" : "border-zinc-800"
         )}>
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", bgColor)}>
                 <Icon className={cn("w-5 h-5", color)} />
             </div>
             <div>
-                <p className={cn("text-2xl font-bold tracking-tight", highlight ? "text-red-400" : "text-zinc-50")}>{value}</p>
+                <p className={cn("text-2xl font-bold tracking-tight", highlight ? "text-danger" : "text-zinc-50")}>{value}</p>
                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
                     {label}
                     {sublabel && <span className="text-zinc-600 ml-1 normal-case font-normal italic">({sublabel})</span>}

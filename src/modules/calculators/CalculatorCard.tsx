@@ -12,9 +12,9 @@ interface CalculatorCardProps {
 }
 
 function metricToneClass(tone: CalculatorMetric["tone"]) {
-    if (tone === "good") return "text-green-300";
-    if (tone === "warn") return "text-amber-300";
-    if (tone === "bad") return "text-red-300";
+    if (tone === "good") return "text-success";
+    if (tone === "warn") return "text-warning";
+    if (tone === "bad") return "text-danger";
     return "text-zinc-300";
 }
 

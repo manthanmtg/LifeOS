@@ -31,9 +31,9 @@ export const IDEA_STATUS_STYLES: Record<string, string> = {
 };
 
 export const IDEA_PRIORITY_STYLES: Record<string, string> = {
-    high: "bg-red-500/15 text-red-300 border-red-500/25",
-    medium: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    low: "bg-green-500/15 text-green-300 border-green-500/25",
+    high: "bg-danger/15 text-danger border-danger/25",
+    medium: "bg-warning/15 text-warning border-warning/25",
+    low: "bg-success/15 text-success border-success/25",
 };
 
 export function formatIdeaTimestamp(iso?: string): string | null {

@@ -276,7 +276,7 @@ export default function CompassAdminView() {
                                                     className={cn(
                                                         "bg-zinc-900 border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-all shadow-sm group",
                                                         draggedTaskId === task._id && "opacity-50 scale-95",
-                                                        isStuck && "border-yellow-500/30 bg-yellow-500/5"
+                                                        isStuck && "border-warning/30 bg-warning/5"
                                                     )}
                                                 >
                                                     <div className="flex gap-2 items-start justify-between mb-2">
@@ -309,7 +309,7 @@ export default function CompassAdminView() {
                                                                 </span>
                                                             )}
                                                             {isStuck && (
-                                                                <span className="text-xs text-yellow-500/80 flex items-center gap-1" title="Stuck > 7 days">
+                                                                <span className="text-xs text-warning/80 flex items-center gap-1" title="Stuck > 7 days">
                                                                     <Clock className="w-3 h-3" /> {Math.floor(ageDays)}d
                                                                 </span>
                                                             )}

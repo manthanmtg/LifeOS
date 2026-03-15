@@ -287,7 +287,7 @@ export default function HabitsAdminView() {
                             </div>
                         </div>
                         <div className="md:col-span-2 flex justify-end gap-3">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -338,7 +338,7 @@ export default function HabitsAdminView() {
                                             disabled={isLoggingId === habit._id + todayStr}
                                             aria-label={completedToday ? "Mark habit as not done today" : "Mark habit as done today"}
                                             className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 disabled:opacity-50",
-                                                completedToday ? "bg-green-500/15 text-green-400" : "bg-zinc-800 text-zinc-500 hover:text-zinc-50"
+                                                completedToday ? "bg-success/15 text-success" : "bg-zinc-800 text-zinc-500 hover:text-zinc-50"
                                             )}>
                                             {isLoggingId === habit._id + todayStr ? <RefreshCw className="w-3 h-3 animate-spin" /> : (completedToday ? "✓ Done today" : "Log today")}
                                         </button>
@@ -355,7 +355,7 @@ export default function HabitsAdminView() {
                                                 onClick={() => handleDelete(habit._id)}
                                                 disabled={isDeletingId === habit._id}
                                                 aria-label="Delete habit"
-                                                className="p-1 text-zinc-500 hover:text-red-400 disabled:opacity-50"
+                                                className="p-1 text-zinc-500 hover:text-danger disabled:opacity-50"
                                             >
                                                 {isDeletingId === habit._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                                             </button>

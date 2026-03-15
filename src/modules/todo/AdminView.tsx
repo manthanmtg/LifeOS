@@ -449,7 +449,7 @@ export default function TodoAdminView() {
                                             </button>
                                             <button
                                                 onClick={() => setConfirmDeleteId(todo._id)}
-                                                className="p-2.5 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all touch-manipulation"
+                                                className="p-2.5 text-zinc-600 hover:text-danger hover:bg-danger/10 rounded-xl transition-all touch-manipulation"
                                                 aria-label="Delete task"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -481,7 +481,7 @@ export default function TodoAdminView() {
                                                     todo.payload.completed
                                                         ? "bg-zinc-900 border-zinc-800 text-zinc-600"
                                                         : new Date(todo.payload.due_date) < new Date()
-                                                            ? "bg-red-500/10 border-red-500/20 text-red-400"
+                                                            ? "bg-danger/10 border-danger/20 text-danger"
                                                             : "bg-zinc-800 border-zinc-700 text-zinc-400"
                                                 )}>
                                                     <Calendar className="w-3 h-3" />

@@ -7,7 +7,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: LucideI
     return (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-zinc-100 flex items-center gap-2.5 mb-4">
-                <Icon className="w-5 h-5 text-emerald-500" />
+                <Icon className="w-5 h-5 text-success" />
                 {title}
             </h2>
             <div className="text-sm text-zinc-400 space-y-3 leading-relaxed">{children}</div>
@@ -16,7 +16,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: LucideI
 }
 
 function Code({ children }: { children: React.ReactNode }) {
-    return <code className="text-xs bg-zinc-800 border border-zinc-700 text-emerald-300 px-1.5 py-0.5 rounded font-mono">{children}</code>;
+    return <code className="text-xs bg-zinc-800 border border-zinc-700 text-success px-1.5 py-0.5 rounded font-mono">{children}</code>;
 }
 
 function FormulaRow({ name, syntax, description }: { name: string; syntax: string; description: string }) {
@@ -72,8 +72,8 @@ export function DocsTab() {
                         <p className="text-zinc-500 mt-1">Example: <Code>Undried</Code> (kg) — the raw harvest weight per area. <Code>OT</Code> (%) — outturn percentage per area.</p>
                     </div>
 
-                    <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-3.5">
-                        <p className="text-emerald-300 font-medium mb-1">2. Period-Level Fields</p>
+                    <div className="bg-success/5 border border-success/10 rounded-lg p-3.5">
+                        <p className="text-success font-medium mb-1">2. Period-Level Fields</p>
                         <p>Values entered once per period (not per area). Shared across all areas for that period.</p>
                         <p className="text-zinc-500 mt-1">Example: <Code>Average Price</Code> (₹/50kg bag) — the market price that period.</p>
                     </div>
@@ -154,7 +154,7 @@ export function DocsTab() {
                         <p className="text-zinc-200 font-medium mb-3">Coffee Crop Setup</p>
                         <div className="space-y-2 text-zinc-400">
                             <p><strong className="text-sky-300">Per-Area Fields:</strong> Undried (kg), OT (%)</p>
-                            <p><strong className="text-emerald-300">Period Fields:</strong> Avg Price (₹/50kg bag)</p>
+                            <p><strong className="text-success">Period Fields:</strong> Avg Price (₹/50kg bag)</p>
                             <p><strong className="text-orange-300">Constants:</strong> <Code>UNDRIED_TO_BAG_CONVERT = 120</Code></p>
                             <p><strong className="text-blue-300">Calculated Fields:</strong></p>
                             <ul className="ml-4 space-y-1">
@@ -170,7 +170,7 @@ export function DocsTab() {
                         <p className="text-zinc-200 font-medium mb-3">Areca Crop Setup</p>
                         <div className="space-y-2 text-zinc-400">
                             <p><strong className="text-sky-300">Per-Area Fields:</strong> Weight (kg)</p>
-                            <p><strong className="text-emerald-300">Period Fields:</strong> Avg Price (₹/kg)</p>
+                            <p><strong className="text-success">Period Fields:</strong> Avg Price (₹/kg)</p>
                             <p><strong className="text-blue-300">Calculated Fields:</strong></p>
                             <ul className="ml-4 space-y-1">
                                 <li>Total Weight = <Code>SUM(weight)</Code> <span className="text-zinc-600">→ Number, kg</span></li>

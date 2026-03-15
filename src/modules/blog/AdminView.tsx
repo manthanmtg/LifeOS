@@ -29,8 +29,8 @@ import { BlogPayload, BlogPost, PostStatus } from "@/modules/blog/types";
 import { estimateReadingTime, formatPostDate, slugify, wordCount } from "@/modules/blog/utils";
 
 const STATUS_STYLES: Record<PostStatus, string> = {
-    draft: "bg-yellow-500/15 text-yellow-400",
-    published: "bg-green-500/15 text-green-400",
+    draft: "bg-warning/15 text-warning",
+    published: "bg-success/15 text-success",
     archived: "bg-zinc-500/15 text-zinc-400",
 };
 
@@ -589,8 +589,8 @@ export default function BlogAdminView() {
                         <div className="flex items-center gap-2 flex-wrap justify-end">
                             <div className={cn(
                                 "text-xs px-2.5 py-1 rounded-full border",
-                                autoSaveTone === "success" && "border-green-500/30 bg-green-500/10 text-green-300",
-                                autoSaveTone === "danger" && "border-red-500/30 bg-red-500/10 text-red-300",
+                                autoSaveTone === "success" && "border-success/30 bg-success/10 text-success",
+                                autoSaveTone === "danger" && "border-danger/30 bg-danger/10 text-danger",
                                 autoSaveTone === "muted" && "border-zinc-700 bg-zinc-800 text-zinc-400"
                             )}>
                                 {autoSaveMessage}
@@ -639,10 +639,10 @@ export default function BlogAdminView() {
                                 }}
                                 className={cn(
                                     "w-full bg-zinc-800 border rounded-lg px-4 py-2.5 text-sm text-zinc-50 font-mono focus:outline-none focus:ring-2 focus:ring-accent/40",
-                                    slugConflict ? "border-red-500/50" : "border-zinc-700"
+                                    slugConflict ? "border-danger/50" : "border-zinc-700"
                                 )}
                             />
-                            {slugConflict && <p className="text-xs text-red-400 mt-1">Slug already exists.</p>}
+                            {slugConflict && <p className="text-xs text-danger mt-1">Slug already exists.</p>}
                         </div>
                     </div>
 
@@ -726,7 +726,7 @@ export default function BlogAdminView() {
                                 <div>
                                     <label className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
                                         <span>SEO description</span>
-                                        <span className={draft.seoDesc.length > 160 ? "text-red-400" : ""}>{draft.seoDesc.length}/160</span>
+                                        <span className={draft.seoDesc.length > 160 ? "text-danger" : ""}>{draft.seoDesc.length}/160</span>
                                     </label>
                                     <textarea
                                         value={draft.seoDesc}
@@ -769,7 +769,7 @@ export default function BlogAdminView() {
                     </div>
 
                     {formError && (
-                        <div className="rounded-xl border border-red-500/25 bg-red-500/10 text-red-300 text-sm px-3 py-2">
+                        <div className="rounded-xl border border-danger/25 bg-danger/10 text-danger text-sm px-3 py-2">
                             {formError}
                         </div>
                     )}

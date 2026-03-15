@@ -177,7 +177,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onClose(); }}
-                                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-white/50 hover:text-red-400 transition-all hover:bg-white/10"
+                                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-white/50 hover:text-danger transition-all hover:bg-white/10"
                                 title="Close (Esc)"
                             >
                                 <X className="w-6 h-6" />

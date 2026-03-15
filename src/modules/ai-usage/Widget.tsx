@@ -64,7 +64,7 @@ export default function AiUsageWidget() {
                     {trend !== 0 ? (
                         <span className={cn(
                             "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
-                            trend > 0 ? "text-red-400" : "text-green-400"
+                            trend > 0 ? "text-danger" : "text-success"
                         )}>
                             {trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                             {Math.abs(trend).toFixed(0)}% vs last month

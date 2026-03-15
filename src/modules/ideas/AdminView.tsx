@@ -121,7 +121,7 @@ function SortableIdeaCard({
                         <button
                             onClick={() => onPromote(idea)}
                             disabled={isPromotingId === idea._id}
-                            className="p-0.5 text-zinc-500 hover:text-green-400 disabled:opacity-50"
+                            className="p-0.5 text-zinc-500 hover:text-success disabled:opacity-50"
                             title="Promote"
                             aria-label="Promote to portfolio"
                         >
@@ -140,7 +140,7 @@ function SortableIdeaCard({
                     <button
                         onClick={() => onDelete(idea._id)}
                         disabled={isPromotingId === idea._id}
-                        className="p-0.5 text-zinc-500 hover:text-red-400 disabled:opacity-50"
+                        className="p-0.5 text-zinc-500 hover:text-danger disabled:opacity-50"
                         title="Delete"
                         aria-label="Delete idea"
                     >
@@ -228,12 +228,12 @@ function DeleteZone({ isDragging }: { isDragging: boolean }) {
                 isDragging ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
             )}
         >
-            <div className="absolute inset-0 bg-gradient-to-t from-red-600/40 via-zinc-950 to-transparent backdrop-blur-md" />
+            <div className="absolute inset-0 bg-gradient-to-t from-danger-muted/40 via-zinc-950 to-transparent backdrop-blur-md" />
             <div className={cn(
                 "relative px-14 py-7 rounded-full border-2 flex items-center justify-center gap-5 transition-all duration-300 shadow-[0_-20px_60px_-15px_rgba(239,68,68,0.3)]",
                 isOver
-                    ? "bg-red-600 border-red-400 text-white scale-110 -translate-y-10"
-                    : "bg-zinc-950 border-red-500/40 text-red-500/80"
+                    ? "bg-danger-muted border-danger text-white scale-110 -translate-y-10"
+                    : "bg-zinc-950 border-danger/40 text-danger/80"
             )}>
                 <Trash2 className={cn("w-8 h-8", isOver && "animate-bounce")} />
                 <span className="font-extrabold text-xl tracking-tighter uppercase italic">Drop anywhere to delete</span>
@@ -651,7 +651,7 @@ export default function IdeasAdminView() {
             <div className="space-y-6 relative">
                 <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
                     <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl animate-pulse" />
-                    <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-green-500/10 blur-3xl" />
+                    <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-success/10 blur-3xl" />
 
                     <div className="relative space-y-4">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -692,11 +692,11 @@ export default function IdeasAdminView() {
                             </div>
                             <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                                 <p className="text-xs text-zinc-500">High Priority</p>
-                                <p className="text-lg font-semibold text-red-300">{stats.highPriority}</p>
+                                <p className="text-lg font-semibold text-danger">{stats.highPriority}</p>
                             </div>
                             <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                                 <p className="text-xs text-zinc-500">Promoted</p>
-                                <p className="text-lg font-semibold text-green-300">{stats.promoted}</p>
+                                <p className="text-lg font-semibold text-success">{stats.promoted}</p>
                             </div>
                             <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                                 <p className="text-xs text-zinc-500">Archived</p>
@@ -755,7 +755,7 @@ export default function IdeasAdminView() {
                                         {cat}
                                         <button
                                             onClick={() => updateSettings({ categories: settings.categories.filter((item: string) => item !== cat) })}
-                                            className="text-zinc-500 hover:text-red-400 ml-0.5"
+                                            className="text-zinc-500 hover:text-danger ml-0.5"
                                         >
                                             <X className="w-3 h-3" />
                                         </button>
@@ -889,7 +889,7 @@ export default function IdeasAdminView() {
                                 />
                             </div>
                             <div className="md:col-span-2 flex justify-end gap-3">
-                                {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                                {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}

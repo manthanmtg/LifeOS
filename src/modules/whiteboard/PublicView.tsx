@@ -138,7 +138,7 @@ export default function WhiteboardPublicView({ items }: { items: Record<string, 
 
                                 {/* Title */}
                                 <div className="flex items-center gap-2">
-                                    {board.payload.is_favorite && <Star className="w-3.5 h-3.5 text-yellow-400 shrink-0" fill="currentColor" />}
+                                    {board.payload.is_favorite && <Star className="w-3.5 h-3.5 text-warning shrink-0" fill="currentColor" />}
                                     <h3 className="font-semibold text-zinc-100 truncate">{board.payload.name}</h3>
                                 </div>
 

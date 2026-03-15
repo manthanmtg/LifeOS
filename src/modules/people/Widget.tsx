@@ -71,7 +71,7 @@ export default function PeopleWidget() {
                     <span className="flex items-center gap-1.5 text-pink-400/80">
                         <Heart className="w-3 h-3" fill="currentColor" /> {summary.favorites} Favorites
                     </span>
-                    <span className="flex items-center gap-1.5 text-green-400/80">
+                    <span className="flex items-center gap-1.5 text-success/80">
                         <Clock className="w-3 h-3" /> {summary.recentlyContacted} Recent
                     </span>
                 </div>
@@ -86,7 +86,7 @@ export default function PeopleWidget() {
                 {summary.upcomingBirthdays > 0 ? (
                     <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/50">
                         <div className="flex items-center gap-2">
-                            <Cake className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
+                            <Cake className="w-3.5 h-3.5 text-warning shrink-0" />
                             <p className="text-[13px] text-zinc-300 font-medium leading-relaxed">
                                 {summary.upcomingBirthdays} upcoming birthday{summary.upcomingBirthdays !== 1 ? "s" : ""}
                             </p>

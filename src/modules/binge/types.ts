@@ -33,8 +33,8 @@ export const STATUS_LABELS: Record<string, string> = {
 
 export const STATUS_STYLES: Record<string, string> = {
     to_watch: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-    watching: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    completed: "bg-green-500/15 text-green-300 border-green-500/25",
+    watching: "bg-warning/15 text-warning border-warning/25",
+    completed: "bg-success/15 text-success border-success/25",
     dropped: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };
 

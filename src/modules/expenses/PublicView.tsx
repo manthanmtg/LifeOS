@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
     Housing: "bg-blue-500/15 text-blue-400", Food: "bg-orange-500/15 text-orange-400",
-    Transportation: "bg-purple-500/15 text-purple-400", Utilities: "bg-yellow-500/15 text-yellow-400",
+    Transportation: "bg-purple-500/15 text-purple-400", Utilities: "bg-warning/15 text-warning",
     Entertainment: "bg-pink-500/15 text-pink-400", "Tech/Recurring": "bg-cyan-500/15 text-cyan-400",
-    Health: "bg-green-500/15 text-green-400", Other: "bg-zinc-500/15 text-zinc-400",
+    Health: "bg-success/15 text-success", Other: "bg-zinc-500/15 text-zinc-400",
 };
 
 interface Expense {

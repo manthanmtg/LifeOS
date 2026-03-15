@@ -147,11 +147,11 @@ export default function CropHistoryAdminView() {
         <div className="animate-fade-in-up space-y-6">
             {/* Header */}
             <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-zinc-800 bg-zinc-900 p-4 md:p-6">
-                <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-emerald-500/10 blur-3xl opacity-50" />
+                <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-success/10 blur-3xl opacity-50" />
                 <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                         <h1 className="flex items-center gap-2 md:gap-3 text-2xl md:text-3xl font-bold tracking-tight text-zinc-50">
-                            <Wheat className="w-6 h-6 md:w-8 md:h-8 text-emerald-500" />
+                            <Wheat className="w-6 h-6 md:w-8 md:h-8 text-success" />
                             Crop History
                         </h1>
                         <p className="text-zinc-400 mt-1 text-sm md:text-base hidden sm:block">Track yields, dynamic calculations, and year-over-year revenue.</p>
@@ -214,7 +214,7 @@ function TabButton({ children, active, onClick, icon: Icon }: { children: React.
             onClick={onClick}
             className={cn(
                 "flex items-center gap-2 px-4 py-2 hover:bg-zinc-800/50 rounded-t-lg transition-colors -mb-px border-b-2 whitespace-nowrap",
-                active ? "border-emerald-500 text-emerald-400" : "border-transparent text-zinc-400"
+                active ? "border-success text-success" : "border-transparent text-zinc-400"
             )}
         >
             <Icon className="w-4 h-4" />

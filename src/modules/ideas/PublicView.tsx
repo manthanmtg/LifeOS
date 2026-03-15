@@ -50,7 +50,7 @@ export default function IdeasPublicView({ items }: { items: Record<string, unkno
         <div className="space-y-6">
             <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
                 <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-                <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-green-500/10 blur-3xl" />
+                <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-success/10 blur-3xl" />
 
                 <div className="relative space-y-4">
                     <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">Explorations, concepts, and projects in motion.</h2>
@@ -62,7 +62,7 @@ export default function IdeasPublicView({ items }: { items: Record<string, unkno
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Promoted</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.promoted}</p>
+                            <p className="text-lg font-semibold text-success">{stats.promoted}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Exploring</p>

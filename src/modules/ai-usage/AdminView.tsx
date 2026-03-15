@@ -103,11 +103,11 @@ const PROVIDER_META: Record<SupportedProvider, {
 }> = {
     openai: {
         name: "OpenAI",
-        color: "text-emerald-400",
+        color: "text-success",
         colorHex: "#34d399",
-        bg: "bg-emerald-500/10",
-        border: "border-emerald-500/20",
-        gradient: "from-emerald-500/20 via-emerald-500/5 to-transparent",
+        bg: "bg-success/10",
+        border: "border-success/20",
+        gradient: "from-success/20 via-success/5 to-transparent",
         keyPrefix: "sk-admin-",
         keyLabel: "Admin API Key",
         docsUrl: "https://platform.openai.com/docs/api-reference/usage",
@@ -168,11 +168,11 @@ const PROVIDER_META: Record<SupportedProvider, {
 const UNSUPPORTED_PROVIDERS: Record<string, { name: string; color: string; bg: string; border: string; dashboardUrl: string; reason: string }> = {
     google: { name: "Google AI", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", dashboardUrl: "https://aistudio.google.com", reason: "No programmatic usage API yet." },
     mistral: { name: "Mistral AI", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20", dashboardUrl: "https://console.mistral.ai", reason: "No public usage API." },
-    groq: { name: "Groq", color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20", dashboardUrl: "https://console.groq.com", reason: "No public usage API." },
+    groq: { name: "Groq", color: "text-danger", bg: "bg-danger/10", border: "border-danger/20", dashboardUrl: "https://console.groq.com", reason: "No public usage API." },
     perplexity: { name: "Perplexity", color: "text-teal-400", bg: "bg-teal-500/10", border: "border-teal-500/20", dashboardUrl: "https://www.perplexity.ai/settings/api", reason: "No usage tracking API." },
     deepseek: { name: "DeepSeek", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", dashboardUrl: "https://platform.deepseek.com", reason: "No usage tracking API." },
     xai: { name: "xAI (Grok)", color: "text-zinc-300", bg: "bg-zinc-500/10", border: "border-zinc-500/20", dashboardUrl: "https://console.x.ai", reason: "No usage tracking API." },
-    together: { name: "Together AI", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", dashboardUrl: "https://api.together.xyz", reason: "No usage tracking API." },
+    together: { name: "Together AI", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20", dashboardUrl: "https://api.together.xyz", reason: "No usage tracking API." },
     cohere: { name: "Cohere", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", dashboardUrl: "https://dashboard.cohere.com", reason: "No usage tracking API." },
 };
 
@@ -510,15 +510,15 @@ export default function AiUsageAdminView() {
                         {syncResults.map((r) => (
                             <div key={r.provider_id} className="flex items-center gap-2 text-xs">
                                 {r.status === "success"
-                                    ? <ShieldCheck className="w-3.5 h-3.5 text-green-400" />
-                                    : <ShieldAlert className="w-3.5 h-3.5 text-red-400" />}
+                                    ? <ShieldCheck className="w-3.5 h-3.5 text-success" />
+                                    : <ShieldAlert className="w-3.5 h-3.5 text-danger" />}
                                 <span className="text-zinc-300 font-medium">{r.provider_name}</span>
                                 <span className="text-zinc-700">—</span>
                                 {r.status === "success"
                                     ? r.entries_synced > 0
-                                        ? <span className="text-green-400/80">{r.entries_synced} entries synced</span>
-                                        : <span className="text-yellow-400/80">0 entries — this tracks <strong>API key usage only</strong> (not Claude.ai / ChatGPT web sessions). Use your Admin key from <a href={r.provider_type === "anthropic" ? "https://console.anthropic.com" : "https://platform.openai.com"} target="_blank" rel="noopener noreferrer" className="underline">console</a> and make sure API calls have been made with keys in that same org.</span>
-                                    : <span className="text-red-400/80 truncate max-w-xs">{r.error}</span>}
+                                        ? <span className="text-success/80">{r.entries_synced} entries synced</span>
+                                        : <span className="text-warning/80">0 entries — this tracks <strong>API key usage only</strong> (not Claude.ai / ChatGPT web sessions). Use your Admin key from <a href={r.provider_type === "anthropic" ? "https://console.anthropic.com" : "https://platform.openai.com"} target="_blank" rel="noopener noreferrer" className="underline">console</a> and make sure API calls have been made with keys in that same org.</span>
+                                    : <span className="text-danger/80 truncate max-w-xs">{r.error}</span>}
                             </div>
                         ))}
                     </motion.div>
@@ -585,7 +585,7 @@ export default function AiUsageAdminView() {
                                                                         </span>
                                                                     )}
                                                                     {p.is_active
-                                                                        ? <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                                                        ? <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                                                                         : <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />}
                                                                 </div>
                                                             </div>
@@ -619,7 +619,7 @@ export default function AiUsageAdminView() {
                                                                 <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 flex items-center gap-1">
                                                                     <Wallet className="w-3 h-3" /> Monthly Budget
                                                                 </p>
-                                                                <p className={cn("text-[10px] font-bold", budgetPct > 80 ? "text-red-400" : budgetPct > 50 ? "text-yellow-400" : "text-zinc-500")}>
+                                                                <p className={cn("text-[10px] font-bold", budgetPct > 80 ? "text-danger" : budgetPct > 50 ? "text-warning" : "text-zinc-500")}>
                                                                     {fmtCost(pStats.cost)} / {fmtCost(p.monthly_budget!)} ({budgetPct.toFixed(0)}%)
                                                                 </p>
                                                             </div>
@@ -627,7 +627,7 @@ export default function AiUsageAdminView() {
                                                                 <motion.div initial={{ width: 0 }} animate={{ width: `${budgetPct}%` }}
                                                                     transition={{ duration: 1, ease: "easeOut" }}
                                                                     className={cn("h-full rounded-full transition-colors",
-                                                                        budgetPct > 80 ? "bg-red-500" : budgetPct > 50 ? "bg-yellow-500" : "bg-accent")} />
+                                                                        budgetPct > 80 ? "bg-danger" : budgetPct > 50 ? "bg-warning" : "bg-accent")} />
                                                             </div>
                                                         </div>
                                                     )}
@@ -637,7 +637,7 @@ export default function AiUsageAdminView() {
                                                         const lim = limitsMap[p._id];
                                                         if (!lim) return null;
                                                         if (lim.error && lim.windows.length === 0) return (
-                                                            <div className="text-[10px] text-red-400/70 flex items-center gap-1">
+                                                            <div className="text-[10px] text-danger/70 flex items-center gap-1">
                                                                 <AlertCircle className="w-3 h-3" /> Rate limits unavailable
                                                             </div>
                                                         );
@@ -669,7 +669,7 @@ export default function AiUsageAdminView() {
                                                                             <div className="flex items-center justify-between">
                                                                                 <span className="text-[10px] text-zinc-500">{w.label}</span>
                                                                                 <span className={cn("text-[10px] font-bold",
-                                                                                    pct > 80 ? "text-red-400" : pct > 50 ? "text-yellow-400" : "text-zinc-400")}>
+                                                                                    pct > 80 ? "text-danger" : pct > 50 ? "text-warning" : "text-zinc-400")}>
                                                                                     {pct.toFixed(0)}% used
                                                                                     {resetLabel && <span className="text-zinc-700 font-normal ml-1">· resets {resetLabel}</span>}
                                                                                 </span>
@@ -680,7 +680,7 @@ export default function AiUsageAdminView() {
                                                                                     animate={{ width: `${pct}%` }}
                                                                                     transition={{ duration: 0.8, ease: "easeOut" }}
                                                                                     className={cn("h-full rounded-full",
-                                                                                        pct > 80 ? "bg-red-500" : pct > 50 ? "bg-yellow-500" : meta.colorHex ? "" : "bg-accent")}
+                                                                                        pct > 80 ? "bg-danger" : pct > 50 ? "bg-warning" : meta.colorHex ? "" : "bg-accent")}
                                                                                     style={pct <= 50 && meta.colorHex ? { backgroundColor: meta.colorHex } : undefined}
                                                                                 />
                                                                             </div>
@@ -719,7 +719,7 @@ export default function AiUsageAdminView() {
 
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <StatCard label="Total Cost" value={fmtCost(stats.totalCost)} sub={`${dateRange === "all" ? "all time" : `last ${dateRange}`}`} icon={DollarSign} accent="text-emerald-400" accentBg="bg-emerald-500/10" />
+                                    <StatCard label="Total Cost" value={fmtCost(stats.totalCost)} sub={`${dateRange === "all" ? "all time" : `last ${dateRange}`}`} icon={DollarSign} accent="text-success" accentBg="bg-success/10" />
                                     <StatCard label="API Requests" value={stats.totalReq.toLocaleString()} sub={`across ${Object.keys(stats.byProvider).length} providers`} icon={Zap} accent="text-blue-400" accentBg="bg-blue-500/10" />
                                     <StatCard label="Input Tokens" value={fmtTokens(stats.totalIn)} sub={stats.totalCacheR > 0 ? `${fmtTokens(stats.totalCacheR)} cached` : undefined} icon={Hash} accent="text-orange-400" accentBg="bg-orange-500/10" />
                                     <StatCard label="Output Tokens" value={fmtTokens(stats.totalOut)} sub={stats.totalCacheW > 0 ? `${fmtTokens(stats.totalCacheW)} cache writes` : undefined} icon={TrendingUp} accent="text-purple-400" accentBg="bg-purple-500/10" />
@@ -830,7 +830,7 @@ export default function AiUsageAdminView() {
                                 <p className="text-sm text-zinc-200 font-medium">Automatic Usage Tracking</p>
                                 <p className="text-xs text-zinc-500 mt-1">
                                     Add your provider&apos;s <strong className="text-zinc-300">Admin API key</strong> and LifeOS will automatically fetch usage and cost data.
-                                    Currently supported: <span className="text-emerald-400 font-semibold">OpenAI</span> and <span className="text-orange-400 font-semibold">Anthropic</span>.
+                                    Currently supported: <span className="text-success font-semibold">OpenAI</span> and <span className="text-orange-400 font-semibold">Anthropic</span>.
                                     Keys are stored securely and never exposed in public API responses.
                                 </p>
                             </div>
@@ -874,7 +874,7 @@ export default function AiUsageAdminView() {
                                                             <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md", meta.bg, meta.color)}>{meta.name}</span>
                                                             {p.plan && <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 bg-zinc-800/80 px-2 py-0.5 rounded-md">{p.plan}</span>}
                                                             {p.is_active
-                                                                ? <span className="text-[10px] text-green-400/80 font-bold uppercase tracking-wider flex items-center gap-1"><Power className="w-3 h-3" /> Active</span>
+                                                                ? <span className="text-[10px] text-success/80 font-bold uppercase tracking-wider flex items-center gap-1"><Power className="w-3 h-3" /> Active</span>
                                                                 : <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider flex items-center gap-1"><PowerOff className="w-3 h-3" /> Paused</span>}
                                                         </div>
                                                         <div className="flex items-center gap-3 mt-1 text-xs text-zinc-500">
@@ -902,7 +902,7 @@ export default function AiUsageAdminView() {
                                                         <Edit3 className="w-4 h-4" />
                                                     </button>
                                                     <button onClick={() => handleDeleteProvider(p._id)}
-                                                        className="p-2 rounded-lg hover:bg-red-500/10 text-zinc-600 hover:text-red-400 transition-colors">
+                                                        className="p-2 rounded-lg hover:bg-danger/10 text-zinc-600 hover:text-danger transition-colors">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
@@ -997,7 +997,7 @@ export default function AiUsageAdminView() {
                                 </div>
 
                                 <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/50 flex items-start gap-2">
-                                    <AlertCircle className="w-4 h-4 text-yellow-500/70 flex-shrink-0 mt-0.5" />
+                                    <AlertCircle className="w-4 h-4 text-warning/70 flex-shrink-0 mt-0.5" />
                                     <p className="text-xs text-zinc-500">
                                         This must be an <strong className="text-zinc-300">Admin API key</strong>, not a regular API key.
                                         {providerForm.provider === "openai" ? " Only Organization Owners can create admin keys." : " Only Organization Admins can create admin keys."}
@@ -1116,11 +1116,11 @@ export default function AiUsageAdminView() {
                             <div className="space-y-2">
                                 <p className="text-sm text-zinc-200 font-medium">Provider Setup Guides</p>
                                 <p className="text-xs text-zinc-500">Step-by-step instructions to get Admin API keys for automatic usage tracking.</p>
-                                <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
-                                    <p className="text-xs text-yellow-300 font-semibold mb-1">What this tracks vs. what it does not</p>
+                                <div className="p-3 rounded-lg bg-warning/5 border border-warning/20">
+                                    <p className="text-xs text-warning font-semibold mb-1">What this tracks vs. what it does not</p>
                                     <p className="text-xs text-zinc-400 leading-relaxed">
                                         This module tracks <span className="text-zinc-200 font-medium">developer API usage</span> — calls made with <code className="text-accent">sk-ant-...</code> / <code className="text-accent">sk-...</code> keys from code, Claude Code CLI, or apps.
-                                        It does <span className="text-red-400 font-medium">not</span> track Claude.ai / ChatGPT web or app sessions — those are separate consumer products with no public usage API.
+                                        It does <span className="text-danger font-medium">not</span> track Claude.ai / ChatGPT web or app sessions — those are separate consumer products with no public usage API.
                                     </p>
                                     <p className="text-xs text-zinc-500 mt-2">
                                         If you use <strong className="text-zinc-300">Claude Code</strong>: your usage appears here automatically once you configure the Admin key from the same org as your Claude Code API key.
@@ -1212,7 +1212,7 @@ export default function AiUsageAdminView() {
                                                             <code className="text-xs text-zinc-400 font-mono">{config.envVar}=sk-...</code>
                                                         </div>
                                                         <button onClick={() => copyToClipboard(config.envVar)} className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-600 hover:text-zinc-400 transition-colors">
-                                                            {copiedText === config.envVar ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                                                            {copiedText === config.envVar ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1287,7 +1287,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
                 </button>
             </div>
             <div className="flex items-center justify-center gap-6 pt-2">
-                <div className="flex items-center gap-2 text-emerald-400/60">
+                <div className="flex items-center gap-2 text-success/60">
                     <Bot className="w-4 h-4" /> <span className="text-xs font-semibold">OpenAI</span>
                 </div>
                 <div className="flex items-center gap-2 text-orange-400/60">

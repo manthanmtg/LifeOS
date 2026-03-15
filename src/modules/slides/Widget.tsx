@@ -41,7 +41,7 @@ export default function SlidesWidget() {
                     <span className="flex items-center gap-1.5 text-blue-400/80">
                         <Layers className="w-3 h-3" /> {summary.total} Decks
                     </span>
-                    <span className="flex items-center gap-1.5 text-green-400/80">
+                    <span className="flex items-center gap-1.5 text-success/80">
                         <Globe className="w-3 h-3" /> {summary.publicDecks} Public
                     </span>
                 </div>

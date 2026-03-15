@@ -410,7 +410,7 @@ export default function SettingsPage() {
                                     <div className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-xl shadow-inner">
                                         <button
                                             onClick={() => handleModeChange("light")}
-                                            className={cn("p-2 rounded-lg transition-all", config?.color_mode === "light" ? "bg-zinc-800 text-amber-300 shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                                            className={cn("p-2 rounded-lg transition-all", config?.color_mode === "light" ? "bg-zinc-800 text-warning shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
                                         >
                                             <Sun className="w-4 h-4" />
                                         </button>
@@ -702,7 +702,7 @@ export default function SettingsPage() {
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 onClick={() => saveConfig({ site_icon: "/favicon.ico" })}
-                                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 w-fit"
+                                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-danger transition-colors px-3 py-1.5 rounded-lg hover:bg-danger/10 border border-transparent hover:border-danger/20 w-fit"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
                                                 Reset to default
@@ -717,9 +717,9 @@ export default function SettingsPage() {
                                             <div className="w-full max-w-[280px]">
                                                 <div className="bg-zinc-800/80 rounded-t-xl border border-zinc-700/40 border-b-0 px-2.5 pt-2.5 pb-0">
                                                     <div className="flex items-center gap-1.5 mb-2 px-1">
-                                                        <div className="w-2 h-2 rounded-full bg-red-500/60" />
-                                                        <div className="w-2 h-2 rounded-full bg-yellow-500/60" />
-                                                        <div className="w-2 h-2 rounded-full bg-green-500/60" />
+                                                        <div className="w-2 h-2 rounded-full bg-danger/60" />
+                                                        <div className="w-2 h-2 rounded-full bg-warning/60" />
+                                                        <div className="w-2 h-2 rounded-full bg-success/60" />
                                                     </div>
                                                     <div className="flex items-center">
                                                         <div className="flex items-center gap-2 bg-zinc-900/80 rounded-t-lg px-3.5 py-2 border border-zinc-700/30 border-b-zinc-900/80 -mb-px relative z-10 max-w-[180px]">
@@ -962,8 +962,8 @@ export default function SettingsPage() {
                                 </div>
 
                                 {dbStatsError && (
-                                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 relative z-10">
-                                        <p className="text-sm text-red-400">Error: {dbStatsError}</p>
+                                    <div className="bg-danger/10 border border-danger/20 rounded-xl p-4 mb-6 relative z-10">
+                                        <p className="text-sm text-danger">Error: {dbStatsError}</p>
                                     </div>
                                 )}
 
@@ -1089,17 +1089,17 @@ export default function SettingsPage() {
                                     </button>
                                 </div>
 
-                                <div className="bg-zinc-900/60 border border-red-500/10 rounded-2xl p-6 flex flex-col items-start gap-4 hover:bg-zinc-900/80 transition-colors relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
+                                <div className="bg-zinc-900/60 border border-danger/10 rounded-2xl p-6 flex flex-col items-start gap-4 hover:bg-zinc-900/80 transition-colors relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-danger/5 rounded-full blur-3xl pointer-events-none" />
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <h3 className="text-base font-semibold text-zinc-300">Restore System</h3>
-                                            <AlertTriangle className="w-4 h-4 text-red-400" />
+                                            <AlertTriangle className="w-4 h-4 text-danger" />
                                         </div>
                                         <p className="text-sm text-zinc-500">Upload a JSON backup to overwrite the current database. This is an irreversible action.</p>
                                     </div>
-                                    <label className="mt-auto flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-red-200 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer w-fit shadow-sm relative z-10">
-                                        <Upload className="w-4 h-4 text-red-400" /> {importing ? "Importing Data..." : "Upload JSON Backup"}
+                                    <label className="mt-auto flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-danger font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer w-fit shadow-sm relative z-10">
+                                        <Upload className="w-4 h-4 text-danger" /> {importing ? "Importing Data..." : "Upload JSON Backup"}
                                         <input ref={fileRef} type="file" accept=".json" onChange={handleImport} className="hidden" disabled={importing} />
                                     </label>
                                     {importResult && (

@@ -305,7 +305,7 @@ export default function SnippetsAdminView() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Favorites</p>
-                            <p className="text-lg font-semibold text-yellow-300">{stats.favorites}</p>
+                            <p className="text-lg font-semibold text-warning">{stats.favorites}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Languages</p>
@@ -368,7 +368,7 @@ export default function SnippetsAdminView() {
                                     {languageItem}
                                     <button
                                         onClick={() => updateSettings({ languages: configuredLanguages.filter((item) => item !== languageItem) })}
-                                        className="text-zinc-500 hover:text-red-400 ml-0.5"
+                                        className="text-zinc-500 hover:text-danger ml-0.5"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
@@ -460,7 +460,7 @@ export default function SnippetsAdminView() {
                                         disabled={isSubmitting}
                                         className={cn(
                                             "p-2.5 rounded-lg transition-colors disabled:opacity-50",
-                                            isFavorite ? "text-yellow-400 bg-yellow-400/10" : "text-zinc-500 bg-zinc-800"
+                                            isFavorite ? "text-warning bg-warning/10" : "text-zinc-500 bg-zinc-800"
                                         )}
                                         aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                                         aria-pressed={isFavorite}
@@ -519,7 +519,7 @@ export default function SnippetsAdminView() {
                         </div>
 
                         <div className="flex justify-end gap-3">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -551,7 +551,7 @@ export default function SnippetsAdminView() {
                         className={cn(
                             "px-3 py-1.5 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
                             favoritesOnly
-                                ? "bg-yellow-500/15 border-yellow-500/30 text-yellow-300"
+                                ? "bg-warning/15 border-warning/30 text-warning"
                                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300"
                         )}
                     >
@@ -604,7 +604,7 @@ export default function SnippetsAdminView() {
                         <article key={snippet._id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-colors">
                             <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    {snippet.payload.is_favorite && <Star className="w-3.5 h-3.5 text-yellow-400 shrink-0" fill="currentColor" />}
+                                    {snippet.payload.is_favorite && <Star className="w-3.5 h-3.5 text-warning shrink-0" fill="currentColor" />}
                                     <p className="text-sm font-medium text-zinc-50 truncate">{snippet.payload.title}</p>
                                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0">{snippet.payload.language}</span>
                                 </div>
@@ -614,7 +614,7 @@ export default function SnippetsAdminView() {
                                         className={cn(
                                             "p-1.5 rounded-md transition-colors",
                                             copiedId === snippet._id
-                                                ? "text-green-400 bg-green-400/10"
+                                                ? "text-success bg-success/10"
                                                 : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
                                         )}
                                         aria-label="Copy code"
@@ -624,7 +624,7 @@ export default function SnippetsAdminView() {
                                     <button
                                         onClick={() => toggleFavorite(snippet)}
                                         disabled={isProcessingId === snippet._id}
-                                        className="p-1.5 text-zinc-500 hover:text-yellow-400 rounded-md hover:bg-zinc-800 disabled:opacity-50"
+                                        className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50"
                                         aria-label={snippet.payload.is_favorite ? "Remove from favorites" : "Add to favorites"}
                                         aria-pressed={snippet.payload.is_favorite}
                                     >
@@ -641,7 +641,7 @@ export default function SnippetsAdminView() {
                                     <button
                                         onClick={() => handleDelete(snippet._id)}
                                         disabled={isProcessingId === snippet._id}
-                                        className="p-1.5 text-zinc-500 hover:text-red-400 rounded-md hover:bg-zinc-800 disabled:opacity-50"
+                                        className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50"
                                         aria-label="Delete snippet"
                                     >
                                         {isProcessingId === snippet._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}

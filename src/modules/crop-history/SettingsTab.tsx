@@ -98,8 +98,8 @@ function FormulaBuilder({
         if (summaryFields.length > 0) {
             groups.push({
                 label: "Period Fields",
-                color: "text-emerald-400",
-                bgColor: "bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20",
+                color: "text-success",
+                bgColor: "bg-success/10 border-success/20 hover:bg-success/20",
                 items: summaryFields.map(f => ({
                     label: f.name,
                     value: f.id,
@@ -158,7 +158,7 @@ function FormulaBuilder({
                         <HelpCircle className="w-3 h-3" />
                     </button>
                 </div>
-                <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
+                <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 focus-within:border-success/50 focus-within:ring-1 focus-within:ring-success/20 transition-all">
                     <Calculator className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
                     <input
                         value={formula}
@@ -178,9 +178,9 @@ function FormulaBuilder({
             {showHelp && (
                 <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-400 space-y-1.5">
                     <p className="font-medium text-zinc-300">How formulas work:</p>
-                    <p><strong className="text-sky-300">Functions</strong> aggregate per-area fields: <code className="text-emerald-300">SUM(undried)</code> adds undried weight from all areas.</p>
-                    <p><strong className="text-amber-300">WEIGHTED_AVG(ot, undried)</strong> gives the correct average OT weighted by each area&apos;s undried weight.</p>
-                    <p><strong className="text-emerald-300">Period fields</strong> like avg_price can be used directly in math.</p>
+                    <p><strong className="text-sky-300">Functions</strong> aggregate per-area fields: <code className="text-success">SUM(undried)</code> adds undried weight from all areas.</p>
+                    <p><strong className="text-warning">WEIGHTED_AVG(ot, undried)</strong> gives the correct average OT weighted by each area&apos;s undried weight.</p>
+                    <p><strong className="text-success">Period fields</strong> like avg_price can be used directly in math.</p>
                     <p><strong className="text-violet-300">Previous calculations</strong> can be referenced by later formulas (order matters!).</p>
                     <p className="text-zinc-500">See the <strong>Docs</strong> tab for full reference and examples.</p>
                 </div>
@@ -219,7 +219,7 @@ function FormulaBuilder({
                                         key={i}
                                         type="button"
                                         onClick={() => onFormulaChange(t.formula)}
-                                        className="text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2.5 py-1.5 rounded-lg hover:bg-amber-500/20 transition-colors"
+                                        className="text-xs bg-warning/10 border border-warning/20 text-warning px-2.5 py-1.5 rounded-lg hover:bg-warning/20 transition-colors"
                                         title={t.description}
                                     >
                                         {t.label}
@@ -310,7 +310,7 @@ function FormulaBuilder({
             {formula && (
                 <div className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 flex items-start gap-2">
                     <span className="text-[10px] text-zinc-600 uppercase tracking-wider font-medium mt-0.5 shrink-0">Formula:</span>
-                    <code className="text-xs text-emerald-300 font-mono break-all">{formula}</code>
+                    <code className="text-xs text-success font-mono break-all">{formula}</code>
                 </div>
             )}
         </div>
@@ -409,7 +409,7 @@ function FieldChip({ field, color, onRemove, onUpdate }: { field: FieldDef; colo
                 <input value={editUnit} onChange={e => setEditUnit(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setEditing(false); }}
                     className="w-12 bg-transparent text-zinc-400 outline-none px-1 py-0.5 text-[10px]" placeholder="unit" />
-                <button onClick={handleSave} className="text-emerald-400 hover:text-emerald-300 p-0.5"><Check className="w-3 h-3" /></button>
+                <button onClick={handleSave} className="text-success hover:text-success p-0.5"><Check className="w-3 h-3" /></button>
                 <button onClick={() => setEditing(false)} className="text-zinc-500 hover:text-zinc-300 p-0.5"><X className="w-3 h-3" /></button>
             </div>
         );
@@ -422,7 +422,7 @@ function FieldChip({ field, color, onRemove, onUpdate }: { field: FieldDef; colo
             {field.unit && <span className="text-[10px] opacity-60">({field.unit})</span>}
             {field.type === "text" && <span className="text-[10px] opacity-60">[text]</span>}
             <Edit3 className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />
-            <X className="w-3 h-3 opacity-60 hover:text-red-400 transition-colors"
+            <X className="w-3 h-3 opacity-60 hover:text-danger transition-colors"
                 onClick={e => { e.stopPropagation(); onRemove(); }} />
         </span>
     );
@@ -591,7 +591,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                 placeholder="e.g. old_home"
                                 className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 font-mono" />
                         </div>
-                        <button onClick={handleAddArea} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
+                        <button onClick={handleAddArea} className="bg-success-muted hover:bg-success text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Save</button>
                         <button onClick={() => { setIsEditingArea(false); setAreaName(""); setAreaId(""); }} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 p-2 rounded-lg"><X className="w-5 h-5" /></button>
                     </div>
                 )}
@@ -603,7 +603,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                 <div className="text-sm text-zinc-200 font-medium">{src.name}</div>
                                 <div className="text-[10px] text-zinc-500 font-mono">{src.id}</div>
                             </div>
-                            <button onClick={() => handleDeleteArea(src.id)} className="text-zinc-500 hover:text-red-400 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleDeleteArea(src.id)} className="text-zinc-500 hover:text-danger p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Trash2 className="w-3.5 h-3.5" />
                             </button>
                         </div>
@@ -622,7 +622,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                         <p className="text-xs text-zinc-500 mt-0.5">Define crop types with their fields and calculation formulas.</p>
                     </div>
                     <button onClick={() => { setCropForm({ id: "", name: "", scheduleType: "yearly", sourceFields: [], summaryFields: [], calculatedFields: [], constants: [], analyticsConfig: {} }); resetNewFields(); setIsEditingCrop(true); }}
-                        className="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-50 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors">
+                        className="text-xs bg-success-muted hover:bg-success text-zinc-50 px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors">
                         <Plus className="w-3.5 h-3.5" /> Create New Crop Type
                     </button>
                 </div>
@@ -698,7 +698,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                 <p className="text-xs text-zinc-500 mb-3">e.g. &quot;Average Price&quot; in ₹ per 50kg bag — shared across all areas for that period.</p>
                                 <div className="flex flex-wrap gap-2 mb-3">
                                     {cropForm.summaryFields.map((f: FieldDef, i: number) => (
-                                        <FieldChip key={i} field={f} color="bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+                                        <FieldChip key={i} field={f} color="bg-success/10 border-success/20 text-success"
                                             onRemove={() => setCropForm({ ...cropForm, summaryFields: cropForm.summaryFields.filter((_: FieldDef, idx: number) => idx !== i) })}
                                             onUpdate={(updated) => { const next = [...cropForm.summaryFields]; next[i] = updated; setCropForm({ ...cropForm, summaryFields: next }); }} />
                                     ))}
@@ -725,7 +725,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                     {(cropForm.constants || []).map((c: ConstantDef, i: number) => (
                                         <span key={i} className="text-xs bg-orange-500/10 border border-orange-500/20 text-orange-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
                                             {c.name} <span className="text-orange-400/60">=</span> <span className="font-mono">{c.value}</span>
-                                            <X className="w-3 h-3 cursor-pointer hover:text-red-400 transition-colors"
+                                            <X className="w-3 h-3 cursor-pointer hover:text-danger transition-colors"
                                                 onClick={() => setCropForm({ ...cropForm, constants: (cropForm.constants || []).filter((_: ConstantDef, idx: number) => idx !== i) })} />
                                         </span>
                                     ))}
@@ -771,7 +771,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                     <span className="text-[10px] text-zinc-600">Auto-computed using functions and formulas</span>
                                 </div>
                                 <p className="text-xs text-zinc-500 mb-3">
-                                    Use functions like <code className="text-emerald-400 bg-zinc-800 px-1 rounded">SUM(undried)</code> or <code className="text-amber-400 bg-zinc-800 px-1 rounded">WEIGHTED_AVG(ot, undried)</code>. Click chips to build your formula.
+                                    Use functions like <code className="text-success bg-zinc-800 px-1 rounded">SUM(undried)</code> or <code className="text-warning bg-zinc-800 px-1 rounded">WEIGHTED_AVG(ot, undried)</code>. Click chips to build your formula.
                                 </p>
 
                                 {/* Existing calculated fields */}
@@ -785,13 +785,13 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                                     <span className="text-zinc-600">=</span>
                                                     <code className="text-xs text-zinc-400 font-mono bg-black/20 px-2 py-0.5 rounded">{f.formula}</code>
                                                     <span className={cn("text-[10px] px-1.5 py-0.5 rounded",
-                                                        f.format === 'currency' ? "bg-emerald-900/50 text-emerald-300" :
-                                                            f.format === 'percentage' ? "bg-amber-900/50 text-amber-300" :
+                                                        f.format === 'currency' ? "bg-success-muted/50 text-success" :
+                                                            f.format === 'percentage' ? "bg-warning-muted/50 text-warning" :
                                                                 "bg-zinc-800 text-zinc-400"
                                                     )}>{f.format || 'number'}</span>
                                                 </div>
                                                 <button onClick={() => setCropForm({ ...cropForm, calculatedFields: cropForm.calculatedFields.filter((_: CalcFieldDef, idx: number) => idx !== i) })}
-                                                    className="text-zinc-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                                                    className="text-zinc-600 hover:text-danger transition-colors opacity-0 group-hover:opacity-100">
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
@@ -837,7 +837,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                     <div className="flex justify-end pt-1">
                                         <button onClick={addCalcField}
                                             disabled={!newCalcName.trim() || !newCalcFormula.trim()}
-                                            className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                            className="bg-success-muted hover:bg-success disabled:opacity-40 disabled:hover:bg-success-muted text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
                                             <Plus className="w-4 h-4" /> Add Calculated Field
                                         </button>
                                     </div>
@@ -887,7 +887,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                         <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-zinc-800">
                             <button onClick={() => setIsEditingCrop(false)} className="px-5 py-2.5 rounded-lg text-sm text-zinc-400 hover:bg-zinc-800 transition-colors">Cancel</button>
                             <button onClick={handleSaveCrop} disabled={!cropForm.name.trim()}
-                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                className="bg-success-muted hover:bg-success disabled:opacity-40 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
                                 <Save className="w-4 h-4" /> Save Crop Type
                             </button>
                         </div>
@@ -905,7 +905,7 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                 </div>
                                 <div className="flex gap-2">
                                     <button onClick={() => handleEditCrop(crop)} className="p-2 text-zinc-400 hover:bg-zinc-800 rounded-lg hover:text-zinc-200"><Edit3 className="w-4 h-4" /></button>
-                                    <button onClick={() => handleDeleteCrop(crop.id)} className="p-2 text-zinc-400 hover:bg-zinc-800 rounded-lg hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                                    <button onClick={() => handleDeleteCrop(crop.id)} className="p-2 text-zinc-400 hover:bg-zinc-800 rounded-lg hover:text-danger"><Trash2 className="w-4 h-4" /></button>
                                 </div>
                             </div>
 
@@ -926,8 +926,8 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                     <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Period-Level Fields</h4>
                                     <div className="flex flex-col gap-1.5">
                                         {(crop.summaryFields || []).map((f: FieldDef) => (
-                                            <div key={f.id} className="flex justify-between items-center bg-emerald-500/5 border border-emerald-500/10 px-2.5 py-1.5 rounded-md">
-                                                <span className="text-xs text-emerald-300">{f.name} {f.unit && <span className="text-emerald-500/50">({f.unit})</span>}</span>
+                                            <div key={f.id} className="flex justify-between items-center bg-success/5 border border-success/10 px-2.5 py-1.5 rounded-md">
+                                                <span className="text-xs text-success">{f.name} {f.unit && <span className="text-success/50">({f.unit})</span>}</span>
                                                 <span className="text-[10px] text-zinc-500 font-mono">{f.type || 'number'}</span>
                                             </div>
                                         ))}
@@ -954,8 +954,8 @@ export function SettingsTab({ settings, updateSettings, saving }: { settings: Se
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-xs font-medium text-blue-400">{f.name} {f.unit && <span className="text-blue-500/40">({f.unit})</span>}</span>
                                                     <span className={cn("text-[10px] px-1.5 py-0.5 rounded",
-                                                        f.format === 'currency' ? "bg-emerald-900/50 text-emerald-300" :
-                                                            f.format === 'percentage' ? "bg-amber-900/50 text-amber-300" :
+                                                        f.format === 'currency' ? "bg-success-muted/50 text-success" :
+                                                            f.format === 'percentage' ? "bg-warning-muted/50 text-warning" :
                                                                 "bg-zinc-800 text-zinc-400"
                                                     )}>{f.format}</span>
                                                 </div>

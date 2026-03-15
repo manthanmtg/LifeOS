@@ -1506,7 +1506,7 @@ export default function EmiTrackerAdminView() {
 
                                 <div className="flex items-center justify-between gap-4 mb-3 relative z-10 w-full">
                                     <div className="flex items-center gap-2 shrink-0">
-                                        <span className={cn("w-2 h-2 rounded-full shadow-[0_0_10px]", selected.payload.status === "active" ? "bg-green-500 shadow-green-500/50" : "bg-zinc-500")} />
+                                        <span className={cn("w-2 h-2 rounded-full shadow-[0_0_10px]", selected.payload.status === "active" ? "bg-success shadow-success/50" : "bg-zinc-500")} />
                                         <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest leading-none">{selected.payload.status}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
@@ -1565,7 +1565,7 @@ export default function EmiTrackerAdminView() {
 
                             <div className="p-5 space-y-5">
                                 {selectedSchedule?.warnings?.length ? (
-                                    <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 rounded-xl px-4 py-3 text-sm">
+                                    <div className="bg-warning/10 border border-warning/20 text-warning rounded-xl px-4 py-3 text-sm">
                                         {selectedSchedule.warnings.map((w, i) => <div key={i}>{w}</div>)}
                                     </div>
                                 ) : null}
@@ -1580,7 +1580,7 @@ export default function EmiTrackerAdminView() {
                                                 <p className="text-[11px] text-zinc-500 mt-2 font-medium">As of today (Scheduled)</p>
                                             </div>
                                             <div className="bg-zinc-950/40 backdrop-blur-md border border-zinc-800/60 rounded-xl p-5 relative overflow-hidden group">
-                                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Calendar className="w-16 h-16 text-emerald-500" /></div>
+                                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Calendar className="w-16 h-16 text-success" /></div>
                                                 <p className="text-xs font-medium text-zinc-500 mb-1 tracking-wide uppercase">Next Due Date</p>
                                                 <p className="text-3xl font-bold text-zinc-50 mt-1 whitespace-nowrap">{selectedOutstanding.nextDue ? selectedOutstanding.nextDue.due_date.slice(0, 10) : "—"}</p>
                                                 <p className="text-[11px] text-zinc-500 mt-2 font-medium">{selectedOutstanding.nextDue ? `Month ${selectedOutstanding.nextDue.index} / ${selected.payload.tenure_months}` : ""}</p>
@@ -1610,7 +1610,7 @@ export default function EmiTrackerAdminView() {
                                                 <div className="mt-4 pt-4 border-t border-zinc-800/50 grid grid-cols-2 gap-y-3 gap-x-4 text-[11px] text-zinc-400">
                                                     <div>
                                                         <p className="uppercase tracking-wider text-zinc-500 mb-1">Principal Paid</p>
-                                                        <p className="font-medium text-emerald-400">{formatMoney(selectedProgress.basePrincipal - selectedOutstanding.outstanding, selectedSym, decimals, settings.numberFormat)}</p>
+                                                        <p className="font-medium text-success">{formatMoney(selectedProgress.basePrincipal - selectedOutstanding.outstanding, selectedSym, decimals, settings.numberFormat)}</p>
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="uppercase tracking-wider text-zinc-500 mb-1">Principal Remaining</p>
@@ -1642,7 +1642,7 @@ export default function EmiTrackerAdminView() {
                                                         </div>
                                                         <div className="flex items-center justify-between p-2 gap-3 rounded-lg bg-zinc-900/60 border border-zinc-800/50 shadow-sm">
                                                             <div className="flex items-center gap-2 shrink-0">
-                                                                <div className="w-2.5 h-2.5 rounded bg-zinc-700/50 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" /></div>
+                                                                <div className="w-2.5 h-2.5 rounded bg-zinc-700/50 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-success shadow-[0_0_8px_rgba(var(--success),0.6)]" /></div>
                                                                 <span className="text-xs font-medium text-zinc-300">Principal</span>
                                                             </div>
                                                             <span className="text-sm font-semibold text-zinc-100 text-right truncate">{formatMoney(selectedSchedule.totals.total_principal, selectedSym, decimals, settings.numberFormat)}</span>
@@ -1660,7 +1660,7 @@ export default function EmiTrackerAdminView() {
                                                                 style={{ width: `${(selectedSchedule.totals.total_interest / (selectedSchedule.totals.total_interest + selectedSchedule.totals.total_principal) * 100 || 0).toFixed(0)}%` }}
                                                             />
                                                             <div
-                                                                className="h-full bg-emerald-500 transition-all duration-1000 ease-out"
+                                                                className="h-full bg-success transition-all duration-1000 ease-out"
                                                                 style={{ width: `${(selectedSchedule.totals.total_principal / (selectedSchedule.totals.total_interest + selectedSchedule.totals.total_principal) * 100 || 0).toFixed(0)}%` }}
                                                             />
                                                         </div>
@@ -1716,7 +1716,7 @@ export default function EmiTrackerAdminView() {
                                                                 <td className="px-5 py-3 text-right font-mono text-zinc-400">{r.annual_rate.toFixed(2)}</td>
                                                                 <td className="px-5 py-3 text-right font-medium text-zinc-200">{formatMoney(r.emi, selectedSym, decimals, settings.numberFormat)}</td>
                                                                 <td className="px-5 py-3 text-right text-rose-400/90 font-medium">{formatMoney(r.interest, selectedSym, decimals, settings.numberFormat)}</td>
-                                                                <td className="px-5 py-3 text-right text-emerald-400/90 font-medium">{formatMoney(r.principal, selectedSym, decimals, settings.numberFormat)}</td>
+                                                                <td className="px-5 py-3 text-right text-success font-medium">{formatMoney(r.principal, selectedSym, decimals, settings.numberFormat)}</td>
                                                                 <td className="px-5 py-3 text-right text-zinc-400">{r.prepayment ? formatMoney(r.prepayment, selectedSym, decimals, settings.numberFormat) : "—"}</td>
                                                                 <td className="px-5 py-3 text-right font-bold text-zinc-100">{formatMoney(r.closing_balance, selectedSym, decimals, settings.numberFormat)}</td>
                                                             </tr>
@@ -1825,7 +1825,7 @@ export default function EmiTrackerAdminView() {
                                                                     <td className="px-5 py-3.5 text-left">
                                                                         <span className={cn(
                                                                             "px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-semibold border",
-                                                                            p.kind === "prepayment" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-zinc-800 text-zinc-300 border-zinc-700"
+                                                                            p.kind === "prepayment" ? "bg-success/10 text-success border-success/20" : "bg-zinc-800 text-zinc-300 border-zinc-700"
                                                                         )}>
                                                                             {p.kind}
                                                                         </span>

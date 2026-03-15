@@ -236,7 +236,7 @@ export default function CalculatorsAdminView() {
                                             className={cn(
                                                 "inline-flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] px-1.5 border",
                                                 enabled
-                                                    ? "bg-green-500/10 border-green-500/30 text-green-300"
+                                                    ? "bg-success/10 border-success/30 text-success"
                                                     : "bg-zinc-900 border-zinc-700 text-zinc-500"
                                             )}
                                         >

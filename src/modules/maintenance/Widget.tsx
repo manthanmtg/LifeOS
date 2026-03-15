@@ -65,10 +65,10 @@ export default function MaintenanceWidget() {
             href="/admin/maintenance"
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5 text-amber-400/80">
+                    <span className="flex items-center gap-1.5 text-warning/80">
                         <Clock className="w-3 h-3" /> {summary.upcoming} Due Soon
                     </span>
-                    <span className="flex items-center gap-1.5 text-emerald-400/80">
+                    <span className="flex items-center gap-1.5 text-success/80">
                         <CheckCircle2 className="w-3 h-3" /> {summary.completedThisMonth} Done
                     </span>
                 </div>
@@ -81,14 +81,14 @@ export default function MaintenanceWidget() {
                 </div>
 
                 {summary.overdue > 0 ? (
-                    <div className="p-3 rounded-xl border border-red-500/20 bg-red-950/20">
+                    <div className="p-3 rounded-xl border border-danger/20 bg-danger/20">
                         <div className="flex items-center gap-2">
-                            <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                            <p className="text-[13px] text-red-300 font-medium leading-relaxed">
+                            <AlertTriangle className="w-3.5 h-3.5 text-danger shrink-0" />
+                            <p className="text-[13px] text-danger font-medium leading-relaxed">
                                 {summary.overdue} overdue task{summary.overdue !== 1 ? "s" : ""}
                             </p>
                         </div>
-                        <p className="text-[10px] text-red-500/60 mt-1 ml-5.5">needs immediate attention</p>
+                        <p className="text-[10px] text-danger/60 mt-1 ml-5.5">needs immediate attention</p>
                     </div>
                 ) : (
                     <div className="p-3 rounded-xl border border-dashed border-zinc-800 opacity-40">

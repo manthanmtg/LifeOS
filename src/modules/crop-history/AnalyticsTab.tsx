@@ -52,7 +52,7 @@ export function AnalyticsTab({ crops, allRecords, sources }: AnalyticsTabProps) 
     if (!crops?.length || !areas.length) {
         return (
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center py-12 shadow-sm">
-                <AlertTriangle className="w-10 h-10 text-yellow-500 mx-auto mb-3 opacity-80" />
+                <AlertTriangle className="w-10 h-10 text-warning mx-auto mb-3 opacity-80" />
                 <h3 className="text-lg font-medium text-zinc-200">No Data Available</h3>
                 <p className="text-zinc-500 mt-1">Configure crops and areas, then add data in the Spreadsheet tab to see analytics.</p>
             </div>
@@ -66,7 +66,7 @@ export function AnalyticsTab({ crops, allRecords, sources }: AnalyticsTabProps) 
                 {crops.map((c: CropConfig) => (
                     <button key={c.id} onClick={() => setActiveCropId(c.id)}
                         className={cn("px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap",
-                            c.id === activeCropId ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-inner"
+                            c.id === activeCropId ? "bg-success/15 text-success border border-success/30 shadow-inner"
                                 : "bg-transparent text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
                         )}>
                         {c.name}
@@ -235,15 +235,15 @@ function CropAnalytics({ activeCrop, records, schedulePeriods, areas }: CropAnal
                     {revenueField && (
                         <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
                             <div className="flex items-center gap-2 mb-2">
-                                <DollarSign className="w-4 h-4 text-emerald-500" />
+                                <DollarSign className="w-4 h-4 text-success" />
                                 <p className="text-sm font-medium text-zinc-400">{kpiData.revenue.label} ({kpiData.latestPeriod})</p>
                             </div>
-                            <p className="text-2xl font-bold text-emerald-400">{formatINR(kpiData.revenue.current)}</p>
+                            <p className="text-2xl font-bold text-success">{formatINR(kpiData.revenue.current)}</p>
                             {kpiData.prevPeriod && (() => {
                                 const c = pctChange(kpiData.revenue.current, kpiData.revenue.previous);
                                 if (c === null) return null;
                                 return (
-                                    <p className={cn("text-xs mt-1 flex items-center gap-1", c > 0 ? "text-emerald-500" : "text-red-400")}>
+                                    <p className={cn("text-xs mt-1 flex items-center gap-1", c > 0 ? "text-success" : "text-danger")}>
                                         {c > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                         {c > 0 ? "+" : ""}{c.toFixed(1)}% from {kpiData.prevPeriod}
                                     </p>
@@ -263,7 +263,7 @@ function CropAnalytics({ activeCrop, records, schedulePeriods, areas }: CropAnal
                                 const c = pctChange(kpiData.yield.current, kpiData.yield.previous);
                                 if (c === null) return null;
                                 return (
-                                    <p className={cn("text-xs mt-1 flex items-center gap-1", c > 0 ? "text-emerald-500" : "text-red-400")}>
+                                    <p className={cn("text-xs mt-1 flex items-center gap-1", c > 0 ? "text-success" : "text-danger")}>
                                         {c > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                         {c > 0 ? "+" : ""}{c.toFixed(1)}% from {kpiData.prevPeriod}
                                     </p>
@@ -273,7 +273,7 @@ function CropAnalytics({ activeCrop, records, schedulePeriods, areas }: CropAnal
                     )}
                     <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
                         <div className="flex items-center gap-2 mb-2">
-                            <MapPin className="w-4 h-4 text-amber-500" />
+                            <MapPin className="w-4 h-4 text-warning" />
                             <p className="text-sm font-medium text-zinc-400">Best Area ({kpiData.latestPeriod})</p>
                         </div>
                         <p className="text-2xl font-bold text-zinc-100">{kpiData.bestArea.name}</p>
@@ -377,7 +377,7 @@ function CropAnalytics({ activeCrop, records, schedulePeriods, areas }: CropAnal
                                     <tr key={f.id} className="hover:bg-zinc-800/30">
                                         <td className="px-3 py-2.5 text-zinc-300 font-medium">{f.name} (Total){f.unit && <span className="text-zinc-500 ml-1 text-xs">{f.unit}</span>}</td>
                                         {values.map((v: number, i: number) => <td key={i} className="text-right px-3 py-2.5 text-zinc-200 font-mono">{formatNum(v, 1)}</td>)}
-                                        {schedulePeriods.length >= 2 && <td className="text-right px-3 py-2.5">{change !== null && <span className={cn("text-xs font-medium", change > 0 ? "text-emerald-400" : change < 0 ? "text-red-400" : "text-zinc-500")}>{change > 0 ? "+" : ""}{change.toFixed(1)}%</span>}</td>}
+                                        {schedulePeriods.length >= 2 && <td className="text-right px-3 py-2.5">{change !== null && <span className={cn("text-xs font-medium", change > 0 ? "text-success" : change < 0 ? "text-danger" : "text-zinc-500")}>{change > 0 ? "+" : ""}{change.toFixed(1)}%</span>}</td>}
                                     </tr>
                                 );
                             })}
@@ -390,7 +390,7 @@ function CropAnalytics({ activeCrop, records, schedulePeriods, areas }: CropAnal
                                     <tr key={f.id} className="hover:bg-zinc-800/30 bg-blue-950/5">
                                         <td className="px-3 py-2.5 text-blue-400/80 font-medium">{f.name}{f.unit && <span className="text-blue-500/40 ml-1 text-xs">{f.unit}</span>}</td>
                                         {values.map((v: number, i: number) => <td key={i} className="text-right px-3 py-2.5 text-blue-300 font-mono font-medium">{isCurrency ? formatINR(v) : formatNum(v, 1)}</td>)}
-                                        {schedulePeriods.length >= 2 && <td className="text-right px-3 py-2.5">{change !== null && <span className={cn("text-xs font-medium", change > 0 ? "text-emerald-400" : change < 0 ? "text-red-400" : "text-zinc-500")}>{change > 0 ? "+" : ""}{change.toFixed(1)}%</span>}</td>}
+                                        {schedulePeriods.length >= 2 && <td className="text-right px-3 py-2.5">{change !== null && <span className={cn("text-xs font-medium", change > 0 ? "text-success" : change < 0 ? "text-danger" : "text-zinc-500")}>{change > 0 ? "+" : ""}{change.toFixed(1)}%</span>}</td>}
                                     </tr>
                                 );
                             })}

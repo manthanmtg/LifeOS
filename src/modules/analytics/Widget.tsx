@@ -41,7 +41,7 @@ export default function AnalyticsWidget() {
                     {trend !== 0 ? (
                         <span className={cn(
                             "flex items-center gap-1",
-                            trend > 0 ? "text-green-400" : "text-red-400"
+                            trend > 0 ? "text-success" : "text-danger"
                         )}>
                             {trend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                             {Math.abs(trend)} vs yesterday

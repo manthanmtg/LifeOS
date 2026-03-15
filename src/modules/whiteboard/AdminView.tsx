@@ -41,17 +41,17 @@ interface ContentDoc {
 
 const COLOR_LABELS: { value: ColorLabel; dot: string; label: string }[] = [
     { value: "none", dot: "bg-zinc-600", label: "None" },
-    { value: "red", dot: "bg-red-500", label: "Red" },
+    { value: "red", dot: "bg-danger", label: "Red" },
     { value: "blue", dot: "bg-blue-500", label: "Blue" },
-    { value: "green", dot: "bg-emerald-500", label: "Green" },
-    { value: "yellow", dot: "bg-yellow-500", label: "Yellow" },
+    { value: "green", dot: "bg-success", label: "Green" },
+    { value: "yellow", dot: "bg-warning", label: "Yellow" },
     { value: "purple", dot: "bg-violet-500", label: "Purple" },
     { value: "orange", dot: "bg-orange-500", label: "Orange" },
 ];
 
 const COLOR_BORDER: Record<string, string> = {
-    none: "", red: "border-l-red-500/60", blue: "border-l-blue-500/60",
-    green: "border-l-emerald-500/60", yellow: "border-l-yellow-500/60",
+    none: "", red: "border-l-danger/60", blue: "border-l-blue-500/60",
+    green: "border-l-success/60", yellow: "border-l-warning/60",
     purple: "border-l-violet-500/60", orange: "border-l-orange-500/60",
 };
 
@@ -420,7 +420,7 @@ export default function WhiteboardAdminView() {
                             className={cn(
                                 "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border",
                                 activeBoard.is_public
-                                    ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
+                                    ? "bg-success/10 border-success/25 text-success"
                                     : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
                             )}
                             title={activeBoard.is_public ? "Public — click to make private" : "Private — click to make public"}
@@ -434,7 +434,7 @@ export default function WhiteboardAdminView() {
                             className={cn(
                                 "p-2 rounded-xl transition-all border",
                                 activeBoard.payload.is_favorite
-                                    ? "bg-yellow-500/10 border-yellow-500/25 text-yellow-400"
+                                    ? "bg-warning/10 border-warning/25 text-warning"
                                     : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
                             )}
                             title={activeBoard.payload.is_favorite ? "Unfavorite" : "Favorite"}
@@ -591,7 +591,7 @@ export default function WhiteboardAdminView() {
                             className={cn(
                                 "px-3 py-1.5 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
                                 favoritesOnly
-                                    ? "bg-yellow-500/15 border-yellow-500/30 text-yellow-300"
+                                    ? "bg-warning/15 border-warning/30 text-warning"
                                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300"
                             )}
                         >
@@ -701,13 +701,13 @@ export default function WhiteboardAdminView() {
                                     {/* Top badges */}
                                     <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
                                         {board.payload.is_favorite && (
-                                            <div className="p-1 rounded-md bg-yellow-500/15" title="Favorite">
-                                                <Star className="w-3 h-3 text-yellow-400" fill="currentColor" />
+                                            <div className="p-1 rounded-md bg-warning/15" title="Favorite">
+                                                <Star className="w-3 h-3 text-warning" fill="currentColor" />
                                             </div>
                                         )}
                                         {board.is_public && (
-                                            <div className="p-1 rounded-md bg-emerald-500/15" title="Public">
-                                                <Globe className="w-3 h-3 text-emerald-400" />
+                                            <div className="p-1 rounded-md bg-success/15" title="Public">
+                                                <Globe className="w-3 h-3 text-success" />
                                             </div>
                                         )}
                                     </div>
@@ -717,10 +717,10 @@ export default function WhiteboardAdminView() {
                                         className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <button onClick={() => toggleFavorite(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-yellow-500/20 text-zinc-400 hover:text-yellow-400 transition-colors" title="Favorite">
+                                        <button onClick={() => toggleFavorite(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-warning/20 text-zinc-400 hover:text-warning transition-colors" title="Favorite">
                                             <Star className="w-3.5 h-3.5" fill={board.payload.is_favorite ? "currentColor" : "none"} />
                                         </button>
-                                        <button onClick={() => toggleVisibility(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-emerald-500/20 text-zinc-400 hover:text-emerald-400 transition-colors" title={board.is_public ? "Make private" : "Make public"}>
+                                        <button onClick={() => toggleVisibility(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-success/20 text-zinc-400 hover:text-success transition-colors" title={board.is_public ? "Make private" : "Make public"}>
                                             {board.is_public ? <Globe className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
                                         </button>
                                         <button onClick={() => duplicateBoard(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors" title="Duplicate">
@@ -745,7 +745,7 @@ export default function WhiteboardAdminView() {
                                         <button onClick={() => { setRenamingId(board._id); setRenameValue(board.payload.name); }} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors" title="Rename">
                                             <Edit3 className="w-3.5 h-3.5" />
                                         </button>
-                                        <button onClick={() => setDeleteTarget(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 transition-colors" title="Delete">
+                                        <button onClick={() => setDeleteTarget(board)} className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-danger/20 text-zinc-400 hover:text-danger transition-colors" title="Delete">
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     </div>

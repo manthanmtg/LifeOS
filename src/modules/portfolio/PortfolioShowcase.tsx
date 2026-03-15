@@ -55,9 +55,9 @@ export default function PortfolioShowcase({
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-300 text-[10px] uppercase tracking-widest font-bold"
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20 text-success text-[10px] uppercase tracking-widest font-bold"
                                 >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                                     Open to new projects
                                 </motion.span>
                             )}

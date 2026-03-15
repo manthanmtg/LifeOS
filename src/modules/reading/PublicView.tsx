@@ -13,9 +13,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const PRIORITY_STYLES: Record<string, string> = {
-    high: "bg-red-500/15 text-red-300 border-red-500/25",
-    medium: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    low: "bg-green-500/15 text-green-300 border-green-500/25",
+    high: "bg-danger/15 text-danger border-danger/25",
+    medium: "bg-warning/15 text-warning border-warning/25",
+    low: "bg-success/15 text-success border-success/25",
 };
 const PRIORITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
     high: ArrowUpCircle,
@@ -102,7 +102,7 @@ export default function ReadingPublicView({ items }: { items: Record<string, unk
         <div className="space-y-6">
             <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
                 <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-                <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-yellow-500/10 blur-3xl" />
+                <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-warning/10 blur-3xl" />
 
                 <div className="relative space-y-4">
                     <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">My reading queue and curated references.</h2>
@@ -118,11 +118,11 @@ export default function ReadingPublicView({ items }: { items: Record<string, unk
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Read</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.read}</p>
+                            <p className="text-lg font-semibold text-success">{stats.read}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">High Priority</p>
-                            <p className="text-lg font-semibold text-red-300">{stats.high}</p>
+                            <p className="text-lg font-semibold text-danger">{stats.high}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Types</p>

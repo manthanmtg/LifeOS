@@ -26,8 +26,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 const STATUS_STYLES: Record<string, string> = {
     want_to_read: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-    reading: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    completed: "bg-green-500/15 text-green-300 border-green-500/25",
+    reading: "bg-warning/15 text-warning border-warning/25",
+    completed: "bg-success/15 text-success border-success/25",
     abandoned: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };
 
@@ -294,11 +294,11 @@ export default function BookshelfAdminView() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Currently Reading</p>
-                            <p className="text-lg font-semibold text-yellow-300">{stats.reading}</p>
+                            <p className="text-lg font-semibold text-warning">{stats.reading}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Completed</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.completed}</p>
+                            <p className="text-lg font-semibold text-success">{stats.completed}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Yearly Goal</p>
@@ -487,7 +487,7 @@ export default function BookshelfAdminView() {
                                         aria-label={`Rate ${star} stars`}
                                         className={cn(
                                             "p-1 transition-colors disabled:opacity-50",
-                                            star <= rating ? "text-yellow-400" : "text-zinc-500 hover:text-zinc-400"
+                                            star <= rating ? "text-warning" : "text-zinc-500 hover:text-zinc-400"
                                         )}
                                     >
                                         <Star className="w-5 h-5" fill={star <= rating ? "currentColor" : "none"} />
@@ -532,7 +532,7 @@ export default function BookshelfAdminView() {
                             />
                         </div>
                         <div className="md:col-span-2 flex justify-end gap-3">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -629,7 +629,7 @@ export default function BookshelfAdminView() {
                                                 {STATUS_LABELS[book.payload.status]}
                                             </span>
                                             {book.payload.rating ? (
-                                                <span className="text-[10px] px-2 py-0.5 rounded-full border border-yellow-500/25 bg-yellow-500/10 text-yellow-300">
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full border border-warning/25 bg-warning/10 text-warning">
                                                     {book.payload.rating}★
                                                 </span>
                                             ) : null}
@@ -650,7 +650,7 @@ export default function BookshelfAdminView() {
                                             disabled={isDeletingId === book._id}
                                             aria-label="Delete book"
                                             title="Delete book"
-                                            className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-zinc-800 disabled:opacity-50"
+                                            className="p-1.5 rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50"
                                         >
                                             {isDeletingId === book._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                                         </button>

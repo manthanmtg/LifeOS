@@ -366,7 +366,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); removeChecklist(i); }}
-                                                    className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
+                                                    className="p-1 text-zinc-500 hover:text-danger transition-colors"
                                                     title="Remove Item"
                                                 >
                                                     <X className="w-3.5 h-3.5" />
@@ -496,10 +496,10 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                                                     e.stopPropagation();
                                                                     removeComment(i);
                                                                 }}
-                                                                className="p-1.5 hover:bg-red-500/10 rounded-md transition-colors group/delete"
+                                                                className="p-1.5 hover:bg-danger/10 rounded-md transition-colors group/delete"
                                                                 title="Delete Comment"
                                                             >
-                                                                <Trash2 className="w-3 h-3 text-zinc-500 group-hover/delete:text-red-500" />
+                                                                <Trash2 className="w-3 h-3 text-zinc-500 group-hover/delete:text-danger" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -524,7 +524,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                 onChange={(e) => updateField("priority", e.target.value)}
                                 className={cn(
                                     "w-full appearance-none bg-zinc-900 border rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1",
-                                    payload.priority === "p1" ? "border-red-500/50 text-red-400 focus:ring-red-500" :
+                                    payload.priority === "p1" ? "border-danger/50 text-danger focus:ring-danger" :
                                         payload.priority === "p2" ? "border-orange-500/50 text-orange-400 focus:ring-orange-500" :
                                             payload.priority === "p3" ? "border-blue-500/50 text-blue-400 focus:ring-blue-500" :
                                                 payload.priority === "p4" ? "border-zinc-700 text-zinc-400 focus:ring-zinc-400" :
@@ -561,7 +561,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                 {payload.category_tags.map(tag => (
                                     <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-md text-xs border border-zinc-700 group">
                                         {tag}
-                                        <button onClick={() => removeTag(tag)} className="text-zinc-500 hover:text-red-400">
+                                        <button onClick={() => removeTag(tag)} className="text-zinc-500 hover:text-danger">
                                             <X className="w-3 h-3" />
                                         </button>
                                     </span>
@@ -588,7 +588,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                         <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline truncate pr-4">
                                             {link.label}
                                         </a>
-                                        <button onClick={() => removeLink(i)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 shrink-0">
+                                        <button onClick={() => removeLink(i)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-danger shrink-0">
                                             <X className="w-3 h-3" />
                                         </button>
                                     </div>
@@ -819,8 +819,8 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                                                 const cl = [...payload.checklist];
                                                                 cl[selectedSubtaskIndex].comments = cl[selectedSubtaskIndex].comments.filter((_, idx) => idx !== i);
                                                                 updateField("checklist", cl);
-                                                            }} className="p-1 hover:bg-red-500/10 rounded">
-                                                                <Trash2 className="w-3 h-3 text-zinc-500 hover:text-red-500" />
+                                                            }} className="p-1 hover:bg-danger/10 rounded">
+                                                                <Trash2 className="w-3 h-3 text-zinc-500 hover:text-danger" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -843,7 +843,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                 className={cn(
                                     "px-6 py-2 rounded-xl text-sm font-bold transition-all",
                                     payload.checklist[selectedSubtaskIndex].completed
-                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                        ? "bg-success/10 text-success border border-success/20"
                                         : "bg-accent text-white hover:bg-accent/80 shadow-lg shadow-accent/20"
                                 )}
                             >

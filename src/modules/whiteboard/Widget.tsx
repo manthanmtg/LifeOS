@@ -52,12 +52,12 @@ export default function WhiteboardWidget() {
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                     <div className="flex items-center gap-3">
                         {stats.favorites > 0 && (
-                            <span className="flex items-center gap-1 text-yellow-400">
+                            <span className="flex items-center gap-1 text-warning">
                                 <Star className="w-3 h-3" fill="currentColor" /> {stats.favorites}
                             </span>
                         )}
                         {stats.publicCount > 0 && (
-                            <span className="flex items-center gap-1 text-emerald-400">
+                            <span className="flex items-center gap-1 text-success">
                                 <Globe className="w-3 h-3" /> {stats.publicCount}
                             </span>
                         )}
@@ -78,7 +78,7 @@ export default function WhiteboardWidget() {
                 {latestBoard && (
                     <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/50">
                         <div className="flex items-center gap-1.5 mb-1.5">
-                            {latestBoard.payload.is_favorite && <Star className="w-3 h-3 text-yellow-400" fill="currentColor" />}
+                            {latestBoard.payload.is_favorite && <Star className="w-3 h-3 text-warning" fill="currentColor" />}
                             <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
                                 {latestBoard.payload.is_favorite ? "Favorite" : "Last Edited"}
                             </p>

@@ -166,8 +166,8 @@ export default function AnalyticsAdminView() {
                 {[
                     { label: "Total Events", value: stats.totalEvents, icon: Activity, color: "text-accent", bg: "bg-accent/10" },
                     { label: "Unique sessions", value: stats.uniqueSessions, icon: Users, color: "text-purple-400", bg: "bg-purple-500/10" },
-                    { label: "Active Modules", value: stats.moduleChartData.length, icon: Layers, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-                    { label: "Today's Events", value: stats.todayActions, icon: Zap, color: "text-amber-400", bg: "bg-amber-500/10", trend: trend }
+                    { label: "Active Modules", value: stats.moduleChartData.length, icon: Layers, color: "text-success", bg: "bg-success/10" },
+                    { label: "Today's Events", value: stats.todayActions, icon: Zap, color: "text-warning", bg: "bg-warning/10", trend: trend }
                 ].map((card, i) => (
                     <div key={i} className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 shadow-xl hover:border-zinc-800 transition-all group">
                         <div className="flex items-center justify-between mb-4">
@@ -177,7 +177,7 @@ export default function AnalyticsAdminView() {
                             {card.trend !== undefined && card.trend !== 0 && (
                                 <span className={cn(
                                     "px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5",
-                                    card.trend > 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                                    card.trend > 0 ? "bg-success/10 text-success" : "bg-danger/10 text-danger"
                                 )}>
                                     {card.trend > 0 ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />}
                                     {Math.abs(card.trend)}

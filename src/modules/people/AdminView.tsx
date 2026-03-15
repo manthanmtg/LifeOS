@@ -31,10 +31,10 @@ type Relationship = (typeof RELATIONSHIPS)[number];
 
 const RELATIONSHIP_STYLES: Record<string, string> = {
     family: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-    friend: "bg-green-500/15 text-green-300 border-green-500/25",
+    friend: "bg-success/15 text-success border-success/25",
     colleague: "bg-purple-500/15 text-purple-300 border-purple-500/25",
     acquaintance: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
-    mentor: "bg-amber-500/15 text-amber-300 border-amber-500/25",
+    mentor: "bg-warning/15 text-warning border-warning/25",
     client: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
     other: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };
@@ -124,16 +124,16 @@ function daysSince(dateStr?: string): number | null {
 
 function contactStatusColor(days: number | null): string {
     if (days === null) return "text-zinc-500";
-    if (days < 30) return "text-green-400";
-    if (days < 90) return "text-yellow-400";
-    return "text-red-400";
+    if (days < 30) return "text-success";
+    if (days < 90) return "text-warning";
+    return "text-danger";
 }
 
 function contactStatusBg(days: number | null): string {
     if (days === null) return "bg-zinc-500/10";
-    if (days < 30) return "bg-green-500/10";
-    if (days < 90) return "bg-yellow-500/10";
-    return "bg-red-500/10";
+    if (days < 30) return "bg-success/10";
+    if (days < 90) return "bg-warning/10";
+    return "bg-danger/10";
 }
 
 function isUpcomingBirthday(birthday?: string): boolean {
@@ -508,7 +508,7 @@ export default function PeopleAdminView() {
                                             </span>
                                         )}
                                         {isUpcomingBirthday(person.payload.birthday) && (
-                                            <span className="text-xs px-2.5 py-1 rounded-full border border-yellow-500/25 bg-yellow-500/10 text-yellow-300 flex items-center gap-1">
+                                            <span className="text-xs px-2.5 py-1 rounded-full border border-warning/25 bg-warning/10 text-warning flex items-center gap-1">
                                                 <Cake className="w-3 h-3" /> Birthday in {daysUntilBirthday(person.payload.birthday!)} days
                                             </span>
                                         )}
@@ -532,7 +532,7 @@ export default function PeopleAdminView() {
                                     </button>
                                     <button
                                         onClick={() => setDeleteConfirmId(person._id)}
-                                        className="p-2 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors"
+                                        className="p-2 rounded-xl text-zinc-500 hover:text-danger hover:bg-zinc-800 transition-colors"
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>
@@ -761,8 +761,8 @@ export default function PeopleAdminView() {
                                     className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-sm mx-4 space-y-4"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                            <AlertCircle className="w-5 h-5 text-red-400" />
+                                        <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
+                                            <AlertCircle className="w-5 h-5 text-danger" />
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-semibold text-zinc-50">Delete contact?</h3>
@@ -779,7 +779,7 @@ export default function PeopleAdminView() {
                                         <button
                                             onClick={() => handleDelete(person._id)}
                                             disabled={isDeletingId === person._id}
-                                            className="text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                                            className="text-sm bg-danger/20 text-danger hover:bg-danger/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                                         >
                                             {isDeletingId === person._id && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                                             Delete
@@ -829,11 +829,11 @@ export default function PeopleAdminView() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Upcoming Birthdays</p>
-                            <p className="text-lg font-semibold text-yellow-300">{stats.upcomingBirthdays}</p>
+                            <p className="text-lg font-semibold text-warning">{stats.upcomingBirthdays}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Overdue ({">"}90 days)</p>
-                            <p className="text-lg font-semibold text-red-300">{stats.overdue}</p>
+                            <p className="text-lg font-semibold text-danger">{stats.overdue}</p>
                         </div>
                     </div>
                 </div>
@@ -1052,7 +1052,7 @@ export default function PeopleAdminView() {
                                             <button
                                                 type="button"
                                                 onClick={() => setFormSocialLinks(formSocialLinks.filter((_, j) => j !== i))}
-                                                className="p-2 text-zinc-500 hover:text-red-400 transition-colors shrink-0"
+                                                className="p-2 text-zinc-500 hover:text-danger transition-colors shrink-0"
                                                 disabled={isSubmitting}
                                             >
                                                 <X className="w-4 h-4" />
@@ -1080,7 +1080,7 @@ export default function PeopleAdminView() {
                                 </div>
 
                                 <div className="flex items-center justify-end gap-3 pt-2 shrink-0">
-                                    {formError && <span className="text-red-400 text-xs mr-auto">{formError}</span>}
+                                    {formError && <span className="text-danger text-xs mr-auto">{formError}</span>}
                                     <button
                                         type="button"
                                         onClick={resetForm}
@@ -1249,7 +1249,7 @@ export default function PeopleAdminView() {
                                                 <Heart className="w-3 h-3 text-pink-400 shrink-0" fill="currentColor" />
                                             )}
                                             {upcoming && (
-                                                <Cake className="w-3 h-3 text-yellow-400 shrink-0" />
+                                                <Cake className="w-3 h-3 text-warning shrink-0" />
                                             )}
                                         </div>
                                         <div className="flex items-center gap-1.5 mt-1 flex-wrap">
@@ -1291,7 +1291,7 @@ export default function PeopleAdminView() {
                                                 setDeleteConfirmId(person._id);
                                             }}
                                             aria-label="Delete contact"
-                                            className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-zinc-800"
+                                            className="p-1.5 rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>
@@ -1364,8 +1364,8 @@ export default function PeopleAdminView() {
                                 className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-sm mx-4 space-y-4"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                        <AlertCircle className="w-5 h-5 text-red-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
+                                        <AlertCircle className="w-5 h-5 text-danger" />
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-semibold text-zinc-50">Delete contact?</h3>
@@ -1382,7 +1382,7 @@ export default function PeopleAdminView() {
                                     <button
                                         onClick={() => handleDelete(deleteConfirmId)}
                                         disabled={isDeletingId === deleteConfirmId}
-                                        className="text-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                                        className="text-sm bg-danger/20 text-danger hover:bg-danger/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                                     >
                                         {isDeletingId === deleteConfirmId && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                                         Delete

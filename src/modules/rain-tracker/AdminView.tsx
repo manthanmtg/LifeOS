@@ -113,7 +113,7 @@ function StatCard({ label, value, unit, trend, icon: Icon, accentClass, delay = 
                         <span className="text-sm font-medium text-zinc-500 ml-1.5">{unit}</span>
                     </p>
                     {trend && (
-                        <div className={cn("flex items-center gap-1 mt-2 text-xs font-medium", trend.value > 0 ? "text-emerald-400" : trend.value < 0 ? "text-red-400" : "text-zinc-500")}>
+                        <div className={cn("flex items-center gap-1 mt-2 text-xs font-medium", trend.value > 0 ? "text-success" : trend.value < 0 ? "text-danger" : "text-zinc-500")}>
                             {trend.value > 0 ? <TrendingUp className="w-3 h-3" /> : trend.value < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                             <span>{trend.value > 0 ? "+" : ""}{trend.value.toFixed(1)}% {trend.label}</span>
                         </div>
@@ -503,7 +503,7 @@ export default function RainTrackerAdminView() {
                                         <input type="checkbox" checked={areaIsActive} onChange={(e) => setAreaIsActive(e.target.checked)} className="accent-accent rounded" />
                                         <span className="text-xs text-zinc-400 select-none">Active</span>
                                     </label>
-                                    {formError && <p className="text-xs text-red-500">{formError}</p>}
+                                    {formError && <p className="text-xs text-danger">{formError}</p>}
                                     <div className="flex gap-2 justify-end pt-1">
                                         <button type="button" onClick={() => setShowAreaForm(false)} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">Cancel</button>
                                         <button type="submit" disabled={isSaving} className="px-3 py-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition-colors">Save</button>
@@ -549,7 +549,7 @@ export default function RainTrackerAdminView() {
                                         <h4 className={cn("text-sm font-semibold truncate flex items-center gap-1.5", isSelected ? "text-accent" : "text-zinc-200")}>
                                             {area.payload.name}
                                             {!area.payload.is_active && (
-                                                <span className="text-[9px] bg-red-500/10 text-red-400 px-1.5 py-0.5 rounded-md uppercase font-bold tracking-wider shrink-0">Archived</span>
+                                                <span className="text-[9px] bg-danger/10 text-danger px-1.5 py-0.5 rounded-md uppercase font-bold tracking-wider shrink-0">Archived</span>
                                             )}
                                         </h4>
                                         {area.payload.location && (
@@ -580,7 +580,7 @@ export default function RainTrackerAdminView() {
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleDeleteArea(area._id); }}
-                                            className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg transition-colors"
+                                            className="p-1.5 text-zinc-500 hover:text-danger rounded-lg transition-colors"
                                         >
                                             <Trash2 className="w-3 h-3" />
                                         </button>
@@ -736,8 +736,8 @@ export default function RainTrackerAdminView() {
                             </div>
                         </motion.div>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex items-center gap-3">
-                            <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                                <Calendar className="w-4 h-4 text-emerald-400" />
+                            <div className="p-2 bg-success/10 rounded-lg border border-success/20">
+                                <Calendar className="w-4 h-4 text-success" />
                             </div>
                             <div>
                                 <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Rainy Days</p>
@@ -745,8 +745,8 @@ export default function RainTrackerAdminView() {
                             </div>
                         </motion.div>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex items-center gap-3">
-                            <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                                <FileText className="w-4 h-4 text-amber-400" />
+                            <div className="p-2 bg-warning/10 rounded-lg border border-warning/20">
+                                <FileText className="w-4 h-4 text-warning" />
                             </div>
                             <div>
                                 <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Total Entries</p>
@@ -957,7 +957,7 @@ export default function RainTrackerAdminView() {
                                                             <input value={entryNotes} onChange={(e) => setEntryNotes(e.target.value)} placeholder="Optional" className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-700 focus:outline-none focus:border-accent/50 transition-colors" />
                                                         </div>
                                                     </div>
-                                                    {formError && <p className="text-xs text-red-500">{formError}</p>}
+                                                    {formError && <p className="text-xs text-danger">{formError}</p>}
                                                     <button type="submit" disabled={isSaving} className="w-full px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl disabled:opacity-50 transition-colors">
                                                         {isSaving ? "Saving..." : editingEntryId ? "Update Entry" : "Save Entry"}
                                                     </button>
@@ -1030,7 +1030,7 @@ export default function RainTrackerAdminView() {
                                                             <button onClick={() => openEditEntry(entry)} className="p-1.5 text-zinc-500 hover:text-accent rounded-lg transition-colors">
                                                                 <Edit3 className="w-3.5 h-3.5" />
                                                             </button>
-                                                            <button onClick={() => handleDeleteEntry(entry._id)} className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg transition-colors">
+                                                            <button onClick={() => handleDeleteEntry(entry._id)} className="p-1.5 text-zinc-500 hover:text-danger rounded-lg transition-colors">
                                                                 <Trash2 className="w-3.5 h-3.5" />
                                                             </button>
                                                         </div>

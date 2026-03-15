@@ -23,9 +23,9 @@ import { useModuleSettings } from "@/hooks/useModuleSettings";
 const DEFAULT_TYPES = ["article", "paper", "video", "podcast"] as const;
 const PRIORITIES = ["high", "medium", "low"] as const;
 const PRIORITY_STYLES: Record<string, string> = {
-    high: "bg-red-500/15 text-red-300 border-red-500/25",
-    medium: "bg-yellow-500/15 text-yellow-300 border-yellow-500/25",
-    low: "bg-green-500/15 text-green-300 border-green-500/25",
+    high: "bg-danger/15 text-danger border-danger/25",
+    medium: "bg-warning/15 text-warning border-warning/25",
+    low: "bg-success/15 text-success border-success/25",
 };
 const PRIORITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
     high: ArrowUpCircle,
@@ -333,11 +333,11 @@ export default function ReadingAdminView() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">High Priority</p>
-                            <p className="text-lg font-semibold text-red-300">{stats.highPriorityUnread}</p>
+                            <p className="text-lg font-semibold text-danger">{stats.highPriorityUnread}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Completed</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.read}</p>
+                            <p className="text-lg font-semibold text-success">{stats.read}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Read Rate</p>
@@ -397,7 +397,7 @@ export default function ReadingAdminView() {
                                     {item}
                                     <button
                                         onClick={() => updateSettings({ types: allTypes.filter((typeItem) => typeItem !== item) })}
-                                        className="text-zinc-500 hover:text-red-400 ml-0.5"
+                                        className="text-zinc-500 hover:text-danger ml-0.5"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
@@ -537,7 +537,7 @@ export default function ReadingAdminView() {
                             />
                         </div>
                         <div className="md:col-span-2 flex justify-end gap-3">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                              <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -685,7 +685,7 @@ export default function ReadingAdminView() {
                                     className={cn(
                                         "w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors disabled:opacity-50",
                                         item.payload.is_read
-                                            ? "border-green-400 bg-green-400/15 text-green-400"
+                                            ? "border-success bg-success/15 text-success"
                                             : "border-zinc-600 hover:border-zinc-400"
                                     )}
                                     aria-label={item.payload.is_read ? "Mark as unread" : "Mark as read"}
@@ -744,7 +744,7 @@ export default function ReadingAdminView() {
                                     <button
                                         onClick={() => handleDelete(item._id)}
                                         disabled={isDeletingId === item._id}
-                                        className="p-1.5 text-zinc-500 hover:text-red-400 rounded-md hover:bg-zinc-800 disabled:opacity-50"
+                                        className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50"
                                         aria-label={`Delete ${item.payload.title}`}
                                     >
                                         {isDeletingId === item._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}

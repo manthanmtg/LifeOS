@@ -110,32 +110,32 @@ function renewalState(days: number, warningDays: number, remindersEnabled: boole
     if (days < 0) {
         return {
             label: `Overdue by ${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"}`,
-            textClass: "text-red-400",
-            chipClass: "bg-red-500/10 border-red-500/25 text-red-300",
-            lineClass: "bg-red-500/70",
+            textClass: "text-danger",
+            chipClass: "bg-danger/10 border-danger/25 text-danger",
+            lineClass: "bg-danger/70",
         };
     }
     if (days === 0) {
         return {
             label: "Due today",
-            textClass: "text-red-300",
-            chipClass: "bg-red-500/10 border-red-500/25 text-red-300",
-            lineClass: "bg-red-500/60",
+            textClass: "text-danger",
+            chipClass: "bg-danger/10 border-danger/25 text-danger",
+            lineClass: "bg-danger/60",
         };
     }
     if (days <= warningDays) {
         return {
             label: days === 1 ? "Due tomorrow" : `Due in ${days} days`,
-            textClass: "text-yellow-300",
-            chipClass: "bg-yellow-500/10 border-yellow-500/25 text-yellow-300",
-            lineClass: "bg-yellow-400/70",
+            textClass: "text-warning",
+            chipClass: "bg-warning/10 border-warning/25 text-warning",
+            lineClass: "bg-warning/70",
         };
     }
     return {
         label: `Due in ${days} days`,
-        textClass: "text-green-300",
-        chipClass: "bg-green-500/10 border-green-500/25 text-green-300",
-        lineClass: "bg-green-500/70",
+        textClass: "text-success",
+        chipClass: "bg-success/10 border-success/25 text-success",
+        lineClass: "bg-success/70",
     };
 }
 
@@ -226,7 +226,7 @@ function SortableRecurringExpenseCard({
                         <p className="text-sm font-semibold text-zinc-50">{s.payload.name}</p>
                         <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                             <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">{s.payload.category}</span>
-                            <span className={cn("text-[11px] px-2 py-0.5 rounded-full border", s.payload.is_active ? "bg-green-500/10 border-green-500/25 text-green-300" : "bg-zinc-800 border-zinc-700 text-zinc-400")}>
+                            <span className={cn("text-[11px] px-2 py-0.5 rounded-full border", s.payload.is_active ? "bg-success/10 border-success/25 text-success" : "bg-zinc-800 border-zinc-700 text-zinc-400")}>
                                 {s.payload.is_active ? "Active" : "Paused"}
                             </span>
                         </div>
@@ -284,7 +284,7 @@ function SortableRecurringExpenseCard({
                         <button
                             onClick={() => onDelete(s._id)}
                             disabled={isProcessingId === s._id}
-                            className="p-1 text-zinc-500 hover:text-red-400 disabled:opacity-50"
+                            className="p-1 text-zinc-500 hover:text-danger disabled:opacity-50"
                             aria-label="Delete expense"
                         >
                             {isProcessingId === s._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -799,7 +799,7 @@ export default function RecurringExpensesAdminView() {
                                 <span key={cat} className="flex items-center gap-1 px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-300">
                                     {cat}
                                     <button onClick={() => updateSettings({ categories: settings.categories.filter((c: string) => c !== cat) })}
-                                        className="text-zinc-500 hover:text-red-400 ml-0.5"><X className="w-3 h-3" /></button>
+                                        className="text-zinc-500 hover:text-danger ml-0.5"><X className="w-3 h-3" /></button>
                                 </span>
                             ))}
                         </div>
@@ -897,7 +897,7 @@ export default function RecurringExpensesAdminView() {
                                 </label>
                             </div>
                             <div className="flex items-center gap-3 self-end">
-                                {formError && <span className="text-red-400 text-xs">{formError}</span>}
+                                {formError && <span className="text-danger text-xs">{formError}</span>}
                                 <button type="submit"
                                     disabled={isSubmitting}
                                     className="bg-accent hover:bg-accent-hover text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2">

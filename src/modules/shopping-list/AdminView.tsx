@@ -354,7 +354,7 @@ export default function ShoppingListAdminView() {
                                                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(list._id); }}
-                                                            className="p-2 text-zinc-500 hover:text-red-400 bg-red-400/0 hover:bg-red-400/10 rounded-xl transition-all"
+                                                            className="p-2 text-zinc-500 hover:text-danger bg-danger/0 hover:bg-danger/10 rounded-xl transition-all"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -430,7 +430,7 @@ export default function ShoppingListAdminView() {
                             ) : (
                                 <button
                                     onClick={() => toggleCompleteList(selectedList!)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-sm font-bold hover:bg-emerald-500/20 transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/20 text-success rounded-xl text-sm font-bold hover:bg-success/20 transition-all"
                                 >
                                     <CheckCircle2 className="w-4 h-4" /> Done
                                 </button>
@@ -444,7 +444,7 @@ export default function ShoppingListAdminView() {
                             </button>
                             <button
                                 onClick={() => setConfirmDeleteId(selectedList!._id)}
-                                className="p-2.5 text-zinc-500 hover:text-red-400 bg-zinc-900 border border-zinc-800 rounded-xl transition-all"
+                                className="p-2.5 text-zinc-500 hover:text-danger bg-zinc-900 border border-zinc-800 rounded-xl transition-all"
                                 title="Delete"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -520,7 +520,7 @@ export default function ShoppingListAdminView() {
                                                 </div>
                                                 <button
                                                     onClick={() => deleteItem(selectedList!._id, item.id)}
-                                                    className="opacity-0 group-hover:opacity-100 p-2 text-zinc-600 hover:text-red-400 rounded-lg transition-all"
+                                                    className="opacity-0 group-hover:opacity-100 p-2 text-zinc-600 hover:text-danger rounded-lg transition-all"
                                                 >
                                                     <X className="w-3.5 h-3.5" />
                                                 </button>
@@ -548,7 +548,7 @@ export default function ShoppingListAdminView() {
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); clearPurchased(selectedList!._id); }}
-                                        className="text-[10px] font-bold text-zinc-700 hover:text-red-400 uppercase tracking-wider transition-colors"
+                                        className="text-[10px] font-bold text-zinc-700 hover:text-danger uppercase tracking-wider transition-colors"
                                     >
                                         Clear
                                     </button>
@@ -570,7 +570,7 @@ export default function ShoppingListAdminView() {
                                             >
                                                 <button
                                                     onClick={() => toggleItemPurchased(selectedList!._id, item.id)}
-                                                    className="w-5 h-5 rounded-md bg-emerald-500 flex items-center justify-center transition-all shrink-0"
+                                                    className="w-5 h-5 rounded-md bg-success flex items-center justify-center transition-all shrink-0"
                                                 >
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                                 </button>
@@ -584,7 +584,7 @@ export default function ShoppingListAdminView() {
                                                 </div>
                                                 <button
                                                     onClick={() => deleteItem(selectedList!._id, item.id)}
-                                                    className="opacity-0 group-hover:opacity-100 p-2 text-zinc-600 hover:text-red-400 rounded-lg transition-all"
+                                                    className="opacity-0 group-hover:opacity-100 p-2 text-zinc-600 hover:text-danger rounded-lg transition-all"
                                                 >
                                                     <X className="w-3.5 h-3.5" />
                                                 </button>

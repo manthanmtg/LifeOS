@@ -79,11 +79,11 @@ export default function RecurringExpensesWidget() {
             href="/admin/recurring-expenses"
             footer={
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-                    <span className={cn("flex items-center gap-1", overdueCount > 0 ? "text-red-400" : "text-zinc-500")}>
+                    <span className={cn("flex items-center gap-1", overdueCount > 0 ? "text-danger" : "text-zinc-500")}>
                         {overdueCount} Overdue
                     </span>
                     <span className="text-zinc-800">•</span>
-                    <span className={cn("flex items-center gap-1", dueSoonCount > 0 ? "text-yellow-400" : "text-zinc-500")}>
+                    <span className={cn("flex items-center gap-1", dueSoonCount > 0 ? "text-warning" : "text-zinc-500")}>
                         {dueSoonCount} Due Soon
                     </span>
                 </div>
@@ -104,7 +104,7 @@ export default function RecurringExpensesWidget() {
                             <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Next Renewal</p>
                             <span className={cn(
                                 "text-[10px] font-bold uppercase tracking-widest",
-                                daysUntilNext !== null && daysUntilNext < 3 ? "text-red-400" : "text-zinc-400"
+                                daysUntilNext !== null && daysUntilNext < 3 ? "text-danger" : "text-zinc-400"
                             )}>
                                 {daysUntilNext !== null && daysUntilNext < 0 ? `overdue` : daysUntilNext === 0 ? "today" : daysUntilNext === 1 ? "tomorrow" : `in ${daysUntilNext}d`}
                             </span>

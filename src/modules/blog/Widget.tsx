@@ -40,7 +40,7 @@ export default function BlogWidget() {
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                     {drafts.length > 0 && (
-                        <span className="flex items-center gap-1 text-yellow-500">
+                        <span className="flex items-center gap-1 text-warning">
                             <PenLine className="w-3 h-3" /> {drafts.length} draft{drafts.length !== 1 ? "s" : ""}
                         </span>
                     )}

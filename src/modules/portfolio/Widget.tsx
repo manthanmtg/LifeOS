@@ -41,7 +41,7 @@ export default function PortfolioWidget() {
                             <Sparkles className="w-3 h-3" /> {profile.payload.skills.length} skills
                         </span>
                         {profile.payload.available_for_hire ? (
-                            <span className="flex items-center gap-1 text-green-400">
+                            <span className="flex items-center gap-1 text-success">
                                 <Briefcase className="w-3 h-3" /> Open
                             </span>
                         ) : (

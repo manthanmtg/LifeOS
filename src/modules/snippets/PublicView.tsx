@@ -82,7 +82,7 @@ export default function SnippetsPublicView({ items }: { items: Record<string, un
                         className={cn(
                             "px-3 py-1.5 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
                             favoritesOnly
-                                ? "bg-yellow-500/15 border-yellow-500/30 text-yellow-300"
+                                ? "bg-warning/15 border-warning/30 text-warning"
                                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300"
                         )}
                     >
@@ -130,7 +130,7 @@ export default function SnippetsPublicView({ items }: { items: Record<string, un
                         <article key={snippet._id} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-colors">
                             <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    {snippet.payload.is_favorite && <Star className="w-3.5 h-3.5 text-yellow-400 shrink-0" fill="currentColor" />}
+                                    {snippet.payload.is_favorite && <Star className="w-3.5 h-3.5 text-warning shrink-0" fill="currentColor" />}
                                     <p className="text-sm font-medium text-zinc-50 truncate">{snippet.payload.title}</p>
                                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0">{snippet.payload.language}</span>
                                 </div>
@@ -139,7 +139,7 @@ export default function SnippetsPublicView({ items }: { items: Record<string, un
                                     className={cn(
                                         "p-1.5 rounded-md transition-colors",
                                         copiedId === snippet._id
-                                            ? "text-green-400 bg-green-400/10"
+                                            ? "text-success bg-success/10"
                                             : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
                                     )}
                                 >

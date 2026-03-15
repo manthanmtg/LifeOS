@@ -85,9 +85,9 @@ type DetailTab = "overview" | "service" | "fuel" | "documents";
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const FUEL_TYPE_CONFIG: Record<FuelType, { label: string; color: string; bg: string; border: string }> = {
-    petrol: { label: "Petrol", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
+    petrol: { label: "Petrol", color: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
     diesel: { label: "Diesel", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20" },
-    electric: { label: "Electric", color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/20" },
+    electric: { label: "Electric", color: "text-success", bg: "bg-success/10", border: "border-success/20" },
     hybrid: { label: "Hybrid", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20" },
     cng: { label: "CNG", color: "text-teal-400", bg: "bg-teal-500/10", border: "border-teal-500/20" },
     lpg: { label: "LPG", color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20" },
@@ -96,12 +96,12 @@ const FUEL_TYPE_CONFIG: Record<FuelType, { label: string; color: string; bg: str
 
 const SERVICE_TYPE_CONFIG: Record<ServiceType, { label: string; icon: typeof Wrench; color: string }> = {
     routine: { label: "Routine", icon: Wrench, color: "text-blue-400" },
-    repair: { label: "Repair", icon: Wrench, color: "text-red-400" },
+    repair: { label: "Repair", icon: Wrench, color: "text-danger" },
     inspection: { label: "Inspection", icon: Eye, color: "text-purple-400" },
     tire: { label: "Tire", icon: Disc, color: "text-zinc-400" },
-    oil_change: { label: "Oil Change", icon: Droplets, color: "text-amber-400" },
+    oil_change: { label: "Oil Change", icon: Droplets, color: "text-warning" },
     brake: { label: "Brake", icon: CircleDot, color: "text-orange-400" },
-    battery: { label: "Battery", icon: Battery, color: "text-green-400" },
+    battery: { label: "Battery", icon: Battery, color: "text-success" },
     wash: { label: "Wash", icon: Sparkles, color: "text-cyan-400" },
     other: { label: "Other", icon: HelpCircle, color: "text-zinc-500" },
 };
@@ -109,8 +109,8 @@ const SERVICE_TYPE_CONFIG: Record<ServiceType, { label: string; icon: typeof Wre
 const DOC_TYPE_CONFIG: Record<DocType, { label: string; color: string }> = {
     insurance: { label: "Insurance", color: "text-blue-400" },
     registration: { label: "Registration", color: "text-purple-400" },
-    pollution: { label: "Pollution Cert", color: "text-green-400" },
-    license: { label: "License", color: "text-amber-400" },
+    pollution: { label: "Pollution Cert", color: "text-success" },
+    license: { label: "License", color: "text-warning" },
     warranty: { label: "Warranty", color: "text-teal-400" },
     other: { label: "Other", color: "text-zinc-400" },
 };
@@ -167,9 +167,9 @@ function expiryBadge(dateStr?: string, label?: string) {
     if (status === "none") return null;
     const days = daysUntil(dateStr)!;
     const config = {
-        expired: { text: `${label ? label + ": " : ""}Expired ${Math.abs(days)}d ago`, bg: "bg-red-500/10", border: "border-red-500/20", color: "text-red-400" },
-        warning: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-amber-500/10", border: "border-amber-500/20", color: "text-amber-400" },
-        ok: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-emerald-500/10", border: "border-emerald-500/20", color: "text-emerald-400" },
+        expired: { text: `${label ? label + ": " : ""}Expired ${Math.abs(days)}d ago`, bg: "bg-danger/10", border: "border-danger/20", color: "text-danger" },
+        warning: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-warning/10", border: "border-warning/20", color: "text-warning" },
+        ok: { text: `${label ? label + ": " : ""}${days}d left`, bg: "bg-success/10", border: "border-success/20", color: "text-success" },
     }[status];
     return (
         <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", config.bg, config.border, config.color)}>
@@ -579,9 +579,9 @@ export default function VehicleAdminView() {
                         </button>
                         <button
                             onClick={() => setConfirmDelete({ open: true, id: selectedVehicle._id, name: p.name })}
-                            className="p-2 rounded-xl bg-zinc-900 border border-red-900/30 hover:bg-red-950/50 transition-colors"
+                            className="p-2 rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors"
                         >
-                            <Trash2 className="w-4 h-4 text-red-400" />
+                            <Trash2 className="w-4 h-4 text-danger" />
                         </button>
                     </div>
                 </div>
@@ -641,14 +641,14 @@ export default function VehicleAdminView() {
 
                         {/* Avg Efficiency */}
                         {selectedStats?.avgEfficiency && (
-                            <div className="bg-gradient-to-r from-emerald-500/5 to-transparent border border-emerald-500/10 rounded-2xl p-5">
+                            <div className="bg-gradient-to-r from-success/5 to-transparent border border-success/10 rounded-2xl p-5">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                        <TrendingUp className="w-5 h-5 text-emerald-400" />
+                                    <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                                        <TrendingUp className="w-5 h-5 text-success" />
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Avg Fuel Efficiency</p>
-                                        <p className="text-2xl font-bold text-emerald-400">
+                                        <p className="text-2xl font-bold text-success">
                                             {selectedStats.avgEfficiency.toFixed(1)} <span className="text-sm text-zinc-500">{selectedStats.efficiencyUnit}</span>
                                         </p>
                                     </div>
@@ -661,7 +661,7 @@ export default function VehicleAdminView() {
                                             return (
                                                 <div
                                                     key={i}
-                                                    className="flex-1 bg-emerald-500/20 rounded-t-sm hover:bg-emerald-500/40 transition-colors"
+                                                    className="flex-1 bg-success/20 rounded-t-sm hover:bg-success/40 transition-colors"
                                                     style={{ height: `${Math.max(height, 8)}%` }}
                                                     title={`${eff.toFixed(1)} ${selectedStats.efficiencyUnit}`}
                                                 />
@@ -682,12 +682,12 @@ export default function VehicleAdminView() {
                                 const status = getExpiryStatus(item.date);
                                 const days = daysUntil(item.date);
                                 const statusColors = {
-                                    expired: "border-red-500/20 bg-red-500/5",
-                                    warning: "border-amber-500/20 bg-amber-500/5",
-                                    ok: "border-emerald-500/20 bg-emerald-500/5",
+                                    expired: "border-danger/20 bg-danger/5",
+                                    warning: "border-warning/20 bg-warning/5",
+                                    ok: "border-success/20 bg-success/5",
                                     none: "border-zinc-800 bg-zinc-900/50",
                                 };
-                                const textColors = { expired: "text-red-400", warning: "text-amber-400", ok: "text-emerald-400", none: "text-zinc-500" };
+                                const textColors = { expired: "text-danger", warning: "text-warning", ok: "text-success", none: "text-zinc-500" };
                                 return (
                                     <div key={item.label} className={cn("rounded-2xl border p-4", statusColors[status])}>
                                         <div className="flex items-center gap-2 mb-2">
@@ -817,8 +817,8 @@ export default function VehicleAdminView() {
                                                             <button onClick={() => openServiceForm(record)} className="p-1.5 rounded-lg hover:bg-zinc-800">
                                                                 <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
                                                             </button>
-                                                            <button onClick={() => deleteServiceRecord(record.id)} className="p-1.5 rounded-lg hover:bg-red-950/50">
-                                                                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                                            <button onClick={() => deleteServiceRecord(record.id)} className="p-1.5 rounded-lg hover:bg-danger/50">
+                                                                <Trash2 className="w-3.5 h-3.5 text-danger" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -897,7 +897,7 @@ export default function VehicleAdminView() {
                             <p className="text-sm text-zinc-400">
                                 {p.fuel_logs.length} entr{p.fuel_logs.length !== 1 ? "ies" : "y"}
                                 {selectedStats?.avgEfficiency && (
-                                    <span className="ml-2 text-emerald-400 font-semibold">
+                                    <span className="ml-2 text-success font-semibold">
                                         Avg: {selectedStats.avgEfficiency.toFixed(1)} {selectedStats.efficiencyUnit}
                                     </span>
                                 )}
@@ -930,14 +930,14 @@ export default function VehicleAdminView() {
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex items-start gap-3 min-w-0">
-                                                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                                                        <Fuel className="w-4 h-4 text-amber-400" />
+                                                    <div className="w-9 h-9 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
+                                                        <Fuel className="w-4 h-4 text-warning" />
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-semibold text-zinc-200">
                                                             {log.quantity} {log.fuel_unit}
                                                             {log.full_tank && (
-                                                                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Full Tank</span>
+                                                                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-success/10 text-success border border-success/20">Full Tank</span>
                                                             )}
                                                         </p>
                                                         <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -966,8 +966,8 @@ export default function VehicleAdminView() {
                                                         <button onClick={() => openFuelForm(log)} className="p-1.5 rounded-lg hover:bg-zinc-800">
                                                             <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
                                                         </button>
-                                                        <button onClick={() => deleteFuelLog(log.id)} className="p-1.5 rounded-lg hover:bg-red-950/50">
-                                                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                                        <button onClick={() => deleteFuelLog(log.id)} className="p-1.5 rounded-lg hover:bg-danger/50">
+                                                            <Trash2 className="w-3.5 h-3.5 text-danger" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1002,7 +1002,7 @@ export default function VehicleAdminView() {
                                                         className={cn(
                                                             "w-full rounded-xl px-3 py-2.5 text-sm font-medium border transition-all flex items-center justify-center gap-2",
                                                             fuelForm.full_tank
-                                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                                ? "bg-success/10 border-success/20 text-success"
                                                                 : "bg-zinc-900 border-zinc-800 text-zinc-500"
                                                         )}
                                                     >
@@ -1087,7 +1087,7 @@ export default function VehicleAdminView() {
                                             animate={{ opacity: 1, y: 0 }}
                                             className={cn(
                                                 "bg-zinc-900 border rounded-2xl p-4 group transition-colors",
-                                                status === "expired" ? "border-red-500/20" : status === "warning" ? "border-amber-500/20" : "border-zinc-800 hover:border-zinc-700"
+                                                status === "expired" ? "border-danger/20" : status === "warning" ? "border-warning/20" : "border-zinc-800 hover:border-zinc-700"
                                             )}
                                         >
                                             <div className="flex items-start justify-between mb-3">
@@ -1099,8 +1099,8 @@ export default function VehicleAdminView() {
                                                     <button onClick={() => openDocForm(doc)} className="p-1.5 rounded-lg hover:bg-zinc-800">
                                                         <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
                                                     </button>
-                                                    <button onClick={() => deleteDocument(doc.id)} className="p-1.5 rounded-lg hover:bg-red-950/50">
-                                                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                                    <button onClick={() => deleteDocument(doc.id)} className="p-1.5 rounded-lg hover:bg-danger/50">
+                                                        <Trash2 className="w-3.5 h-3.5 text-danger" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -1116,7 +1116,7 @@ export default function VehicleAdminView() {
                                                         <div
                                                             className={cn(
                                                                 "absolute left-0 top-0 h-full rounded-full transition-all",
-                                                                status === "expired" ? "bg-red-500" : status === "warning" ? "bg-amber-500" : "bg-emerald-500"
+                                                                status === "expired" ? "bg-danger" : status === "warning" ? "bg-warning" : "bg-success"
                                                             )}
                                                             style={{ width: `${status === "expired" ? 100 : Math.max(5, Math.min(100, ((365 - (days || 0)) / 365) * 100))}%` }}
                                                         />
@@ -1216,10 +1216,10 @@ export default function VehicleAdminView() {
 
             {/* Expiry Alerts Dashboard */}
             {allAlerts.length > 0 && (
-                <div className="bg-gradient-to-r from-amber-500/5 via-red-500/5 to-transparent border border-amber-500/10 rounded-2xl p-5">
+                <div className="bg-gradient-to-r from-warning/5 via-danger/5 to-transparent border border-warning/10 rounded-2xl p-5">
                     <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="w-4 h-4 text-amber-400" />
-                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+                        <AlertTriangle className="w-4 h-4 text-warning" />
+                        <p className="text-[10px] font-bold text-warning uppercase tracking-widest">
                             Attention Required ({allAlerts.length})
                         </p>
                     </div>
@@ -1230,8 +1230,8 @@ export default function VehicleAdminView() {
                                 className={cn(
                                     "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-medium",
                                     alert.status === "expired"
-                                        ? "bg-red-500/10 border-red-500/20 text-red-400"
-                                        : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                        ? "bg-danger/10 border-danger/20 text-danger"
+                                        : "bg-warning/10 border-warning/20 text-warning"
                                 )}
                             >
                                 <span className="font-bold">{alert.vehicleName}</span>
@@ -1280,7 +1280,7 @@ export default function VehicleAdminView() {
                                 animate={{ opacity: 1, y: 0 }}
                                 className={cn(
                                     "bg-zinc-900 border rounded-2xl p-5 cursor-pointer group transition-all hover:shadow-lg",
-                                    hasAlerts ? "border-amber-500/20 hover:border-amber-500/40 hover:shadow-amber-500/5" : "border-zinc-800 hover:border-zinc-700 hover:shadow-zinc-800/30"
+                                    hasAlerts ? "border-warning/20 hover:border-warning/40 hover:shadow-warning/5" : "border-zinc-800 hover:border-zinc-700 hover:shadow-zinc-800/30"
                                 )}
                                 onClick={() => { setSelectedVehicle(v); setActiveTab("overview"); }}
                             >
@@ -1305,9 +1305,9 @@ export default function VehicleAdminView() {
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: v._id, name: vp.name }); }}
-                                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-950/50 transition-all"
+                                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-danger/50 transition-all"
                                         >
-                                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                            <Trash2 className="w-3.5 h-3.5 text-danger" />
                                         </button>
                                     </div>
                                 </div>

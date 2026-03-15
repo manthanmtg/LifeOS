@@ -44,7 +44,7 @@ export default function SnippetsWidget() {
             href="/admin/snippets"
             footer={
                 <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-                    <span className="flex items-center gap-1 text-yellow-500/80">
+                    <span className="flex items-center gap-1 text-warning/80">
                         <Star className="w-3 h-3" fill="currentColor" /> {summary.favorites} Starred
                     </span>
                     <span className="inline-flex items-center gap-1">

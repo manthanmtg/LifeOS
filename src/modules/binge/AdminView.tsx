@@ -242,15 +242,15 @@ export default function BingeAdminView() {
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Watching</p>
-                            <p className="text-lg font-semibold text-yellow-300">{stats.watching}</p>
+                            <p className="text-lg font-semibold text-warning">{stats.watching}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Completed</p>
-                            <p className="text-lg font-semibold text-green-300">{stats.completed}</p>
+                            <p className="text-lg font-semibold text-success">{stats.completed}</p>
                         </div>
                         <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
                             <p className="text-xs text-zinc-500">Avg Rating</p>
-                            <p className="text-lg font-semibold text-yellow-300">
+                            <p className="text-lg font-semibold text-warning">
                                 {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "—"}
                             </p>
                         </div>
@@ -270,7 +270,7 @@ export default function BingeAdminView() {
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Title */}
                         <div className="md:col-span-2">
-                            <label htmlFor="binge-title" className="block text-xs text-zinc-500 mb-1.5">Title <span className="text-red-400">*</span></label>
+                            <label htmlFor="binge-title" className="block text-xs text-zinc-500 mb-1.5">Title <span className="text-danger">*</span></label>
                             <input
                                 id="binge-title"
                                 type="text"
@@ -446,7 +446,7 @@ export default function BingeAdminView() {
                                         className={cn(
                                             "w-7 h-7 rounded-md text-xs font-medium transition-colors border",
                                             n <= rating
-                                                ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
+                                                ? "bg-warning/20 text-warning border-warning/40"
                                                 : "bg-zinc-800 text-zinc-500 border-zinc-700 hover:text-zinc-300"
                                         )}
                                     >
@@ -454,7 +454,7 @@ export default function BingeAdminView() {
                                     </button>
                                 ))}
                                 {rating > 0 && (
-                                    <span className="ml-1 text-xs text-yellow-300 flex items-center gap-0.5">
+                                    <span className="ml-1 text-xs text-warning flex items-center gap-0.5">
                                         <Star className="w-3 h-3" fill="currentColor" /> {rating}/10
                                     </span>
                                 )}
@@ -503,7 +503,7 @@ export default function BingeAdminView() {
                         </div>
 
                         <div className="md:col-span-2 flex justify-end gap-3">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                             <button
                                 type="button"
                                 onClick={resetForm}
@@ -655,7 +655,7 @@ export default function BingeAdminView() {
                                             {STATUS_LABELS[item.payload.status]}
                                         </span>
                                         {item.payload.rating ? (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full border border-yellow-500/25 bg-yellow-500/10 text-yellow-300 flex items-center gap-0.5">
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full border border-warning/25 bg-warning/10 text-warning flex items-center gap-0.5">
                                                 <Star className="w-2.5 h-2.5" fill="currentColor" /> {item.payload.rating}/10
                                             </span>
                                         ) : null}
@@ -678,7 +678,7 @@ export default function BingeAdminView() {
                                         disabled={isDeletingId === item._id}
                                         aria-label="Delete item"
                                         title="Delete"
-                                        className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-zinc-800 disabled:opacity-50"
+                                        className="p-1.5 rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50"
                                     >
                                         {isDeletingId === item._id
                                             ? <RefreshCw className="w-3.5 h-3.5 animate-spin" />

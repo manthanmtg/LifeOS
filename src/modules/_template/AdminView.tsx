@@ -220,7 +220,7 @@ export default function TemplateAdminView() {
                         </div>
                         {/* Additional fields... */}
                         <div className="md:col-span-2 flex justify-end gap-3 pt-2">
-                            {formError && <span className="text-red-400 text-xs self-center">{formError}</span>}
+                            {formError && <span className="text-danger text-xs self-center">{formError}</span>}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
@@ -270,7 +270,7 @@ export default function TemplateAdminView() {
                                         <button
                                             onClick={() => handleDelete(item._id)}
                                             disabled={isProcessingId === item._id}
-                                            className="p-1.5 text-zinc-500 hover:text-red-400 rounded-lg hover:bg-zinc-800 disabled:opacity-50"
+                                            className="p-1.5 text-zinc-500 hover:text-danger rounded-lg hover:bg-zinc-800 disabled:opacity-50"
                                             aria-label="Delete item"
                                         >
                                             {isProcessingId === item._id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}

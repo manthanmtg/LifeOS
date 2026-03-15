@@ -44,10 +44,10 @@ export default function BingeWidget() {
             href="/admin/binge"
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5 text-yellow-400/80">
+                    <span className="flex items-center gap-1.5 text-warning/80">
                         <Play className="w-3 h-3" fill="currentColor" /> {summary.watchingCount} Watching
                     </span>
-                    <span className={cn("inline-flex items-center gap-1", summary.avgRating > 0 ? "text-yellow-500/80" : "text-zinc-500")}>
+                    <span className={cn("inline-flex items-center gap-1", summary.avgRating > 0 ? "text-warning/80" : "text-zinc-500")}>
                         <Star className="w-3 h-3" fill={summary.avgRating > 0 ? "currentColor" : "none"} />
                         {summary.avgRating > 0 ? summary.avgRating.toFixed(1) : "N/A"}
                     </span>

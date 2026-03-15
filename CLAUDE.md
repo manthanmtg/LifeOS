@@ -83,7 +83,13 @@ When adding a new module, ensure both its `Widget.tsx` and `AdminView.tsx` follo
 ## Code Style
 
 - `"use client"` directive on all interactive components
-- Tailwind CSS with `zinc-*` palette and `accent` CSS variables
+- Tailwind CSS with `zinc-*` palette and CSS variable-based semantic colors
+- **Semantic colors** — Never use hardcoded Tailwind color names like `emerald-*`, `green-*`, `amber-*`, `yellow-*`, or `red-*`. Instead use the theme-aware semantic tokens defined in `src/app/globals.css`:
+  - `success` / `success-muted` — positive states (active, completed, budget OK)
+  - `warning` / `warning-muted` — caution states (pending, under review, approaching limit)
+  - `danger` / `danger-muted` — negative states (errors, overdue, over budget, delete actions)
+  - `accent` / `accent-hover` — primary action color
+  - Each theme in `globals.css` defines its own values for these variables so colors stay harmonious across themes
 - Lucide React for all icons
 - `cn()` from `@/lib/utils` for conditional class merging
 - Components are self-contained with local state management

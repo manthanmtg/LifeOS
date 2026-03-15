@@ -31,7 +31,7 @@ export default function HabitsWidget() {
             href="/admin/habits"
             footer={
                 <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1 text-green-400">
+                    <span className="flex items-center gap-1 text-success">
                         <Check className="w-3 h-3" /> {completedToday.length}/{habits.length} completed today
                     </span>
                 </div>
@@ -44,7 +44,7 @@ export default function HabitsWidget() {
                     {Array.from({ length: 7 }).map((_, i) => (
                         <div key={i} className={cn(
                             "w-2 h-2 rounded-full",
-                            i < completedToday.length ? "bg-green-500" : "bg-zinc-800"
+                            i < completedToday.length ? "bg-success" : "bg-zinc-800"
                         )} />
                     ))}
                 </div>
