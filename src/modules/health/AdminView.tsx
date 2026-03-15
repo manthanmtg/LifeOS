@@ -345,6 +345,7 @@ export default function HealthAdminView() {
             return;
         }
         setSaving(true);
+        const profileId = editingProfile?._id;
         try {
             if (editingProfile) {
                 await fetch(`/api/content/${editingProfile._id}`, {
@@ -365,6 +366,11 @@ export default function HealthAdminView() {
             setEditingProfile(null);
             setFormData(emptyPayload());
             await fetchProfiles();
+            if (profileId && selectedProfile?._id === profileId) {
+                const r = await fetch(`/api/content/${profileId}`);
+                const d = await r.json();
+                if (d.data) setSelectedProfile(d.data);
+            }
         } catch {
             showToast("Failed to save profile", "error");
         } finally {
@@ -756,8 +762,8 @@ export default function HealthAdminView() {
                             {getInitials(p.name)}
                         </div>
                         <div className="min-w-0">
-                            <h1 className="text-2xl font-bold text-zinc-50 tracking-tight truncate">{p.name}</h1>
-                            <div className="flex items-center gap-2 mt-0.5">
+                            <h1 className="text-xl sm:text-2xl font-bold text-zinc-50 tracking-tight truncate">{p.name}</h1>
+                            <div className="flex flex-wrap items-center gap-2 mt-0.5">
                                 <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border", typeConfig.bg, typeConfig.border, typeConfig.color)}>
                                     <TypeIcon className="w-3 h-3 inline mr-1" />{typeConfig.label}
                                 </span>
@@ -794,7 +800,7 @@ export default function HealthAdminView() {
                             )}
                         >
                             <tab.icon className="w-3.5 h-3.5" />
-                            <span className="hidden md:inline">{tab.label}</span>
+                            <span className="hidden sm:inline">{tab.label}</span>
                         </button>
                     ))}
                 </div>
@@ -863,7 +869,7 @@ export default function HealthAdminView() {
                                                 <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full", CONDITION_STATUS_CONFIG[c.status].bg, CONDITION_STATUS_CONFIG[c.status].color)}>
                                                     {CONDITION_STATUS_CONFIG[c.status].label}
                                                 </span>
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                     <button onClick={() => openConditionForm(c)} className="p-1 rounded hover:bg-zinc-800"><Edit3 className="w-3 h-3 text-zinc-500" /></button>
                                                     <button onClick={() => deleteSubRecord("conditions", c.id)} className="p-1 rounded hover:bg-red-950/50"><Trash2 className="w-3 h-3 text-red-400" /></button>
                                                 </div>
@@ -877,7 +883,7 @@ export default function HealthAdminView() {
                         {/* Identity details */}
                         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
                             <p className={labelCls}>Details</p>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                 {p.date_of_birth && (
                                     <div>
                                         <span className="text-zinc-500">Date of Birth</span>
@@ -957,7 +963,7 @@ export default function HealthAdminView() {
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                         <button onClick={() => openMedicationForm(med)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
                                                         <button onClick={() => deleteSubRecord("medications", med.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                                                     </div>
@@ -977,7 +983,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Name *</label>
                                     <input type="text" value={medicationForm.name || ""} onChange={(e) => setMedicationForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., Metformin" className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Dosage</label>
                                         <input type="text" value={medicationForm.dosage || ""} onChange={(e) => setMedicationForm(f => ({ ...f, dosage: e.target.value }))} placeholder="e.g., 500mg twice daily" className={inputCls} />
@@ -993,7 +999,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Prescribed By</label>
                                     <input type="text" value={medicationForm.prescribed_by || ""} onChange={(e) => setMedicationForm(f => ({ ...f, prescribed_by: e.target.value }))} placeholder="Doctor name" className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div>
                                         <label className={labelCls}>Start Date</label>
                                         <input type="date" value={medicationForm.start_date || ""} onChange={(e) => setMedicationForm(f => ({ ...f, start_date: e.target.value }))} className={inputCls} />
@@ -1053,7 +1059,7 @@ export default function HealthAdminView() {
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                     <button onClick={() => openVaccinationForm(vac)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
                                                     <button onClick={() => deleteSubRecord("vaccinations", vac.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                                                 </div>
@@ -1072,7 +1078,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Vaccine Name *</label>
                                     <input type="text" value={vaccinationForm.name || ""} onChange={(e) => setVaccinationForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., COVID-19 Booster" className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Date Administered *</label>
                                         <input type="date" value={vaccinationForm.date_administered || ""} onChange={(e) => setVaccinationForm(f => ({ ...f, date_administered: e.target.value }))} className={inputCls} />
@@ -1082,7 +1088,7 @@ export default function HealthAdminView() {
                                         <input type="date" value={vaccinationForm.next_due || ""} onChange={(e) => setVaccinationForm(f => ({ ...f, next_due: e.target.value }))} className={inputCls} />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Provider</label>
                                         <input type="text" value={vaccinationForm.provider || ""} onChange={(e) => setVaccinationForm(f => ({ ...f, provider: e.target.value }))} placeholder="Hospital / clinic" className={inputCls} />
@@ -1148,7 +1154,7 @@ export default function HealthAdminView() {
                                                                 {visit.currency === "INR" ? "\u20B9" : visit.currency} {visit.cost.toLocaleString()}
                                                             </span>
                                                         )}
-                                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                             <button onClick={() => openVisitForm(visit)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
                                                             <button onClick={() => deleteSubRecord("visits", visit.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                                                         </div>
@@ -1165,7 +1171,7 @@ export default function HealthAdminView() {
                             "visit",
                             saveVisit,
                             <>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Date *</label>
                                         <input type="date" value={visitForm.date || ""} onChange={(e) => setVisitForm(f => ({ ...f, date: e.target.value }))} className={inputCls} />
@@ -1177,7 +1183,7 @@ export default function HealthAdminView() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Doctor</label>
                                         <input type="text" value={visitForm.doctor || ""} onChange={(e) => setVisitForm(f => ({ ...f, doctor: e.target.value }))} placeholder="Doctor name" className={inputCls} />
@@ -1195,7 +1201,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Prescription</label>
                                     <textarea value={visitForm.prescription || ""} onChange={(e) => setVisitForm(f => ({ ...f, prescription: e.target.value }))} rows={2} className={cn(inputCls, "resize-none")} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Cost</label>
                                         <input type="number" min="0" step="0.01" value={visitForm.cost ?? ""} onChange={(e) => setVisitForm(f => ({ ...f, cost: e.target.value ? Number(e.target.value) : undefined }))} className={inputCls} />
@@ -1299,10 +1305,10 @@ export default function HealthAdminView() {
                                                             return (
                                                                 <div key={r.id} className="flex items-center justify-between py-1 group/item">
                                                                     <div className="flex items-center gap-2 text-xs">
-                                                                        <span className="text-zinc-500 w-20">{formatDate(r.date)}</span>
+                                                                        <span className="text-zinc-500 w-16 sm:w-20 shrink-0">{formatDate(r.date)}</span>
                                                                         <span className={cn("font-medium", rsConfig.color)}>{r.value} {r.unit || ""}</span>
                                                                     </div>
-                                                                    <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                                                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity">
                                                                         <button onClick={() => openLabForm(r)} className="p-1 rounded hover:bg-zinc-800"><Edit3 className="w-3 h-3 text-zinc-500" /></button>
                                                                         <button onClick={() => deleteSubRecord("lab_results", r.id)} className="p-1 rounded hover:bg-red-950/50"><Trash2 className="w-3 h-3 text-red-400" /></button>
                                                                     </div>
@@ -1327,7 +1333,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Test Name *</label>
                                     <input type="text" value={labForm.test_name || ""} onChange={(e) => setLabForm(f => ({ ...f, test_name: e.target.value }))} placeholder="e.g., Blood Sugar (Fasting)" className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div>
                                         <label className={labelCls}>Value *</label>
                                         <input type="text" value={labForm.value || ""} onChange={(e) => setLabForm(f => ({ ...f, value: e.target.value }))} placeholder="e.g., 95" className={inputCls} />
@@ -1343,7 +1349,7 @@ export default function HealthAdminView() {
                                         </select>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Date</label>
                                         <input type="date" value={labForm.date || ""} onChange={(e) => setLabForm(f => ({ ...f, date: e.target.value }))} className={inputCls} />
@@ -1376,7 +1382,7 @@ export default function HealthAdminView() {
                         {latestMeasurement && (
                             <div className="bg-gradient-to-r from-blue-500/5 to-transparent border border-blue-500/10 rounded-2xl p-5">
                                 <p className={cn(labelCls, "mb-3")}>Latest Reading</p>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {latestMeasurement.height_cm && (
                                         <div>
                                             <p className="text-2xl font-bold text-zinc-50">{latestMeasurement.height_cm}</p>
@@ -1436,13 +1442,13 @@ export default function HealthAdminView() {
                                     return (
                                         <motion.div key={m.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group">
                                             <div className="flex items-center justify-between gap-3">
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-[11px] text-zinc-500 w-24">{formatDate(m.date)}</span>
+                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                    <span className="text-[11px] text-zinc-500 w-20 sm:w-24">{formatDate(m.date)}</span>
                                                     {m.height_cm && <span className="text-sm text-zinc-300">{m.height_cm} cm</span>}
                                                     {m.weight_kg && <span className="text-sm text-zinc-300">{m.weight_kg} kg</span>}
                                                     {bmi && <span className={cn("text-xs font-medium", bmiCategory(bmi).color)}>BMI {bmi.toFixed(1)}</span>}
                                                 </div>
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                     <button onClick={() => openMeasurementForm(m)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
                                                     <button onClick={() => deleteSubRecord("measurements", m.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                                                 </div>
@@ -1462,7 +1468,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Date</label>
                                     <input type="date" value={measurementForm.date || ""} onChange={(e) => setMeasurementForm(f => ({ ...f, date: e.target.value }))} className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Height (cm)</label>
                                         <input type="number" min="0" step="0.1" value={measurementForm.height_cm ?? ""} onChange={(e) => setMeasurementForm(f => ({ ...f, height_cm: e.target.value ? Number(e.target.value) : undefined }))} className={inputCls} />
@@ -1523,7 +1529,7 @@ export default function HealthAdminView() {
                                                             {doc.notes && <p className="text-xs text-zinc-500 mt-1">{doc.notes}</p>}
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                         <button onClick={() => openDocForm(doc)} className="p-1.5 rounded-lg hover:bg-zinc-800"><Edit3 className="w-3.5 h-3.5 text-zinc-500" /></button>
                                                         <button onClick={() => deleteSubRecord("documents", doc.id)} className="p-1.5 rounded-lg hover:bg-red-950/50"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
                                                     </div>
@@ -1543,7 +1549,7 @@ export default function HealthAdminView() {
                                     <label className={labelCls}>Title *</label>
                                     <input type="text" value={docForm.title || ""} onChange={(e) => setDocForm(f => ({ ...f, title: e.target.value }))} placeholder="e.g., Blood Test Report" className={inputCls} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className={labelCls}>Type</label>
                                         <select value={docForm.type || "other"} onChange={(e) => setDocForm(f => ({ ...f, type: e.target.value as DocType }))} className={inputCls}>
@@ -1574,7 +1580,7 @@ export default function HealthAdminView() {
                             <label className={labelCls}>Condition Name *</label>
                             <input type="text" value={conditionForm.name || ""} onChange={(e) => setConditionForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., Hypertension" className={inputCls} />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelCls}>Diagnosed Date</label>
                                 <input type="date" value={conditionForm.diagnosed_date || ""} onChange={(e) => setConditionForm(f => ({ ...f, diagnosed_date: e.target.value }))} className={inputCls} />
@@ -1750,7 +1756,7 @@ export default function HealthAdminView() {
                                         <label className={labelCls}>Name *</label>
                                         <input type="text" value={formData.name} onChange={(e) => setFormData(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className={inputCls} />
                                     </div>
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
                                             <label className={labelCls}>Type</label>
                                             <select value={formData.type} onChange={(e) => setFormData(f => ({ ...f, type: e.target.value as ProfileType }))} className={inputCls}>
@@ -1773,7 +1779,7 @@ export default function HealthAdminView() {
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className={labelCls}>Date of Birth</label>
                                             <input type="date" value={formatDateInput(formData.date_of_birth)} onChange={(e) => setFormData(f => ({ ...f, date_of_birth: e.target.value ? toISODate(e.target.value) : undefined }))} className={inputCls} />
