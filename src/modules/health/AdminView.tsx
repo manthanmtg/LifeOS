@@ -191,7 +191,7 @@ function formatDateInput(d?: string): string {
 function toISODate(d: string): string {
     if (!d) return "";
     if (d.includes("T")) return d;
-    return new Date(d + "T00:00:00").toISOString();
+    return `${d}T00:00:00.000Z`;
 }
 
 function daysUntil(dateStr?: string): number | null {
@@ -697,6 +697,125 @@ export default function HealthAdminView() {
             </Portal>
         );
     }
+
+    // ─── Profile Form Modal (shared across views) ─────────────────────────────
+
+    const profileFormModal = (
+        <Portal>
+            <AnimatePresence>
+                {showProfileForm && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileForm(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-lg max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
+                                <h3 className="text-lg font-bold text-zinc-50">{editingProfile ? "Edit" : "Add"} Health Profile</h3>
+                                <button onClick={() => setShowProfileForm(false)} className="p-1 rounded-lg hover:bg-zinc-800"><X className="w-5 h-5 text-zinc-400" /></button>
+                            </div>
+                            <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
+                                <div>
+                                    <label className={labelCls}>Name *</label>
+                                    <input type="text" value={formData.name} onChange={(e) => setFormData(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className={inputCls} />
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className={labelCls}>Type</label>
+                                        <select value={formData.type} onChange={(e) => setFormData(f => ({ ...f, type: e.target.value as ProfileType }))} className={inputCls}>
+                                            <option value="self">Self</option>
+                                            <option value="family">Family</option>
+                                            <option value="pet">Pet</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Relation</label>
+                                        <input type="text" value={formData.relation || ""} onChange={(e) => setFormData(f => ({ ...f, relation: e.target.value }))} placeholder="e.g., Mother" className={inputCls} />
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Gender</label>
+                                        <select value={formData.gender || ""} onChange={(e) => setFormData(f => ({ ...f, gender: (e.target.value || undefined) as Gender | undefined }))} className={inputCls}>
+                                            <option value="">—</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className={labelCls}>Date of Birth</label>
+                                        <input type="date" value={formatDateInput(formData.date_of_birth)} onChange={(e) => setFormData(f => ({ ...f, date_of_birth: e.target.value ? toISODate(e.target.value) : undefined }))} className={inputCls} />
+                                    </div>
+                                    <div>
+                                        <label className={labelCls}>Blood Group</label>
+                                        <select value={formData.blood_group} onChange={(e) => setFormData(f => ({ ...f, blood_group: e.target.value as BloodGroup }))} className={inputCls}>
+                                            {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg === "unknown" ? "Unknown" : bg}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Emergency Contact</label>
+                                    <input type="text" value={formData.emergency_contact || ""} onChange={(e) => setFormData(f => ({ ...f, emergency_contact: e.target.value }))} placeholder="Phone or name" className={inputCls} />
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Insurance Info</label>
+                                    <input type="text" value={formData.insurance_info || ""} onChange={(e) => setFormData(f => ({ ...f, insurance_info: e.target.value }))} placeholder="Policy number or details" className={inputCls} />
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Allergies</label>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                        {formData.allergies.map((a, i) => (
+                                            <span key={i} className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-500/10 border border-red-500/20 text-red-400">
+                                                {a}
+                                                <button onClick={() => setFormData(f => ({ ...f, allergies: f.allergies.filter((_, j) => j !== i) }))} className="hover:text-red-300">
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={allergyInput}
+                                            onChange={(e) => setAllergyInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && allergyInput.trim()) {
+                                                    e.preventDefault();
+                                                    setFormData(f => ({ ...f, allergies: [...f.allergies, allergyInput.trim()] }));
+                                                    setAllergyInput("");
+                                                }
+                                            }}
+                                            placeholder="Type and press Enter"
+                                            className={inputCls}
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                if (allergyInput.trim()) {
+                                                    setFormData(f => ({ ...f, allergies: [...f.allergies, allergyInput.trim()] }));
+                                                    setAllergyInput("");
+                                                }
+                                            }}
+                                            className="px-3 py-2 bg-zinc-800 rounded-xl text-xs text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Notes</label>
+                                    <textarea value={formData.notes || ""} onChange={(e) => setFormData(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder="General notes..." className={cn(inputCls, "resize-none")} />
+                                </div>
+                            </div>
+                            <div className="p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
+                                <button onClick={() => setShowProfileForm(false)} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all">Cancel</button>
+                                <button onClick={saveProfile} disabled={saving} className="px-5 py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50">
+                                    {saving ? "Saving..." : editingProfile ? "Update" : "Add"} Profile
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </Portal>
+    );
 
     // ─── Render: Loading ─────────────────────────────────────────────────────
 
@@ -1599,6 +1718,8 @@ export default function HealthAdminView() {
                     </>
                 )}
 
+                {profileFormModal}
+
                 {/* Confirm Delete */}
                 <ConfirmDialog
                     isOpen={confirmDelete.open}
@@ -1740,121 +1861,7 @@ export default function HealthAdminView() {
                 </div>
             )}
 
-            {/* Profile Form Modal */}
-            <Portal>
-                <AnimatePresence>
-                    {showProfileForm && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileForm(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-lg max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
-                                <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                                    <h3 className="text-lg font-bold text-zinc-50">{editingProfile ? "Edit" : "Add"} Health Profile</h3>
-                                    <button onClick={() => setShowProfileForm(false)} className="p-1 rounded-lg hover:bg-zinc-800"><X className="w-5 h-5 text-zinc-400" /></button>
-                                </div>
-                                <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
-                                    <div>
-                                        <label className={labelCls}>Name *</label>
-                                        <input type="text" value={formData.name} onChange={(e) => setFormData(f => ({ ...f, name: e.target.value }))} placeholder="Full name" className={inputCls} />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                        <div>
-                                            <label className={labelCls}>Type</label>
-                                            <select value={formData.type} onChange={(e) => setFormData(f => ({ ...f, type: e.target.value as ProfileType }))} className={inputCls}>
-                                                <option value="self">Self</option>
-                                                <option value="family">Family</option>
-                                                <option value="pet">Pet</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelCls}>Relation</label>
-                                            <input type="text" value={formData.relation || ""} onChange={(e) => setFormData(f => ({ ...f, relation: e.target.value }))} placeholder="e.g., Mother" className={inputCls} />
-                                        </div>
-                                        <div>
-                                            <label className={labelCls}>Gender</label>
-                                            <select value={formData.gender || ""} onChange={(e) => setFormData(f => ({ ...f, gender: (e.target.value || undefined) as Gender | undefined }))} className={inputCls}>
-                                                <option value="">—</option>
-                                                <option value="male">Male</option>
-                                                <option value="female">Female</option>
-                                                <option value="other">Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className={labelCls}>Date of Birth</label>
-                                            <input type="date" value={formatDateInput(formData.date_of_birth)} onChange={(e) => setFormData(f => ({ ...f, date_of_birth: e.target.value ? toISODate(e.target.value) : undefined }))} className={inputCls} />
-                                        </div>
-                                        <div>
-                                            <label className={labelCls}>Blood Group</label>
-                                            <select value={formData.blood_group} onChange={(e) => setFormData(f => ({ ...f, blood_group: e.target.value as BloodGroup }))} className={inputCls}>
-                                                {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg === "unknown" ? "Unknown" : bg}</option>)}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Emergency Contact</label>
-                                        <input type="text" value={formData.emergency_contact || ""} onChange={(e) => setFormData(f => ({ ...f, emergency_contact: e.target.value }))} placeholder="Phone or name" className={inputCls} />
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Insurance Info</label>
-                                        <input type="text" value={formData.insurance_info || ""} onChange={(e) => setFormData(f => ({ ...f, insurance_info: e.target.value }))} placeholder="Policy number or details" className={inputCls} />
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Allergies</label>
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {formData.allergies.map((a, i) => (
-                                                <span key={i} className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-red-500/10 border border-red-500/20 text-red-400">
-                                                    {a}
-                                                    <button onClick={() => setFormData(f => ({ ...f, allergies: f.allergies.filter((_, j) => j !== i) }))} className="hover:text-red-300">
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={allergyInput}
-                                                onChange={(e) => setAllergyInput(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter" && allergyInput.trim()) {
-                                                        e.preventDefault();
-                                                        setFormData(f => ({ ...f, allergies: [...f.allergies, allergyInput.trim()] }));
-                                                        setAllergyInput("");
-                                                    }
-                                                }}
-                                                placeholder="Type and press Enter"
-                                                className={inputCls}
-                                            />
-                                            <button
-                                                onClick={() => {
-                                                    if (allergyInput.trim()) {
-                                                        setFormData(f => ({ ...f, allergies: [...f.allergies, allergyInput.trim()] }));
-                                                        setAllergyInput("");
-                                                    }
-                                                }}
-                                                className="px-3 py-2 bg-zinc-800 rounded-xl text-xs text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
-                                            >
-                                                <Plus className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Notes</label>
-                                        <textarea value={formData.notes || ""} onChange={(e) => setFormData(f => ({ ...f, notes: e.target.value }))} rows={2} placeholder="General notes..." className={cn(inputCls, "resize-none")} />
-                                    </div>
-                                </div>
-                                <div className="p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
-                                    <button onClick={() => setShowProfileForm(false)} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all">Cancel</button>
-                                    <button onClick={saveProfile} disabled={saving} className="px-5 py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50">
-                                        {saving ? "Saving..." : editingProfile ? "Update" : "Add"} Profile
-                                    </button>
-                                </div>
-                            </motion.div>
-                        </div>
-                    )}
-                </AnimatePresence>
-            </Portal>
+            {profileFormModal}
 
             {/* Confirm Delete */}
             <ConfirmDialog
