@@ -35,6 +35,8 @@ export default async function proxy(request: NextRequest) {
         path.startsWith('/api/ai-usage') ||
         path.startsWith('/api/export') ||
         path.startsWith('/api/import') ||
+        path.startsWith('/api/db-stats') ||
+        (path.startsWith('/api/metrics') && request.method === 'GET') ||
         (path.startsWith('/api/content') && request.method !== 'GET');
 
     if (isProtectedPath) {
@@ -57,9 +59,25 @@ export default async function proxy(request: NextRequest) {
         }
     }
 
+    // CSRF protection: validate Origin header on state-mutating requests
+    if (request.method !== 'GET' && request.method !== 'HEAD' && path.startsWith('/api/')) {
+        const origin = request.headers.get('origin');
+        const host = request.headers.get('host');
+        if (origin && host) {
+            try {
+                const originHost = new URL(origin).host;
+                if (originHost !== host) {
+                    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+                }
+            } catch {
+                return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            }
+        }
+    }
+
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/', '/admin/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
+    matcher: ['/', '/admin/login', '/admin/:path*', '/api/:path*'],
 }

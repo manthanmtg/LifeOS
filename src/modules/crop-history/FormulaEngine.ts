@@ -83,13 +83,10 @@ function resolveFunctions(formula: string, ctx: FormulaContext): string {
     let safety = 0;
     while (/ROUND\(/i.test(expr) && safety < 10) {
         expr = expr.replace(/ROUND\(\s*([^()]+?)\s*,\s*(\d+)\s*\)/gi, (_match, innerExpr, decimals) => {
-            // innerExpr should be a pure number at this point (after other functions resolved)
-            try {
-                const val = new Function(`return ${innerExpr}`)();
-                if (typeof val === 'number' && isFinite(val)) {
-                    return val.toFixed(Number(decimals));
-                }
-            } catch { /* fall through */ }
+            const val = safeEvaluateArithmetic(innerExpr.trim());
+            if (val !== null && isFinite(val)) {
+                return val.toFixed(Number(decimals));
+            }
             return innerExpr;
         });
         safety++;
@@ -153,23 +150,111 @@ function resolveVariables(expression: string, ctx: FormulaContext): string {
     return expr;
 }
 
-// Safely evaluate a pure arithmetic expression
-function evaluateArithmetic(expression: string): number | null {
-    // Only allow math characters and numbers
-    if (/[^0-9\+\-\*\/\(\)\.\s]/.test(expression)) {
-        return null;
+// Safe recursive descent parser for arithmetic expressions
+// Supports: +, -, *, /, (, ), unary minus, decimal numbers
+function safeEvaluateArithmetic(expression: string): number | null {
+    const trimmed = expression.trim();
+    if (!trimmed) return null;
+    // Reject anything that isn't numbers, operators, parens, whitespace, or decimal points
+    if (/[^0-9+\-*/().\s]/.test(trimmed)) return null;
+
+    let pos = 0;
+    const input = trimmed;
+
+    function skipWhitespace() {
+        while (pos < input.length && input[pos] === ' ') pos++;
+    }
+
+    function parseNumber(): number | null {
+        skipWhitespace();
+        const start = pos;
+        if (pos < input.length && (input[pos] === '-' || input[pos] === '+')) pos++;
+        if (pos >= input.length || (input[pos] < '0' || input[pos] > '9') && input[pos] !== '.') {
+            pos = start;
+            return null;
+        }
+        while (pos < input.length && input[pos] >= '0' && input[pos] <= '9') pos++;
+        if (pos < input.length && input[pos] === '.') {
+            pos++;
+            while (pos < input.length && input[pos] >= '0' && input[pos] <= '9') pos++;
+        }
+        const num = parseFloat(input.slice(start, pos));
+        return isNaN(num) ? null : num;
+    }
+
+    function parsePrimary(): number | null {
+        skipWhitespace();
+        // Unary minus/plus
+        if (pos < input.length && input[pos] === '-') {
+            pos++;
+            const val = parsePrimary();
+            return val === null ? null : -val;
+        }
+        if (pos < input.length && input[pos] === '+') {
+            pos++;
+            return parsePrimary();
+        }
+        // Parenthesized expression
+        if (pos < input.length && input[pos] === '(') {
+            pos++; // skip '('
+            const val = parseAddSub();
+            skipWhitespace();
+            if (pos >= input.length || input[pos] !== ')') return null;
+            pos++; // skip ')'
+            return val;
+        }
+        return parseNumber();
+    }
+
+    function parseMulDiv(): number | null {
+        let left = parsePrimary();
+        if (left === null) return null;
+        while (true) {
+            skipWhitespace();
+            if (pos >= input.length) break;
+            const op = input[pos];
+            if (op !== '*' && op !== '/') break;
+            pos++;
+            const right = parsePrimary();
+            if (right === null) return null;
+            if (op === '*') left = left * right;
+            else { if (right === 0) return null; left = left / right; }
+        }
+        return left;
+    }
+
+    function parseAddSub(): number | null {
+        let left = parseMulDiv();
+        if (left === null) return null;
+        while (true) {
+            skipWhitespace();
+            if (pos >= input.length) break;
+            const op = input[pos];
+            if (op !== '+' && op !== '-') break;
+            pos++;
+            const right = parseMulDiv();
+            if (right === null) return null;
+            if (op === '+') left = left + right;
+            else left = left - right;
+        }
+        return left;
     }
 
     try {
-        const func = new Function(`return ${expression}`);
-        const result = func();
-        if (typeof result === "number" && !isNaN(result) && isFinite(result)) {
-            return result;
-        }
-        return null;
+        const result = parseAddSub();
+        skipWhitespace();
+        // Ensure we consumed the entire input
+        if (pos !== input.length) return null;
+        if (result === null || !isFinite(result)) return null;
+        return result;
     } catch {
         return null;
     }
+}
+
+// Public alias used by the rest of the module
+function evaluateArithmetic(expression: string): number | null {
+    return safeEvaluateArithmetic(expression);
 }
 
 /**

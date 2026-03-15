@@ -5,7 +5,12 @@ import { ApiSuccess, ApiError } from "@/lib/api-response";
 export async function POST(request: Request) {
     try {
         const { moduleKey } = await request.json();
-        if (!moduleKey) return ApiError("Module key is required", 400);
+        if (!moduleKey || typeof moduleKey !== "string") return ApiError("Module key is required", 400);
+
+        // Sanitize: only allow alphanumeric and hyphens to prevent NoSQL injection via dotted paths
+        if (!/^[a-z0-9-]+$/.test(moduleKey)) {
+            return ApiError("Invalid module key", 400);
+        }
 
         const db = await getDb();
         const systemColl = db.collection<SystemConfig>("system");

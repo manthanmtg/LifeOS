@@ -3,6 +3,10 @@ import { ApiSuccess, ApiError } from "@/lib/api-response";
 
 /** Debug endpoint - inspects what's in DB and tests a raw provider API call */
 export async function GET() {
+    if (process.env.NODE_ENV === "production") {
+        return ApiError("Debug endpoint is disabled in production", 403);
+    }
+
     try {
         const db = await getDb();
 
@@ -15,7 +19,7 @@ export async function GET() {
             plan: p.plan,
             is_active: p.is_active,
             last_synced_at: p.last_synced_at,
-            key_prefix: typeof p.admin_api_key === "string" ? p.admin_api_key.slice(0, 14) + "..." : "missing",
+            key_prefix: typeof p.admin_api_key === "string" ? p.admin_api_key.slice(0, 7) + "..." : "missing",
             key_length: typeof p.admin_api_key === "string" ? p.admin_api_key.length : 0,
         }));
 
@@ -35,6 +39,10 @@ export async function GET() {
 
 /** Test a single provider API call - returns raw response */
 export async function POST(request: Request) {
+    if (process.env.NODE_ENV === "production") {
+        return ApiError("Debug endpoint is disabled in production", 403);
+    }
+
     try {
         const { provider_id } = await request.json();
         const db = await getDb();

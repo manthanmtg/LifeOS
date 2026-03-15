@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
+import { timingSafeEqual } from "crypto";
+
+function safeCompare(a: string, b: string): boolean {
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) {
+        timingSafeEqual(bufA, bufA);
+        return false;
+    }
+    return timingSafeEqual(bufA, bufB);
+}
 
 // Simple in-memory rate limiting (Note: This will reset on server restart/HMR)
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
@@ -28,13 +39,14 @@ export async function POST(request: Request) {
         }
 
         if (!process.env.ADMIN_PASSWORD) {
+            console.error("ADMIN_PASSWORD environment variable is not set");
             return NextResponse.json(
-                { error: "Server misconfiguration: ADMIN_PASSWORD not set" },
+                { error: "Internal server error" },
                 { status: 500 }
             );
         }
 
-        if (password === process.env.ADMIN_PASSWORD) {
+        if (typeof password === "string" && safeCompare(password, process.env.ADMIN_PASSWORD)) {
             // Success: clear attempts
             loginAttempts.delete(ip);
             

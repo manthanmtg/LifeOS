@@ -2,11 +2,36 @@ import { NextRequest } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
 
+const MAX_IMPORT_DOCS = 50000;
+
+function isPlainObjectArray(arr: unknown): arr is Record<string, unknown>[] {
+    return Array.isArray(arr) && arr.every(
+        (item) => typeof item === "object" && item !== null && !Array.isArray(item)
+    );
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        if (!body.data) {
+        if (!body.data || typeof body.data !== "object") {
             return ApiError("Invalid backup format", 400);
+        }
+
+        // Validate version field
+        if (body.version && body.version !== "1.0") {
+            return ApiError("Unsupported backup version", 400);
+        }
+
+        // Validate each collection is an array of plain objects with size limits
+        for (const key of ["system", "content", "metrics"]) {
+            if (body.data[key] !== undefined) {
+                if (!isPlainObjectArray(body.data[key])) {
+                    return ApiError(`Invalid format: data.${key} must be an array of objects`, 400);
+                }
+                if (body.data[key].length > MAX_IMPORT_DOCS) {
+                    return ApiError(`Too many documents in data.${key} (max ${MAX_IMPORT_DOCS})`, 400);
+                }
+            }
         }
 
         const db = await getDb();
@@ -57,7 +82,6 @@ export async function POST(req: NextRequest) {
         return ApiSuccess({ success: true, restored: results });
     } catch (e: unknown) {
         console.error("POST /api/import failed:", e);
-        const message = e instanceof Error ? e.message : "Import failed";
-        return ApiError(message, 500);
+        return ApiError("Import failed", 500);
     }
 }

@@ -32,6 +32,15 @@ export default function WhiteboardPreview({ elements, files }: {
                 svg.setAttribute("height", "100%");
                 svg.style.maxWidth = "100%";
                 svg.style.maxHeight = "100%";
+                // Sanitize SVG: remove script tags, event handlers, and foreignObject
+                svg.querySelectorAll("script, foreignObject").forEach((el) => el.remove());
+                svg.querySelectorAll("*").forEach((el) => {
+                    for (const attr of Array.from(el.attributes)) {
+                        if (attr.name.startsWith("on") || attr.value.trim().toLowerCase().startsWith("javascript:")) {
+                            el.removeAttribute(attr.name);
+                        }
+                    }
+                });
                 setSvgHtml(svg.outerHTML);
             }).catch(() => {});
         }).catch(() => {});

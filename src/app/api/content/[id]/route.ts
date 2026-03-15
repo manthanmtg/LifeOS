@@ -33,8 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return ApiSuccess(result);
     } catch (error) {
         console.error("GET /api/content/[id] failed:", error);
-        const message = error instanceof Error ? error.message : "Failed to fetch content";
-        return ApiError(message, 500);
+        return ApiError("Failed to fetch content", 500);
     }
 }
 
@@ -73,8 +72,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         return ApiSuccess({ success: true });
     } catch (error) {
         console.error("PUT /api/content/[id] failed:", error);
-        const message = error instanceof Error ? error.message : "Failed to update content";
-        return ApiError(message, 500);
+        return ApiError("Failed to update content", 500);
     }
 }
 
@@ -94,7 +92,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         return ApiSuccess({ success: true });
     } catch (error) {
         console.error("DELETE /api/content/[id] failed:", error);
-        const message = error instanceof Error ? error.message : "Failed to delete content";
-        return ApiError(message, 500);
+        return ApiError("Failed to delete content", 500);
     }
 }

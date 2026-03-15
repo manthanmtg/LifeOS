@@ -4,7 +4,8 @@ import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { createHash } from "crypto";
 
 export async function GET(req: NextRequest) {
-    const days = parseInt(req.nextUrl.searchParams.get("days") || "30");
+    const rawDays = parseInt(req.nextUrl.searchParams.get("days") || "30");
+    const days = Math.min(Math.max(isNaN(rawDays) ? 30 : rawDays, 1), 365);
     const since = new Date(Date.now() - days * 86400000).toISOString();
 
     try {
@@ -33,15 +34,25 @@ export async function POST(req: NextRequest) {
             .digest("hex")
             .slice(0, 12);
 
+        const safeStr = (v: unknown, fallback: string, maxLen = 500): string => {
+            if (typeof v !== "string") return fallback;
+            return v.slice(0, maxLen);
+        };
+
+        const allowedDeviceTypes = ["mobile", "tablet", "desktop", "unknown"];
+        const deviceType = allowedDeviceTypes.includes(body.device_type) ? body.device_type : "desktop";
+
         const event = {
-            path: body.path || "/",
-            module: body.module || "core",
-            action: body.action || "view",
-            label: body.label || null,
-            value: body.value || null,
-            metadata: body.metadata || {},
-            referrer: body.referrer || null,
-            device_type: body.device_type || "desktop",
+            path: safeStr(body.path, "/", 200),
+            module: safeStr(body.module, "core", 100),
+            action: safeStr(body.action, "view", 50),
+            label: typeof body.label === "string" ? body.label.slice(0, 200) : null,
+            value: typeof body.value === "number" ? body.value : null,
+            metadata: typeof body.metadata === "object" && body.metadata !== null && !Array.isArray(body.metadata)
+                ? JSON.parse(JSON.stringify(body.metadata).slice(0, 2000))
+                : {},
+            referrer: typeof body.referrer === "string" ? body.referrer.slice(0, 500) : null,
+            device_type: deviceType,
             session_id: sessionHash,
             timestamp: new Date().toISOString(),
         };
