@@ -5,6 +5,18 @@ import { verifyToken } from '@/lib/auth'
 export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
+    // If logged in and visiting /, redirect to /admin dashboard
+    if (path === '/') {
+        const token = request.cookies.get('lifeos_token')?.value;
+        if (token) {
+            const verified = await verifyToken(token);
+            if (verified) {
+                return NextResponse.redirect(new URL('/admin', request.url));
+            }
+        }
+        return NextResponse.next();
+    }
+
     // If already logged in and visiting /admin/login, redirect to /admin
     if (path === '/admin/login') {
         const token = request.cookies.get('lifeos_token')?.value;
@@ -49,5 +61,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
+    matcher: ['/', '/admin/login', '/admin/:path*', '/api/system/:path*', '/api/content/:path*', '/api/ai-usage/:path*', '/api/export/:path*', '/api/import/:path*'],
 }
