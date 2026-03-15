@@ -355,7 +355,7 @@ export default function SettingsPage() {
             </header>
 
             {/* Tab bar */}
-            <div className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-2xl mb-8 w-fit">
+            <div className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-2xl mb-8 w-full sm:w-fit overflow-x-auto no-scrollbar">
                 {TABS.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -396,7 +396,7 @@ export default function SettingsPage() {
                     {/* ─── THEMES TAB ─── */}
                     {activeTab === "themes" && (
                         <section className="relative space-y-6">
-                            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-accent/10 rounded-xl border border-accent/20">
                                         <Palette className="w-5 h-5 text-accent" />
@@ -437,7 +437,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-6 bg-zinc-950/30 p-6 rounded-3xl border border-white/5 shadow-inner">
+                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 bg-zinc-950/30 p-4 sm:p-6 rounded-3xl border border-white/5 shadow-inner">
                                 {THEMES.map((t) => {
                                     const meta = THEME_META[t];
                                     const isActive = mounted && theme === t;
@@ -564,31 +564,31 @@ export default function SettingsPage() {
                                                         {!state.enabled ? "Disabled — hidden everywhere" : state.isPublic ? "Visible to public visitors" : "Only visible to Admin"}
                                                     </p>
                                                 </div>
-                                                <div className="flex flex-col sm:flex-row items-center gap-2">
+                                                <div className="flex items-center gap-2 shrink-0">
                                                     <button
                                                         onPointerDown={(e) => e.stopPropagation()}
                                                         onClick={() => toggleModule(key, "isPublic")}
                                                         disabled={!state.enabled}
                                                         className={cn(
-                                                            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all w-28 justify-center",
+                                                            "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             !state.enabled
                                                                 ? "bg-zinc-950 text-zinc-600 border border-zinc-800/50 cursor-not-allowed"
                                                                 : state.isPublic ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         {state.isPublic ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                                        {state.isPublic ? "Public" : "Private"}
+                                                        <span className="hidden sm:inline">{state.isPublic ? "Public" : "Private"}</span>
                                                     </button>
                                                     <button
                                                         onPointerDown={(e) => e.stopPropagation()}
                                                         onClick={() => toggleModule(key, "enabled")}
                                                         className={cn(
-                                                            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all w-24 justify-center",
+                                                            "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             state.enabled ? "bg-accent/10 text-accent border border-accent/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         <Power className="w-3.5 h-3.5" />
-                                                        {state.enabled ? "Active" : "Off"}
+                                                        <span className="hidden sm:inline">{state.enabled ? "Active" : "Off"}</span>
                                                     </button>
                                                 </div>
                                             </Reorder.Item>
@@ -622,29 +622,29 @@ export default function SettingsPage() {
                                                         {config.orderingStrategy === "visits" && ` • ${config.pageVisits?.[key] || 0} visits`}
                                                     </p>
                                                 </div>
-                                                <div className="flex flex-col sm:flex-row items-center gap-2">
+                                                <div className="flex items-center gap-2 shrink-0">
                                                     <button
                                                         onClick={() => toggleModule(key, "isPublic")}
                                                         disabled={!state.enabled}
                                                         className={cn(
-                                                            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all w-28 justify-center",
+                                                            "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             !state.enabled
                                                                 ? "bg-zinc-950 text-zinc-600 border border-zinc-800/50 cursor-not-allowed"
                                                                 : state.isPublic ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         {state.isPublic ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                                                        {state.isPublic ? "Public" : "Private"}
+                                                        <span className="hidden sm:inline">{state.isPublic ? "Public" : "Private"}</span>
                                                     </button>
                                                     <button
                                                         onClick={() => toggleModule(key, "enabled")}
                                                         className={cn(
-                                                            "flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all w-24 justify-center",
+                                                            "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                                                             state.enabled ? "bg-accent/10 text-accent border border-accent/20" : "bg-zinc-950 text-zinc-500 border border-zinc-800/80"
                                                         )}
                                                     >
                                                         <Power className="w-3.5 h-3.5" />
-                                                        {state.enabled ? "Active" : "Off"}
+                                                        <span className="hidden sm:inline">{state.enabled ? "Active" : "Off"}</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -687,7 +687,7 @@ export default function SettingsPage() {
 
                                 <div className="relative z-10 space-y-8">
                                     {/* Header */}
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <div className="flex items-center gap-3">
                                             <div className="p-2.5 bg-accent/10 rounded-xl border border-accent/20">
                                                 <ImageIcon className="w-5 h-5 text-accent" />
@@ -702,7 +702,7 @@ export default function SettingsPage() {
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 onClick={() => saveConfig({ site_icon: "/favicon.ico" })}
-                                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20"
+                                                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 w-fit"
                                             >
                                                 <Trash2 className="w-3.5 h-3.5" />
                                                 Reset to default
@@ -801,7 +801,7 @@ export default function SettingsPage() {
                                             {/* Emoji Presets */}
                                             <div>
                                                 <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Quick Presets</label>
-                                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                                <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-6 gap-2">
                                                     {ICON_PRESETS.map((icon) => {
                                                         const isSelected = config?.site_icon === icon.value || (!config?.site_icon && icon.value === "/favicon.ico");
                                                         return (
@@ -942,7 +942,7 @@ export default function SettingsPage() {
                                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
 
                                 {/* Header */}
-                                <div className="flex items-center justify-between mb-8 relative z-10">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 relative z-10">
                                     <div className="flex items-center gap-4">
                                         <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
                                             <Server className="w-6 h-6 text-emerald-400" />
@@ -1005,8 +1005,8 @@ export default function SettingsPage() {
 
                                 {/* Usage Progress Bar */}
                                 <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-5 mb-6 relative z-10">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-2">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                             <span className="text-sm font-semibold text-zinc-300">Cluster Storage Usage</span>
                                             <span className="text-xs text-zinc-500">• Estimated limit based on tier</span>
                                         </div>
