@@ -7,6 +7,7 @@ export interface ModuleVisibility {
 
 export interface SystemConfig {
     site_title?: string;
+    site_icon?: string;
     moduleOrder?: string[];
     moduleRegistry?: Record<string, ModuleVisibility>;
     orderingStrategy?: "custom" | "name" | "visits";

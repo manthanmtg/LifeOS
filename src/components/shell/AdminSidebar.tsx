@@ -58,17 +58,25 @@ export default function AdminSidebar() {
             try {
                 const r = await fetch("/api/system");
                 const d = await r.json();
-                const config = d.data as SystemConfig | undefined;
-                if (config?.site_title) {
-                    setSiteTitle(config.site_title);
+                const cfg = d.data as SystemConfig | undefined;
+                if (cfg?.site_title) {
+                    setSiteTitle(cfg.site_title);
                 }
-                setConfig(config || null);
+                setConfig(cfg || null);
             } catch {
                 // silently fail
             }
         }
         loadConfig();
     }, []);
+
+    useEffect(() => {
+        if (!config?.site_icon) return;
+        const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+        if (link) link.href = config.site_icon;
+        const apple = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+        if (apple) apple.href = config.site_icon;
+    }, [config?.site_icon]);
 
     const sortedModules = getOrderedAdminModules(config).map((module) => ({
         href: module.href,
@@ -111,11 +119,21 @@ export default function AdminSidebar() {
                             className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-zinc-950 border-r border-zinc-800 flex flex-col text-sm text-zinc-400 z-50"
                         >
                             <div className="flex items-center justify-between p-6">
-                                <div>
-                                    <h2 className="text-zinc-50 font-semibold tracking-tight text-lg">{siteTitle}</h2>
-                                    <p className="text-xs text-zinc-500 mt-1">Admin Command Center</p>
+                                <div className="flex items-center gap-3 min-w-0">
+                                    {config?.site_icon ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={config.site_icon} alt="" className="w-8 h-8 rounded-lg object-contain shrink-0" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                                            <LayoutDashboard className="w-4 h-4 text-accent" />
+                                        </div>
+                                    )}
+                                    <div className="min-w-0">
+                                        <h2 className="text-zinc-50 font-semibold tracking-tight text-lg leading-tight truncate">{siteTitle}</h2>
+                                        <p className="text-xs text-zinc-500 mt-0.5">Admin Command Center</p>
+                                    </div>
                                 </div>
-                                <button onClick={() => setMobileOpen(false)} className="p-1 text-zinc-500 hover:text-zinc-300">
+                                <button onClick={() => setMobileOpen(false)} className="p-1 text-zinc-500 hover:text-zinc-300 shrink-0">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -152,8 +170,20 @@ export default function AdminSidebar() {
             {/* Desktop sidebar */}
             <div className="hidden lg:flex h-full w-64 bg-zinc-950 border-r border-zinc-800 flex-col text-sm text-zinc-400 shrink-0">
                 <div className="p-6">
-                    <h2 className="text-zinc-50 font-semibold tracking-tight text-lg">{siteTitle}</h2>
-                    <p className="text-xs text-zinc-500 mt-1">Admin Command Center</p>
+                    <div className="flex items-center gap-3 min-w-0">
+                        {config?.site_icon ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={config.site_icon} alt="" className="w-8 h-8 rounded-lg object-contain shrink-0" />
+                        ) : (
+                            <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                                <LayoutDashboard className="w-4 h-4 text-accent" />
+                            </div>
+                        )}
+                        <div className="min-w-0">
+                            <h2 className="text-zinc-50 font-semibold tracking-tight text-lg leading-tight truncate">{siteTitle}</h2>
+                            <p className="text-xs text-zinc-500 mt-0.5">Admin Command Center</p>
+                        </div>
+                    </div>
                 </div>
                 <div className="px-4 space-y-1 pb-2">
                     {renderNavLinks(links.slice(0, 1), pathname, setMobileOpen)}
