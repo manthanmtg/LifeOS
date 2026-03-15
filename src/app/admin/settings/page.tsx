@@ -342,7 +342,7 @@ export default function SettingsPage() {
 
     const currentIcon = config?.site_icon || "/favicon.ico";
     const isCustomIcon = config?.site_icon && !ICON_PRESETS.some(p => p.value === config.site_icon);
-    const isCustomUrl = isCustomIcon && !config.site_icon.startsWith("data:");
+    const isCustomUrl = isCustomIcon && !config?.site_icon?.startsWith("data:");
 
     return (
         <div className="animate-fade-in-up pb-20">
