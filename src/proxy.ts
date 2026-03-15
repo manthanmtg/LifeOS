@@ -6,12 +6,16 @@ export default async function proxy(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // If logged in and visiting /, redirect to /admin dashboard
+    // Unless ?public=1 is set (explicit public view request)
     if (path === '/') {
-        const token = request.cookies.get('lifeos_token')?.value;
-        if (token) {
-            const verified = await verifyToken(token);
-            if (verified) {
-                return NextResponse.redirect(new URL('/admin', request.url));
+        const wantsPublic = request.nextUrl.searchParams.get('public') === '1';
+        if (!wantsPublic) {
+            const token = request.cookies.get('lifeos_token')?.value;
+            if (token) {
+                const verified = await verifyToken(token);
+                if (verified) {
+                    return NextResponse.redirect(new URL('/admin', request.url));
+                }
             }
         }
         return NextResponse.next();

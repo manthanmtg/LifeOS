@@ -146,7 +146,7 @@ export default function AdminSidebar() {
                             </div>
                             <div className="p-4 border-t border-zinc-800 space-y-1">
                                 <Link
-                                    href="/"
+                                    href="/?public=1"
                                     onClick={() => setMobileOpen(false)}
                                     className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors min-h-[44px]"
                                 >
@@ -194,7 +194,7 @@ export default function AdminSidebar() {
                 </div>
                 <div className="p-4 border-t border-zinc-800 mt-auto space-y-1">
                     <Link
-                        href="/"
+                        href="/?public=1"
                         className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors"
                     >
                         <ExternalLink className="w-4 h-4" /> Public View
