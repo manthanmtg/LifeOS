@@ -12,6 +12,8 @@ export interface SystemConfig {
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
   pageVisits?: Record<string, number>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Allow for module-specific settings (e.g., expenseSettings)
 }
 
 export interface BlogPostPayload {

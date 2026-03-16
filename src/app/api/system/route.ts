@@ -22,12 +22,24 @@ export async function PUT(request: Request) {
     const body = await request.json();
 
     // Define allowed fields to prevent mass assignment/overwriting critical system state
-    const allowedFields = ["active_theme"];
-    const updateData: Record<string, string | number | boolean> = {};
+    const baseFields = [
+      "active_theme",
+      "color_mode",
+      "site_title",
+      "site_icon",
+      "bio",
+      "moduleRegistry",
+      "widgetRegistry",
+      "moduleOrder",
+      "orderingStrategy",
+    ];
 
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) {
-        updateData[field] = body[field];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updateData: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(body)) {
+      if (baseFields.includes(key) || key.endsWith("Settings")) {
+        updateData[key] = value;
       }
     }
 
