@@ -161,7 +161,7 @@ export default function AdminHeader() {
       </div>
 
       {/* Desktop: Standard header */}
-      <header className="hidden lg:block pb-6 mb-6 border-b border-zinc-800/50">
+      <header className="hidden lg:block pb-5 mb-5 border-b border-zinc-800/50">
         <div className="flex items-center justify-between gap-4">
           {/* Quick Access Modules */}
           <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-1">
@@ -173,7 +173,7 @@ export default function AdminHeader() {
                   key={mod.slug}
                   href={`/admin/${mod.slug}`}
                   className={cn(
-                    "group relative flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 shrink-0",
+                    "group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0",
                     isActive
                       ? "bg-accent/15 text-accent shadow-sm shadow-accent/10"
                       : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60",

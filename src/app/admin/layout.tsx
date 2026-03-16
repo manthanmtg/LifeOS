@@ -25,7 +25,7 @@ export default function AdminLayout({
         <AdminSidebar />
         <PageVisitTracker />
         <main className="flex-1 overflow-y-auto bg-zinc-950 relative">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-14 lg:pt-8">
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-14 lg:pt-6">
             <AdminHeader />
             {children}
           </div>
