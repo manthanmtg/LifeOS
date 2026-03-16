@@ -5,29 +5,29 @@ import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { Suspense } from "react";
 
 export default async function AdminModulePage({
-    params,
+  params,
 }: {
-    params: Promise<{ module: string }>;
+  params: Promise<{ module: string }>;
 }) {
-    const moduleName = (await params).module;
+  const moduleName = (await params).module;
 
-    const config = moduleRegistry[moduleName];
-    if (!config) {
-        notFound();
-    }
+  const config = moduleRegistry[moduleName];
+  if (!config) {
+    notFound();
+  }
 
-    // Dynamically import the AdminView of the requested module.
-    const DynamicModuleAdminView = dynamic(
-        () =>
-            import(`@/modules/${moduleName}/AdminView`).catch(() => {
-                return import(`@/modules/_template/AdminView`);
-            }),
-        { loading: () => <AdminModuleSkeleton /> },
-    );
+  // Dynamically import the AdminView of the requested module.
+  const DynamicModuleAdminView = dynamic(
+    () =>
+      import(`@/modules/${moduleName}/AdminView`).catch(() => {
+        return import(`@/modules/_template/AdminView`);
+      }),
+    { loading: () => <AdminModuleSkeleton /> },
+  );
 
-    return (
-        <Suspense key={moduleName} fallback={<AdminModuleSkeleton />}>
-            <DynamicModuleAdminView />
-        </Suspense>
-    );
+  return (
+    <Suspense key={moduleName} fallback={<AdminModuleSkeleton />}>
+      <DynamicModuleAdminView />
+    </Suspense>
+  );
 }

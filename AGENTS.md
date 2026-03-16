@@ -7,13 +7,16 @@ This file provides guidance to AI agents (Cascade, Claude Code, etc.) when worki
 - `pnpm dev` — Start dev server (Turbopack)
 - `pnpm build` — Production build
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
-- No test framework is configured
+- `pnpm format` — Format code with Prettier
+- `pnpm format:check` — Check formatting with Prettier
+- `pnpm check` — Run full CI check (lint, typecheck, build, test)
+- Vitest is the configured test framework
 
 ## Agent Guidelines
 
-### Lint Verification
+### Quality Verification
 
-**Whenever you make changes, once the feature is complete, run `pnpm lint` to verify no linting issues were introduced.** Fix any errors or warnings before finishing your work.
+**Whenever you make changes, once the feature is complete, run `pnpm check` to verify linting, types, build, and tests.** This ensures no regressions were introduced. At minimum, run `pnpm lint` and `pnpm format` before finishing your work.
 
 ### Architecture
 
@@ -22,6 +25,7 @@ Life OS is a Next.js 16 App Router application — a "shell" that dynamically re
 ### Polymorphic Data Layer
 
 All module data lives in a **single MongoDB `content` collection** using a discriminator pattern:
+
 - `module_type` — string discriminator (e.g., `"expense"`, `"blog_post"`, `"compass_task"`)
 - `payload` — module-specific data validated by Zod schemas in `src/lib/schemas.ts`
 - `is_public` — controls public visibility
@@ -32,6 +36,7 @@ Three MongoDB collections total: `system` (global config), `content` (all module
 ### Module System
 
 Each module is a self-contained folder under `src/modules/[name]/` with up to three files:
+
 - `AdminView.tsx` — CRUD interface, rendered at `/admin/[name]` via dynamic import
 - `Widget.tsx` — Dashboard summary card for the admin bento grid at `/admin`
 - `PublicView.tsx` (optional) — Read-only public view

@@ -60,26 +60,26 @@
 
 ## 🖥️ Screenshots
 
-| Admin Dashboard | Portfolio |
-|:---:|:---:|
+|                                 Admin Dashboard                                  |                              Portfolio                               |
+| :------------------------------------------------------------------------------: | :------------------------------------------------------------------: |
 | ![Admin Dashboard](https://placehold.co/600x400/1a1a2e/FFF?text=Admin+Dashboard) | ![Portfolio](https://placehold.co/600x400/1a1a2e/FFF?text=Portfolio) |
 
-| Ideas Board | Habit Tracker |
-|:---:|:---:|
+|                            Ideas Board                             |                             Habit Tracker                             |
+| :----------------------------------------------------------------: | :-------------------------------------------------------------------: |
 | ![Ideas](https://placehold.co/600x400/1a1a2e/FFF?text=Ideas+Board) | ![Habits](https://placehold.co/600x400/1a1a2e/FFF?text=Habit+Tracker) |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Next.js 16 (App Router, Turbopack) |
-| **Styling** | Tailwind CSS v4, Framer Motion |
-| **Database** | MongoDB Atlas (polymorphic single collection) |
-| **Validation** | Zod v4 |
-| **Auth** | jose (edge-compatible JWT) |
-| **Deployment** | Vercel, Netlify, or any Node.js host |
+| Layer          | Technology                                    |
+| -------------- | --------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router, Turbopack)            |
+| **Styling**    | Tailwind CSS v4, Framer Motion                |
+| **Database**   | MongoDB Atlas (polymorphic single collection) |
+| **Validation** | Zod v4                                        |
+| **Auth**       | jose (edge-compatible JWT)                    |
+| **Deployment** | Vercel, Netlify, or any Node.js host          |
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -242,4 +242,4 @@ MIT License — see [LICENSE](./LICENSE) for details.
 
 ---
 
-*Built with ❤️ using Next.js, MongoDB & Tailwind*
+_Built with ❤️ using Next.js, MongoDB & Tailwind_

@@ -1,64 +1,66 @@
-import { act, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import ZenModeProvider from '../ZenMode';
+import { act, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import ZenModeProvider from "../ZenMode";
 
-describe('ZenModeProvider', () => {
-    it('waits for mount before rendering the zen mode indicator', () => {
-        vi.useFakeTimers();
+describe("ZenModeProvider", () => {
+  it("waits for mount before rendering the zen mode indicator", () => {
+    vi.useFakeTimers();
 
-        render(
-            <ZenModeProvider>
-                <div>Content</div>
-            </ZenModeProvider>
-        );
+    render(
+      <ZenModeProvider>
+        <div>Content</div>
+      </ZenModeProvider>,
+    );
 
-        expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
 
-        act(() => {
-            vi.runOnlyPendingTimers();
-        });
-
-        expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+    act(() => {
+      vi.runOnlyPendingTimers();
     });
 
-    it('toggles zen mode with the keyboard shortcut', () => {
-        vi.useFakeTimers();
+    expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+  });
 
-        render(
-            <ZenModeProvider>
-                <div>Content</div>
-            </ZenModeProvider>
-        );
+  it("toggles zen mode with the keyboard shortcut", () => {
+    vi.useFakeTimers();
 
-        act(() => {
-            vi.runOnlyPendingTimers();
-        });
+    render(
+      <ZenModeProvider>
+        <div>Content</div>
+      </ZenModeProvider>,
+    );
 
-        fireZenShortcut();
-        expect(screen.getByText(/Zen Mode/)).toBeInTheDocument();
-
-        fireZenShortcut();
-        expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+    act(() => {
+      vi.runOnlyPendingTimers();
     });
 
-    it('removes the keyboard listener on unmount', () => {
-        vi.useFakeTimers();
-        const removeSpy = vi.spyOn(window, 'removeEventListener');
+    fireZenShortcut();
+    expect(screen.getByText(/Zen Mode/)).toBeInTheDocument();
 
-        const { unmount } = render(
-            <ZenModeProvider>
-                <div>Content</div>
-            </ZenModeProvider>
-        );
+    fireZenShortcut();
+    expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+  });
 
-        unmount();
+  it("removes the keyboard listener on unmount", () => {
+    vi.useFakeTimers();
+    const removeSpy = vi.spyOn(window, "removeEventListener");
 
-        expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
-    });
+    const { unmount } = render(
+      <ZenModeProvider>
+        <div>Content</div>
+      </ZenModeProvider>,
+    );
+
+    unmount();
+
+    expect(removeSpy).toHaveBeenCalledWith("keydown", expect.any(Function));
+  });
 });
 
 function fireZenShortcut() {
-    act(() => {
-        window.dispatchEvent(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, key: 'Z' }));
-    });
+  act(() => {
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", { ctrlKey: true, shiftKey: true, key: "Z" }),
+    );
+  });
 }

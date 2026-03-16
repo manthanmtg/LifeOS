@@ -21,18 +21,18 @@ The core idea behind LifeOS is **data autonomy** and **modular extensibility**. 
 
 LifeOS comes with a comprehensive suite of modules covering every aspect of digital life management:
 
-| Module | Type | Purpose |
-|--------|------|---------|
-| **Portfolio** | Public | Professional showcase with hero section, skills, and social links |
-| **Blog** | Public | Markdown-powered blogging with SEO optimization |
-| **Expenses** | Private | Daily spending tracker with category analysis |
-| **Subscriptions** | Private | Recurring cost manager with renewal alerts |
-| **Reading Queue** | Private | URL-based reading list with priority management |
-| **Bookshelf** | Private | Personal library with progress tracking |
-| **Ideas** | Private | Kanban-style idea management system |
-| **Snippets** | Private | Code library with syntax highlighting |
-| **Habits** | Private | GitHub-style habit tracking with streaks |
-| **Analytics** | Private | Self-hosted website analytics |
+| Module            | Type    | Purpose                                                           |
+| ----------------- | ------- | ----------------------------------------------------------------- |
+| **Portfolio**     | Public  | Professional showcase with hero section, skills, and social links |
+| **Blog**          | Public  | Markdown-powered blogging with SEO optimization                   |
+| **Expenses**      | Private | Daily spending tracker with category analysis                     |
+| **Subscriptions** | Private | Recurring cost manager with renewal alerts                        |
+| **Reading Queue** | Private | URL-based reading list with priority management                   |
+| **Bookshelf**     | Private | Personal library with progress tracking                           |
+| **Ideas**         | Private | Kanban-style idea management system                               |
+| **Snippets**      | Private | Code library with syntax highlighting                             |
+| **Habits**        | Private | GitHub-style habit tracking with streaks                          |
+| **Analytics**     | Private | Self-hosted website analytics                                     |
 
 ### 🏗️ Elegant Architecture
 
@@ -57,14 +57,14 @@ The interface features:
 
 LifeOS leverages cutting-edge web technologies:
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js 16 (App Router, Turbopack) |
-| **Styling** | Tailwind CSS v4, Framer Motion |
-| **Database** | MongoDB Atlas |
-| **Validation** | Zod v4 |
-| **Authentication** | JWT via jose (edge-compatible) |
-| **Package Manager** | pnpm |
+| Layer               | Technology                         |
+| ------------------- | ---------------------------------- |
+| **Framework**       | Next.js 16 (App Router, Turbopack) |
+| **Styling**         | Tailwind CSS v4, Framer Motion     |
+| **Database**        | MongoDB Atlas                      |
+| **Validation**      | Zod v4                             |
+| **Authentication**  | JWT via jose (edge-compatible)     |
+| **Package Manager** | pnpm                               |
 
 ## Getting Started
 
@@ -95,18 +95,21 @@ Adding a new module is as simple as:
 ## Real-World Use Cases
 
 ### For Freelancers and Developers
+
 - **Portfolio**: Showcase your work and skills
 - **Blog**: Share technical articles and insights
 - **Snippets**: Keep your code snippets organized
 - **Expenses**: Track business expenses and subscriptions
 
 ### For Personal Knowledge Management
+
 - **Reading Queue**: Save articles to read later
 - **Bookshelf**: Track your reading progress
 - **Ideas**: Capture and develop thoughts
 - **Habits**: Build and maintain positive routines
 
 ### For Life Organization
+
 - **Expenses**: Understand your spending patterns
 - **Subscriptions**: Monitor recurring costs
 - **Analytics**: Understand your website traffic without third-party trackers
@@ -159,4 +162,4 @@ LifeOS isn't just another productivity tool—it's a statement about how our dig
 
 ---
 
-*LifeOS is open source and available on GitHub. Deploy your own instance in minutes and start building your personal digital infrastructure today.*
+_LifeOS is open source and available on GitHub. Deploy your own instance in minutes and start building your personal digital infrastructure today._

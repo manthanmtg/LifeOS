@@ -30,6 +30,7 @@ The production URL (`manthanby.netlify.app`) served a stale cached HTML response
 This masked the broken deploys — the site appeared to "work" (the old cached HTML loaded), but the old HTML referenced chunk hashes from the previous build that no longer existed on the CDN, causing the 404s.
 
 Key evidence:
+
 - Production URL: `age: 24000+`, `cache-status: "Netlify Edge"; hit` (stale cache)
 - Unique deploy URL: `age: 1`, correct chunks, all 200s (when using remote build)
 
@@ -97,19 +98,19 @@ After the fix, all resources returned 200:
 
 ## What didn't work
 
-| Attempt | Why it failed |
-|---------|---------------|
-| `netlify deploy --prod --build` from local | SSR function not properly bundled — all pages 404 |
-| `output: "standalone"` in next.config.ts | Incompatible with `@netlify/plugin-nextjs` — function crashes (502) |
-| `export const dynamic = "force-dynamic"` on login page | SSR function couldn't render dynamically from local deploys |
-| Adding `[[headers]]` for cache control in netlify.toml | Didn't affect already-cached CDN responses |
-| `createSiteBuild` with `clear_cache: true` alone | Cleared build cache but didn't purge all CDN edge nodes |
+| Attempt                                                | Why it failed                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------- |
+| `netlify deploy --prod --build` from local             | SSR function not properly bundled — all pages 404                   |
+| `output: "standalone"` in next.config.ts               | Incompatible with `@netlify/plugin-nextjs` — function crashes (502) |
+| `export const dynamic = "force-dynamic"` on login page | SSR function couldn't render dynamically from local deploys         |
+| Adding `[[headers]]` for cache control in netlify.toml | Didn't affect already-cached CDN responses                          |
+| `createSiteBuild` with `clear_cache: true` alone       | Cleared build cache but didn't purge all CDN edge nodes             |
 
 ## Lessons learned
 
 1. **Never use `netlify deploy --prod --build` from local for Next.js 16 projects.** Always push to git and let Netlify's remote CI handle the build and deploy. The local CLI doesn't properly bundle SSR functions.
 
-2. **Netlify CDN edge caches can persist for hours** even with `max-age=0, must-revalidate`. The `clear_cache` flag on builds only clears the *build* cache, not the CDN edge cache. Use `restoreSiteDeploy` API followed by a fresh build to force global CDN invalidation.
+2. **Netlify CDN edge caches can persist for hours** even with `max-age=0, must-revalidate`. The `clear_cache` flag on builds only clears the _build_ cache, not the CDN edge cache. Use `restoreSiteDeploy` API followed by a fresh build to force global CDN invalidation.
 
 3. **Always test unique deploy URLs** (e.g., `https://<deploy-id>--site.netlify.app`) to bypass CDN caching and verify the actual deploy output. The production URL may serve stale cached content.
 

@@ -8,7 +8,9 @@ export default async function Home() {
   let userName = "Life OS";
   try {
     const db = await getDb();
-    const portfolio = await db.collection("content").findOne({ module_type: "portfolio_profile" });
+    const portfolio = await db
+      .collection("content")
+      .findOne({ module_type: "portfolio_profile" });
     if (portfolio?.payload?.full_name) {
       userName = portfolio.payload.full_name;
     }

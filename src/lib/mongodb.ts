@@ -15,7 +15,7 @@ const options = {
   },
   // Recommended options for robust connection handling in Next.js
   maxPoolSize: 10, // Limit connections to prevent leaks
-  minPoolSize: 1,  // Keep at least one connection warm
+  minPoolSize: 1, // Keep at least one connection warm
   connectTimeoutMS: 5000, // Fail fast on initial connection
   serverSelectionTimeoutMS: 5000, // Fail fast if DB vanishes
   appName: "LifeOS-EMI-Tracker",
@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === "development") {
 
   if (!globalWithMongo._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect().catch(err => {
+    globalWithMongo._mongoClientPromise = client.connect().catch((err) => {
       console.error("Failed to connect to MongoDB in development:", err);
       throw err;
     });
@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === "development") {
 } else {
   // In production mode, it's best to not use a global variable.
   client = new MongoClient(uri, options);
-  clientPromise = client.connect().catch(err => {
+  clientPromise = client.connect().catch((err) => {
     console.error("Failed to connect to MongoDB in production:", err);
     throw err;
   });

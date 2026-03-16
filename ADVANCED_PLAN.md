@@ -11,6 +11,7 @@ This document extends the original PLAN.md with advanced features, production ha
 These were deferred from PLAN.md and should be completed first.
 
 ### 0.1 — Media Storage Integration
+
 > Currently no way to upload images (blog covers, portfolio avatar, bookshelf covers).
 
 - [ ] Create `src/lib/storage.ts` — S3/Netlify Blob client utility
@@ -37,6 +38,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 0.2 — Real Markdown Renderer
+
 > Blog posts currently use a simple regex-based parser. Needs proper rendering.
 
 - [ ] Install `react-markdown` + `remark-gfm` + `rehype-highlight`
@@ -55,6 +57,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 0.3 — Automated Testing Suite
+
 > Zero tests currently. Core flows should be covered before any deployment.
 
 - [ ] Set up Vitest + React Testing Library + MSW (Mock Service Worker)
@@ -81,6 +84,7 @@ These were deferred from PLAN.md and should be completed first.
 ## Tier 1 — High-Impact Feature Enhancements
 
 ### 1.1 — Public Module Router
+
 > Public modules (Blog, Portfolio, Bookshelf) need dedicated public routes.
 
 - [ ] Dynamic public route: `app/[module]/page.tsx`
@@ -98,6 +102,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 1.2 — Notification / Toast System
+
 > No user feedback system for success/error states. Relies on inline messages.
 
 - [ ] Create `src/components/ui/Toast.tsx`:
@@ -120,6 +125,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 1.3 — Drag & Drop Reordering
+
 > Several modules would benefit from drag-and-drop.
 
 - [ ] Install `@dnd-kit/core` + `@dnd-kit/sortable`
@@ -134,6 +140,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 1.4 — Advanced Analytics
+
 > Current analytics manually logs events. Needs automatic tracking + richer views.
 
 - [ ] **Auto-tracking middleware** in `proxy.ts`:
@@ -162,6 +169,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 1.5 — Auth Hardening & Multi-Admin
+
 > Single password, no rate limiting, no admin profile.
 
 - [ ] **Rate limiting** on `/api/auth/login`:
@@ -189,6 +197,7 @@ These were deferred from PLAN.md and should be completed first.
 ## Tier 2 — Polish & Developer Experience
 
 ### 2.1 — PWA Support
+
 > Make Life OS installable on mobile as a native-feeling app.
 
 - [ ] Add `manifest.json` with app name, icons, theme colors
@@ -202,6 +211,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 2.2 — Accessibility (a11y) Audit
+
 > Ensure WCAG 2.1 AA compliance.
 
 - [ ] Add `aria-*` attributes to all interactive components:
@@ -222,6 +232,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 2.3 — Skeleton Loading States
+
 > Replace "Loading..." text with shimmer skeletons for perceived performance.
 
 - [ ] Create `src/components/ui/Skeleton.tsx`:
@@ -239,6 +250,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 2.4 — Confirmation Dialogs
+
 > Delete operations fire immediately with no confirmation.
 
 - [ ] Create `src/components/ui/ConfirmDialog.tsx`:
@@ -253,6 +265,7 @@ These were deferred from PLAN.md and should be completed first.
 ---
 
 ### 2.5 — Error Boundary & 500 Page
+
 > Unhandled component errors currently crash the page.
 
 - [ ] Create `src/app/error.tsx` — root error boundary with retry button
@@ -269,6 +282,7 @@ These were deferred from PLAN.md and should be completed first.
 Modules that expand Life OS into a more comprehensive system. Each follows the existing module contract (AdminView + Widget + schema + registry).
 
 ### 3.1 — Journal / Daily Notes
+
 > Personal daily journaling with mood tracking.
 
 - [ ] `JournalSchema`: `date`, `content` (markdown), `mood` (1–5 scale or emoji), `tags`, `weather`
@@ -283,6 +297,7 @@ Modules that expand Life OS into a more comprehensive system. Each follows the e
 ---
 
 ### 3.2 — Goals / OKR Tracker
+
 > Track quarterly or yearly goals with measurable key results.
 
 - [ ] `GoalSchema`: `title`, `description`, `type` (`goal` | `key_result`), `parent_id`, `target_value`, `current_value`, `deadline`, `status`
@@ -297,6 +312,7 @@ Modules that expand Life OS into a more comprehensive system. Each follows the e
 ---
 
 ### 3.3 — Contacts / CRM Lite
+
 > Keep track of important contacts and interactions.
 
 - [ ] `ContactSchema`: `name`, `email`, `phone`, `company`, `tags`, `notes`, `last_contacted`, `social_links`
@@ -310,6 +326,7 @@ Modules that expand Life OS into a more comprehensive system. Each follows the e
 ---
 
 ### 3.4 — Finance Dashboard (Expenses V2)
+
 > Elevate expenses with budgets, recurring income, and net worth tracking.
 
 - [ ] `BudgetSchema`: `category`, `monthly_limit`, `month`
@@ -324,6 +341,7 @@ Modules that expand Life OS into a more comprehensive system. Each follows the e
 ---
 
 ### 3.5 — Pomodoro Timer
+
 > Built-in focus timer with session logging.
 
 - [ ] Timer component: 25/5 Pomodoro cycle, customizable durations
@@ -343,17 +361,20 @@ Modules that expand Life OS into a more comprehensive system. Each follows the e
 Longer-term ideas that would significantly extend the platform.
 
 ### 4.1 — Plugin System
+
 - [ ] Define `LifeOSPlugin` interface with hooks: `onInstall`, `onEnable`, `onDisable`, `registerRoutes`
 - [ ] Plugin manifest: `lifeos-plugin.json` with metadata and dependencies
 - [ ] Plugin settings page per plugin
 - [ ] Community plugin directory (GitHub-based)
 
 ### 4.2 — Webhooks & Integrations
+
 - [ ] Outgoing webhooks: trigger on content create/update/delete
 - [ ] Incoming webhooks: accept data from external services (Zapier, IFTTT)
 - [ ] Pre-built integrations: Notion import, Todoist sync, GitHub activity feed
 
 ### 4.3 — AI Assistant
+
 - [ ] Natural language command palette: "Add expense $50 for groceries"
 - [ ] Smart categorization: auto-suggest expense category based on description
 - [ ] Blog draft generator from topic/outline
@@ -361,12 +382,14 @@ Longer-term ideas that would significantly extend the platform.
 - [ ] Uses OpenAI/Anthropic API with key stored in system config
 
 ### 4.4 — Collaborative Mode
+
 - [ ] Real-time collaboration via WebSockets (or Liveblocks)
 - [ ] Multiple admin accounts with role-based permissions
 - [ ] Activity feed: "Admin A edited Blog Post X"
 - [ ] Comment system on content items
 
 ### 4.5 — Native Mobile App
+
 - [ ] React Native / Expo wrapper targeting iOS + Android
 - [ ] Quick-add widget (iOS Widget / Android App Widget)
 - [ ] Push notifications for habit reminders
@@ -376,13 +399,13 @@ Longer-term ideas that would significantly extend the platform.
 
 ## Priority Matrix
 
-| Tier | Theme | Items | Est. Total |
-|------|-------|-------|-----------|
-| **0** | Critical Gaps | Media storage, Markdown renderer, Tests | ~11 hrs |
-| **1** | High Impact | Public routes, Toasts, DnD, Analytics+, Auth | ~17 hrs |
-| **2** | Polish & DX | PWA, a11y, Skeletons, Confirms, Errors | ~10 hrs |
-| **3** | New Modules | Journal, Goals, CRM, Finance V2, Pomodoro | ~18 hrs |
-| **4** | Vision | Plugins, Webhooks, AI, Collab, Native | TBD |
+| Tier  | Theme         | Items                                        | Est. Total |
+| ----- | ------------- | -------------------------------------------- | ---------- |
+| **0** | Critical Gaps | Media storage, Markdown renderer, Tests      | ~11 hrs    |
+| **1** | High Impact   | Public routes, Toasts, DnD, Analytics+, Auth | ~17 hrs    |
+| **2** | Polish & DX   | PWA, a11y, Skeletons, Confirms, Errors       | ~10 hrs    |
+| **3** | New Modules   | Journal, Goals, CRM, Finance V2, Pomodoro    | ~18 hrs    |
+| **4** | Vision        | Plugins, Webhooks, AI, Collab, Native        | TBD        |
 
 **Recommended execution order:** Tier 0 → 1.2 (Toasts) → 1.1 (Public routes) → 2.4–2.5 (Confirms/Errors) → 1.4 (Analytics) → 2.3 (Skeletons) → Pick from Tier 3.
 
@@ -390,13 +413,13 @@ Longer-term ideas that would significantly extend the platform.
 
 ## Appendix: Current Codebase Stats
 
-| Metric | Value |
-|--------|-------|
-| Total source files | 54 |
-| Routes | 15 (includes /blog, /blog/[slug]) |
-| Modules | 10 (Portfolio, Blog, Expenses, Subscriptions, Reading, Bookshelf, Ideas, Snippets, Habits, Analytics) |
-| Zod schemas | 9 registered |
-| Themes | 7 (One Dark, Dracula, Studio Dark, Nordic Light, Cyberpunk, Midnight One, Vampire) |
-| API endpoints | 8 (auth, content, content/[id], system, metrics, export, import, blog routes) |
-| MongoDB collections | 3 (system, content, metrics) |
-| MongoDB indexes | 5 auto-created |
+| Metric              | Value                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| Total source files  | 54                                                                                                    |
+| Routes              | 15 (includes /blog, /blog/[slug])                                                                     |
+| Modules             | 10 (Portfolio, Blog, Expenses, Subscriptions, Reading, Bookshelf, Ideas, Snippets, Habits, Analytics) |
+| Zod schemas         | 9 registered                                                                                          |
+| Themes              | 7 (One Dark, Dracula, Studio Dark, Nordic Light, Cyberpunk, Midnight One, Vampire)                    |
+| API endpoints       | 8 (auth, content, content/[id], system, metrics, export, import, blog routes)                         |
+| MongoDB collections | 3 (system, content, metrics)                                                                          |
+| MongoDB indexes     | 5 auto-created                                                                                        |

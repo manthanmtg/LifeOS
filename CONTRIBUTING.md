@@ -8,37 +8,43 @@ Every module in Life OS lives in `src/modules/[name]/` and follows a strict **Se
 
 ### Required Exports
 
-| File | Purpose |
-|------|---------|
-| `AdminView.tsx` | The management interface (rendered at `/admin/[name]`) |
-| `Widget.tsx` | Dashboard summary card (shown on the Command Center grid) |
-| `View.tsx` | *(Optional)* Public-facing page for visitor-visible modules |
+| File            | Purpose                                                     |
+| --------------- | ----------------------------------------------------------- |
+| `AdminView.tsx` | The management interface (rendered at `/admin/[name]`)      |
+| `Widget.tsx`    | Dashboard summary card (shown on the Command Center grid)   |
+| `View.tsx`      | _(Optional)_ Public-facing page for visitor-visible modules |
 
 ### Adding a New Module (< 30 Minutes)
 
 1. **Create the module folder:**
+
    ```bash
    mkdir src/modules/your-module
    ```
 
 2. **Add a Zod schema** to `src/lib/schemas.ts`:
+
    ```ts
    export const YourSchema = z.object({
      title: z.string().min(1),
      // ... your fields
    });
    ```
+
    Register it in the `SchemaRegistry` at the bottom of the file.
 
 3. **Register the module** in `src/registry.ts`:
+
    ```ts
    your_module: { name: "Your Module", icon: "Star", defaultPublic: false }
    ```
+
    Icons must be valid [Lucide React](https://lucide.dev/icons/) component names.
 
 4. **Add the icon** to the `IconMap` in `src/components/shell/AdminSidebar.tsx`.
 
 5. **Create `AdminView.tsx`** — use any existing module as a reference. Data is stored via:
+
    ```ts
    // Save
    fetch("/api/content", {
@@ -66,6 +72,7 @@ That's it — **zero database setup required.** The polymorphic `content` collec
 ## Data Architecture
 
 All module data uses the **polymorphic pattern** — a single `content` collection with:
+
 - `module_type` — discriminator field (e.g., `"expense"`, `"blog_post"`)
 - `payload` — typed object validated by Zod before insertion
 - `is_public` — controls public visibility

@@ -9,7 +9,10 @@ import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   let title = "Life OS";
@@ -17,8 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   try {
     const db = await getDb();
-    const portfolio = await db.collection("content").findOne({ module_type: "portfolio_profile" });
-    const config = await db.collection<SystemConfig>("system").findOne({ _id: "global" });
+    const portfolio = await db
+      .collection("content")
+      .findOne({ module_type: "portfolio_profile" });
+    const config = await db
+      .collection<SystemConfig>("system")
+      .findOne({ _id: "global" });
 
     if (portfolio?.payload?.full_name) {
       title = portfolio.payload.full_name;
@@ -38,7 +45,8 @@ export async function generateMetadata(): Promise<Metadata> {
       default: title,
       template: `%s | ${title}`,
     },
-    description: "A high-fidelity, open-source template framework for personal portfolio and life management.",
+    description:
+      "A high-fidelity, open-source template framework for personal portfolio and life management.",
     icons: {
       icon: icon,
       apple: icon,
@@ -67,7 +75,9 @@ export default async function RootLayout({
 
   try {
     const db = await getDb();
-    const config = await db.collection<SystemConfig>("system").findOne({ _id: "global" });
+    const config = await db
+      .collection<SystemConfig>("system")
+      .findOne({ _id: "global" });
     if (config?.active_theme) {
       activeTheme = config.active_theme;
     }
@@ -75,14 +85,24 @@ export default async function RootLayout({
       colorMode = config.color_mode;
     }
 
-    await db.collection("content").findOne({ module_type: "portfolio_profile" });
+    await db
+      .collection("content")
+      .findOne({ module_type: "portfolio_profile" });
   } catch {
     // Fallback to default on error
   }
 
   return (
-    <html lang="en" className={colorMode} data-theme={activeTheme} suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+    <html
+      lang="en"
+      className={colorMode}
+      data-theme={activeTheme}
+      suppressHydrationWarning
+    >
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+      >
         <ThemeProvider defaultTheme={activeTheme}>
           <Suspense fallback={null}>
             <MetricsTracker />

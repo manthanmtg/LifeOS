@@ -4,6 +4,7 @@ Objective
 Introduce a Slides module that allows users to create, manage, present, and share slide decks seamlessly within LifeOS.
 
 Core Capabilities
+
 1. Multi-format Support
 
 The system should accept and process slide decks in multiple formats including:

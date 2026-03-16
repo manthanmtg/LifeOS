@@ -7,6 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
+    "check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -50,6 +54,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
