@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 
 export default function MetricsTracker() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
@@ -15,12 +14,14 @@ export default function MetricsTracker() {
       // Pattern: /admin/module-name or /module-name
       const pathParts = pathname.split("/").filter(Boolean);
       let activeModule = "core";
+      let isAdmin = false;
 
-      if (pathParts[0] === "admin" && pathParts[1]) {
-        activeModule = pathParts[1];
+      if (pathParts[0] === "admin") {
+        isAdmin = true;
+        activeModule = pathParts[1] || "core";
       } else if (
         pathParts[0] &&
-        !["login", "admin", "resume", "blog"].includes(pathParts[0])
+        !["login", "resume", "blog"].includes(pathParts[0])
       ) {
         activeModule = pathParts[0];
       }
@@ -29,16 +30,15 @@ export default function MetricsTracker() {
         module: activeModule,
         action: isFirstLoad.current ? "session_start" : "page_view",
         label: pathname,
-        path:
-          pathname +
-          (searchParams?.toString() ? `?${searchParams.toString()}` : ""),
+        path: pathname, // Exclude searchParams to prevent over-counting during search/filtering
+        is_admin: isAdmin,
       });
 
       isFirstLoad.current = false;
     };
 
     recordPageView();
-  }, [pathname, searchParams]);
+  }, [pathname]); // Removed searchParams to fix over-counting
 
   return null;
 }

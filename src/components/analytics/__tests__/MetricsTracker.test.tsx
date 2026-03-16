@@ -27,7 +27,8 @@ describe("MetricsTracker", () => {
         module: "todo",
         action: "session_start",
         label: "/admin/todo",
-        path: "/admin/todo?tab=done",
+        path: "/admin/todo",
+        is_admin: true,
       }),
     );
   });
@@ -48,7 +49,8 @@ describe("MetricsTracker", () => {
         module: "expenses",
         action: "page_view",
         label: "/expenses",
-        path: "/expenses?view=month",
+        path: "/expenses",
+        is_admin: false,
       }),
     );
   });
@@ -64,6 +66,7 @@ describe("MetricsTracker", () => {
         action: "session_start",
         label: "/login",
         path: "/login",
+        is_admin: false,
       }),
     );
   });

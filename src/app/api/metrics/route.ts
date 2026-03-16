@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         typeof body.referrer === "string" ? body.referrer.slice(0, 500) : null,
       device_type: deviceType,
       session_id: sessionHash,
+      is_admin: typeof body.is_admin === "boolean" ? body.is_admin : false,
       timestamp: new Date().toISOString(),
     };
 

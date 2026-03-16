@@ -7,6 +7,7 @@ export interface AnalyticsEvent {
   value?: number | null;
   metadata?: Record<string, unknown>;
   path?: string;
+  is_admin?: boolean;
 }
 
 /**

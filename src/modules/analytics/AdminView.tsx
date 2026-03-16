@@ -36,6 +36,7 @@ interface MetricEvent {
   referrer?: string;
   device_type: string;
   session_id: string;
+  is_admin?: boolean;
   timestamp: string;
 }
 
@@ -53,6 +54,12 @@ export default function AnalyticsAdminView() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30");
   const [selectedModule, setSelectedModule] = useState<string>("all");
+  const [trafficSource, setTrafficSource] = useState<"all" | "admin" | "public">(
+    "all",
+  );
+  const [metricType, setMetricType] = useState<"all" | "views" | "actions">(
+    "views",
+  );
 
   const fetchMetrics = useCallback(async () => {
     setLoading(true);
@@ -74,10 +81,29 @@ export default function AnalyticsAdminView() {
 
   // Compute stats
   const stats = useMemo(() => {
-    const filtered =
+    let filtered =
       selectedModule === "all"
         ? metrics
         : metrics.filter((m) => m.module === selectedModule);
+
+    // Filter by traffic source
+    if (trafficSource === "admin") {
+      filtered = filtered.filter((m) => m.is_admin === true);
+    } else if (trafficSource === "public") {
+      filtered = filtered.filter((m) => m.is_admin === false);
+    }
+
+    // Filter by metric type
+    let leaderboardMetrics = filtered;
+    if (metricType === "views") {
+      leaderboardMetrics = filtered.filter((m) =>
+        ["page_view", "session_start"].includes(m.action),
+      );
+    } else if (metricType === "actions") {
+      leaderboardMetrics = filtered.filter(
+        (m) => !["page_view", "session_start"].includes(m.action),
+      );
+    }
 
     const today = new Date().toISOString().split("T")[0];
     const yesterday = new Date(Date.now() - 86400000)
@@ -93,16 +119,16 @@ export default function AnalyticsAdminView() {
 
     const uniqueSessions = new Set(filtered.map((m) => m.session_id)).size;
 
-    // Module activity
+    // Module activity (Leaderboard) - using leaderboardMetrics
     const moduleCounts: Record<string, number> = {};
-    metrics.forEach((m) => {
+    leaderboardMetrics.forEach((m) => {
       moduleCounts[m.module] = (moduleCounts[m.module] || 0) + 1;
     });
     const moduleChartData = Object.entries(moduleCounts)
       .sort((a, b) => b[1] - a[1])
       .map(([name, value]) => ({ name, value }));
 
-    // Daily trend
+    // Daily trend - using filtered
     const dailyAgg: Record<string, number> = {};
     filtered.forEach((m) => {
       const d = m.timestamp?.split("T")[0];
@@ -158,7 +184,7 @@ export default function AnalyticsAdminView() {
       topActions,
       recentEvents: filtered.slice(0, 15),
     };
-  }, [metrics, dateRange, selectedModule]);
+  }, [metrics, dateRange, selectedModule, trafficSource, metricType]);
 
   const trend = stats.todayActions - stats.yesterdayActions;
 
@@ -187,6 +213,48 @@ export default function AnalyticsAdminView() {
               </option>
             ))}
           </select>
+
+          <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1">
+            {[
+              { id: "all", label: "All Traffic" },
+              { id: "admin", label: "Admin Only" },
+              { id: "public", label: "Public Only" },
+            ].map((source) => (
+              <button
+                key={source.id}
+                onClick={() => setTrafficSource(source.id as "all" | "admin" | "public")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                  trafficSource === source.id
+                    ? "bg-zinc-800 text-accent shadow-lg"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+              >
+                {source.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1">
+            {[
+              { id: "views", label: "Visitation" },
+              { id: "actions", label: "Actions" },
+              { id: "all", label: "Combined" },
+            ].map((type) => (
+              <button
+                key={type.id}
+                onClick={() => setMetricType(type.id as "all" | "views" | "actions")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                  metricType === type.id
+                    ? "bg-zinc-800 text-accent shadow-lg"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
 
           <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1">
             {["7", "30", "90"].map((range) => (
