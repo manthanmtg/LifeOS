@@ -98,6 +98,16 @@ interface ExpenseSettings {
     numberFormat: "western" | "indian";
 }
 
+interface Prediction {
+    description: string;
+    merchant?: string;
+    account: "Cash" | "Debit Card" | "Credit Card" | "Bank Transfer" | "UPI" | "Other";
+    category: string;
+    subcategory?: string;
+    tags: string[];
+    frequency: number;
+}
+
 const DATE_FILTERS = [
     { label: "This month", value: "this-month" },
     { label: "Last 30 days", value: "last-30" },
@@ -273,8 +283,16 @@ export default function ExpensesAdminView() {
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [suggestions, setSuggestions] = useState<{ description: string; category: string }[]>([]);
+    const [suggestions, setSuggestions] = useState<Prediction[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [lastPrediction, setLastPrediction] = useState<Partial<Prediction> | null>(null);
+
+    // Form fields for intelligent autopilot
+    const [merchant, setMerchant] = useState("");
+    const [account, setAccount] = useState<Prediction["account"]>("UPI");
+    const [subcategory, setSubcategory] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+    const [tagInput, setTagInput] = useState("");
 
     useEffect(() => {
         fetch("/api/system")
@@ -349,20 +367,68 @@ export default function ExpensesAdminView() {
 
     useEffect(() => {
         if (description.length < 2) { setSuggestions([]); return; }
-        const matches = expenses
-            .filter((e) => e.payload.description.toLowerCase().includes(description.toLowerCase()))
-            .reduce<Map<string, string>>((acc, e) => {
-                if (!acc.has(e.payload.description)) acc.set(e.payload.description, e.payload.category);
-                return acc;
-            }, new Map());
-        setSuggestions(Array.from(matches.entries()).slice(0, 5).map(([d, c]) => ({ description: d, category: c })));
-        setShowSuggestions(matches.size > 0);
+        
+        const query = description.toLowerCase();
+        const matches = new Map<string, { count: number; payload: Expense["payload"] }>();
+
+        expenses.forEach(e => {
+            if (e.payload.description.toLowerCase().includes(query)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const ep = e.payload as any; // Type casting for dynamic fields
+                const key = `${e.payload.description}|${e.payload.category}|${ep.merchant || ""}|${ep.account || "UPI"}`;
+                const existing = matches.get(key);
+                if (existing) {
+                    existing.count++;
+                } else {
+                    matches.set(key, { count: 1, payload: e.payload });
+                }
+            }
+        });
+
+        const sorted = Array.from(matches.values())
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5)
+            .map(m => ({
+                description: m.payload.description,
+                merchant: m.payload.merchant,
+                account: m.payload.account || "UPI",
+                category: m.payload.category,
+                subcategory: m.payload.subcategory,
+                tags: m.payload.tags || [],
+                frequency: m.count
+            }));
+
+        setSuggestions(sorted);
+        setShowSuggestions(sorted.length > 0);
     }, [description, expenses]);
 
+    const applyPrediction = (p: Prediction) => {
+        setDescription(p.description);
+        setMerchant(p.merchant || "");
+        setAccount(p.account);
+        setCategory(p.category);
+        setSubcategory(p.subcategory || "");
+        setTags(p.tags);
+        setLastPrediction(p);
+        setShowSuggestions(false);
+        setTimeout(() => setLastPrediction(null), 2000);
+    };
+
     const resetForm = () => {
-        setAmount(""); setDescription(""); setCategory(settings.categories[0] || "Other");
-        setDate(new Date().toISOString().slice(0, 10)); setIsRecurring(false);
-        setEditingId(null); setFormError(""); setShowForm(false);
+        setAmount(""); 
+        setDescription(""); 
+        setMerchant("");
+        setAccount("UPI");
+        setCategory(settings.categories[0] || "Other");
+        setSubcategory("");
+        setTags([]);
+        setTagInput("");
+        setDate(new Date().toISOString().slice(0, 10)); 
+        setIsRecurring(false);
+        setEditingId(null); 
+        setFormError(""); 
+        setShowForm(false);
+        setLastPrediction(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -373,7 +439,11 @@ export default function ExpensesAdminView() {
             amount: parseFloat(amount),
             currency: settings.defaultCurrency,
             description,
+            merchant,
+            account,
             category,
+            subcategory,
+            tags,
             date: new Date(date).toISOString(),
             is_recurring: isRecurring,
         };
@@ -417,11 +487,17 @@ export default function ExpensesAdminView() {
     };
 
     const handleEdit = (exp: Expense) => {
-        setAmount(exp.payload.amount.toString());
-        setDescription(exp.payload.description);
-        setCategory(exp.payload.category);
-        setDate(exp.payload.date.slice(0, 10));
-        setIsRecurring(exp.payload.is_recurring);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const p = exp.payload as any; // Type casting for dynamic fields
+        setAmount(p.amount.toString());
+        setDescription(p.description);
+        setMerchant(p.merchant || "");
+        setAccount(p.account || "UPI");
+        setCategory(p.category);
+        setSubcategory(p.subcategory || "");
+        setTags(p.tags || []);
+        setDate(p.date.slice(0, 10));
+        setIsRecurring(p.is_recurring);
         setEditingId(exp._id);
         setShowForm(true);
     };
@@ -831,30 +907,112 @@ export default function ExpensesAdminView() {
                                             />
                                             <AnimatePresence>
                                                 {showSuggestions && (
-                                                    <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="absolute top-full mt-2 left-0 right-0 bg-zinc-800/95 backdrop-blur-md border border-zinc-700 rounded-xl overflow-hidden z-20 shadow-2xl py-1">
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: -5, scale: 0.95 }} 
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }} 
+                                                        exit={{ opacity: 0, y: -5, scale: 0.95 }} 
+                                                        className="absolute top-full mt-2 left-0 right-0 bg-zinc-900 border border-zinc-700/50 rounded-2xl overflow-hidden z-50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-1"
+                                                    >
+                                                        <div className="px-3 py-1.5 border-b border-zinc-800 text-[10px] uppercase tracking-widest font-bold text-zinc-500">History Matches</div>
                                                         {suggestions.map((s, i) => (
                                                             <button
                                                                 key={i} type="button"
-                                                                onMouseDown={() => { setDescription(s.description); setCategory(s.category); setShowSuggestions(false); }}
-                                                                className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-zinc-50 flex justify-between items-center transition-colors border-b border-zinc-700/50 last:border-0"
+                                                                onMouseDown={() => applyPrediction(s)}
+                                                                className="w-full text-left px-4 py-3 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white flex justify-between items-center transition-all group/s"
                                                             >
-                                                                <span className="font-medium">{s.description}</span>
-                                                                <span className={cn("text-xs px-2 py-0.5 rounded-md border", getCategoryColor(s.category, settings.categories))}>{s.category}</span>
+                                                                <div className="flex flex-col min-w-0">
+                                                                    <span className="font-semibold truncate text-zinc-50 group-hover/s:text-accent transition-colors">{s.description}</span>
+                                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                                        {s.merchant && <span className="text-[10px] text-zinc-500 font-medium truncate">at {s.merchant}</span>}
+                                                                        <span className="text-[10px] text-zinc-400 opacity-50">•</span>
+                                                                        <span className="text-[10px] text-zinc-500 uppercase tracking-tighter">{s.account}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2 shrink-0">
+                                                                    <span className={cn("text-[10px] px-2 py-0.5 rounded-full border border-current font-bold", getCategoryColor(s.category, settings.categories))}>{s.category}</span>
+                                                                    <div className="w-6 h-6 rounded-lg bg-zinc-800 flex items-center justify-center opacity-0 group-hover/s:opacity-100 transition-opacity">
+                                                                        <RefreshCw className="w-3 h-3 text-accent" />
+                                                                    </div>
+                                                                </div>
                                                             </button>
                                                         ))}
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
+                                            {lastPrediction?.description === description && (
+                                                <motion.div 
+                                                    initial={{ opacity: 0, scale: 0.5 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="absolute right-3 top-9 flex items-center gap-1.5 pointer-events-none"
+                                                >
+                                                    <div className="bg-accent/20 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full border border-accent/30 flex items-center gap-1 shadow-sm">
+                                                        <RefreshCw className="w-2.5 h-2.5 animate-pulse" />
+                                                        MAGIC FILL
+                                                    </div>
+                                                </motion.div>
+                                            )}
                                         </div>
 
-                                        {/* Category */}
+                                        {/* Merchant & Account */}
                                         <div>
-                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1">Category</label>
+                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1 flex items-center justify-between">
+                                                Merchant / Vendor (Optional)
+                                                {lastPrediction?.merchant === merchant && merchant && (
+                                                    <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} className="text-accent text-[9px] font-bold uppercase tracking-wider">Predicted</motion.span>
+                                                )}
+                                            </label>
+                                            <input
+                                                type="text" value={merchant} onChange={(e) => { setMerchant(e.target.value); setLastPrediction(null); }}
+                                                placeholder="e.g. Amazon, Starbucks"
+                                                className={cn(
+                                                    "w-full bg-zinc-950/50 border rounded-xl px-4 py-3 text-sm text-zinc-50 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all shadow-sm",
+                                                    lastPrediction?.merchant === merchant && merchant ? "border-accent/40 bg-accent/5 ring-1 ring-accent/20" : "border-zinc-800/80"
+                                                )}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1 flex items-center justify-between">
+                                                Payment Account
+                                                {lastPrediction?.account === account && (
+                                                    <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} className="text-accent text-[9px] font-bold uppercase tracking-wider">Predicted</motion.span>
+                                                )}
+                                            </label>
                                             <div className="relative">
                                                 <select
-                                                    value={category} onChange={(e) => setCategory(e.target.value)}
+                                                    value={account} onChange={(e) => { setAccount(e.target.value as Prediction["account"]); setLastPrediction(null); }}
+                                                    className={cn(
+                                                        "w-full bg-zinc-950/50 border rounded-xl pl-4 pr-10 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40 appearance-none shadow-sm transition-all",
+                                                        lastPrediction?.account === account ? "border-accent/40 bg-accent/5 ring-1 ring-accent/20" : "border-zinc-800/80"
+                                                    )}
+                                                >
+                                                    <option value="Cash">Cash</option>
+                                                    <option value="Debit Card">Debit Card</option>
+                                                    <option value="Credit Card">Credit Card</option>
+                                                    <option value="Bank Transfer">Bank Transfer</option>
+                                                    <option value="UPI">UPI</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                                            </div>
+                                        </div>
+
+                                        {/* Category & Subcategory */}
+                                        <div>
+                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1 flex items-center justify-between">
+                                                Category
+                                                {lastPrediction?.category === category && (
+                                                    <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} className="text-accent text-[9px] font-bold uppercase tracking-wider">Predicted</motion.span>
+                                                )}
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={category} onChange={(e) => { setCategory(e.target.value); setLastPrediction(null); }}
                                                     aria-label="Select category"
-                                                    className="w-full bg-zinc-950/50 border border-zinc-800/80 rounded-xl pl-4 pr-10 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40 appearance-none shadow-sm transition-all"
+                                                    className={cn(
+                                                        "w-full bg-zinc-950/50 border rounded-xl pl-4 pr-10 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40 appearance-none shadow-sm transition-all",
+                                                        lastPrediction?.category === category ? "border-accent/40 bg-accent/5 ring-1 ring-accent/20" : "border-zinc-800/80"
+                                                    )}
                                                 >
                                                     {settings.categories.map((c) => <option key={c} value={c}>{c}</option>)}
                                                 </select>
@@ -862,7 +1020,24 @@ export default function ExpensesAdminView() {
                                             </div>
                                         </div>
 
-                                        {/* Date */}
+                                        <div>
+                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1 flex items-center justify-between">
+                                                Subcategory (Optional)
+                                                {lastPrediction?.subcategory === subcategory && subcategory && (
+                                                    <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} className="text-accent text-[9px] font-bold uppercase tracking-wider">Predicted</motion.span>
+                                                )}
+                                            </label>
+                                            <input
+                                                type="text" value={subcategory} onChange={(e) => { setSubcategory(e.target.value); setLastPrediction(null); }}
+                                                placeholder="e.g. Groceries, Dining out"
+                                                className={cn(
+                                                    "w-full bg-zinc-950/50 border rounded-xl px-4 py-3 text-sm text-zinc-50 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all shadow-sm",
+                                                    lastPrediction?.subcategory === subcategory && subcategory ? "border-accent/40 bg-accent/5 ring-1 ring-accent/20" : "border-zinc-800/80"
+                                                )}
+                                            />
+                                        </div>
+
+                                        {/* Date & Tags */}
                                         <div>
                                             <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1">Date</label>
                                             <input
@@ -870,6 +1045,50 @@ export default function ExpensesAdminView() {
                                                 aria-label="Expense date"
                                                 className="w-full bg-zinc-950/50 border border-zinc-800/80 rounded-xl px-4 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40 shadow-sm transition-all"
                                             />
+                                        </div>
+
+                                        <div className="relative">
+                                            <label className="block text-xs text-zinc-500 mb-1.5 font-medium ml-1 flex items-center justify-between">
+                                                Tags (Press Enter)
+                                                {lastPrediction?.tags?.length === tags.length && tags.length > 0 && tags.every(t => lastPrediction.tags?.includes(t)) && (
+                                                    <motion.span initial={{ opacity: 0, x: 5 }} animate={{ opacity: 1, x: 0 }} className="text-accent text-[9px] font-bold uppercase tracking-wider">Predicted</motion.span>
+                                                )}
+                                            </label>
+                                            <input
+                                                type="text" value={tagInput}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const val = tagInput.trim();
+                                                        if (val && !tags.includes(val)) {
+                                                            setTags([...tags, val]);
+                                                            setTagInput("");
+                                                            setLastPrediction(null);
+                                                        }
+                                                    }
+                                                }}
+                                                onChange={(e) => setTagInput(e.target.value)}
+                                                placeholder="Add tag..."
+                                                className="w-full bg-zinc-950/50 border border-zinc-800/80 rounded-xl px-4 py-3 text-sm text-zinc-50 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent/40 transition-all shadow-sm"
+                                            />
+                                            {tags.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                                    {tags.map(t => (
+                                                        <span 
+                                                            key={t} 
+                                                            className={cn(
+                                                                "flex items-center gap-1 px-2 py-0.5 border rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
+                                                                lastPrediction?.tags?.includes(t) 
+                                                                    ? "bg-accent/20 border-accent/40 text-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.2)]" 
+                                                                    : "bg-zinc-800/50 border-zinc-700/50 text-zinc-400"
+                                                            )}
+                                                        >
+                                                            {t}
+                                                            <button type="button" onClick={() => setTags(tags.filter(tg => tg !== t))}><X className="w-2.5 h-2.5" /></button>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
