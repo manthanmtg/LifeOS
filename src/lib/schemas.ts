@@ -21,10 +21,11 @@ export const ExpenseSchema = z.object({
     amount: z.number().positive("Amount must be greater than 0"),
     currency: z.string().length(3).default("USD"),
     description: z.string().min(2, "Please provide a brief description"),
-    category: z.enum([
-        "Housing", "Food", "Transportation", "Utilities",
-        "Entertainment", "Tech/Recurring", "Health", "Other"
-    ]),
+    merchant: z.string().optional(),
+    account: z.enum(["Cash", "Debit Card", "Credit Card", "Bank Transfer", "UPI", "Other"]).default("UPI"),
+    category: z.string().min(1, "Category is required"),
+    subcategory: z.string().optional(),
+    tags: z.array(z.string()).default([]),
     date: z.string().datetime("Must be a valid ISO Date string"),
     is_recurring: z.boolean().default(false),
     receipt_url: z.string().url().optional(),

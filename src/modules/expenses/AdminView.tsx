@@ -84,7 +84,11 @@ interface Expense {
         amount: number;
         currency: string;
         description: string;
+        merchant?: string;
+        account?: Prediction["account"];
         category: string;
+        subcategory?: string;
+        tags?: string[];
         date: string;
         is_recurring: boolean;
     };
@@ -373,9 +377,8 @@ export default function ExpensesAdminView() {
 
         expenses.forEach(e => {
             if (e.payload.description.toLowerCase().includes(query)) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const ep = e.payload as any; // Type casting for dynamic fields
-                const key = `${e.payload.description}|${e.payload.category}|${ep.merchant || ""}|${ep.account || "UPI"}`;
+                const ep = e.payload;
+                const key = `${ep.description}|${ep.category}|${ep.merchant || ""}|${ep.account || "UPI"}`;
                 const existing = matches.get(key);
                 if (existing) {
                     existing.count++;
@@ -400,7 +403,24 @@ export default function ExpensesAdminView() {
 
         setSuggestions(sorted);
         setShowSuggestions(sorted.length > 0);
-    }, [description, expenses]);
+
+        // Proactive Auto-fill: If we have an EXACT match for the description (case-insensitive)
+        // and it has high frequency, auto-apply it.
+        const exactMatch = sorted.find(s => s.description.toLowerCase() === query);
+        if (exactMatch && exactMatch.frequency >= 2 && !editingId) {
+            // Only auto-fill if fields are currently empty to avoid annoyance
+            if (!merchant || !subcategory || tags.length === 0) {
+                 // Use a slight timeout to ensure state settles and prevent race conditions with typing
+                 const timer = setTimeout(() => {
+                    if (description.toLowerCase() === exactMatch.description.toLowerCase()) {
+                        applyPrediction(exactMatch);
+                    }
+                 }, 500);
+                 return () => clearTimeout(timer);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [description, expenses, editingId]);
 
     const applyPrediction = (p: Prediction) => {
         setDescription(p.description);
@@ -487,8 +507,7 @@ export default function ExpensesAdminView() {
     };
 
     const handleEdit = (exp: Expense) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const p = exp.payload as any; // Type casting for dynamic fields
+        const p = exp.payload;
         setAmount(p.amount.toString());
         setDescription(p.description);
         setMerchant(p.merchant || "");
@@ -791,21 +810,34 @@ export default function ExpensesAdminView() {
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                                                         <p className="text-base font-semibold text-zinc-50 truncate drop-shadow-sm">{exp.payload.description}</p>
+                                                        {exp.payload.merchant && (
+                                                            <span className="text-xs text-zinc-500 font-medium">at {exp.payload.merchant}</span>
+                                                        )}
                                                         {exp.payload.is_recurring && (
                                                             <span className="inline-flex items-center justify-center bg-accent/10 border border-accent/20 text-accent rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shrink-0">
                                                                 Recurring
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <span className={cn("inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-md font-medium border sm:hidden", getCategoryColor(exp.payload.category, settings.categories))}>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className={cn("inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-tight border", getCategoryColor(exp.payload.category, settings.categories))}>
                                                             {exp.payload.category}
                                                         </span>
-                                                        <span className="hidden sm:inline-flex text-sm text-zinc-400 font-medium">
-                                                            {exp.payload.category}
-                                                        </span>
+                                                        {exp.payload.subcategory && (
+                                                            <span className="text-xs text-zinc-500 font-medium opacity-80 decoration-zinc-700 underline underline-offset-4 decoration-dotted">
+                                                                {exp.payload.subcategory}
+                                                            </span>
+                                                        )}
+                                                        {exp.payload.tags && exp.payload.tags.length > 0 && (
+                                                            <div className="flex items-center gap-1 ml-1 overflow-hidden">
+                                                                {exp.payload.tags.slice(0, 3).map(tag => (
+                                                                    <span key={tag} className="text-[10px] text-zinc-500 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/50">#{tag}</span>
+                                                                ))}
+                                                                {exp.payload.tags.length > 3 && <span className="text-[10px] text-zinc-600">+{exp.payload.tags.length - 3}</span>}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
