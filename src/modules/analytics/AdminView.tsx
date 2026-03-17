@@ -54,9 +54,9 @@ export default function AnalyticsAdminView() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30");
   const [selectedModule, setSelectedModule] = useState<string>("all");
-  const [trafficSource, setTrafficSource] = useState<"all" | "admin" | "public">(
-    "all",
-  );
+  const [trafficSource, setTrafficSource] = useState<
+    "all" | "admin" | "public"
+  >("all");
   const [metricType, setMetricType] = useState<"all" | "views" | "actions">(
     "views",
   );
@@ -222,7 +222,9 @@ export default function AnalyticsAdminView() {
             ].map((source) => (
               <button
                 key={source.id}
-                onClick={() => setTrafficSource(source.id as "all" | "admin" | "public")}
+                onClick={() =>
+                  setTrafficSource(source.id as "all" | "admin" | "public")
+                }
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
                   trafficSource === source.id
@@ -243,7 +245,9 @@ export default function AnalyticsAdminView() {
             ].map((type) => (
               <button
                 key={type.id}
-                onClick={() => setMetricType(type.id as "all" | "views" | "actions")}
+                onClick={() =>
+                  setMetricType(type.id as "all" | "views" | "actions")
+                }
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
                   metricType === type.id

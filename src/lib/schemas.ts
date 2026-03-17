@@ -40,6 +40,7 @@ export const ExpenseSchema = z.object({
   subcategory: z.string().optional(),
   tags: z.array(z.string()).default([]),
   date: z.string().datetime("Must be a valid ISO Date string"),
+  type: z.enum(["income", "expense"]).default("expense"),
   is_recurring: z.boolean().default(false),
   receipt_url: z.string().url().optional(),
 });
