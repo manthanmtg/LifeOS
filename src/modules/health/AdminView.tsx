@@ -29,6 +29,8 @@ import {
   Droplets,
   AlertCircle,
   TrendingUp,
+  Copy,
+  CalendarX2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -879,7 +881,48 @@ export default function HealthAdminView() {
     await saveSubRecord("documents", record, editingDoc);
   };
 
+  // ─── Vaccination helpers ────────────────────────────────────────────────
+
+  const duplicateVaccination = async (vac: Vaccination) => {
+    if (!selectedProfile) return;
+    const newVac: Vaccination = {
+      ...vac,
+      id: uuid(),
+      date_administered:
+        new Date().toISOString().slice(0, 10) + "T00:00:00.000Z",
+      next_due: undefined,
+    };
+    const arr = [...(selectedProfile.payload.vaccinations || []), newVac];
+    await updatePayload(selectedProfile, {
+      ...selectedProfile.payload,
+      vaccinations: arr,
+    });
+    showToast("Vaccination duplicated");
+  };
+
+  const removeVaccinationDueDate = async (vac: Vaccination) => {
+    if (!selectedProfile) return;
+    const arr = selectedProfile.payload.vaccinations.map((v) =>
+      v.id === vac.id ? { ...v, next_due: undefined } : v,
+    );
+    await updatePayload(selectedProfile, {
+      ...selectedProfile.payload,
+      vaccinations: arr,
+    });
+    showToast("Due date removed");
+  };
+
   // ─── Computed ────────────────────────────────────────────────────────────
+
+  const allVaccineNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const prof of profiles) {
+      for (const vac of prof.payload.vaccinations || []) {
+        if (vac.name.trim()) names.add(vac.name.trim());
+      }
+    }
+    return Array.from(names).sort();
+  }, [profiles]);
 
   const profileAlerts = useMemo(() => {
     const alerts: Array<{
@@ -965,10 +1008,12 @@ export default function HealthAdminView() {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-lg max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl"
+                className="relative w-full max-w-lg max-h-[85vh] sm:max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mx-2 sm:mx-0"
               >
-                <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                  <h3 className="text-lg font-bold text-zinc-50">{title}</h3>
+                <div className="p-4 sm:p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
+                  <h3 className="text-base sm:text-lg font-bold text-zinc-50">
+                    {title}
+                  </h3>
                   <button
                     onClick={() => setShowSubForm(null)}
                     className="p-1 rounded-lg hover:bg-zinc-800"
@@ -976,10 +1021,10 @@ export default function HealthAdminView() {
                     <X className="w-5 h-5 text-zinc-400" />
                   </button>
                 </div>
-                <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
+                <div className="p-4 sm:p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
                   {children}
                 </div>
-                <div className="p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
+                <div className="p-4 sm:p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
                   <button
                     onClick={() => setShowSubForm(null)}
                     className="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all"
@@ -1019,10 +1064,10 @@ export default function HealthAdminView() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-lg max-h-[85vh] sm:max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mx-2 sm:mx-0"
             >
-              <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                <h3 className="text-lg font-bold text-zinc-50">
+              <div className="p-4 sm:p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
+                <h3 className="text-base sm:text-lg font-bold text-zinc-50">
                   {editingProfile ? "Edit" : "Add"} Health Profile
                 </h3>
                 <button
@@ -1032,7 +1077,7 @@ export default function HealthAdminView() {
                   <X className="w-5 h-5 text-zinc-400" />
                 </button>
               </div>
-              <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
+              <div className="p-4 sm:p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
                 <div>
                   <label className={labelCls}>Name *</label>
                   <input
@@ -1233,7 +1278,7 @@ export default function HealthAdminView() {
                   />
                 </div>
               </div>
-              <div className="p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
+              <div className="p-4 sm:p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
                 <button
                   onClick={() => setShowProfileForm(false)}
                   className="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all"
@@ -1321,20 +1366,20 @@ export default function HealthAdminView() {
     return (
       <div className="animate-fade-in-up space-y-6">
         {/* Back + Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => {
               setSelectedProfile(null);
               setActiveTab("overview");
             }}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors shrink-0"
           >
-            <ChevronLeft className="w-5 h-5 text-zinc-400" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
           </button>
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div
               className={cn(
-                "w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold shrink-0",
+                "w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0",
                 typeConfig.bg,
                 typeConfig.color,
               )}
@@ -1342,10 +1387,10 @@ export default function HealthAdminView() {
               {getInitials(p.name)}
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-zinc-50 tracking-tight truncate">
+              <h1 className="text-lg sm:text-2xl font-bold text-zinc-50 tracking-tight truncate">
                 {p.name}
               </h1>
-              <div className="flex flex-wrap items-center gap-2 mt-0.5">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
                 <span
                   className={cn(
                     "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
@@ -1369,12 +1414,12 @@ export default function HealthAdminView() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => openEditProfile(selectedProfile)}
-              className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors"
             >
-              <Edit3 className="w-4 h-4 text-zinc-400" />
+              <Edit3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
             </button>
             <button
               onClick={() =>
@@ -1384,21 +1429,21 @@ export default function HealthAdminView() {
                   name: p.name,
                 })
               }
-              className="p-2 rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors"
             >
-              <Trash2 className="w-4 h-4 text-danger" />
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-danger" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800 overflow-x-auto">
+        <div className="flex gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800 overflow-x-auto scrollbar-none">
           {TAB_CONFIG.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
-                "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                "flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                 activeTab === tab.key
                   ? "bg-zinc-800 text-zinc-50 shadow-lg"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
@@ -1418,7 +1463,7 @@ export default function HealthAdminView() {
             className="space-y-6"
           >
             {/* Stats row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
                 <p className={labelCls}>Active Conditions</p>
                 <p className="text-2xl font-bold text-zinc-50">
@@ -1906,14 +1951,32 @@ export default function HealthAdminView() {
                           <button
                             onClick={() => openVaccinationForm(vac)}
                             className="p-1.5 rounded-lg hover:bg-zinc-800"
+                            title="Edit"
                           >
                             <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
                           </button>
+                          <button
+                            onClick={() => duplicateVaccination(vac)}
+                            className="p-1.5 rounded-lg hover:bg-zinc-800"
+                            title="Duplicate"
+                          >
+                            <Copy className="w-3.5 h-3.5 text-zinc-500" />
+                          </button>
+                          {vac.next_due && (
+                            <button
+                              onClick={() => removeVaccinationDueDate(vac)}
+                              className="p-1.5 rounded-lg hover:bg-warning/20"
+                              title="Remove due date"
+                            >
+                              <CalendarX2 className="w-3.5 h-3.5 text-warning" />
+                            </button>
+                          )}
                           <button
                             onClick={() =>
                               deleteSubRecord("vaccinations", vac.id)
                             }
                             className="p-1.5 rounded-lg hover:bg-danger/50"
+                            title="Delete"
                           >
                             <Trash2 className="w-3.5 h-3.5 text-danger" />
                           </button>
@@ -1933,6 +1996,7 @@ export default function HealthAdminView() {
                   <label className={labelCls}>Vaccine Name *</label>
                   <input
                     type="text"
+                    list="vaccine-name-suggestions"
                     value={vaccinationForm.name || ""}
                     onChange={(e) =>
                       setVaccinationForm((f) => ({
@@ -1943,6 +2007,11 @@ export default function HealthAdminView() {
                     placeholder="e.g., COVID-19 Booster"
                     className={inputCls}
                   />
+                  <datalist id="vaccine-name-suggestions">
+                    {allVaccineNames.map((n) => (
+                      <option key={n} value={n} />
+                    ))}
+                  </datalist>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -3072,9 +3141,9 @@ export default function HealthAdminView() {
   return (
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-50 mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50 mb-1">
             Health
           </h1>
           <p className="text-sm text-zinc-500">
@@ -3083,9 +3152,10 @@ export default function HealthAdminView() {
         </div>
         <button
           onClick={openAddProfile}
-          className="flex items-center gap-2 px-5 py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
+          className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95 shrink-0"
         >
-          <Plus className="w-4 h-4" /> Add Profile
+          <Plus className="w-4 h-4" />{" "}
+          <span className="hidden sm:inline">Add</span> Profile
         </button>
       </div>
 
@@ -3136,7 +3206,7 @@ export default function HealthAdminView() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {profiles.map((profile) => {
             const pl = profile.payload;
             const typeConfig = PROFILE_TYPE_CONFIG[pl.type];
