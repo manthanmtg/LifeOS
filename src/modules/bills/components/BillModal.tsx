@@ -317,20 +317,8 @@ export default function BillModal({
         transition={{ type: "spring", damping: 28, stiffness: 350 }}
         className="relative w-full sm:max-w-lg bg-zinc-900 sm:border sm:border-zinc-700/80 shadow-2xl shadow-black/40 flex flex-col sm:rounded-2xl flex-1 sm:flex-initial sm:max-h-[84vh]"
       >
-        {/* Mobile top bar with close */}
-        <div className="sm:hidden flex items-center justify-between px-4 pt-3 pb-0">
-          <div className="w-8" />
-          <div className="w-10 h-1 rounded-full bg-zinc-700" />
-          <button
-            onClick={onClose}
-            className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
         {/* Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800 shrink-0">
           <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
             {bill ? "Edit Bill" : "New Bill"}
           </h2>
