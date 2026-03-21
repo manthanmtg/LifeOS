@@ -55,6 +55,7 @@ export default function BillModal({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [compressing, setCompressing] = useState(false);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -79,19 +80,91 @@ export default function BillModal({
     return result;
   }, [folders]);
 
-  const addFiles = useCallback((files: File[]) => {
-    const valid = files.filter((f) => {
-      if (!f.type.startsWith("image/") && f.type !== "application/pdf")
-        return false;
-      if (f.size > 5 * 1024 * 1024) return false;
-      return true;
-    });
-    if (valid.length === 0 && files.length > 0) {
-      setError("Only images and PDFs under 5 MB are accepted.");
-      return;
-    }
-    setPendingFiles((prev) => [...prev, ...valid]);
-  }, []);
+  const compressImage = useCallback(
+    async (file: File, maxSizeBytes = 1024 * 1024): Promise<File> => {
+      if (file.size <= maxSizeBytes || !file.type.startsWith("image/")) return file;
+
+      return new Promise((resolve) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const canvas = document.createElement("canvas");
+          let { width, height } = img;
+
+          // Scale down large images
+          const maxDim = 2048;
+          if (width > maxDim || height > maxDim) {
+            const ratio = Math.min(maxDim / width, maxDim / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Try decreasing quality until under maxSizeBytes
+          let quality = 0.8;
+          const tryCompress = () => {
+            canvas.toBlob(
+              (blob) => {
+                if (blob && (blob.size <= maxSizeBytes || quality <= 0.2)) {
+                  const compressed = new File([blob!], file.name, {
+                    type: "image/jpeg",
+                    lastModified: Date.now(),
+                  });
+                  resolve(compressed);
+                } else {
+                  quality -= 0.15;
+                  tryCompress();
+                }
+              },
+              "image/jpeg",
+              quality,
+            );
+          };
+          tryCompress();
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(file);
+        };
+        img.src = url;
+      });
+    },
+    [],
+  );
+
+  const addFiles = useCallback(
+    async (files: File[]) => {
+      const accepted = files.filter((f) => {
+        if (!f.type.startsWith("image/") && f.type !== "application/pdf")
+          return false;
+        if (f.type === "application/pdf" && f.size > 5 * 1024 * 1024)
+          return false;
+        return true;
+      });
+      if (accepted.length === 0 && files.length > 0) {
+        setError("Only images and PDFs are accepted (PDFs max 5 MB).");
+        return;
+      }
+
+      setCompressing(true);
+      try {
+        const processed = await Promise.all(
+          accepted.map((f) =>
+            f.type.startsWith("image/") ? compressImage(f) : Promise.resolve(f),
+          ),
+        );
+        setPendingFiles((prev) => [...prev, ...processed]);
+      } finally {
+        setCompressing(false);
+      }
+    },
+    [compressImage],
+  );
 
   const removeFile = (idx: number) => {
     setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
@@ -271,7 +344,7 @@ export default function BillModal({
 
         {/* Scrollable form body */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="px-5 sm:px-6 py-4 sm:py-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+          <div className="px-5 sm:px-6 py-4 sm:py-5 space-y-4 overflow-y-scroll flex-1 h-0 overscroll-contain [-webkit-overflow-scrolling:touch]">
             {error && (
               <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -380,11 +453,9 @@ export default function BillModal({
               >
                 <Upload className="w-5 h-5 text-zinc-500" />
                 <p className="text-xs text-zinc-400 font-medium">
-                  Drop files or click to browse
+                  {compressing ? "Compressing\u2026" : "Drop files or click to browse"}
                 </p>
-                <p className="text-[10px] text-zinc-600">
-                  Images & PDFs — max 5 MB each
-                </p>
+                <p className="text-[10px] text-zinc-600">Images auto-compressed to &lt;1 MB &middot; PDFs max 5 MB</p>
                 <input
                   ref={fileInputRef}
                   type="file"
