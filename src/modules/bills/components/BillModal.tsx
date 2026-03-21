@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { X, Calendar, AlertCircle } from "lucide-react";
+import { useState, useMemo, useRef, useCallback, type DragEvent } from "react";
+import { X, Calendar, AlertCircle, Upload, FileText, ImageIcon, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { formatBytes } from "../helpers";
 import type { Bill, BillFolder, BillPayload } from "../types";
 
 interface BillModalProps {
@@ -35,6 +37,9 @@ export default function BillModal({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
 
   const flatFolders = useMemo(() => {
     const result: { id: string; name: string; depth: number }[] = [];
@@ -49,6 +54,46 @@ export default function BillModal({
     addNodes(undefined, 0);
     return result;
   }, [folders]);
+
+  const addFiles = useCallback((files: File[]) => {
+    const valid = files.filter((f) => {
+      if (!f.type.startsWith("image/") && f.type !== "application/pdf") return false;
+      if (f.size > 5 * 1024 * 1024) return false;
+      return true;
+    });
+    if (valid.length === 0 && files.length > 0) {
+      setError("Only images and PDFs under 5 MB are accepted.");
+      return;
+    }
+    setPendingFiles((prev) => [...prev, ...valid]);
+  }, []);
+
+  const removeFile = (idx: number) => {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const uploadPendingFiles = async (billId: string) => {
+    for (const file of pendingFiles) {
+      try {
+        const raw = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const data = raw.split(",")[1];
+        await fetch(`/api/bills/${billId}/attachments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename: file.name,
+            content_type: file.type,
+            data,
+          }),
+        });
+      } catch { /* continue uploading others */ }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,17 +135,32 @@ export default function BillModal({
         return;
       }
 
-      const saved: Bill = bill
-        ? { ...bill, payload }
-        : {
-            _id: data.data._id?.toString() ?? data.data.insertedId?.toString(),
-            module_type: "bill",
-            is_public: false,
-            payload,
-            created_at: data.data.created_at,
-            updated_at: data.data.updated_at,
-          };
-      onSaved(saved);
+      const savedId = bill?._id ?? data.data._id?.toString() ?? data.data.insertedId?.toString();
+
+      // Upload pending files if any
+      if (pendingFiles.length > 0 && savedId) {
+        await uploadPendingFiles(savedId);
+      }
+
+      // Re-fetch the bill to get updated attachments
+      let finalBill: Bill;
+      if (pendingFiles.length > 0 && savedId) {
+        try {
+          const freshRes = await fetch(`/api/bills/${savedId}`);
+          if (freshRes.ok) {
+            const freshData = await freshRes.json();
+            finalBill = freshData.data;
+          } else {
+            finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+          }
+        } catch {
+          finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+        }
+      } else {
+        finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+      }
+
+      onSaved(finalBill);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -214,6 +274,79 @@ export default function BillModal({
               rows={2}
               className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
             />
+          </div>
+
+          {/* File Upload Zone */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
+              Attachments
+            </label>
+            <div
+              onDragOver={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e: DragEvent<HTMLDivElement>) => {
+                e.preventDefault();
+                setDragging(false);
+                addFiles(Array.from(e.dataTransfer.files));
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
+                dragging
+                  ? "border-accent bg-accent/5"
+                  : "border-zinc-700/60 hover:border-zinc-500 bg-zinc-800/20 hover:bg-zinc-800/40",
+              )}
+            >
+              <Upload className="w-5 h-5 text-zinc-500" />
+              <p className="text-xs text-zinc-400 font-medium">Drop files or click to browse</p>
+              <p className="text-[10px] text-zinc-600">Images & PDFs — max 5 MB each</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  addFiles(Array.from(e.target.files ?? []));
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
+            {/* Pending file chips */}
+            {pendingFiles.length > 0 && (
+              <div className="space-y-1 mt-2">
+                {pendingFiles.map((f, i) => {
+                  const isImage = f.type.startsWith("image/");
+                  return (
+                    <div
+                      key={`${f.name}-${i}`}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700"
+                    >
+                      <div className={cn("w-6 h-6 rounded flex items-center justify-center shrink-0", isImage ? "bg-accent/10" : "bg-danger/10")}>
+                        {isImage ? <ImageIcon className="w-3.5 h-3.5 text-accent" /> : <FileText className="w-3.5 h-3.5 text-danger" />}
+                      </div>
+                      <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">{f.name}</span>
+                      <span className="text-[10px] text-zinc-600 shrink-0">{formatBytes(f.size)}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                        className="p-0.5 text-zinc-500 hover:text-danger rounded transition-colors shrink-0"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Existing attachments count (edit mode) */}
+            {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
+              <p className="text-[10px] text-zinc-600 mt-1">
+                {bill.payload.attachments.length} existing attachment{bill.payload.attachments.length !== 1 ? "s" : ""} (manage in bill detail)
+              </p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-2">

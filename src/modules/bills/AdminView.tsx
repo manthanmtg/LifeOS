@@ -767,8 +767,8 @@ export default function BillsAdminView() {
             </div>
           </div>
 
-          {/* Subfolders in current view */}
-          {!searchQuery && currentSubfolders.length > 0 && (
+          {/* Subfolders in current view + inline New Subfolder */}
+          {!searchQuery && selectedFolderId && (
             <div className="mb-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2">
                 {currentSubfolders.map((sf) => {
@@ -788,18 +788,31 @@ export default function BillsAdminView() {
                     />
                   );
                 })}
+                {/* Inline New Subfolder button */}
+                <button
+                  onClick={() => handleCreateSubfolder(selectedFolderId!)}
+                  className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-zinc-800 rounded-xl hover:border-zinc-600 hover:bg-zinc-800/30 transition-all text-left w-full group"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 group-hover:bg-zinc-700 transition-colors">
+                    <FolderPlus className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
+                  </div>
+                  <span className="text-sm text-zinc-500 font-medium group-hover:text-zinc-300 transition-colors">
+                    New Subfolder
+                  </span>
+                </button>
               </div>
             </div>
           )}
 
           {/* Bills grid */}
-          {displayedBills.length === 0 &&
-          (searchQuery || currentSubfolders.length === 0) ? (
-            <EmptyState
-              hasBills={bills.length > 0}
-              onAdd={() => setBillModal({ open: true, bill: null })}
-            />
-          ) : displayedBills.length === 0 ? null : (
+          {displayedBills.length === 0 ? (
+            !selectedFolderId || searchQuery ? (
+              <EmptyState
+                hasBills={bills.length > 0}
+                onAdd={() => setBillModal({ open: true, bill: null })}
+              />
+            ) : null
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
               {displayedBills.map((bill) => (
                 <BillCard
