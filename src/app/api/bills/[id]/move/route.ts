@@ -1,0 +1,69 @@
+import { getDb } from "@/lib/mongodb";
+import { ContentDocument } from "@/lib/types";
+import { ObjectId } from "mongodb";
+import { ApiSuccess, ApiError, ApiNotFound } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
+    const { id } = await params;
+    if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
+
+    const body = await request.json();
+    const { folder_id } = body as { folder_id: string | null };
+
+    const db = await getDb();
+    const contentColl = db.collection<ContentDocument>("content");
+
+    const existing = await contentColl.findOne({
+      _id: new ObjectId(id),
+      module_type: "bill",
+    });
+    if (!existing) return ApiNotFound();
+
+    // Validate target folder exists (if not moving to root)
+    if (folder_id) {
+      if (!ObjectId.isValid(folder_id))
+        return ApiError("Invalid folder ID", 400);
+      const folder = await contentColl.findOne({
+        _id: new ObjectId(folder_id),
+        module_type: "bill_folder",
+      });
+      if (!folder) return ApiError("Target folder not found", 404);
+    }
+
+    const updateFields: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (folder_id) {
+      updateFields["payload.folder_id"] = folder_id;
+    }
+
+    const unsetFields: Record<string, string> = {};
+    if (!folder_id) {
+      unsetFields["payload.folder_id"] = "";
+    }
+
+    const updateOp: Record<string, unknown> = { $set: updateFields };
+    if (Object.keys(unsetFields).length > 0) {
+      updateOp.$unset = unsetFields;
+    }
+
+    await contentColl.updateOne({ _id: new ObjectId(id) }, updateOp);
+
+    return ApiSuccess({ success: true });
+  } catch (error) {
+    console.error("PUT /api/bills/[id]/move failed:", error);
+    return ApiError("Failed to move bill", 500);
+  }
+}
