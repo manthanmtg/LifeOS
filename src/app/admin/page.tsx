@@ -98,6 +98,10 @@ const widgetImports: Record<string, ComponentType> = {
     ssr: false,
     loading: () => <WidgetSkeleton />,
   }),
+  bills: dynamic(() => import("@/modules/bills/Widget"), {
+    ssr: false,
+    loading: () => <WidgetSkeleton />,
+  }),
 };
 
 interface ModuleVisibility {

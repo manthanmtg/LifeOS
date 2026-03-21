@@ -35,6 +35,7 @@ import {
   PenLine,
   Tv,
   Presentation,
+  Receipt,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -106,6 +107,7 @@ const IconMap: Record<string, LucideIcon> = {
   PenLine,
   Tv,
   Presentation,
+  Receipt,
 };
 
 export default function AdminSidebar() {
