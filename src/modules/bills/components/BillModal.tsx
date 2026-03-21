@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useMemo, useRef, useCallback, type DragEvent } from "react";
-import { X, Calendar, AlertCircle, Upload, FileText, ImageIcon, Trash2 } from "lucide-react";
+import {
+  X,
+  Calendar,
+  AlertCircle,
+  Upload,
+  FileText,
+  ImageIcon,
+  Trash2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { formatBytes } from "../helpers";
@@ -57,7 +65,8 @@ export default function BillModal({
 
   const addFiles = useCallback((files: File[]) => {
     const valid = files.filter((f) => {
-      if (!f.type.startsWith("image/") && f.type !== "application/pdf") return false;
+      if (!f.type.startsWith("image/") && f.type !== "application/pdf")
+        return false;
       if (f.size > 5 * 1024 * 1024) return false;
       return true;
     });
@@ -91,7 +100,9 @@ export default function BillModal({
             data,
           }),
         });
-      } catch { /* continue uploading others */ }
+      } catch {
+        /* continue uploading others */
+      }
     }
   };
 
@@ -135,7 +146,10 @@ export default function BillModal({
         return;
       }
 
-      const savedId = bill?._id ?? data.data._id?.toString() ?? data.data.insertedId?.toString();
+      const savedId =
+        bill?._id ??
+        data.data._id?.toString() ??
+        data.data.insertedId?.toString();
 
       // Upload pending files if any
       if (pendingFiles.length > 0 && savedId) {
@@ -151,13 +165,40 @@ export default function BillModal({
             const freshData = await freshRes.json();
             finalBill = freshData.data;
           } else {
-            finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+            finalBill = bill
+              ? { ...bill, payload }
+              : {
+                  _id: savedId,
+                  module_type: "bill",
+                  is_public: false,
+                  payload,
+                  created_at: data.data.created_at,
+                  updated_at: data.data.updated_at,
+                };
           }
         } catch {
-          finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+          finalBill = bill
+            ? { ...bill, payload }
+            : {
+                _id: savedId,
+                module_type: "bill",
+                is_public: false,
+                payload,
+                created_at: data.data.created_at,
+                updated_at: data.data.updated_at,
+              };
         }
       } else {
-        finalBill = bill ? { ...bill, payload } : { _id: savedId, module_type: "bill", is_public: false, payload, created_at: data.data.created_at, updated_at: data.data.updated_at };
+        finalBill = bill
+          ? { ...bill, payload }
+          : {
+              _id: savedId,
+              module_type: "bill",
+              is_public: false,
+              payload,
+              created_at: data.data.created_at,
+              updated_at: data.data.updated_at,
+            };
       }
 
       onSaved(finalBill);
@@ -169,18 +210,31 @@ export default function BillModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
+    <div className="fixed inset-0 z-50 flex items-end sm:items-start sm:justify-center sm:pt-[8vh]">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
+
+      {/* Modal — bottom sheet on mobile, centered card on desktop */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        className="relative w-full max-w-lg bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        initial={{ opacity: 0, y: 80 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 80 }}
+        transition={{ type: "spring", damping: 28, stiffness: 350 }}
+        className="relative w-full sm:max-w-lg bg-zinc-900 border border-zinc-700/80 shadow-2xl shadow-black/40 flex flex-col rounded-t-2xl sm:rounded-2xl max-h-[92vh] sm:max-h-[84vh]"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+        {/* Drag handle (mobile) */}
+        <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+          <div className="w-10 h-1 rounded-full bg-zinc-700" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-zinc-800 shrink-0">
           <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
             {bill ? "Edit Bill" : "New Bill"}
           </h2>
@@ -192,164 +246,190 @@ export default function BillModal({
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 space-y-4 overflow-y-auto flex-1"
-        >
-          {error && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Bill Name *
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Electricity Bill January"
-              className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
-              autoFocus
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Bill Date *
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-              <input
-                type="date"
-                value={billDate}
-                onChange={(e) => setBillDate(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Folder
-            </label>
-            <select
-              value={folderId}
-              onChange={(e) => setFolderId(e.target.value)}
-              className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
-            >
-              <option value="">Root (no folder)</option>
-              {flatFolders.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {"—".repeat(f.depth)} {f.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional short description"
-              rows={2}
-              className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Notes
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Optional notes"
-              rows={2}
-              className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
-            />
-          </div>
-
-          {/* File Upload Zone */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-              Attachments
-            </label>
-            <div
-              onDragOver={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); setDragging(true); }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(e: DragEvent<HTMLDivElement>) => {
-                e.preventDefault();
-                setDragging(false);
-                addFiles(Array.from(e.dataTransfer.files));
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
-                dragging
-                  ? "border-accent bg-accent/5"
-                  : "border-zinc-700/60 hover:border-zinc-500 bg-zinc-800/20 hover:bg-zinc-800/40",
-              )}
-            >
-              <Upload className="w-5 h-5 text-zinc-500" />
-              <p className="text-xs text-zinc-400 font-medium">Drop files or click to browse</p>
-              <p className="text-[10px] text-zinc-600">Images & PDFs — max 5 MB each</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,application/pdf"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  addFiles(Array.from(e.target.files ?? []));
-                  e.target.value = "";
-                }}
-              />
-            </div>
-
-            {/* Pending file chips */}
-            {pendingFiles.length > 0 && (
-              <div className="space-y-1 mt-2">
-                {pendingFiles.map((f, i) => {
-                  const isImage = f.type.startsWith("image/");
-                  return (
-                    <div
-                      key={`${f.name}-${i}`}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700"
-                    >
-                      <div className={cn("w-6 h-6 rounded flex items-center justify-center shrink-0", isImage ? "bg-accent/10" : "bg-danger/10")}>
-                        {isImage ? <ImageIcon className="w-3.5 h-3.5 text-accent" /> : <FileText className="w-3.5 h-3.5 text-danger" />}
-                      </div>
-                      <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">{f.name}</span>
-                      <span className="text-[10px] text-zinc-600 shrink-0">{formatBytes(f.size)}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                        className="p-0.5 text-zinc-500 hover:text-danger rounded transition-colors shrink-0"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  );
-                })}
+        {/* Scrollable form body */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="px-5 sm:px-6 py-4 sm:py-5 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
               </div>
             )}
 
-            {/* Existing attachments count (edit mode) */}
-            {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
-              <p className="text-[10px] text-zinc-600 mt-1">
-                {bill.payload.attachments.length} existing attachment{bill.payload.attachments.length !== 1 ? "s" : ""} (manage in bill detail)
-              </p>
-            )}
+            {/* Row: Name + Date side by side on desktop */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Electricity Bill"
+                  className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
+                  autoFocus
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Date *
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                  <input
+                    type="date"
+                    value={billDate}
+                    onChange={(e) => setBillDate(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Folder
+              </label>
+              <select
+                value={folderId}
+                onChange={(e) => setFolderId(e.target.value)}
+                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
+              >
+                <option value="">Root (no folder)</option>
+                {flatFolders.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {"—".repeat(f.depth)} {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Optional short description"
+                rows={2}
+                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Notes
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Optional notes"
+                rows={2}
+                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
+              />
+            </div>
+
+            {/* File Upload Zone */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                Attachments
+              </label>
+              <div
+                onDragOver={(e: DragEvent<HTMLDivElement>) => {
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e: DragEvent<HTMLDivElement>) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  addFiles(Array.from(e.dataTransfer.files));
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
+                  dragging
+                    ? "border-accent bg-accent/5"
+                    : "border-zinc-700/60 hover:border-zinc-500 bg-zinc-800/20 hover:bg-zinc-800/40",
+                )}
+              >
+                <Upload className="w-5 h-5 text-zinc-500" />
+                <p className="text-xs text-zinc-400 font-medium">
+                  Drop files or click to browse
+                </p>
+                <p className="text-[10px] text-zinc-600">
+                  Images & PDFs — max 5 MB each
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,application/pdf"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    addFiles(Array.from(e.target.files ?? []));
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              {pendingFiles.length > 0 && (
+                <div className="space-y-1 mt-2">
+                  {pendingFiles.map((f, i) => {
+                    const isImage = f.type.startsWith("image/");
+                    return (
+                      <div
+                        key={`${f.name}-${i}`}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700"
+                      >
+                        <div
+                          className={cn(
+                            "w-6 h-6 rounded flex items-center justify-center shrink-0",
+                            isImage ? "bg-accent/10" : "bg-danger/10",
+                          )}
+                        >
+                          {isImage ? (
+                            <ImageIcon className="w-3.5 h-3.5 text-accent" />
+                          ) : (
+                            <FileText className="w-3.5 h-3.5 text-danger" />
+                          )}
+                        </div>
+                        <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">
+                          {f.name}
+                        </span>
+                        <span className="text-[10px] text-zinc-600 shrink-0">
+                          {formatBytes(f.size)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(i);
+                          }}
+                          className="p-0.5 text-zinc-500 hover:text-danger rounded transition-colors shrink-0"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
+                <p className="text-[10px] text-zinc-600 mt-1">
+                  {bill.payload.attachments.length} existing attachment
+                  {bill.payload.attachments.length !== 1 ? "s" : ""} (manage in
+                  bill detail)
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
+          {/* Sticky footer */}
+          <div className="px-5 sm:px-6 py-4 border-t border-zinc-800 bg-zinc-900 shrink-0 flex gap-3 rounded-b-2xl">
             <button
               type="button"
               onClick={onClose}
