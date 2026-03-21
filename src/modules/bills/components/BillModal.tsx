@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback, type DragEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  type DragEvent,
+} from "react";
 import {
   X,
   Calendar,
@@ -48,6 +55,15 @@ export default function BillModal({
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = orig;
+    };
+  }, []);
 
   const flatFolders = useMemo(() => {
     const result: { id: string; name: string; depth: number }[] = [];
@@ -210,7 +226,7 @@ export default function BillModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-start sm:justify-center sm:pt-[8vh]">
+    <div className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-start sm:pt-[8vh]">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -220,17 +236,24 @@ export default function BillModal({
         onClick={onClose}
       />
 
-      {/* Modal — bottom sheet on mobile, centered card on desktop */}
+      {/* Modal — full-screen takeover on mobile, centered card on desktop */}
       <motion.div
         initial={{ opacity: 0, y: 80 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 80 }}
         transition={{ type: "spring", damping: 28, stiffness: 350 }}
-        className="relative w-full sm:max-w-lg bg-zinc-900 border border-zinc-700/80 shadow-2xl shadow-black/40 flex flex-col rounded-t-2xl sm:rounded-2xl max-h-[92vh] sm:max-h-[84vh]"
+        className="relative w-full sm:max-w-lg bg-zinc-900 sm:border sm:border-zinc-700/80 shadow-2xl shadow-black/40 flex flex-col sm:rounded-2xl flex-1 sm:flex-initial sm:max-h-[84vh]"
       >
-        {/* Drag handle (mobile) */}
-        <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+        {/* Mobile top bar with close */}
+        <div className="sm:hidden flex items-center justify-between px-4 pt-3 pb-0">
+          <div className="w-8" />
           <div className="w-10 h-1 rounded-full bg-zinc-700" />
+          <button
+            onClick={onClose}
+            className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Header */}
@@ -428,8 +451,8 @@ export default function BillModal({
             </div>
           </div>
 
-          {/* Sticky footer */}
-          <div className="px-5 sm:px-6 py-4 border-t border-zinc-800 bg-zinc-900 shrink-0 flex gap-3 rounded-b-2xl">
+          {/* Sticky footer — safe area padding on mobile for bottom nav */}
+          <div className="px-5 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4 border-t border-zinc-800 bg-zinc-900 shrink-0 flex gap-3 sm:rounded-b-2xl">
             <button
               type="button"
               onClick={onClose}
