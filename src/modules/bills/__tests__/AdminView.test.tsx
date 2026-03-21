@@ -79,7 +79,7 @@ describe("BillsAdminView", () => {
     await waitFor(() => {
       expect(screen.queryByText(/loading/i)).toBeNull();
     });
-    expect(screen.getByText("Bills")).toBeDefined();
+    expect(screen.getAllByText("Bills").length).toBeGreaterThan(0);
   });
 
   it("displays bill count summary", async () => {
@@ -97,17 +97,17 @@ describe("BillsAdminView", () => {
     expect(screen.getByText("Internet Bill February")).toBeDefined();
   });
 
-  it("renders folder names in the sidebar", async () => {
+  it("renders folder names as cards in content area", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
       expect(screen.getAllByText("Utilities").length).toBeGreaterThan(0);
     });
   });
 
-  it("shows All Bills option", async () => {
+  it("shows All Bills in breadcrumb", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
-      expect(screen.getAllByText("All Bills").length).toBeGreaterThan(0);
+      expect(screen.getByText("All Bills")).toBeDefined();
     });
   });
 
@@ -178,7 +178,7 @@ describe("BillsAdminView", () => {
       expect(screen.getByText("Electricity Bill January")).toBeDefined();
     });
 
-    const searchInput = screen.getByPlaceholderText("Search bills...");
+    const searchInput = screen.getByPlaceholderText("Search all bills\u2026");
     fireEvent.change(searchInput, { target: { value: "Electricity" } });
 
     await waitFor(() => {
@@ -187,19 +187,16 @@ describe("BillsAdminView", () => {
     });
   });
 
-  it("shows new folder input when New Folder is clicked", async () => {
+  it("shows inline folder creation when New Folder is clicked", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
-      // Desktop sidebar has "New Folder" button; find any instance
-      const newFolderButtons = screen.getAllByText("New Folder");
-      expect(newFolderButtons.length).toBeGreaterThan(0);
+      expect(screen.getByText("Electricity Bill January")).toBeDefined();
     });
 
-    // Click the first visible "New Folder" button
-    const newFolderButtons = screen.getAllByText("New Folder");
-    fireEvent.click(newFolderButtons[0]);
+    const newFolderButton = screen.getByRole("button", { name: /new folder/i });
+    fireEvent.click(newFolderButton);
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("Folder name")).toBeDefined();
+      expect(screen.getByPlaceholderText("Folder name\u2026")).toBeDefined();
     });
   });
 });

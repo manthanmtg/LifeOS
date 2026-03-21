@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Plus,
   Receipt,
@@ -9,24 +9,26 @@ import {
   FolderPlus,
   Paperclip,
   ChevronRight,
-  ChevronDown,
   Search,
   Calendar,
   Edit3,
   Home,
+  Trash2,
+  FolderInput,
+  MoreHorizontal,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import {
-  buildFolderTree,
   getBillsForFolder,
   getSubfolders,
   getBreadcrumbPath,
   getAllDescendantFolderIds,
   formatDate,
 } from "./helpers";
-import FolderPanel from "./components/FolderPanel";
 import BillDetail from "./components/BillDetail";
 import BillModal from "./components/BillModal";
 import MoveFolderModal from "./components/MoveFolderModal";
@@ -58,24 +60,26 @@ function Breadcrumb({
   onNavigate: (id: string | null) => void;
 }) {
   return (
-    <nav className="flex items-center gap-1 text-xs min-w-0 overflow-x-auto no-scrollbar py-1">
+    <nav className="flex items-center gap-0.5 min-w-0 overflow-x-auto no-scrollbar">
       {path.map((crumb, i) => (
         <div
           key={crumb.id ?? "root"}
-          className="flex items-center gap-1 shrink-0"
+          className="flex items-center gap-0.5 shrink-0"
         >
-          {i > 0 && <ChevronRight className="w-3 h-3 text-zinc-600" />}
+          {i > 0 && (
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+          )}
           {i === path.length - 1 ? (
-            <span className="text-zinc-200 font-medium px-1.5 py-0.5">
+            <span className="text-sm font-semibold text-zinc-100 px-2 py-1">
               {crumb.name}
             </span>
           ) : (
             <button
               onClick={() => onNavigate(crumb.id)}
-              className="text-zinc-500 hover:text-zinc-300 px-1.5 py-0.5 rounded-md hover:bg-zinc-800 transition-colors"
+              className="text-sm text-zinc-500 hover:text-zinc-200 px-2 py-1 rounded-lg hover:bg-zinc-800 transition-colors font-medium"
             >
               {crumb.id === null ? (
-                <Home className="w-3.5 h-3.5" />
+                <Home className="w-4 h-4" />
               ) : (
                 crumb.name
               )}
@@ -87,41 +91,278 @@ function Breadcrumb({
   );
 }
 
-// ─── Subfolder Card ──────────────────────────────────────────────────────────
+// ─── Folder Context Menu ─────────────────────────────────────────────────────
 
-function SubfolderCard({
+function FolderContextMenu({
+  onRename,
+  onMove,
+  onDelete,
+  onClose,
+}: {
+  onRename: () => void;
+  onMove: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [onClose]);
+
+  const items = [
+    {
+      label: "Rename",
+      icon: <Edit3 className="w-3.5 h-3.5" />,
+      onClick: onRename,
+    },
+    {
+      label: "Move to…",
+      icon: <FolderInput className="w-3.5 h-3.5" />,
+      onClick: onMove,
+    },
+    {
+      label: "Delete",
+      icon: <Trash2 className="w-3.5 h-3.5" />,
+      onClick: onDelete,
+      danger: true,
+    },
+  ];
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+      transition={{ duration: 0.1 }}
+      className="absolute right-2 top-full mt-1 z-50 min-w-[160px] bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl shadow-black/50 py-1 overflow-hidden"
+    >
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onClick={(e) => {
+            e.stopPropagation();
+            item.onClick();
+            onClose();
+          }}
+          className={cn(
+            "w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium transition-colors",
+            item.danger
+              ? "text-danger hover:bg-danger/10"
+              : "text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100",
+          )}
+        >
+          {item.icon}
+          {item.label}
+        </button>
+      ))}
+    </motion.div>
+  );
+}
+
+// ─── Folder Card ─────────────────────────────────────────────────────────────
+
+function FolderCard({
   folder,
   billCount,
   subfolderCount,
   onClick,
+  onRename,
+  onMove,
+  onDelete,
+  isDragOver,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: {
   folder: BillFolder;
   billCount: number;
   subfolderCount: number;
   onClick: () => void;
+  onRename: (name: string) => void;
+  onMove: () => void;
+  onDelete: () => void;
+  isDragOver: boolean;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent) => void;
 }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(folder.payload.name);
+
+  const handleRenameSubmit = () => {
+    if (editName.trim() && editName.trim() !== folder.payload.name) {
+      onRename(editName.trim());
+    }
+    setEditing(false);
+  };
+
   return (
-    <motion.button
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={onClick}
-      className="flex items-center gap-3 px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-zinc-600 hover:bg-zinc-800/50 transition-all text-left w-full group"
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className={cn(
+        "relative group rounded-2xl border transition-all cursor-pointer",
+        isDragOver
+          ? "border-accent bg-accent/5 ring-2 ring-accent/20 scale-[1.02]"
+          : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800/60",
+      )}
+      onClick={() => {
+        if (!editing) onClick();
+      }}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
-      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/15 transition-colors">
-        <FolderOpen className="w-4.5 h-4.5 text-accent" />
+      <div className="p-4 flex items-center gap-3">
+        <div
+          className={cn(
+            "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+            isDragOver ? "bg-accent/15" : "bg-accent/10 group-hover:bg-accent/15",
+          )}
+        >
+          <FolderOpen className="w-5 h-5 text-accent" />
+        </div>
+        <div className="min-w-0 flex-1">
+          {editing ? (
+            <div
+              className="flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <input
+                autoFocus
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={handleRenameSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleRenameSubmit();
+                  if (e.key === "Escape") {
+                    setEditName(folder.payload.name);
+                    setEditing(false);
+                  }
+                }}
+                className="flex-1 min-w-0 bg-zinc-800 border border-accent/40 rounded-lg px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:border-accent/60"
+              />
+              <button
+                onClick={handleRenameSubmit}
+                className="p-1 text-zinc-400 hover:text-success rounded transition-colors"
+              >
+                <Check className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-zinc-200 truncate">
+                {folder.payload.name}
+              </p>
+              <p className="text-[11px] text-zinc-600 mt-0.5">
+                {billCount} bill{billCount !== 1 ? "s" : ""}
+                {subfolderCount > 0 &&
+                  ` · ${subfolderCount} folder${subfolderCount !== 1 ? "s" : ""}`}
+              </p>
+            </>
+          )}
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu((v) => !v);
+              }}
+              className="p-1.5 rounded-lg text-zinc-600 opacity-0 group-hover:opacity-100 hover:text-zinc-300 hover:bg-zinc-700 transition-all"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+            <AnimatePresence>
+              {showMenu && (
+                <FolderContextMenu
+                  onRename={() => {
+                    setEditing(true);
+                    setEditName(folder.payload.name);
+                  }}
+                  onMove={onMove}
+                  onDelete={onDelete}
+                  onClose={() => setShowMenu(false)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+        </div>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-zinc-200 truncate">
-          {folder.payload.name}
-        </p>
-        <p className="text-[10px] text-zinc-600 mt-0.5">
-          {billCount} bill{billCount !== 1 ? "s" : ""}
-          {subfolderCount > 0 &&
-            ` · ${subfolderCount} subfolder${subfolderCount !== 1 ? "s" : ""}`}
-        </p>
+    </motion.div>
+  );
+}
+
+// ─── Inline New Folder Card ──────────────────────────────────────────────────
+
+function NewFolderInlineCard({
+  onSubmit,
+  onCancel,
+  creating,
+}: {
+  onSubmit: (name: string) => void;
+  onCancel: () => void;
+  creating: boolean;
+}) {
+  const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSubmit = () => {
+    if (name.trim()) onSubmit(name.trim());
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-4 flex items-center gap-3"
+    >
+      <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+        <FolderPlus className="w-5 h-5 text-accent" />
       </div>
-      <ChevronRight className="w-4 h-4 text-zinc-700 group-hover:text-zinc-500 transition-colors shrink-0" />
-    </motion.button>
+      <div className="flex-1 min-w-0">
+        <input
+          ref={inputRef}
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSubmit();
+            if (e.key === "Escape") onCancel();
+          }}
+          placeholder="Folder name…"
+          disabled={creating}
+          className="w-full bg-transparent border-b border-accent/30 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent/60 pb-1 disabled:opacity-50"
+        />
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <button
+          onClick={handleSubmit}
+          disabled={creating || !name.trim()}
+          className="p-1.5 text-accent hover:text-accent-hover disabled:opacity-40 rounded-lg hover:bg-accent/10 transition-colors"
+        >
+          <Check className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onCancel}
+          className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </motion.div>
   );
 }
 
@@ -154,7 +395,6 @@ function BillCard({
       className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20 transition-all"
       onClick={onClick}
     >
-      {/* Thumbnail preview for first image attachment */}
       {firstImage && (
         <div className="h-28 sm:h-32 w-full bg-zinc-800 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -216,31 +456,45 @@ function BillCard({
 // ─── Empty State ─────────────────────────────────────────────────────────────
 
 function EmptyState({
-  hasBills,
-  onAdd,
+  isFolder,
+  onAddBill,
+  onAddFolder,
 }: {
-  hasBills: boolean;
-  onAdd: () => void;
+  isFolder: boolean;
+  onAddBill: () => void;
+  onAddFolder: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-4">
-        <Receipt className="w-6 h-6 text-zinc-600" />
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-5">
+        {isFolder ? (
+          <FolderOpen className="w-7 h-7 text-zinc-600" />
+        ) : (
+          <Receipt className="w-7 h-7 text-zinc-600" />
+        )}
       </div>
-      <p className="text-sm font-medium text-zinc-400 mb-1">
-        {hasBills ? "No bills in this folder" : "No bills yet"}
+      <p className="text-base font-medium text-zinc-300 mb-1">
+        {isFolder ? "This folder is empty" : "No bills yet"}
       </p>
-      <p className="text-xs text-zinc-600 mb-5">
-        {hasBills
-          ? "Add a bill to this folder or switch to All Bills"
-          : "Upload your first bill to get started"}
+      <p className="text-sm text-zinc-600 mb-6 max-w-xs">
+        {isFolder
+          ? "Add bills or create subfolders to organize your documents"
+          : "Create a folder to organize your bills, or add your first bill"}
       </p>
-      <button
-        onClick={onAdd}
-        className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent text-sm font-medium rounded-xl hover:bg-accent/20 border border-accent/20 transition-colors"
-      >
-        <Plus className="w-4 h-4" /> Add Bill
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onAddFolder}
+          className="flex items-center gap-2 px-4 py-2.5 border border-zinc-700 text-zinc-300 text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors"
+        >
+          <FolderPlus className="w-4 h-4" /> New Folder
+        </button>
+        <button
+          onClick={onAddBill}
+          className="flex items-center gap-2 px-4 py-2.5 bg-accent text-zinc-950 text-sm font-bold rounded-xl hover:bg-accent-hover transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Add Bill
+        </button>
+      </div>
     </div>
   );
 }
@@ -251,15 +505,11 @@ export default function BillsAdminView() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [folders, setFolders] = useState<BillFolder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Folder management
-  const [newFolderName, setNewFolderName] = useState("");
-  const [showNewFolderInput, setShowNewFolderInput] = useState(false);
-  const [newFolderParentId, setNewFolderParentId] = useState<
-    string | undefined
-  >(undefined);
+  // Inline folder creation
+  const [showNewFolder, setShowNewFolder] = useState(false);
   const [creatingFolder, setCreatingFolder] = useState(false);
 
   // Modals
@@ -268,8 +518,6 @@ export default function BillsAdminView() {
     bill: Bill | null;
   }>({ open: false, bill: null });
   const [detailBill, setDetailBill] = useState<Bill | null>(null);
-
-  // Move modal
   const [moveModal, setMoveModal] = useState<{
     open: boolean;
     type: "bill" | "folder";
@@ -281,9 +529,6 @@ export default function BillsAdminView() {
   // Drag & drop
   const [draggedBillId, setDraggedBillId] = useState<string | null>(null);
   const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
-
-  // Mobile folder panel
-  const [mobileFolderOpen, setMobileFolderOpen] = useState(false);
 
   const { toast, show: showToast } = useToast();
 
@@ -310,23 +555,18 @@ export default function BillsAdminView() {
 
   // ─── Derived state ─────────────────────────────────────────────────────
 
-  const folderTree = useMemo(
-    () => buildFolderTree(folders, bills, undefined),
-    [folders, bills],
-  );
-
   const breadcrumb = useMemo(
-    () => getBreadcrumbPath(folders, selectedFolderId),
-    [folders, selectedFolderId],
+    () => getBreadcrumbPath(folders, currentFolderId),
+    [folders, currentFolderId],
   );
 
   const currentSubfolders = useMemo(
-    () => getSubfolders(folders, selectedFolderId),
-    [folders, selectedFolderId],
+    () => getSubfolders(folders, currentFolderId),
+    [folders, currentFolderId],
   );
 
   const displayedBills = useMemo(() => {
-    let list = getBillsForFolder(bills, selectedFolderId);
+    let list = getBillsForFolder(bills, currentFolderId);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter(
@@ -336,23 +576,18 @@ export default function BillsAdminView() {
       );
     }
     return list;
-  }, [bills, selectedFolderId, searchQuery]);
+  }, [bills, currentFolderId, searchQuery]);
 
-  const selectedFolder = useMemo(
-    () => folders.find((f) => f._id === selectedFolderId) ?? null,
-    [folders, selectedFolderId],
-  );
+  const hasContent =
+    currentSubfolders.length > 0 || displayedBills.length > 0 || showNewFolder;
 
   // ─── Folder actions ────────────────────────────────────────────────────
 
-  const handleCreateFolder = async () => {
-    if (!newFolderName.trim()) return;
+  const handleCreateFolder = async (name: string) => {
     setCreatingFolder(true);
     try {
-      const payload: { name: string; parent_id?: string } = {
-        name: newFolderName.trim(),
-      };
-      if (newFolderParentId) payload.parent_id = newFolderParentId;
+      const payload: { name: string; parent_id?: string } = { name };
+      if (currentFolderId) payload.parent_id = currentFolderId;
 
       const res = await fetch("/api/bills/folders", {
         method: "POST",
@@ -370,9 +605,7 @@ export default function BillsAdminView() {
           updated_at: data.data.updated_at,
         };
         setFolders((prev) => [...prev, newFolder]);
-        setNewFolderName("");
-        setShowNewFolderInput(false);
-        setNewFolderParentId(undefined);
+        setShowNewFolder(false);
         showToast("Folder created", "success");
       } else {
         showToast(data.error ?? "Failed to create folder", "error");
@@ -380,12 +613,6 @@ export default function BillsAdminView() {
     } finally {
       setCreatingFolder(false);
     }
-  };
-
-  const handleCreateSubfolder = (parentId: string) => {
-    setNewFolderParentId(parentId);
-    setShowNewFolderInput(true);
-    setNewFolderName("");
   };
 
   const handleRenameFolder = async (id: string, name: string) => {
@@ -412,9 +639,7 @@ export default function BillsAdminView() {
 
   const handleDeleteFolder = async (id: string) => {
     try {
-      const res = await fetch(`/api/bills/folders/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/bills/folders/${id}`, { method: "DELETE" });
       if (res.ok) {
         const descendantIds = getAllDescendantFolderIds(folders, id);
         const allDeletedIds = [id, ...descendantIds];
@@ -428,8 +653,8 @@ export default function BillsAdminView() {
               : b,
           ),
         );
-        if (selectedFolderId && allDeletedIds.includes(selectedFolderId)) {
-          setSelectedFolderId(null);
+        if (currentFolderId && allDeletedIds.includes(currentFolderId)) {
+          setCurrentFolderId(null);
         }
         showToast("Folder deleted", "success");
       }
@@ -477,9 +702,7 @@ export default function BillsAdminView() {
 
   const handleBillUpdated = (updated: Bill) => {
     setBills((prev) => prev.map((b) => (b._id === updated._id ? updated : b)));
-    if (detailBill?._id === updated._id) {
-      setDetailBill(updated);
-    }
+    if (detailBill?._id === updated._id) setDetailBill(updated);
   };
 
   const handleMoveBill = (bill: Bill) => {
@@ -493,7 +716,6 @@ export default function BillsAdminView() {
 
   const handleMoveConfirmed = async (targetFolderId: string | null) => {
     if (!moveModal) return;
-
     try {
       if (moveModal.type === "bill") {
         const res = await fetch(`/api/bills/${moveModal.id}/move`, {
@@ -559,12 +781,11 @@ export default function BillsAdminView() {
     setMoveModal(null);
   };
 
-  // ─── Drag & drop handlers ──────────────────────────────────────────────
+  // ─── Drag & drop ───────────────────────────────────────────────────────
 
   const handleDropOnFolder = async (folderId: string) => {
     if (!draggedBillId) return;
     setDragOverFolderId(null);
-
     try {
       const res = await fetch(`/api/bills/${draggedBillId}/move`, {
         method: "PUT",
@@ -587,64 +808,9 @@ export default function BillsAdminView() {
     setDraggedBillId(null);
   };
 
-  const handleDropOnRoot = async () => {
-    if (!draggedBillId) return;
-    setDragOverFolderId(null);
-
-    try {
-      const res = await fetch(`/api/bills/${draggedBillId}/move`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder_id: null }),
-      });
-      if (res.ok) {
-        setBills((prev) =>
-          prev.map((b) =>
-            b._id === draggedBillId
-              ? { ...b, payload: { ...b.payload, folder_id: undefined } }
-              : b,
-          ),
-        );
-        showToast("Bill moved to root", "success");
-      }
-    } catch {
-      showToast("Move failed", "error");
-    }
-    setDraggedBillId(null);
-  };
-
   // ─── Render ────────────────────────────────────────────────────────────
 
   if (loading) return <AdminModuleSkeleton />;
-
-  const folderPanelProps = {
-    folderTree,
-    selectedFolderId,
-    allBillCount: bills.length,
-    onSelect: setSelectedFolderId,
-    onRename: handleRenameFolder,
-    onDelete: handleDeleteFolder,
-    onCreateSubfolder: handleCreateSubfolder,
-    onMoveFolder: handleMoveFolder,
-    showNewFolderInput,
-    newFolderName,
-    onNewFolderNameChange: setNewFolderName,
-    onShowNewFolder: () => {
-      setNewFolderParentId(selectedFolderId ?? undefined);
-      setShowNewFolderInput(true);
-    },
-    onCreateFolder: handleCreateFolder,
-    onCancelNewFolder: () => {
-      setShowNewFolderInput(false);
-      setNewFolderName("");
-      setNewFolderParentId(undefined);
-    },
-    creatingFolder,
-    dragOverFolderId,
-    onDragOverFolder: setDragOverFolderId,
-    onDropOnFolder: handleDropOnFolder,
-    onDropOnRoot: handleDropOnRoot,
-  };
 
   return (
     <div className="animate-fade-in-up h-full">
@@ -667,110 +833,78 @@ export default function BillsAdminView() {
         )}
       </AnimatePresence>
 
-      {/* Page Header */}
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div>
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="mb-5">
+        <div className="flex items-center justify-between gap-4 mb-3">
           <h1 className="text-2xl font-bold text-zinc-50 tracking-tight flex items-center gap-2">
             <Receipt className="w-6 h-6 text-accent" />
             Bills
           </h1>
-          <p className="text-sm text-zinc-500 mt-1">
-            {bills.length} bill{bills.length !== 1 ? "s" : ""} ·{" "}
-            {folders.length} folder{folders.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              setNewFolderParentId(selectedFolderId ?? undefined);
-              setShowNewFolderInput(true);
-            }}
-            className="hidden sm:flex items-center gap-2 px-3 py-2 border border-zinc-700 text-zinc-400 text-sm font-medium rounded-xl hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
-          >
-            <FolderPlus className="w-4 h-4" /> Folder
-          </button>
-          <button
-            onClick={() => setBillModal({ open: true, bill: null })}
-            className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-bold rounded-xl hover:bg-accent-hover transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Add Bill
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile: folder selector toggle */}
-      <div className="lg:hidden mb-3">
-        <button
-          onClick={() => setMobileFolderOpen((v) => !v)}
-          className="flex items-center gap-2 w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-300 font-medium"
-        >
-          <FolderOpen className="w-4 h-4 text-accent" />
-          <span className="flex-1 text-left truncate">
-            {selectedFolder ? selectedFolder.payload.name : "All Bills"}
-          </span>
-          <span className="text-[10px] text-zinc-600 tabular-nums">
-            {displayedBills.length}
-          </span>
-          {mobileFolderOpen ? (
-            <ChevronDown className="w-4 h-4 text-zinc-500" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-zinc-500" />
-          )}
-        </button>
-        <AnimatePresence>
-          {mobileFolderOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowNewFolder(true)}
+              className="flex items-center gap-2 px-3 py-2 border border-zinc-700 text-zinc-400 text-sm font-medium rounded-xl hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
             >
-              <div className="pt-2">
-                <FolderPanel
-                  {...folderPanelProps}
-                  onSelect={(id) => {
-                    setSelectedFolderId(id);
-                    setMobileFolderOpen(false);
-                  }}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Main content: 2-column on desktop */}
-      <div className="flex gap-5">
-        {/* Desktop Folder Panel */}
-        <div className="hidden lg:block w-60 shrink-0">
-          <div className="sticky top-4">
-            <FolderPanel {...folderPanelProps} />
+              <FolderPlus className="w-4 h-4" />
+              <span className="hidden sm:inline">New Folder</span>
+            </button>
+            <button
+              onClick={() => setBillModal({ open: true, bill: null })}
+              className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-bold rounded-xl hover:bg-accent-hover transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Add Bill</span>
+            </button>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 min-w-0">
-          {/* Breadcrumb + Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
-            {selectedFolderId && (
-              <Breadcrumb path={breadcrumb} onNavigate={setSelectedFolderId} />
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-3">
+          <Breadcrumb path={breadcrumb} onNavigate={setCurrentFolderId} />
+          <div className="ml-auto text-xs text-zinc-600 tabular-nums shrink-0">
+            {currentSubfolders.length > 0 && (
+              <span>{currentSubfolders.length} folder{currentSubfolders.length !== 1 ? "s" : ""} · </span>
             )}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search bills..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-              />
-            </div>
+            {displayedBills.length} bill{displayedBills.length !== 1 ? "s" : ""}
           </div>
+        </div>
+      </div>
 
-          {/* Subfolders in current view + inline New Subfolder */}
-          {!searchQuery && selectedFolderId && (
-            <div className="mb-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+      {/* ── Search ─────────────────────────────────────────────────────── */}
+      <div className="relative mb-5">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+        <input
+          type="text"
+          placeholder={
+            currentFolderId
+              ? "Search in this folder…"
+              : "Search all bills…"
+          }
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+        />
+      </div>
+
+      {/* ── Content: Folders + Bills ───────────────────────────────────── */}
+      {!hasContent && !searchQuery ? (
+        <EmptyState
+          isFolder={!!currentFolderId}
+          onAddBill={() => setBillModal({ open: true, bill: null })}
+          onAddFolder={() => setShowNewFolder(true)}
+        />
+      ) : (
+        <div className="space-y-5">
+          {/* Folders section */}
+          {!searchQuery && (currentSubfolders.length > 0 || showNewFolder) && (
+            <div>
+              <div className="flex items-center gap-2 mb-2.5">
+                <Folder className="w-3.5 h-3.5 text-zinc-600" />
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Folders
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                 {currentSubfolders.map((sf) => {
                   const directBills = bills.filter(
                     (b) => b.payload.folder_id === sf._id,
@@ -779,70 +913,101 @@ export default function BillsAdminView() {
                     (f) => f.payload.parent_id === sf._id,
                   ).length;
                   return (
-                    <SubfolderCard
+                    <FolderCard
                       key={sf._id}
                       folder={sf}
                       billCount={directBills}
                       subfolderCount={subCount}
-                      onClick={() => setSelectedFolderId(sf._id)}
+                      onClick={() => {
+                        setCurrentFolderId(sf._id);
+                        setSearchQuery("");
+                      }}
+                      onRename={(name) => handleRenameFolder(sf._id, name)}
+                      onMove={() => handleMoveFolder(sf._id)}
+                      onDelete={() => handleDeleteFolder(sf._id)}
+                      isDragOver={dragOverFolderId === sf._id}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverFolderId(sf._id);
+                      }}
+                      onDragLeave={() => setDragOverFolderId(null)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDropOnFolder(sf._id);
+                      }}
                     />
                   );
                 })}
-                {/* Inline New Subfolder button */}
-                <button
-                  onClick={() => handleCreateSubfolder(selectedFolderId!)}
-                  className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-zinc-800 rounded-xl hover:border-zinc-600 hover:bg-zinc-800/30 transition-all text-left w-full group"
-                >
-                  <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 group-hover:bg-zinc-700 transition-colors">
-                    <FolderPlus className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300" />
-                  </div>
-                  <span className="text-sm text-zinc-500 font-medium group-hover:text-zinc-300 transition-colors">
-                    New Subfolder
-                  </span>
-                </button>
+                <AnimatePresence>
+                  {showNewFolder && (
+                    <NewFolderInlineCard
+                      onSubmit={handleCreateFolder}
+                      onCancel={() => setShowNewFolder(false)}
+                      creating={creatingFolder}
+                    />
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           )}
 
-          {/* Bills grid */}
-          {displayedBills.length === 0 ? (
-            !selectedFolderId || searchQuery ? (
-              <EmptyState
-                hasBills={bills.length > 0}
-                onAdd={() => setBillModal({ open: true, bill: null })}
-              />
-            ) : null
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-              {displayedBills.map((bill) => (
-                <BillCard
-                  key={bill._id}
-                  bill={bill}
-                  folder={folders.find((f) => f._id === bill.payload.folder_id)}
-                  onClick={() => setDetailBill(bill)}
-                  onEdit={(b) => setBillModal({ open: true, bill: b })}
-                  onDragStart={() => setDraggedBillId(bill._id)}
-                />
-              ))}
+          {/* Bills section */}
+          {displayedBills.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2.5">
+                <Receipt className="w-3.5 h-3.5 text-zinc-600" />
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Bills
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {displayedBills.map((bill) => (
+                  <BillCard
+                    key={bill._id}
+                    bill={bill}
+                    folder={
+                      currentFolderId
+                        ? undefined
+                        : folders.find(
+                            (f) => f._id === bill.payload.folder_id,
+                          )
+                    }
+                    onClick={() => setDetailBill(bill)}
+                    onEdit={(b) => setBillModal({ open: true, bill: b })}
+                    onDragStart={() => setDraggedBillId(bill._id)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search yielded no results */}
+          {searchQuery && displayedBills.length === 0 && (
+            <div className="text-center py-12">
+              <Search className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
+              <p className="text-sm text-zinc-400">
+                No bills matching &ldquo;{searchQuery}&rdquo;
+              </p>
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* Bill Modal */}
+      {/* ── Modals ─────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {billModal.open && (
           <BillModal
             folders={folders}
             bill={billModal.bill}
-            defaultFolderId={selectedFolderId ?? undefined}
+            defaultFolderId={currentFolderId ?? undefined}
             onClose={() => setBillModal({ open: false, bill: null })}
             onSaved={handleBillSaved}
           />
         )}
       </AnimatePresence>
 
-      {/* Bill Detail Slide-Over */}
       <AnimatePresence>
         {detailBill && (
           <BillDetail
@@ -860,7 +1025,6 @@ export default function BillsAdminView() {
         )}
       </AnimatePresence>
 
-      {/* Move Modal */}
       <AnimatePresence>
         {moveModal?.open && (
           <MoveFolderModal
