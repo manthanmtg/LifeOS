@@ -209,4 +209,12 @@ export const moduleRegistry: Record<string, ModuleConfig> = {
     description: "Create, preview, and manage presentation decks.",
     tags: ["presentations", "decks", "talks", "slides"],
   },
+  bills: {
+    name: "Bills",
+    icon: "Receipt",
+    defaultPublic: false,
+    contentType: "bill",
+    description: "Store and organize bills with folders and file attachments.",
+    tags: ["bills", "documents", "files", "finance"],
+  },
 };

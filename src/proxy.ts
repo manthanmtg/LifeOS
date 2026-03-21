@@ -42,7 +42,8 @@ export default async function proxy(request: NextRequest) {
     path.startsWith("/api/import") ||
     path.startsWith("/api/db-stats") ||
     (path.startsWith("/api/metrics") && request.method === "GET") ||
-    (path.startsWith("/api/content") && request.method !== "GET");
+    (path.startsWith("/api/content") && request.method !== "GET") ||
+    (path.startsWith("/api/bills") && request.method !== "GET");
 
   if (isProtectedPath) {
     const token = request.cookies.get("lifeos_token")?.value;

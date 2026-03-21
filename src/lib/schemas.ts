@@ -730,6 +730,34 @@ export const DeckSchema = z.object({
   embed_enabled: z.boolean().default(false),
 });
 
+// --- 23. BILLS ---
+export const BillAttachmentSchema = z.object({
+  id: z.string().min(1),
+  filename: z.string().min(1),
+  content_type: z.string().min(1),
+  data: z.string().min(1), // base64
+  size: z.number().int().min(0),
+  uploaded_at: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+});
+
+export const BillSchema = z.object({
+  name: z.string().min(1, "Bill name is required"),
+  bill_date: z.string().datetime("Must be a valid ISO date-time"),
+  description: z.string().optional(),
+  notes: z.string().optional(),
+  folder_id: z.string().optional(),
+  attachments: z.array(BillAttachmentSchema).default([]),
+});
+
+export const BillFolderSchema = z.object({
+  name: z.string().min(1, "Folder name is required"),
+  parent_id: z.string().optional(),
+  color: z.string().optional(),
+});
+
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
   blog_post: BlogPostSchema,
@@ -755,4 +783,6 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   health_profile: HealthProfileSchema,
   whiteboard_note: WhiteboardNoteSchema,
   deck: DeckSchema,
+  bill: BillSchema,
+  bill_folder: BillFolderSchema,
 };
