@@ -172,14 +172,14 @@ export default function AdminSidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
             />
             <motion.div
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-zinc-950 border-r border-zinc-800 flex flex-col text-sm text-zinc-400 z-50"
+              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-zinc-950 border-r border-zinc-800 flex flex-col text-sm text-zinc-400 z-[70]"
             >
               <div className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-3 min-w-0">
