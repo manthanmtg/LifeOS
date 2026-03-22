@@ -10,7 +10,6 @@ import {
 } from "react";
 import {
   X,
-  Calendar,
   AlertCircle,
   Upload,
   FileText,
@@ -355,21 +354,18 @@ export default function BillModal({
               />
             </div>
 
-            {/* Date + Folder — same row */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Date + Folder — same row on wider screens, stacked on small */}
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Date *
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-                  <input
-                    type="date"
-                    value={billDate}
-                    onChange={(e) => setBillDate(e.target.value)}
-                    className="w-full pl-10 pr-2 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
-                  />
-                </div>
+                <input
+                  type="date"
+                  value={billDate}
+                  onChange={(e) => setBillDate(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
+                />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
