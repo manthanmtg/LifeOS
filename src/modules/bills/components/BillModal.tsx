@@ -297,8 +297,13 @@ export default function BillModal({
     }
   };
 
+  const formId = "bill-modal-form";
+
+  const inputClass =
+    "w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors";
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-start sm:pt-[8vh]">
+    <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -308,54 +313,65 @@ export default function BillModal({
         onClick={onClose}
       />
 
-      {/* Modal — full-screen takeover on mobile, centered card on desktop */}
-      <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 80 }}
-        transition={{ type: "spring", damping: 28, stiffness: 350 }}
-        className="relative w-full sm:max-w-lg bg-zinc-900 sm:border sm:border-zinc-700/80 shadow-2xl shadow-black/40 flex flex-col sm:rounded-2xl flex-1 sm:flex-initial sm:max-h-[84vh]"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-zinc-800 shrink-0">
-          <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
-            {bill ? "Edit Bill" : "New Bill"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+      {/* Centering wrapper — full screen on mobile, centered card on desktop */}
+      <div className="relative h-full w-full sm:flex sm:items-start sm:justify-center sm:pt-[8vh] sm:px-4 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          transition={{ type: "spring", damping: 28, stiffness: 350 }}
+          className={cn(
+            "pointer-events-auto bg-zinc-900 shadow-2xl shadow-black/40",
+            // Mobile: full-screen, CSS Grid locks header + footer in place
+            "h-full w-full grid grid-rows-[auto_1fr_auto]",
+            // Desktop: constrained card
+            "sm:h-auto sm:max-h-[84vh] sm:max-w-lg sm:w-full sm:rounded-2xl sm:border sm:border-zinc-700/80",
+          )}
+        >
+          {/* ── Row 1: Header ── */}
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800">
+            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
+              {bill ? "Edit Bill" : "New Bill"}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 -mr-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* ── Row 2: Scrollable form body ── */}
+          <form
+            id={formId}
+            onSubmit={handleSubmit}
+            className="overflow-y-auto min-h-0 overscroll-contain"
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            <div className="px-5 py-4 space-y-4">
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
 
-        {/* Scrollable form body */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="px-5 sm:px-6 py-4 sm:py-5 space-y-4 overflow-y-scroll flex-1 h-0 overscroll-contain [-webkit-overflow-scrolling:touch]">
-            {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
+              {/* Name */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Electricity Bill"
+                  className={cn(inputClass, "placeholder-zinc-600")}
+                  autoFocus
+                />
               </div>
-            )}
 
-            {/* Name — full width */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Name *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Electricity Bill"
-                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
-                autoFocus
-              />
-            </div>
-
-            {/* Date + Folder — same row on wider screens, stacked on small */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Date */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Date *
@@ -364,9 +380,11 @@ export default function BillModal({
                   type="date"
                   value={billDate}
                   onChange={(e) => setBillDate(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors"
+                  className={inputClass}
                 />
               </div>
+
+              {/* Folder */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Folder
@@ -374,7 +392,7 @@ export default function BillModal({
                 <select
                   value={folderId}
                   onChange={(e) => setFolderId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors truncate"
+                  className={inputClass}
                 >
                   <option value="">Root</option>
                   {flatFolders.map((f) => (
@@ -384,131 +402,137 @@ export default function BillModal({
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional short description"
-                rows={2}
-                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Notes
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Optional notes"
-                rows={2}
-                className="w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm placeholder-zinc-600 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors resize-none"
-              />
-            </div>
-
-            {/* File Upload Zone */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Attachments
-              </label>
-              <div
-                onDragOver={(e: DragEvent<HTMLDivElement>) => {
-                  e.preventDefault();
-                  setDragging(true);
-                }}
-                onDragLeave={() => setDragging(false)}
-                onDrop={(e: DragEvent<HTMLDivElement>) => {
-                  e.preventDefault();
-                  setDragging(false);
-                  addFiles(Array.from(e.dataTransfer.files));
-                }}
-                onClick={() => fileInputRef.current?.click()}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
-                  dragging
-                    ? "border-accent bg-accent/5"
-                    : "border-zinc-700/60 hover:border-zinc-500 bg-zinc-800/20 hover:bg-zinc-800/40",
-                )}
-              >
-                <Upload className="w-5 h-5 text-zinc-500" />
-                <p className="text-xs text-zinc-400 font-medium">
-                  {compressing ? "Compressing\u2026" : "Drop files or click to browse"}
-                </p>
-                <p className="text-[10px] text-zinc-600">Images auto-compressed to &lt;1 MB &middot; PDFs max 5 MB</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,application/pdf"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => {
-                    addFiles(Array.from(e.target.files ?? []));
-                    e.target.value = "";
-                  }}
+              {/* Description */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Optional short description"
+                  rows={2}
+                  className={cn(inputClass, "placeholder-zinc-600 resize-none")}
                 />
               </div>
 
-              {pendingFiles.length > 0 && (
-                <div className="space-y-1 mt-2">
-                  {pendingFiles.map((f, i) => {
-                    const isImage = f.type.startsWith("image/");
-                    return (
-                      <div
-                        key={`${f.name}-${i}`}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700"
-                      >
-                        <div
-                          className={cn(
-                            "w-6 h-6 rounded flex items-center justify-center shrink-0",
-                            isImage ? "bg-accent/10" : "bg-danger/10",
-                          )}
-                        >
-                          {isImage ? (
-                            <ImageIcon className="w-3.5 h-3.5 text-accent" />
-                          ) : (
-                            <FileText className="w-3.5 h-3.5 text-danger" />
-                          )}
-                        </div>
-                        <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">
-                          {f.name}
-                        </span>
-                        <span className="text-[10px] text-zinc-600 shrink-0">
-                          {formatBytes(f.size)}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFile(i);
-                          }}
-                          className="p-0.5 text-zinc-500 hover:text-danger rounded transition-colors shrink-0"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
+              {/* Notes */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Notes
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Optional notes"
+                  rows={2}
+                  className={cn(inputClass, "placeholder-zinc-600 resize-none")}
+                />
+              </div>
+
+              {/* Attachments */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Attachments
+                </label>
+                <div
+                  onDragOver={(e: DragEvent<HTMLDivElement>) => {
+                    e.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={(e: DragEvent<HTMLDivElement>) => {
+                    e.preventDefault();
+                    setDragging(false);
+                    addFiles(Array.from(e.dataTransfer.files));
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
+                    dragging
+                      ? "border-accent bg-accent/5"
+                      : "border-zinc-700/60 hover:border-zinc-500 bg-zinc-800/20 hover:bg-zinc-800/40",
+                  )}
+                >
+                  <Upload className="w-5 h-5 text-zinc-500" />
+                  <p className="text-xs text-zinc-400 font-medium">
+                    {compressing
+                      ? "Compressing\u2026"
+                      : "Drop files or click to browse"}
+                  </p>
+                  <p className="text-[10px] text-zinc-600">
+                    Images auto-compressed &middot; PDFs max 5 MB
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      addFiles(Array.from(e.target.files ?? []));
+                      e.target.value = "";
+                    }}
+                  />
                 </div>
-              )}
 
-              {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
-                <p className="text-[10px] text-zinc-600 mt-1">
-                  {bill.payload.attachments.length} existing attachment
-                  {bill.payload.attachments.length !== 1 ? "s" : ""} (manage in
-                  bill detail)
-                </p>
-              )}
+                {pendingFiles.length > 0 && (
+                  <div className="space-y-1 mt-2">
+                    {pendingFiles.map((f, i) => {
+                      const isImage = f.type.startsWith("image/");
+                      return (
+                        <div
+                          key={`${f.name}-${i}`}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700"
+                        >
+                          <div
+                            className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center shrink-0",
+                              isImage ? "bg-accent/10" : "bg-danger/10",
+                            )}
+                          >
+                            {isImage ? (
+                              <ImageIcon className="w-3.5 h-3.5 text-accent" />
+                            ) : (
+                              <FileText className="w-3.5 h-3.5 text-danger" />
+                            )}
+                          </div>
+                          <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">
+                            {f.name}
+                          </span>
+                          <span className="text-[10px] text-zinc-600 shrink-0">
+                            {formatBytes(f.size)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              removeFile(i);
+                            }}
+                            className="p-0.5 text-zinc-500 hover:text-danger rounded transition-colors shrink-0"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
+                  <p className="text-[10px] text-zinc-600 mt-1">
+                    {bill.payload.attachments.length} existing attachment
+                    {bill.payload.attachments.length !== 1 ? "s" : ""} (manage
+                    in bill detail)
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          </form>
 
-          {/* Sticky footer — safe area padding on mobile for bottom nav */}
-          <div className="px-5 sm:px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-4 border-t border-zinc-800 bg-zinc-900 shrink-0 flex gap-3 sm:rounded-b-2xl">
+          {/* ── Row 3: Footer — always pinned at bottom ── */}
+          <div className="px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-zinc-800 flex gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -518,14 +542,15 @@ export default function BillModal({
             </button>
             <button
               type="submit"
+              form={formId}
               disabled={saving}
               className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-zinc-950 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : bill ? "Save Changes" : "Create Bill"}
             </button>
           </div>
-        </form>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
