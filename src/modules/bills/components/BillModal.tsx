@@ -355,7 +355,7 @@ export default function BillModal({
             </div>
 
             {/* Date + Folder — same row on wider screens, stacked on small */}
-            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Date *
