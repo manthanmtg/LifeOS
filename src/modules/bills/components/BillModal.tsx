@@ -303,7 +303,7 @@ export default function BillModal({
     "w-full px-3 py-2.5 bg-zinc-800 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors";
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -313,42 +313,43 @@ export default function BillModal({
         onClick={onClose}
       />
 
-      {/* Centering wrapper — full screen on mobile, centered card on desktop */}
-      <div className="relative h-full w-full sm:flex sm:items-start sm:justify-center sm:pt-[8vh] sm:px-4 pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 60 }}
-          transition={{ type: "spring", damping: 28, stiffness: 350 }}
-          className={cn(
-            "pointer-events-auto bg-zinc-900 shadow-2xl shadow-black/40",
-            // Mobile: full-screen, CSS Grid locks header + footer in place
-            "h-full w-full grid grid-rows-[auto_1fr_auto]",
-            // Desktop: constrained card
-            "sm:h-auto sm:max-h-[84vh] sm:max-w-lg sm:w-full sm:rounded-2xl sm:border sm:border-zinc-700/80",
-          )}
-        >
-          {/* ── Row 1: Header ── */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800">
-            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
-              {bill ? "Edit Bill" : "New Bill"}
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 -mr-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* ── Row 2: Scrollable form body ── */}
-          <form
-            id={formId}
-            onSubmit={handleSubmit}
-            className="overflow-y-auto min-h-0 overscroll-contain"
+      {/* Modal — fixed fullscreen on mobile, centered card on desktop */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 60 }}
+        transition={{ type: "spring", damping: 28, stiffness: 350 }}
+        className={cn(
+          "flex flex-col bg-zinc-900 shadow-2xl shadow-black/40",
+          // Mobile: fixed fullscreen — gives flex container definite height
+          "fixed inset-0 z-10",
+          // Desktop: centered card with max-height
+          "sm:absolute sm:inset-auto sm:top-[8vh] sm:left-1/2 sm:-translate-x-1/2",
+          "sm:w-full sm:max-w-lg sm:max-h-[84vh]",
+          "sm:rounded-2xl sm:border sm:border-zinc-700/80",
+        )}
+      >
+        {/* Header */}
+        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-zinc-800">
+          <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
+            {bill ? "Edit Bill" : "New Bill"}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 -mr-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
           >
-            <div className="px-5 py-4 space-y-4">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scrollable form body */}
+        <form
+          id={formId}
+          onSubmit={handleSubmit}
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
+        >
+          <div className="px-5 py-4 space-y-4">
               {error && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -531,26 +532,25 @@ export default function BillModal({
             </div>
           </form>
 
-          {/* ── Row 3: Footer — always pinned at bottom ── */}
-          <div className="px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-zinc-800 flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-700 text-zinc-400 text-sm font-medium hover:bg-zinc-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form={formId}
-              disabled={saving}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-zinc-950 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? "Saving..." : bill ? "Save Changes" : "Create Bill"}
-            </button>
-          </div>
-        </motion.div>
-      </div>
+        {/* Footer — always pinned at bottom */}
+        <div className="shrink-0 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-zinc-800 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-700 text-zinc-400 text-sm font-medium hover:bg-zinc-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form={formId}
+            disabled={saving}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-zinc-950 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : bill ? "Save Changes" : "Create Bill"}
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
