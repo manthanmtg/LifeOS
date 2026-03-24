@@ -28,6 +28,13 @@ import {
   ChevronDown,
   History,
   Cog,
+  Tag,
+  Bell,
+  BellOff,
+  CircleDollarSign,
+  Repeat,
+  User,
+  StickyNote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -899,117 +906,190 @@ export default function MaintenanceAdminView() {
         {showForm && (
           <ModalOverlay onClose={() => setShowForm(false)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl shadow-black/40 my-auto shrink-0 flex flex-col max-h-[92vh]"
             >
-              <div className="sticky top-0 bg-zinc-900 border-b border-zinc-800 p-5 flex items-center justify-between z-10">
-                <h2 className="text-lg font-bold text-zinc-50">
-                  {editingId ? "Edit Task" : "New Maintenance Task"}
-                </h2>
+              {/* ─ Sticky Header ─ */}
+              <div className="shrink-0 border-b border-zinc-800 p-5 sm:p-6 flex items-center justify-between bg-zinc-900 rounded-t-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Wrench className="w-4.5 h-4.5 text-accent" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-zinc-50">
+                      {editingId ? "Edit Task" : "New Maintenance Task"}
+                    </h2>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                      {editingId
+                        ? "Update task details below"
+                        : "Fill in the details to track a new task"}
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                  className="p-2 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-5 space-y-5">
-                {/* Name */}
-                <FormField label="Task Name *">
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                    placeholder="e.g., Replace AC filter"
-                    className="form-input"
-                  />
-                </FormField>
 
-                {/* Description */}
-                <FormField label="Description">
-                  <textarea
-                    value={form.description || ""}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, description: e.target.value }))
-                    }
-                    placeholder="Additional details..."
-                    rows={2}
-                    className="form-input resize-none"
-                  />
-                </FormField>
-
-                {/* Category + Priority */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField label="Category">
-                    <select
-                      value={form.category}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          category: e.target.value as Category,
-                        }))
-                      }
-                      className="form-input"
-                    >
-                      {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>
-                          {capitalize(c)}
-                        </option>
-                      ))}
-                    </select>
-                  </FormField>
-                  <FormField label="Priority">
-                    <select
-                      value={form.priority}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          priority: e.target.value as Priority,
-                        }))
-                      }
-                      className="form-input"
-                    >
-                      {PRIORITIES.map((p) => (
-                        <option key={p} value={p}>
-                          {capitalize(p)}
-                        </option>
-                      ))}
-                    </select>
-                  </FormField>
-                </div>
-
-                {/* Service Type */}
-                <FormField label="Service Type">
-                  <div className="flex gap-2">
-                    {(["self", "managed"] as const).map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        onClick={() =>
-                          setForm((f) => ({ ...f, service_type: st }))
+              {/* ─ Scrollable Body ─ */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-6">
+                {/* ── Section: Basic Info ── */}
+                <ModalSection icon={Edit3} title="Basic Info">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        Task Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={form.name}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, name: e.target.value }))
                         }
-                        className={cn(
-                          "flex-1 py-2.5 text-sm font-medium rounded-xl border transition-colors",
-                          form.service_type === st
-                            ? "bg-accent/15 border-accent/30 text-accent"
-                            : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700",
-                        )}
-                      >
-                        {st === "self" ? "Self" : "Managed"}
-                      </button>
-                    ))}
+                        placeholder="e.g., Replace AC filter"
+                        className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        Description
+                      </label>
+                      <textarea
+                        value={form.description || ""}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Additional details..."
+                        rows={2}
+                        className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all resize-none"
+                      />
+                    </div>
                   </div>
-                </FormField>
+                </ModalSection>
 
-                {/* Recurring toggle + Frequency */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField label="Recurring">
-                    <div className="flex items-center gap-3 h-[42px]">
+                {/* ── Section: Classification ── */}
+                <ModalSection icon={Tag} title="Classification">
+                  <div className="space-y-4">
+                    {/* Category pill grid */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                        Category
+                      </label>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+                        {CATEGORIES.map((c) => {
+                          const CIcon = CATEGORY_ICONS[c];
+                          return (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() =>
+                                setForm((f) => ({ ...f, category: c }))
+                              }
+                              className={cn(
+                                "flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-medium border transition-all",
+                                form.category === c
+                                  ? "bg-accent/10 border-accent/30 text-accent shadow-sm"
+                                  : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700",
+                              )}
+                            >
+                              <CIcon className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{capitalize(c)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Priority pills */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                        Priority
+                      </label>
+                      <div className="flex gap-2">
+                        {PRIORITIES.map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() =>
+                              setForm((f) => ({ ...f, priority: p }))
+                            }
+                            className={cn(
+                              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border transition-all",
+                              form.priority === p
+                                ? p === "high"
+                                  ? "bg-danger/10 border-danger/30 text-danger"
+                                  : p === "medium"
+                                    ? "bg-warning/10 border-warning/30 text-warning"
+                                    : "bg-success/10 border-success/30 text-success"
+                                : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700",
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "w-2 h-2 rounded-full",
+                                PRIORITY_DOT[p],
+                              )}
+                            />
+                            {capitalize(p)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Service Type */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                        Service Type
+                      </label>
+                      <div className="flex gap-2">
+                        {(["self", "managed"] as const).map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() =>
+                              setForm((f) => ({ ...f, service_type: st }))
+                            }
+                            className={cn(
+                              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border transition-all",
+                              form.service_type === st
+                                ? "bg-accent/10 border-accent/30 text-accent"
+                                : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700",
+                            )}
+                          >
+                            {st === "self" ? (
+                              <User className="w-3.5 h-3.5" />
+                            ) : (
+                              <Wrench className="w-3.5 h-3.5" />
+                            )}
+                            {st === "self" ? "Self" : "Managed"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </ModalSection>
+
+                {/* ── Section: Schedule ── */}
+                <ModalSection icon={Calendar} title="Schedule">
+                  <div className="space-y-4">
+                    {/* Recurring toggle row */}
+                    <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800 rounded-xl">
+                      <div className="flex items-center gap-2.5">
+                        <Repeat className="w-4 h-4 text-zinc-500" />
+                        <span className="text-sm text-zinc-300 font-medium">
+                          Recurring Task
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={() =>
@@ -1019,210 +1099,292 @@ export default function MaintenanceAdminView() {
                           }))
                         }
                         className={cn(
-                          "w-10 h-6 rounded-full transition-colors relative",
+                          "w-11 h-6 rounded-full transition-colors relative shrink-0",
                           form.is_recurring ? "bg-success" : "bg-zinc-700",
                         )}
                       >
                         <span
                           className={cn(
-                            "absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all",
-                            form.is_recurring ? "left-[18px]" : "left-0.5",
+                            "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all",
+                            form.is_recurring ? "left-[22px]" : "left-0.5",
                           )}
                         />
                       </button>
-                      <span className="text-xs text-zinc-400">
-                        {form.is_recurring ? "Yes" : "No"}
-                      </span>
                     </div>
-                  </FormField>
-                  {form.is_recurring && (
-                    <FormField label="Frequency (months)">
-                      <input
-                        type="number"
-                        min={1}
-                        value={form.frequency_months ?? ""}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            frequency_months: e.target.value
-                              ? parseInt(e.target.value)
-                              : undefined,
-                          }))
-                        }
-                        placeholder="6"
-                        className="form-input"
-                      />
-                    </FormField>
-                  )}
-                </div>
 
-                {/* Dates */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField label="Last Completed">
-                    <input
-                      type="date"
-                      value={
-                        form.last_completed
-                          ? form.last_completed.split("T")[0]
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          last_completed: e.target.value
-                            ? new Date(e.target.value).toISOString()
-                            : undefined,
-                        }))
-                      }
-                      className="form-input"
-                    />
-                  </FormField>
-                  {form.is_recurring && form.frequency_months ? (
-                    <FormField label="Next Due (auto-calculated)">
-                      <div className="form-input flex items-center text-zinc-500">
-                        {form.last_completed
-                          ? formatDate(addMonths(form.last_completed, form.frequency_months))
-                          : "Set last completed date"}
+                    {/* Frequency */}
+                    {form.is_recurring && (
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Frequency (months)
+                        </label>
+                        <div className="flex gap-2">
+                          {[1, 3, 6, 12].map((m) => (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() =>
+                                setForm((f) => ({
+                                  ...f,
+                                  frequency_months: m,
+                                }))
+                              }
+                              className={cn(
+                                "flex-1 py-2 rounded-lg text-xs font-semibold border transition-all",
+                                form.frequency_months === m
+                                  ? "bg-accent/10 border-accent/30 text-accent"
+                                  : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700",
+                              )}
+                            >
+                              {m === 1
+                                ? "1mo"
+                                : m === 3
+                                  ? "3mo"
+                                  : m === 6
+                                    ? "6mo"
+                                    : "1yr"}
+                            </button>
+                          ))}
+                          <input
+                            type="number"
+                            min={1}
+                            value={
+                              form.frequency_months &&
+                              ![1, 3, 6, 12].includes(form.frequency_months)
+                                ? form.frequency_months
+                                : ""
+                            }
+                            onChange={(e) =>
+                              setForm((f) => ({
+                                ...f,
+                                frequency_months: e.target.value
+                                  ? parseInt(e.target.value)
+                                  : undefined,
+                              }))
+                            }
+                            placeholder="Custom"
+                            className="w-20 px-2.5 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-300 text-center placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-all"
+                          />
+                        </div>
                       </div>
-                    </FormField>
-                  ) : (
-                    <FormField label="Next Due">
-                      <input
-                        type="date"
-                        value={form.next_due ? form.next_due.split("T")[0] : ""}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            next_due: e.target.value
-                              ? new Date(e.target.value).toISOString()
-                              : undefined,
-                          }))
-                        }
-                        className="form-input"
-                      />
-                    </FormField>
-                  )}
-                </div>
+                    )}
 
-                {/* Cost + Currency — only for managed service type */}
-                {form.service_type === "managed" && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField label="Estimated Cost">
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.estimated_cost ?? ""}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            estimated_cost: e.target.value
-                              ? parseFloat(e.target.value)
-                              : undefined,
-                          }))
-                        }
-                        placeholder="0"
-                        className="form-input"
-                      />
-                    </FormField>
-                    <FormField label="Currency">
-                      <select
-                        value={form.currency}
-                        onChange={(e) =>
-                          setForm((f) => ({ ...f, currency: e.target.value }))
-                        }
-                        className="form-input"
-                      >
-                        {Object.keys(CURR_SYM).map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                    </FormField>
+                    {/* Dates grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Last Completed
+                        </label>
+                        <input
+                          type="date"
+                          value={
+                            form.last_completed
+                              ? form.last_completed.split("T")[0]
+                              : ""
+                          }
+                          onChange={(e) =>
+                            setForm((f) => ({
+                              ...f,
+                              last_completed: e.target.value
+                                ? new Date(e.target.value).toISOString()
+                                : undefined,
+                            }))
+                          }
+                          className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Next Due{" "}
+                          {form.is_recurring && form.frequency_months && (
+                            <span className="text-accent/70 normal-case font-normal">
+                              (auto)
+                            </span>
+                          )}
+                        </label>
+                        {form.is_recurring && form.frequency_months ? (
+                          <div className="px-3.5 py-2.5 bg-zinc-950/50 border border-dashed border-zinc-800 rounded-xl text-sm text-zinc-500 flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5 text-zinc-600" />
+                            {form.last_completed
+                              ? formatDate(
+                                  addMonths(
+                                    form.last_completed,
+                                    form.frequency_months,
+                                  ),
+                                )
+                              : "Set last completed first"}
+                          </div>
+                        ) : (
+                          <input
+                            type="date"
+                            value={
+                              form.next_due
+                                ? form.next_due.split("T")[0]
+                                : ""
+                            }
+                            onChange={(e) =>
+                              setForm((f) => ({
+                                ...f,
+                                next_due: e.target.value
+                                  ? new Date(e.target.value).toISOString()
+                                  : undefined,
+                              }))
+                            }
+                            className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                          />
+                        )}
+                      </div>
+                    </div>
                   </div>
+                </ModalSection>
+
+                {/* ── Section: Cost (managed only) ── */}
+                {form.service_type === "managed" && (
+                  <ModalSection icon={CircleDollarSign} title="Cost Estimate">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Estimated Cost
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={form.estimated_cost ?? ""}
+                          onChange={(e) =>
+                            setForm((f) => ({
+                              ...f,
+                              estimated_cost: e.target.value
+                                ? parseFloat(e.target.value)
+                                : undefined,
+                            }))
+                          }
+                          placeholder="0"
+                          className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Currency
+                        </label>
+                        <select
+                          value={form.currency}
+                          onChange={(e) =>
+                            setForm((f) => ({
+                              ...f,
+                              currency: e.target.value,
+                            }))
+                          }
+                          className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 transition-all appearance-none"
+                        >
+                          {Object.keys(CURR_SYM).map((c) => (
+                            <option key={c} value={c}>
+                              {c} ({CURR_SYM[c]})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </ModalSection>
                 )}
 
-                {/* Reminder toggle */}
-                <FormField label="Reminders">
-                  <div className="flex items-center gap-3 h-[42px]">
-                    <button
-                      onClick={() =>
-                        setForm((f) => ({
-                          ...f,
-                          reminder_enabled: !f.reminder_enabled,
-                        }))
-                      }
-                      className={cn(
-                        "w-10 h-6 rounded-full transition-colors relative",
-                        form.reminder_enabled ? "bg-success" : "bg-zinc-700",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all",
-                          form.reminder_enabled ? "left-[18px]" : "left-0.5",
+                {/* ── Section: Additional ── */}
+                <ModalSection icon={StickyNote} title="Additional">
+                  <div className="space-y-4">
+                    {/* Reminders toggle row */}
+                    <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800 rounded-xl">
+                      <div className="flex items-center gap-2.5">
+                        {form.reminder_enabled ? (
+                          <Bell className="w-4 h-4 text-success" />
+                        ) : (
+                          <BellOff className="w-4 h-4 text-zinc-600" />
                         )}
-                      />
-                    </button>
-                    <span className="text-xs text-zinc-400">
-                      {form.reminder_enabled ? "Enabled" : "Disabled"}
-                    </span>
-                  </div>
-                </FormField>
-
-                {/* Tags */}
-                <FormField label="Tags (comma separated)">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    placeholder="filter, seasonal, annual"
-                    className="form-input"
-                  />
-                  {tagInput && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {tagInput
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean)
-                        .map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-0.5 text-[10px] font-medium text-zinc-300 bg-zinc-800 rounded-md border border-zinc-700"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                        <span className="text-sm text-zinc-300 font-medium">
+                          Reminders
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            reminder_enabled: !f.reminder_enabled,
+                          }))
+                        }
+                        className={cn(
+                          "w-11 h-6 rounded-full transition-colors relative shrink-0",
+                          form.reminder_enabled ? "bg-success" : "bg-zinc-700",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all",
+                            form.reminder_enabled
+                              ? "left-[22px]"
+                              : "left-0.5",
+                          )}
+                        />
+                      </button>
                     </div>
-                  )}
-                </FormField>
 
-                {/* Notes */}
-                <FormField label="Notes">
-                  <textarea
-                    value={form.notes || ""}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, notes: e.target.value }))
-                    }
-                    placeholder="Any additional notes..."
-                    rows={3}
-                    className="form-input resize-none"
-                  />
-                </FormField>
+                    {/* Tags */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        Tags
+                      </label>
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        placeholder="filter, seasonal, annual"
+                        className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                      />
+                      {tagInput && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {tagInput
+                            .split(",")
+                            .map((t) => t.trim())
+                            .filter(Boolean)
+                            .map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-accent bg-accent/10 rounded-md border border-accent/20"
+                              >
+                                <Tag className="w-2.5 h-2.5" />
+                                {tag}
+                              </span>
+                            ))}
+                        </div>
+                      )}
+                    </div>
 
-                {/* Completion History (edit view) */}
+                    {/* Notes */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        Notes
+                      </label>
+                      <textarea
+                        value={form.notes || ""}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, notes: e.target.value }))
+                        }
+                        placeholder="Any additional notes..."
+                        rows={3}
+                        className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all resize-none"
+                      />
+                    </div>
+                  </div>
+                </ModalSection>
+
+                {/* ── History (edit only) ── */}
                 {editingId && form.history.length > 0 && (
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                      Completion History
-                    </h3>
+                  <ModalSection icon={History} title="Completion History">
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {[...form.history].reverse().map((h) => (
                         <div
                           key={h.id}
                           className="flex items-start gap-3 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs"
                         >
-                          <div className="w-2 h-2 mt-1 rounded-full bg-success shrink-0" />
+                          <div className="w-2 h-2 mt-1.5 rounded-full bg-success shrink-0" />
                           <div className="flex-1 min-w-0 space-y-0.5">
                             <p className="text-zinc-300 font-medium">
                               {formatDate(h.completed_at)}
@@ -1234,7 +1396,8 @@ export default function MaintenanceAdminView() {
                             )}
                             {h.cost !== undefined && (
                               <p className="text-zinc-500">
-                                Cost: {CURR_SYM[form.currency] || form.currency}{" "}
+                                Cost:{" "}
+                                {CURR_SYM[form.currency] || form.currency}{" "}
                                 {h.cost.toLocaleString("en-IN")}
                               </p>
                             )}
@@ -1245,26 +1408,34 @@ export default function MaintenanceAdminView() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </ModalSection>
                 )}
               </div>
-              <div className="sticky bottom-0 bg-zinc-900 border-t border-zinc-800 p-5 flex justify-end gap-3">
+
+              {/* ─ Sticky Footer ─ */}
+              <div className="shrink-0 border-t border-zinc-800 p-4 sm:p-5 flex items-center justify-between gap-3 bg-zinc-900 rounded-b-2xl">
                 <button
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-200 rounded-xl hover:bg-zinc-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveTask}
                   disabled={saving || !form.name.trim()}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-zinc-50 text-zinc-950 font-medium text-sm hover:bg-zinc-200 transition-colors disabled:opacity-40"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent text-zinc-950 font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-40 shadow-lg shadow-accent/20"
                 >
-                  {saving
-                    ? "Saving..."
-                    : editingId
-                      ? "Update Task"
-                      : "Create Task"}
+                  {saving ? (
+                    "Saving..."
+                  ) : editingId ? (
+                    <>
+                      <Check className="w-4 h-4" /> Update Task
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" /> Create Task
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -1272,93 +1443,115 @@ export default function MaintenanceAdminView() {
         )}
       </AnimatePresence>
 
-      {/* ── Mark Complete Modal ─────────────────────────────────────── */}
+      {/* ── Log Completion Modal ──────────────────────────────────────── */}
       <AnimatePresence>
         {completingTask && (
           <ModalOverlay onClose={() => setCompletingTask(null)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl shadow-black/40 my-auto shrink-0"
             >
-              <div className="p-5 border-b border-zinc-800">
-                <h2 className="text-lg font-bold text-zinc-50">
-                  Log Completion
-                </h2>
-                <p className="text-sm text-zinc-500 mt-1">
-                  {completingTask.payload.name}
-                </p>
+              <div className="p-5 sm:p-6 border-b border-zinc-800 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-success/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-4.5 h-4.5 text-success" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-zinc-50">
+                    Log Completion
+                  </h2>
+                  <p className="text-[11px] text-zinc-500 mt-0.5 truncate max-w-[260px]">
+                    {completingTask.payload.name}
+                  </p>
+                </div>
               </div>
-              <div className="p-5 space-y-4">
-                <FormField label="Completion Date">
+              <div className="p-5 sm:p-6 space-y-4">
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                    Completion Date
+                  </label>
                   <input
                     type="date"
                     value={completionDate}
                     onChange={(e) => setCompletionDate(e.target.value)}
-                    className="form-input"
+                    className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
                   />
-                </FormField>
-                <FormField label="Cost">
-                  <input
-                    type="number"
-                    min={0}
-                    value={completionCost}
-                    onChange={(e) => setCompletionCost(e.target.value)}
-                    placeholder="Actual cost incurred"
-                    className="form-input"
-                  />
-                </FormField>
-                <FormField label="Vendor / Service Provider">
-                  <input
-                    type="text"
-                    value={completionVendor}
-                    onChange={(e) => setCompletionVendor(e.target.value)}
-                    placeholder="Who did the work?"
-                    className="form-input"
-                  />
-                </FormField>
-                <FormField label="Notes">
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      Cost
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={completionCost}
+                      onChange={(e) => setCompletionCost(e.target.value)}
+                      placeholder="Actual cost"
+                      className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      Vendor
+                    </label>
+                    <input
+                      type="text"
+                      value={completionVendor}
+                      onChange={(e) => setCompletionVendor(e.target.value)}
+                      placeholder="Who did it?"
+                      className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                    Notes
+                  </label>
                   <textarea
                     value={completionNotes}
                     onChange={(e) => setCompletionNotes(e.target.value)}
                     placeholder="Any remarks..."
                     rows={2}
-                    className="form-input resize-none"
+                    className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all resize-none"
                   />
-                </FormField>
+                </div>
                 {completingTask.payload.is_recurring &&
                   completingTask.payload.frequency_months && (
-                    <div className="p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs text-zinc-500">
-                      <Calendar className="w-3.5 h-3.5 inline mr-1.5 text-zinc-400" />
-                      Next due will auto-set to{" "}
-                      <span className="text-zinc-300 font-medium">
-                        {formatDate(
-                          addMonths(
-                            completionDate
-                              ? new Date(completionDate).toISOString()
-                              : todayISO(),
-                            completingTask.payload.frequency_months,
-                          ),
-                        )}
+                    <div className="flex items-center gap-2.5 p-3 bg-accent/5 border border-accent/15 rounded-xl text-xs text-zinc-400">
+                      <Calendar className="w-4 h-4 text-accent shrink-0" />
+                      <span>
+                        Next due auto-sets to{" "}
+                        <span className="text-zinc-200 font-semibold">
+                          {formatDate(
+                            addMonths(
+                              completionDate
+                                ? new Date(completionDate).toISOString()
+                                : todayISO(),
+                              completingTask.payload.frequency_months,
+                            ),
+                          )}
+                        </span>
                       </span>
                     </div>
                   )}
               </div>
-              <div className="p-5 border-t border-zinc-800 flex justify-end gap-3">
+              <div className="p-4 sm:p-5 border-t border-zinc-800 flex justify-end gap-3">
                 <button
                   onClick={() => setCompletingTask(null)}
-                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-200 rounded-xl hover:bg-zinc-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmMarkComplete}
                   disabled={saving}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-success-muted text-white font-medium text-sm hover:bg-success transition-colors disabled:opacity-40"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-success text-zinc-950 font-bold text-sm hover:brightness-110 transition-all disabled:opacity-40 shadow-lg shadow-success/20"
                 >
-                  <CheckCircle2 className="w-4 h-4" />{" "}
+                  <CheckCircle2 className="w-4 h-4" />
                   {saving ? "Saving..." : "Confirm"}
                 </button>
               </div>
@@ -1372,38 +1565,47 @@ export default function MaintenanceAdminView() {
         {historyTask && (
           <ModalOverlay onClose={() => setHistoryTask(null)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg shadow-2xl shadow-black/40 my-auto shrink-0 flex flex-col max-h-[80vh]"
             >
-              <div className="sticky top-0 bg-zinc-900 p-5 border-b border-zinc-800 flex items-center justify-between z-10">
-                <div>
-                  <h2 className="text-lg font-bold text-zinc-50">
-                    Completion History
-                  </h2>
-                  <p className="text-sm text-zinc-500 mt-0.5">
-                    {historyTask.payload.name}
-                  </p>
+              <div className="shrink-0 p-5 sm:p-6 border-b border-zinc-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <History className="w-4.5 h-4.5 text-accent" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-zinc-50">
+                      Completion History
+                    </h2>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                      {historyTask.payload.name}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setHistoryTask(null)}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                  className="p-2 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-5">
+              <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
                 {historyTask.payload.history.length === 0 ? (
-                  <p className="text-sm text-zinc-500 text-center py-8">
-                    No completion records yet.
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-800/50 flex items-center justify-center mb-3">
+                      <History className="w-6 h-6 text-zinc-600" />
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      No completion records yet.
+                    </p>
+                  </div>
                 ) : (
                   <div className="relative">
-                    {/* Timeline line */}
                     <div className="absolute left-[9px] top-2 bottom-2 w-px bg-zinc-800" />
-
                     <div className="space-y-4">
                       {[...historyTask.payload.history]
                         .reverse()
@@ -1412,7 +1614,6 @@ export default function MaintenanceAdminView() {
                             key={h.id}
                             className="relative flex items-start gap-4 pl-7"
                           >
-                            {/* Timeline dot */}
                             <div
                               className={cn(
                                 "absolute left-0 top-1.5 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center",
@@ -1428,14 +1629,15 @@ export default function MaintenanceAdminView() {
                                 )}
                               />
                             </div>
-
                             <div className="flex-1 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs space-y-1">
                               <p className="text-zinc-200 font-semibold">
                                 {formatDate(h.completed_at)}
                               </p>
                               {h.vendor && (
                                 <p className="text-zinc-500">
-                                  <span className="text-zinc-600">Vendor:</span>{" "}
+                                  <span className="text-zinc-600">
+                                    Vendor:
+                                  </span>{" "}
                                   {h.vendor}
                                 </p>
                               )}
@@ -1469,14 +1671,15 @@ export default function MaintenanceAdminView() {
         {deletingId && (
           <ModalOverlay onClose={() => setDeletingId(null)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ type: "spring", duration: 0.3, bounce: 0.1 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm shadow-2xl p-6 space-y-4"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm shadow-2xl shadow-black/40 p-6 space-y-5 my-auto shrink-0"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-xl bg-danger/10 flex items-center justify-center">
                   <Trash2 className="w-5 h-5 text-danger" />
                 </div>
                 <div>
@@ -1488,16 +1691,16 @@ export default function MaintenanceAdminView() {
                   </p>
                 </div>
               </div>
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-1">
                 <button
                   onClick={() => setDeletingId(null)}
-                  className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-zinc-200 rounded-xl hover:bg-zinc-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => deleteTask(deletingId)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-danger-muted text-white font-medium text-sm hover:bg-danger transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-danger text-white font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-danger/20"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>
@@ -1506,31 +1709,6 @@ export default function MaintenanceAdminView() {
           </ModalOverlay>
         )}
       </AnimatePresence>
-
-      {/* ── Inline Styles for form inputs ──────────────────────────── */}
-      <style jsx global>{`
-        .form-input {
-          width: 100%;
-          padding: 0.625rem 0.875rem;
-          background: rgb(9 9 11);
-          border: 1px solid rgb(39 39 42);
-          border-radius: 0.75rem;
-          font-size: 0.875rem;
-          color: rgb(228 228 231);
-          outline: none;
-          transition: border-color 0.15s;
-        }
-        .form-input:focus {
-          border-color: rgb(82 82 91);
-        }
-        .form-input::placeholder {
-          color: rgb(63 63 70);
-        }
-        .form-input option {
-          background: rgb(9 9 11);
-          color: rgb(228 228 231);
-        }
-      `}</style>
     </div>
   );
 }
@@ -1604,26 +1782,33 @@ function ModalOverlay({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start md:items-center justify-center overflow-y-auto py-4 px-4 md:py-8"
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 overflow-y-auto overscroll-contain"
     >
-      {children}
+      <div className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10">
+        {children}
+      </div>
     </motion.div>
   );
 }
 
-function FormField({
-  label,
+function ModalSection({
+  icon: Icon,
+  title,
   children,
 }: {
-  label: string;
+  icon: LucideIcon;
+  title: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-        {label}
-      </label>
-      {children}
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Icon className="w-3.5 h-3.5 text-zinc-500" />
+        <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+          {title}
+        </h3>
+      </div>
+      <div className="pl-0.5">{children}</div>
     </div>
   );
 }
