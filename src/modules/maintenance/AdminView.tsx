@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Plus,
   Trash2,
@@ -1193,28 +1194,11 @@ export default function MaintenanceAdminView() {
                           className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
                         />
                       </div>
-                      <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-                          Next Due{" "}
-                          {form.is_recurring && form.frequency_months && (
-                            <span className="text-accent/70 normal-case font-normal">
-                              (auto)
-                            </span>
-                          )}
-                        </label>
-                        {form.is_recurring && form.frequency_months ? (
-                          <div className="px-3.5 py-2.5 bg-zinc-950/50 border border-dashed border-zinc-800 rounded-xl text-sm text-zinc-500 flex items-center gap-2">
-                            <Calendar className="w-3.5 h-3.5 text-zinc-600" />
-                            {form.last_completed
-                              ? formatDate(
-                                  addMonths(
-                                    form.last_completed,
-                                    form.frequency_months,
-                                  ),
-                                )
-                              : "Set last completed first"}
-                          </div>
-                        ) : (
+                      {!form.is_recurring && (
+                        <div>
+                          <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                            Next Due
+                          </label>
                           <input
                             type="date"
                             value={
@@ -1232,8 +1216,8 @@ export default function MaintenanceAdminView() {
                             }
                             className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
                           />
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </ModalSection>
@@ -1776,7 +1760,7 @@ function ModalOverlay({
   children: React.ReactNode;
   onClose: () => void;
 }) {
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -1787,7 +1771,8 @@ function ModalOverlay({
       <div className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10">
         {children}
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
