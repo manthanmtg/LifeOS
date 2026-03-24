@@ -426,6 +426,16 @@ export default function MaintenanceAdminView() {
         payload.estimated_cost = undefined;
       }
 
+      // Seed history with initial completion when creating with last_completed
+      if (!editingId && payload.last_completed && payload.history.length === 0) {
+        payload.history = [
+          {
+            id: crypto.randomUUID(),
+            completed_at: payload.last_completed,
+          },
+        ];
+      }
+
       if (editingId) {
         await fetch(`/api/content/${editingId}`, {
           method: "PUT",
