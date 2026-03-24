@@ -882,6 +882,13 @@ export default function MaintenanceAdminView() {
                   )}
                   <div className="flex-1" />
                   <button
+                    onClick={() => setHistoryTask(task)}
+                    className="p-1.5 rounded-lg text-zinc-500 hover:text-accent hover:bg-accent/10 transition-colors"
+                    title="History"
+                  >
+                    <History className="w-3.5 h-3.5" />
+                  </button>
+                  <button
                     onClick={() => openEdit(task)}
                     className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
                     title="Edit"
