@@ -906,8 +906,9 @@ export default function BillsAdminView() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                 {currentSubfolders.map((sf) => {
+                  const allFolderIds = [sf._id, ...getAllDescendantFolderIds(folders, sf._id)];
                   const directBills = bills.filter(
-                    (b) => b.payload.folder_id === sf._id,
+                    (b) => b.payload.folder_id && allFolderIds.includes(b.payload.folder_id),
                   ).length;
                   const subCount = folders.filter(
                     (f) => f.payload.parent_id === sf._id,
