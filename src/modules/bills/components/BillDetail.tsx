@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   Calendar,
@@ -47,6 +47,28 @@ export default function BillDetail({
   const [previewAttachment, setPreviewAttachment] = useState<
     Bill["payload"]["attachments"][0] | null
   >(null);
+
+  useEffect(() => {
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = orig;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (previewAttachment) {
+          setPreviewAttachment(null);
+        } else {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [previewAttachment, onClose]);
 
   const folder = folders.find((f) => f._id === bill.payload.folder_id);
 
@@ -102,20 +124,30 @@ export default function BillDetail({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex justify-end">
-        <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+      <div className="fixed inset-0 z-50">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
+
         <motion.div
-          initial={{ x: "100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "100%" }}
-          transition={{ type: "spring", damping: 30, stiffness: 300 }}
-          className="relative w-full max-w-md sm:max-w-lg bg-zinc-900 border-l border-zinc-700 shadow-2xl flex flex-col h-full"
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          transition={{ type: "spring", damping: 28, stiffness: 350 }}
+          className={cn(
+            "flex flex-col bg-zinc-900 shadow-2xl shadow-black/40",
+            "fixed inset-0 z-10",
+            "sm:absolute sm:inset-auto sm:top-[6vh] sm:left-1/2 sm:-translate-x-1/2",
+            "sm:w-full sm:max-w-xl sm:max-h-[88vh]",
+            "sm:rounded-2xl sm:border sm:border-zinc-700/80",
+          )}
         >
           {/* Header */}
-          <div className="flex items-start gap-3 px-5 py-4 border-b border-zinc-800">
+          <div className="shrink-0 flex items-start gap-3 px-5 py-4 border-b border-zinc-800">
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-bold text-zinc-100 leading-tight">
                 {bill.payload.name}
@@ -163,7 +195,7 @@ export default function BillDetail({
           </div>
 
           {/* Body */}
-          <div className="overflow-y-auto flex-1 p-5 space-y-5">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 space-y-5">
             {bill.payload.description && (
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
@@ -284,7 +316,7 @@ export default function BillDetail({
           </div>
 
           {/* Footer */}
-          <div className="px-5 py-3 border-t border-zinc-800">
+          <div className="shrink-0 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-zinc-800">
             {confirmDelete ? (
               <div className="flex items-center gap-3">
                 <p className="text-xs text-zinc-400 flex-1">
@@ -319,43 +351,58 @@ export default function BillDetail({
       {/* Image lightbox */}
       <AnimatePresence>
         {previewAttachment && (
-          <div
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-md"
             onClick={() => setPreviewAttachment(null)}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative max-w-3xl max-h-[85vh]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
-                alt={previewAttachment.filename}
-                className="max-w-full max-h-[85vh] rounded-xl object-contain"
-              />
-              <div className="absolute top-3 right-3 flex gap-2">
+            {/* Fixed top bar */}
+            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
+              <p className="text-sm text-zinc-300 font-medium truncate">
+                {previewAttachment.filename}
+                <span className="text-zinc-500 ml-2 text-xs">
+                  {formatBytes(previewAttachment.size)}
+                </span>
+              </p>
+              <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={() => handleDownload(previewAttachment)}
-                  className="p-2 bg-black/60 text-white rounded-lg hover:bg-black/80 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(previewAttachment);
+                  }}
+                  className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                  title="Download"
                 >
                   <Download className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPreviewAttachment(null)}
-                  className="p-2 bg-black/60 text-white rounded-lg hover:bg-black/80 transition-colors"
+                  className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                  title="Close (Esc)"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-center text-xs text-zinc-400 mt-2">
-                {previewAttachment.filename} ·{" "}
-                {formatBytes(previewAttachment.size)}
-              </p>
-            </motion.div>
-          </div>
+            </div>
+
+            {/* Centered image */}
+            <div
+              className="flex items-center justify-center w-full h-full p-4 pt-16 pb-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.img
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
+                alt={previewAttachment.filename}
+                className="max-w-full max-h-full rounded-xl object-contain"
+                onClick={() => setPreviewAttachment(null)}
+              />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
