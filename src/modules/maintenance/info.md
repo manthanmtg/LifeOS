@@ -5,10 +5,11 @@ Track recurring maintenance tasks for your home, appliances, and other assets.
 ## Features
 
 - Create maintenance tasks with frequency (monthly, quarterly, yearly, etc.)
-- Track last completed date and next due date
+- Track last completed date; next due auto-calculated for recurring tasks
 - Categorize by area (home, kitchen, electrical, plumbing, garden, etc.)
-- Log completion with optional notes and cost
-- Overdue task highlighting so nothing gets missed
+- Service type: self or managed (estimated cost only shown for managed)
+- Log completion with date picker, optional notes, cost, and vendor
+- Overdue task highlighting with prominent log-completion action
 
 ## How to Use
 

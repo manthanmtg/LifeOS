@@ -55,6 +55,7 @@ const PRIORITIES = ["high", "medium", "low"] as const;
 type Priority = (typeof PRIORITIES)[number];
 
 type Status = "upcoming" | "overdue" | "completed" | "skipped";
+type ServiceType = "self" | "managed";
 
 interface HistoryEntry {
   id: string;
@@ -68,6 +69,7 @@ interface MaintenancePayload {
   name: string;
   description?: string;
   category: Category;
+  service_type: ServiceType;
   frequency_months?: number;
   last_completed?: string;
   next_due?: string;
@@ -224,6 +226,7 @@ const EMPTY_FORM: MaintenancePayload = {
   name: "",
   description: "",
   category: "home",
+  service_type: "self",
   frequency_months: undefined,
   last_completed: undefined,
   next_due: undefined,
@@ -255,6 +258,7 @@ export default function MaintenanceAdminView() {
   const [completingTask, setCompletingTask] = useState<MaintenanceTask | null>(
     null,
   );
+  const [completionDate, setCompletionDate] = useState("");
   const [completionCost, setCompletionCost] = useState("");
   const [completionVendor, setCompletionVendor] = useState("");
   const [completionNotes, setCompletionNotes] = useState("");
@@ -404,6 +408,16 @@ export default function MaintenanceAdminView() {
         .filter(Boolean);
       const payload = { ...form, tags };
 
+      // Auto-calculate next_due for recurring tasks
+      if (payload.is_recurring && payload.frequency_months && payload.last_completed) {
+        payload.next_due = addMonths(payload.last_completed, payload.frequency_months);
+      }
+
+      // Clear estimated_cost for self-service tasks
+      if (payload.service_type === "self") {
+        payload.estimated_cost = undefined;
+      }
+
       if (editingId) {
         await fetch(`/api/content/${editingId}`, {
           method: "PUT",
@@ -444,6 +458,7 @@ export default function MaintenanceAdminView() {
 
   const openMarkComplete = (task: MaintenanceTask) => {
     setCompletingTask(task);
+    setCompletionDate(new Date().toISOString().split("T")[0]);
     setCompletionCost(task.payload.estimated_cost?.toString() || "");
     setCompletionVendor("");
     setCompletionNotes("");
@@ -453,10 +468,12 @@ export default function MaintenanceAdminView() {
     if (!completingTask) return;
     setSaving(true);
     try {
-      const now = todayISO();
+      const completedAt = completionDate
+        ? new Date(completionDate).toISOString()
+        : todayISO();
       const entry: HistoryEntry = {
         id: crypto.randomUUID(),
-        completed_at: now,
+        completed_at: completedAt,
         cost: completionCost ? parseFloat(completionCost) : undefined,
         vendor: completionVendor || undefined,
         notes: completionNotes || undefined,
@@ -465,7 +482,7 @@ export default function MaintenanceAdminView() {
       const nextDue =
         completingTask.payload.is_recurring &&
         completingTask.payload.frequency_months
-          ? addMonths(now, completingTask.payload.frequency_months)
+          ? addMonths(completedAt, completingTask.payload.frequency_months)
           : completingTask.payload.next_due;
 
       await fetch(`/api/content/${completingTask._id}`, {
@@ -474,7 +491,7 @@ export default function MaintenanceAdminView() {
         body: JSON.stringify({
           payload: {
             ...completingTask.payload,
-            last_completed: now,
+            last_completed: completedAt,
             next_due: nextDue,
             status: "upcoming",
             history: newHistory,
@@ -731,12 +748,36 @@ export default function MaintenanceAdminView() {
                   >
                     {p.status}
                   </span>
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
+                      p.service_type === "managed"
+                        ? "bg-accent/15 text-accent border-accent/20"
+                        : "bg-zinc-500/10 text-zinc-400 border-zinc-700",
+                    )}
+                  >
+                    {p.service_type || "self"}
+                  </span>
                   {p.is_recurring && p.frequency_months && (
                     <span className="px-2 py-0.5 text-[10px] font-medium text-zinc-500 bg-zinc-800/50 rounded-md border border-zinc-800">
                       {formatFrequency(p.frequency_months)}
                     </span>
                   )}
                 </div>
+
+                {/* Overdue banner with Log Completion */}
+                {p.status === "overdue" && (
+                  <button
+                    onClick={() => openMarkComplete(task)}
+                    className="w-full flex items-center gap-2 p-3 rounded-xl border border-danger/20 bg-danger/10 text-danger text-xs font-medium hover:bg-danger/15 transition-colors"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="flex-1 text-left">
+                      {days !== null ? `${Math.abs(days)}d overdue` : "Overdue"} — tap to log completion
+                    </span>
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  </button>
+                )}
 
                 {/* Dates */}
                 <div className="space-y-1.5 text-xs">
@@ -746,33 +787,27 @@ export default function MaintenanceAdminView() {
                       {formatDate(p.last_completed)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-zinc-500">
-                    <span>Next due</span>
-                    <span
-                      className={cn(
-                        "font-medium",
-                        p.status === "overdue"
-                          ? "text-danger"
-                          : days !== null && days <= 30
+                  {p.status !== "overdue" && (
+                    <div className="flex items-center justify-between text-zinc-500">
+                      <span>Next due</span>
+                      <span
+                        className={cn(
+                          "font-medium",
+                          days !== null && days <= 30
                             ? "text-warning"
                             : "text-zinc-300",
-                      )}
-                    >
-                      {formatDate(p.next_due)}
-                      {days !== null && (
-                        <span className="ml-1 text-[10px] opacity-70">
-                          (
-                          {days < 0
-                            ? `${Math.abs(days)}d overdue`
-                            : days === 0
-                              ? "today"
-                              : `in ${days}d`}
-                          )
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  {p.estimated_cost !== undefined && p.estimated_cost > 0 && (
+                        )}
+                      >
+                        {formatDate(p.next_due)}
+                        {days !== null && (
+                          <span className="ml-1 text-[10px] opacity-70">
+                            ({days === 0 ? "today" : `in ${days}d`})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                  {p.service_type === "managed" && p.estimated_cost !== undefined && p.estimated_cost > 0 && (
                     <div className="flex items-center justify-between text-zinc-500">
                       <span>Est. cost</span>
                       <span className="text-zinc-300 font-medium">
@@ -784,7 +819,7 @@ export default function MaintenanceAdminView() {
                 </div>
 
                 {/* Progress bar */}
-                {p.is_recurring && p.last_completed && p.next_due && (
+                {p.is_recurring && p.last_completed && p.next_due && p.status !== "overdue" && (
                   <div className="space-y-1">
                     <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                       <div
@@ -821,12 +856,12 @@ export default function MaintenanceAdminView() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-2 border-t border-zinc-800/50">
-                  {p.status !== "completed" && (
+                  {p.status !== "completed" && p.status !== "overdue" && (
                     <button
                       onClick={() => openMarkComplete(task)}
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-success/10 text-success hover:bg-success/20 border border-success/20 transition-colors"
                     >
-                      <Check className="w-3.5 h-3.5" /> Complete
+                      <Check className="w-3.5 h-3.5" /> Log Completion
                     </button>
                   )}
                   {p.history.length > 0 && (
@@ -948,11 +983,35 @@ export default function MaintenanceAdminView() {
                   </FormField>
                 </div>
 
+                {/* Service Type */}
+                <FormField label="Service Type">
+                  <div className="flex gap-2">
+                    {(["self", "managed"] as const).map((st) => (
+                      <button
+                        key={st}
+                        type="button"
+                        onClick={() =>
+                          setForm((f) => ({ ...f, service_type: st }))
+                        }
+                        className={cn(
+                          "flex-1 py-2.5 text-sm font-medium rounded-xl border transition-colors",
+                          form.service_type === st
+                            ? "bg-accent/15 border-accent/30 text-accent"
+                            : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700",
+                        )}
+                      >
+                        {st === "self" ? "Self" : "Managed"}
+                      </button>
+                    ))}
+                  </div>
+                </FormField>
+
                 {/* Recurring toggle + Frequency */}
                 <div className="grid grid-cols-2 gap-4">
                   <FormField label="Recurring">
                     <div className="flex items-center gap-3 h-[42px]">
                       <button
+                        type="button"
                         onClick={() =>
                           setForm((f) => ({
                             ...f,
@@ -1018,58 +1077,70 @@ export default function MaintenanceAdminView() {
                       className="form-input"
                     />
                   </FormField>
-                  <FormField label="Next Due">
-                    <input
-                      type="date"
-                      value={form.next_due ? form.next_due.split("T")[0] : ""}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          next_due: e.target.value
-                            ? new Date(e.target.value).toISOString()
-                            : undefined,
-                        }))
-                      }
-                      className="form-input"
-                    />
-                  </FormField>
+                  {form.is_recurring && form.frequency_months ? (
+                    <FormField label="Next Due (auto-calculated)">
+                      <div className="form-input flex items-center text-zinc-500">
+                        {form.last_completed
+                          ? formatDate(addMonths(form.last_completed, form.frequency_months))
+                          : "Set last completed date"}
+                      </div>
+                    </FormField>
+                  ) : (
+                    <FormField label="Next Due">
+                      <input
+                        type="date"
+                        value={form.next_due ? form.next_due.split("T")[0] : ""}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            next_due: e.target.value
+                              ? new Date(e.target.value).toISOString()
+                              : undefined,
+                          }))
+                        }
+                        className="form-input"
+                      />
+                    </FormField>
+                  )}
                 </div>
 
-                {/* Cost + Currency */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField label="Estimated Cost">
-                    <input
-                      type="number"
-                      min={0}
-                      value={form.estimated_cost ?? ""}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          estimated_cost: e.target.value
-                            ? parseFloat(e.target.value)
-                            : undefined,
-                        }))
-                      }
-                      placeholder="0"
-                      className="form-input"
-                    />
-                  </FormField>
-                  <FormField label="Currency">
-                    <select
-                      value={form.currency}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, currency: e.target.value }))
-                      }
-                      className="form-input"
-                    >
-                      {Object.keys(CURR_SYM).map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </FormField>
-                </div>
+                {/* Cost + Currency — only for managed service type */}
+                {form.service_type === "managed" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField label="Estimated Cost">
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.estimated_cost ?? ""}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            estimated_cost: e.target.value
+                              ? parseFloat(e.target.value)
+                              : undefined,
+                          }))
+                        }
+                        placeholder="0"
+                        className="form-input"
+                      />
+                    </FormField>
+                    <FormField label="Currency">
+                      <select
+                        value={form.currency}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, currency: e.target.value }))
+                        }
+                        className="form-input"
+                      >
+                        {Object.keys(CURR_SYM).map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </FormField>
+                  </div>
+                )}
 
                 {/* Reminder toggle */}
                 <FormField label="Reminders">
@@ -1214,13 +1285,21 @@ export default function MaintenanceAdminView() {
             >
               <div className="p-5 border-b border-zinc-800">
                 <h2 className="text-lg font-bold text-zinc-50">
-                  Mark as Complete
+                  Log Completion
                 </h2>
                 <p className="text-sm text-zinc-500 mt-1">
                   {completingTask.payload.name}
                 </p>
               </div>
               <div className="p-5 space-y-4">
+                <FormField label="Completion Date">
+                  <input
+                    type="date"
+                    value={completionDate}
+                    onChange={(e) => setCompletionDate(e.target.value)}
+                    className="form-input"
+                  />
+                </FormField>
                 <FormField label="Cost">
                   <input
                     type="number"
@@ -1253,11 +1332,13 @@ export default function MaintenanceAdminView() {
                   completingTask.payload.frequency_months && (
                     <div className="p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs text-zinc-500">
                       <Calendar className="w-3.5 h-3.5 inline mr-1.5 text-zinc-400" />
-                      Next due will be set to{" "}
+                      Next due will auto-set to{" "}
                       <span className="text-zinc-300 font-medium">
                         {formatDate(
                           addMonths(
-                            todayISO(),
+                            completionDate
+                              ? new Date(completionDate).toISOString()
+                              : todayISO(),
                             completingTask.payload.frequency_months,
                           ),
                         )}
@@ -1523,7 +1604,7 @@ function ModalOverlay({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start md:items-center justify-center overflow-y-auto py-4 px-4 md:py-8"
     >
       {children}
     </motion.div>

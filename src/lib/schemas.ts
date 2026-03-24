@@ -538,10 +538,11 @@ export const MaintenanceTaskSchema = z.object({
       "other",
     ])
     .default("home"),
+  service_type: z.enum(["self", "managed"]).default("self"),
   frequency_months: z.number().int().positive().optional(), // recurring interval
   last_completed: z.string().optional(), // ISO date
-  next_due: z.string().optional(), // ISO date
-  estimated_cost: z.number().min(0).optional(),
+  next_due: z.string().optional(), // ISO date (auto-calculated for recurring tasks)
+  estimated_cost: z.number().min(0).optional(), // only relevant for managed service_type
   currency: z.string().length(3).default("INR"),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   status: z
