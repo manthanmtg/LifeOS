@@ -261,6 +261,7 @@ export default function MaintenanceAdminView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MaintenancePayload>({ ...EMPTY_FORM });
   const [tagInput, setTagInput] = useState("");
+  const [scheduleMode, setScheduleMode] = useState<"completed" | "future">("completed");
 
   // Mark Complete modal
   const [completingTask, setCompletingTask] = useState<MaintenanceTask | null>(
@@ -396,6 +397,7 @@ export default function MaintenanceAdminView() {
     setForm({ ...EMPTY_FORM });
     setEditingId(null);
     setTagInput("");
+    setScheduleMode("completed");
     setShowForm(true);
   };
 
@@ -403,6 +405,9 @@ export default function MaintenanceAdminView() {
     setForm({ ...task.payload });
     setEditingId(task._id);
     setTagInput(task.payload.tags.join(", "));
+    setScheduleMode(
+      task.payload.last_completed ? "completed" : "future",
+    );
     setShowForm(true);
   };
 
@@ -1187,8 +1192,41 @@ export default function MaintenanceAdminView() {
                       </div>
                     )}
 
-                    {/* Dates grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Task Completed / Future Task toggle */}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                        When is this task due?
+                      </label>
+                      <div className="flex gap-2">
+                        {(["completed", "future"] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setScheduleMode(mode)}
+                            className={cn(
+                              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border transition-all",
+                              scheduleMode === mode
+                                ? mode === "completed"
+                                  ? "bg-success/10 border-success/30 text-success"
+                                  : "bg-accent/10 border-accent/30 text-accent"
+                                : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700",
+                            )}
+                          >
+                            {mode === "completed" ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            ) : (
+                              <Calendar className="w-3.5 h-3.5" />
+                            )}
+                            {mode === "completed"
+                              ? "Already Completed"
+                              : "Future Task"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Conditional date field */}
+                    {scheduleMode === "completed" ? (
                       <div>
                         <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Last Completed
@@ -1210,32 +1248,49 @@ export default function MaintenanceAdminView() {
                           }
                           className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
                         />
+                        {form.is_recurring &&
+                          form.frequency_months &&
+                          form.last_completed && (
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-accent/5 border border-accent/15 rounded-lg text-xs text-zinc-400">
+                              <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
+                              <span>
+                                Next due auto-sets to{" "}
+                                <span className="text-zinc-200 font-semibold">
+                                  {formatDate(
+                                    addMonths(
+                                      form.last_completed,
+                                      form.frequency_months,
+                                    ),
+                                  )}
+                                </span>
+                              </span>
+                            </div>
+                          )}
                       </div>
-                      {!form.is_recurring && (
-                        <div>
-                          <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-                            Next Due
-                          </label>
-                          <input
-                            type="date"
-                            value={
-                              form.next_due
-                                ? form.next_due.split("T")[0]
-                                : ""
-                            }
-                            onChange={(e) =>
-                              setForm((f) => ({
-                                ...f,
-                                next_due: e.target.value
-                                  ? new Date(e.target.value).toISOString()
-                                  : undefined,
-                              }))
-                            }
-                            className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
-                          />
-                        </div>
-                      )}
-                    </div>
+                    ) : (
+                      <div>
+                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                          Next Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={
+                            form.next_due
+                              ? form.next_due.split("T")[0]
+                              : ""
+                          }
+                          onChange={(e) =>
+                            setForm((f) => ({
+                              ...f,
+                              next_due: e.target.value
+                                ? new Date(e.target.value).toISOString()
+                                : undefined,
+                            }))
+                          }
+                          className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
+                        />
+                      </div>
+                    )}
                   </div>
                 </ModalSection>
 
