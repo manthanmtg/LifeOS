@@ -78,11 +78,7 @@ function Breadcrumb({
               onClick={() => onNavigate(crumb.id)}
               className="text-sm text-zinc-500 hover:text-zinc-200 px-2 py-1 rounded-lg hover:bg-zinc-800 transition-colors font-medium"
             >
-              {crumb.id === null ? (
-                <Home className="w-4 h-4" />
-              ) : (
-                crumb.name
-              )}
+              {crumb.id === null ? <Home className="w-4 h-4" /> : crumb.name}
             </button>
           )}
         </div>
@@ -224,7 +220,9 @@ function FolderCard({
         <div
           className={cn(
             "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors",
-            isDragOver ? "bg-accent/15" : "bg-accent/10 group-hover:bg-accent/15",
+            isDragOver
+              ? "bg-accent/15"
+              : "bg-accent/10 group-hover:bg-accent/15",
           )}
         >
           <FolderOpen className="w-5 h-5 text-accent" />
@@ -863,7 +861,10 @@ export default function BillsAdminView() {
           <Breadcrumb path={breadcrumb} onNavigate={setCurrentFolderId} />
           <div className="ml-auto text-xs text-zinc-600 tabular-nums shrink-0">
             {currentSubfolders.length > 0 && (
-              <span>{currentSubfolders.length} folder{currentSubfolders.length !== 1 ? "s" : ""} · </span>
+              <span>
+                {currentSubfolders.length} folder
+                {currentSubfolders.length !== 1 ? "s" : ""} ·{" "}
+              </span>
             )}
             {displayedBills.length} bill{displayedBills.length !== 1 ? "s" : ""}
           </div>
@@ -876,9 +877,7 @@ export default function BillsAdminView() {
         <input
           type="text"
           placeholder={
-            currentFolderId
-              ? "Search in this folder…"
-              : "Search all bills…"
+            currentFolderId ? "Search in this folder…" : "Search all bills…"
           }
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -906,9 +905,14 @@ export default function BillsAdminView() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
                 {currentSubfolders.map((sf) => {
-                  const allFolderIds = [sf._id, ...getAllDescendantFolderIds(folders, sf._id)];
+                  const allFolderIds = [
+                    sf._id,
+                    ...getAllDescendantFolderIds(folders, sf._id),
+                  ];
                   const directBills = bills.filter(
-                    (b) => b.payload.folder_id && allFolderIds.includes(b.payload.folder_id),
+                    (b) =>
+                      b.payload.folder_id &&
+                      allFolderIds.includes(b.payload.folder_id),
                   ).length;
                   const subCount = folders.filter(
                     (f) => f.payload.parent_id === sf._id,
@@ -971,9 +975,7 @@ export default function BillsAdminView() {
                     folder={
                       currentFolderId
                         ? undefined
-                        : folders.find(
-                            (f) => f._id === bill.payload.folder_id,
-                          )
+                        : folders.find((f) => f._id === bill.payload.folder_id)
                     }
                     onClick={() => setDetailBill(bill)}
                     onEdit={(b) => setBillModal({ open: true, bill: b })}

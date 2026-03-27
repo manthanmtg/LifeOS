@@ -28,6 +28,8 @@ describe("ExpenseAdminView", () => {
     await waitFor(() => {
       expect(screen.queryByText(/Loading/i)).toBeNull();
     });
-    expect(screen.getByRole("heading", { name: /Expense Intelligence/i })).toBeDefined();
+    expect(
+      screen.getByRole("heading", { name: /Expense Intelligence/i }),
+    ).toBeDefined();
   });
 });

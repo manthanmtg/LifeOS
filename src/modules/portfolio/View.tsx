@@ -5,6 +5,7 @@ import { Briefcase } from "lucide-react";
 import PortfolioShowcase, {
   PortfolioProfile,
 } from "@/modules/portfolio/PortfolioShowcase";
+import { PortfolioSkeleton } from "@/components/ui/Skeletons";
 
 export default function PortfolioView() {
   const [profile, setProfile] = useState<PortfolioProfile | null>(null);
@@ -53,11 +54,7 @@ export default function PortfolioView() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center py-24">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <PortfolioSkeleton />;
   }
 
   if (!profile) {

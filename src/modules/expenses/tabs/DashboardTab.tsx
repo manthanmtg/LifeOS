@@ -399,8 +399,8 @@ export default function DashboardTab({
                   <motion.div
                     key={expense._id}
                     initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-20px" }}
                     transition={{ delay: Math.min(idx * 0.03, 0.3) }}
                     onClick={() => handleEdit(expense._id)}
                     className="p-4 hover:bg-zinc-800/40 transition-all flex items-center justify-between group cursor-pointer"
@@ -518,7 +518,12 @@ export default function DashboardTab({
                   key={wallet.name}
                   className="flex items-center justify-between p-3.5 bg-zinc-950/40 border border-zinc-800/50 rounded-2xl group transition-all hover:border-zinc-700"
                 >
-                  <div className="flex items-center gap-3">
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    className="flex items-center gap-3"
+                  >
                     <div
                       className={cn(
                         "w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.5)]",
@@ -544,7 +549,7 @@ export default function DashboardTab({
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                   <span
                     className={cn(
                       "text-xs font-black tracking-tighter italic",

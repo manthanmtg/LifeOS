@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, ComponentType } from "react";
+import { useState, useEffect, useMemo, ComponentType } from "react";
 import dynamic from "next/dynamic";
-import { Settings2, X, Check, LayoutGrid } from "lucide-react";
+import { Settings2, X, Check, LayoutGrid, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 import { moduleRegistry } from "@/registry";
 import { WidgetSkeleton, DashboardSkeleton } from "@/components/ui/Skeletons";
 import { Switch } from "@/components/ui/Switch";
@@ -195,6 +196,21 @@ export default function AdminDashboard() {
     (key) => widgetRegistry[key] !== false,
   );
 
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  }, []);
+
+  const todayStr = useMemo(() => {
+    return new Date().toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }, []);
+
   return (
     <div className="animate-fade-in-up">
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -202,9 +218,13 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold tracking-tight text-zinc-50 mb-2">
             Command Center
           </h1>
-          <p className="text-zinc-400">
-            Welcome back. Here is your Life OS overview.
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-zinc-400">{greeting}.</p>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+              <Calendar className="w-3 h-3" />
+              {todayStr}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {isSettingsMode ? (
@@ -308,10 +328,23 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visibleWidgets.map((key) => {
+          {visibleWidgets.map((key, i) => {
             const Widget = widgetImports[key];
             if (!Widget) return null;
-            return <Widget key={key} />;
+            return (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: Math.min(i * 0.05, 0.5),
+                  duration: 0.35,
+                  ease: "easeOut",
+                }}
+              >
+                <Widget />
+              </motion.div>
+            );
           })}
         </div>
       )}

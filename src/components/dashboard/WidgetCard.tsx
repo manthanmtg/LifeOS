@@ -5,6 +5,18 @@ import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 import Link from "next/link";
 
+/** Map friendly color names to CSS color values */
+const COLOR_MAP: Record<string, string> = {
+  accent: "var(--accent)",
+  success: "var(--success)",
+  warning: "var(--warning)",
+  danger: "var(--danger)",
+};
+
+function resolveColor(color: string): string {
+  return COLOR_MAP[color] || color;
+}
+
 interface WidgetCardProps {
   title: string;
   icon: LucideIcon;
@@ -28,6 +40,8 @@ export default function WidgetCard({
   headerAction,
   accentColor = "accent",
 }: WidgetCardProps) {
+  const resolved = resolveColor(accentColor);
+
   const CardContent = (
     <div
       className={cn(
@@ -39,10 +53,8 @@ export default function WidgetCard({
     >
       {/* Background Decoration */}
       <div
-        className={cn(
-          "absolute -top-8 -right-8 w-24 h-24 rounded-full blur-3xl opacity-20 transition-opacity group-hover:opacity-30",
-          `bg-${accentColor}`,
-        )}
+        className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-3xl opacity-20 transition-opacity group-hover:opacity-30"
+        style={{ backgroundColor: resolved }}
       />
 
       {/* Header */}
@@ -53,10 +65,11 @@ export default function WidgetCard({
         <div className="flex items-center gap-2">
           {headerAction}
           <div
-            className={cn(
-              "w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110",
-              `bg-${accentColor}/10 text-${accentColor}`,
-            )}
+            className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${resolved} 10%, transparent)`,
+              color: resolved,
+            }}
           >
             <Icon className="w-4 h-4" />
           </div>

@@ -6,6 +6,7 @@ import CommandPalette from "@/components/ui/CommandPalette";
 import ZenModeProvider from "@/components/ZenMode";
 import PageVisitTracker from "@/components/shell/PageVisitTracker";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({
   children,
@@ -27,7 +28,17 @@ export default function AdminLayout({
         <main className="flex-1 overflow-y-auto bg-zinc-950 relative">
           <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-14 lg:pt-6">
             <AdminHeader />
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
         <CommandPalette />

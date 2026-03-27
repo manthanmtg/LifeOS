@@ -228,3 +228,62 @@ export function PublicModuleSkeleton() {
     </div>
   );
 }
+
+/** Skeleton for the public portfolio / showcase page */
+export function PortfolioSkeleton() {
+  return (
+    <div className="flex-1 relative overflow-hidden pb-10">
+      {/* Background blurs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-[48rem] bg-accent/10 blur-[140px] rounded-full" />
+      </div>
+
+      <section className="relative z-10 pt-20 md:pt-32 px-6">
+        <div className="max-w-5xl mx-auto animate-pulse space-y-8">
+          {/* Hire badge */}
+          <SkeletonBlock className="h-7 w-44 rounded-full" />
+          {/* Hero title */}
+          <SkeletonBlock className="h-16 md:h-24 w-4/5 rounded-xl" />
+          {/* Sub-headline */}
+          <SkeletonBlock className="h-6 w-2/3 rounded-lg" />
+          {/* Social links */}
+          <div className="flex flex-wrap gap-3 pt-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonBlock key={i} className="h-10 w-28 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bio section */}
+      <section className="relative z-10 px-6 mt-20 md:mt-32">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12 animate-pulse">
+          <div className="space-y-4">
+            <SkeletonBlock className="h-3 w-20" />
+            <SkeletonBlock className="h-px w-12" />
+          </div>
+          <div className="space-y-3">
+            <SkeletonBlock className="h-5 w-full" />
+            <SkeletonBlock className="h-5 w-4/5" />
+            <SkeletonBlock className="h-5 w-3/5" />
+          </div>
+        </div>
+      </section>
+
+      {/* Skills grid */}
+      <section className="relative z-10 px-6 mt-20 md:mt-32">
+        <div className="max-w-5xl mx-auto animate-pulse">
+          <div className="flex items-center gap-3 mb-10">
+            <SkeletonBlock className="h-3 w-24" />
+            <div className="h-px flex-1 bg-zinc-800 hidden md:block" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonBlock key={i} className="h-16 rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

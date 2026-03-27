@@ -261,7 +261,9 @@ export default function MaintenanceAdminView() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MaintenancePayload>({ ...EMPTY_FORM });
   const [tagInput, setTagInput] = useState("");
-  const [scheduleMode, setScheduleMode] = useState<"completed" | "future">("completed");
+  const [scheduleMode, setScheduleMode] = useState<"completed" | "future">(
+    "completed",
+  );
 
   // Mark Complete modal
   const [completingTask, setCompletingTask] = useState<MaintenanceTask | null>(
@@ -405,9 +407,7 @@ export default function MaintenanceAdminView() {
     setForm({ ...task.payload });
     setEditingId(task._id);
     setTagInput(task.payload.tags.join(", "));
-    setScheduleMode(
-      task.payload.last_completed ? "completed" : "future",
-    );
+    setScheduleMode(task.payload.last_completed ? "completed" : "future");
     setShowForm(true);
   };
 
@@ -422,8 +422,15 @@ export default function MaintenanceAdminView() {
       const payload = { ...form, tags };
 
       // Auto-calculate next_due for recurring tasks
-      if (payload.is_recurring && payload.frequency_months && payload.last_completed) {
-        payload.next_due = addMonths(payload.last_completed, payload.frequency_months);
+      if (
+        payload.is_recurring &&
+        payload.frequency_months &&
+        payload.last_completed
+      ) {
+        payload.next_due = addMonths(
+          payload.last_completed,
+          payload.frequency_months,
+        );
       }
 
       // Clear estimated_cost for self-service tasks
@@ -432,7 +439,11 @@ export default function MaintenanceAdminView() {
       }
 
       // Seed history with initial completion when creating with last_completed
-      if (!editingId && payload.last_completed && payload.history.length === 0) {
+      if (
+        !editingId &&
+        payload.last_completed &&
+        payload.history.length === 0
+      ) {
         payload.history = [
           {
             id: crypto.randomUUID(),
@@ -796,7 +807,8 @@ export default function MaintenanceAdminView() {
                   >
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                     <span className="flex-1 text-left">
-                      {days !== null ? `${Math.abs(days)}d overdue` : "Overdue"} — tap to log completion
+                      {days !== null ? `${Math.abs(days)}d overdue` : "Overdue"}{" "}
+                      — tap to log completion
                     </span>
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                   </button>
@@ -830,38 +842,43 @@ export default function MaintenanceAdminView() {
                       </span>
                     </div>
                   )}
-                  {p.service_type === "managed" && p.estimated_cost !== undefined && p.estimated_cost > 0 && (
-                    <div className="flex items-center justify-between text-zinc-500">
-                      <span>Est. cost</span>
-                      <span className="text-zinc-300 font-medium">
-                        {CURR_SYM[p.currency] || p.currency}{" "}
-                        {p.estimated_cost.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  )}
+                  {p.service_type === "managed" &&
+                    p.estimated_cost !== undefined &&
+                    p.estimated_cost > 0 && (
+                      <div className="flex items-center justify-between text-zinc-500">
+                        <span>Est. cost</span>
+                        <span className="text-zinc-300 font-medium">
+                          {CURR_SYM[p.currency] || p.currency}{" "}
+                          {p.estimated_cost.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
                 </div>
 
                 {/* Progress bar */}
-                {p.is_recurring && p.last_completed && p.next_due && p.status !== "overdue" && (
-                  <div className="space-y-1">
-                    <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          progress >= 100
-                            ? "bg-danger"
-                            : progress >= 75
-                              ? "bg-warning"
-                              : "bg-success",
-                        )}
-                        style={{ width: `${Math.min(progress, 100)}%` }}
-                      />
+                {p.is_recurring &&
+                  p.last_completed &&
+                  p.next_due &&
+                  p.status !== "overdue" && (
+                    <div className="space-y-1">
+                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500",
+                            progress >= 100
+                              ? "bg-danger"
+                              : progress >= 75
+                                ? "bg-warning"
+                                : "bg-success",
+                          )}
+                          style={{ width: `${Math.min(progress, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-zinc-600 text-right">
+                        {Math.round(progress)}% of cycle elapsed
+                      </p>
                     </div>
-                    <p className="text-[10px] text-zinc-600 text-right">
-                      {Math.round(progress)}% of cycle elapsed
-                    </p>
-                  </div>
-                )}
+                  )}
 
                 {/* Tags */}
                 {p.tags.length > 0 && (
@@ -1275,9 +1292,7 @@ export default function MaintenanceAdminView() {
                         <input
                           type="date"
                           value={
-                            form.next_due
-                              ? form.next_due.split("T")[0]
-                              : ""
+                            form.next_due ? form.next_due.split("T")[0] : ""
                           }
                           onChange={(e) =>
                             setForm((f) => ({
@@ -1374,9 +1389,7 @@ export default function MaintenanceAdminView() {
                         <span
                           className={cn(
                             "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all",
-                            form.reminder_enabled
-                              ? "left-[22px]"
-                              : "left-0.5",
+                            form.reminder_enabled ? "left-[22px]" : "left-0.5",
                           )}
                         />
                       </button>
@@ -1452,8 +1465,7 @@ export default function MaintenanceAdminView() {
                             )}
                             {h.cost !== undefined && (
                               <p className="text-zinc-500">
-                                Cost:{" "}
-                                {CURR_SYM[form.currency] || form.currency}{" "}
+                                Cost: {CURR_SYM[form.currency] || form.currency}{" "}
                                 {h.cost.toLocaleString("en-IN")}
                               </p>
                             )}
@@ -1691,9 +1703,7 @@ export default function MaintenanceAdminView() {
                               </p>
                               {h.vendor && (
                                 <p className="text-zinc-500">
-                                  <span className="text-zinc-600">
-                                    Vendor:
-                                  </span>{" "}
+                                  <span className="text-zinc-600">Vendor:</span>{" "}
                                   {h.vendor}
                                 </p>
                               )}

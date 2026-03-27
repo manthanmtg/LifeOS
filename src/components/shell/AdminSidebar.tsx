@@ -64,14 +64,21 @@ function renderNavLinks(
             href={link.href}
             onClick={() => setMobileOpen(false)}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors min-h-[44px]",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors min-h-[44px]",
               isActive
-                ? "bg-zinc-800/50 text-zinc-50 font-medium"
+                ? "text-zinc-50 font-medium"
                 : "hover:bg-zinc-900 hover:text-zinc-300",
             )}
           >
-            <Icon className="w-4 h-4" />
-            {link.name}
+            {isActive && (
+              <motion.div
+                layoutId="sidebar-active-pill"
+                className="absolute inset-0 rounded-md bg-zinc-800/50 border-l-2 border-accent shadow-[inset_3px_0_8px_-4px_var(--accent)]"
+                transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+              />
+            )}
+            <Icon className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">{link.name}</span>
           </Link>
         );
       })}

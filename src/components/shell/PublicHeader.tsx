@@ -22,9 +22,17 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
   >([]);
   const [userName, setUserName] = useState(initialUserName);
   const [mounted, setMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 0);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -85,13 +93,21 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
 
   return (
     <header
-      className="border-b border-zinc-800 sticky top-0 z-30 bg-zinc-950/80 backdrop-blur-xl"
+      className={`border-b border-zinc-800 sticky top-0 z-30 backdrop-blur-xl transition-all duration-300 ${
+        scrolled ? "bg-zinc-950/95 shadow-lg shadow-black/20" : "bg-zinc-950/80"
+      }`}
       suppressHydrationWarning
     >
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div
+        className={`max-w-6xl mx-auto px-6 flex items-center justify-between transition-all duration-300 ${
+          scrolled ? "py-2.5" : "py-4"
+        }`}
+      >
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight hover:text-accent transition-colors"
+          className={`font-semibold tracking-tight hover:text-accent transition-all duration-300 ${
+            scrolled ? "text-lg" : "text-xl"
+          }`}
         >
           {userName}
         </Link>
