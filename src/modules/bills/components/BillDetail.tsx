@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Calendar,
@@ -352,15 +353,16 @@ export default function BillDetail({
       </div>
 
       {/* Image lightbox */}
-      <AnimatePresence>
-        {previewAttachment && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-md"
-            onClick={() => setPreviewAttachment(null)}
-          >
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {previewAttachment && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md"
+              onClick={() => setPreviewAttachment(null)}
+            >
             {/* Fixed top bar */}
             <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
               <p className="text-sm text-zinc-300 font-medium truncate">
@@ -418,7 +420,9 @@ export default function BillDetail({
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
