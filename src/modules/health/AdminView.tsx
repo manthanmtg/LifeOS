@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import ImageCropper from "@/components/ui/ImageCropper";
+import ImagePreview from "@/components/ui/ImagePreview";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -463,6 +464,10 @@ export default function HealthAdminView() {
   const [cropFileState, setCropFileState] = useState<{
     url: string;
     type: string;
+  } | null>(null);
+  const [previewImage, setPreviewImage] = useState<{
+    src: string;
+    name: string;
   } | null>(null);
 
   // Detail view
@@ -1467,8 +1472,16 @@ export default function HealthAdminView() {
           </button>
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div
+              onClick={() => {
+                if (p.profile_pic) {
+                  setPreviewImage({
+                    src: `data:${p.profile_pic.content_type};base64,${p.profile_pic.data}`,
+                    name: p.name,
+                  });
+                }
+              }}
               className={cn(
-                "w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 overflow-hidden",
+                "w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 overflow-hidden cursor-pointer hover:scale-105 transition-transform",
                 typeConfig.bg,
                 typeConfig.color,
               )}
@@ -3238,6 +3251,14 @@ export default function HealthAdminView() {
             onCropComplete={handleCropComplete}
           />
         )}
+
+        {previewImage && (
+          <ImagePreview
+            src={previewImage.src}
+            alt={previewImage.name}
+            onClose={() => setPreviewImage(null)}
+          />
+        )}
       </div>
     );
   }
@@ -3353,8 +3374,17 @@ export default function HealthAdminView() {
               >
                 <div className="flex items-start gap-3">
                   <div
+                    onClick={(e) => {
+                      if (pl.profile_pic) {
+                        e.stopPropagation();
+                        setPreviewImage({
+                          src: `data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`,
+                          name: pl.name,
+                        });
+                      }
+                    }}
                     className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden",
+                      "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden cursor-pointer hover:scale-110 transition-transform bg-zinc-800 border border-zinc-700",
                       typeConfig.bg,
                       typeConfig.color,
                     )}
@@ -3461,6 +3491,14 @@ export default function HealthAdminView() {
           mimeType={cropFileState.type}
           onClose={closeCropper}
           onCropComplete={handleCropComplete}
+        />
+      )}
+
+      {previewImage && (
+        <ImagePreview
+          src={previewImage.src}
+          alt={previewImage.name}
+          onClose={() => setPreviewImage(null)}
         />
       )}
     </div>
