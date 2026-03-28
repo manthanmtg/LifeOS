@@ -7,7 +7,14 @@ import { trackEvent } from "@/lib/analytics";
 export default function MetricsTracker() {
   const pathname = usePathname();
   const isFirstLoad = useRef(true);
+  const sessionStart = useRef(0);
 
+  // Set session start time on mount (must be in effect for React Compiler purity)
+  useEffect(() => {
+    sessionStart.current = Date.now();
+  }, []);
+
+  // Track page views
   useEffect(() => {
     const recordPageView = async () => {
       // Determine active module from path
@@ -19,10 +26,8 @@ export default function MetricsTracker() {
       if (pathParts[0] === "admin") {
         isAdmin = true;
         activeModule = pathParts[1] || "core";
-      } else if (
-        pathParts[0] &&
-        !["login", "resume", "blog"].includes(pathParts[0])
-      ) {
+      } else if (pathParts[0] && pathParts[0] !== "login") {
+        // Track all public pages as modules (blog, resume, etc.)
         activeModule = pathParts[0];
       }
 
@@ -30,7 +35,7 @@ export default function MetricsTracker() {
         module: activeModule,
         action: isFirstLoad.current ? "session_start" : "page_view",
         label: pathname,
-        path: pathname, // Exclude searchParams to prevent over-counting during search/filtering
+        path: pathname,
         is_admin: isAdmin,
       });
 
@@ -38,7 +43,32 @@ export default function MetricsTracker() {
     };
 
     recordPageView();
-  }, [pathname]); // Removed searchParams to fix over-counting
+  }, [pathname]);
+
+  // Track session duration on page unload
+  useEffect(() => {
+    const handleUnload = () => {
+      const duration = Date.now() - sessionStart.current;
+      // Use sendBeacon for reliable delivery during page unload
+      const payload = JSON.stringify({
+        module: "core",
+        action: "session_end",
+        value: duration,
+        path: window.location.pathname,
+        device_type:
+          window.innerWidth < 768
+            ? "mobile"
+            : window.innerWidth < 1024
+              ? "tablet"
+              : "desktop",
+        referrer: document.referrer || null,
+      });
+      navigator.sendBeacon("/api/metrics", payload);
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
 
   return null;
 }

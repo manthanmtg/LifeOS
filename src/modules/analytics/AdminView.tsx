@@ -13,6 +13,10 @@ import {
   Zap,
   ChevronRight,
   Tablet,
+  Clock,
+  Globe,
+  FileText,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -173,6 +177,121 @@ export default function AnalyticsAdminView() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
+    // ─── Referrer Intelligence ───
+    const referrerGroups: Record<string, number> = {
+      Direct: 0,
+      Search: 0,
+      Social: 0,
+      Other: 0,
+    };
+    const referrerDetails: Record<string, number> = {};
+    filtered.forEach((m) => {
+      const ref = m.referrer;
+      if (!ref || ref === "null") {
+        referrerGroups["Direct"]++;
+      } else {
+        const lower = ref.toLowerCase();
+        if (
+          lower.includes("google") ||
+          lower.includes("bing") ||
+          lower.includes("duckduckgo") ||
+          lower.includes("yahoo")
+        ) {
+          referrerGroups["Search"]++;
+        } else if (
+          lower.includes("twitter") ||
+          lower.includes("x.com") ||
+          lower.includes("facebook") ||
+          lower.includes("linkedin") ||
+          lower.includes("reddit") ||
+          lower.includes("instagram")
+        ) {
+          referrerGroups["Social"]++;
+        } else {
+          referrerGroups["Other"]++;
+        }
+        // Domain-level detail
+        try {
+          const domain = new URL(ref).hostname.replace("www.", "");
+          referrerDetails[domain] = (referrerDetails[domain] || 0) + 1;
+        } catch {
+          referrerDetails[ref.slice(0, 40)] =
+            (referrerDetails[ref.slice(0, 40)] || 0) + 1;
+        }
+      }
+    });
+    const referrerData = Object.entries(referrerGroups)
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1]);
+    const topReferrers = Object.entries(referrerDetails)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+
+    // ─── Hourly Activity Heatmap ───
+    const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const heatmapData: number[][] = Array.from({ length: 7 }, () =>
+      Array(24).fill(0),
+    );
+    let heatmapMax = 1;
+    filtered.forEach((m) => {
+      if (!m.timestamp) return;
+      const d = new Date(m.timestamp);
+      const day = d.getDay();
+      const hour = d.getHours();
+      heatmapData[day][hour]++;
+      if (heatmapData[day][hour] > heatmapMax)
+        heatmapMax = heatmapData[day][hour];
+    });
+
+    // ─── Top Pages ───
+    const pageCounts: Record<string, number> = {};
+    filtered.forEach((m) => {
+      if (m.path) pageCounts[m.path] = (pageCounts[m.path] || 0) + 1;
+    });
+    const topPages = Object.entries(pageCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    // ─── Average Session Duration ───
+    const sessionEndEvents = metrics.filter(
+      (m) => m.action === "session_end" && m.value,
+    );
+    const avgSessionMs =
+      sessionEndEvents.length > 0
+        ? sessionEndEvents.reduce((s, e) => s + (e.value || 0), 0) /
+          sessionEndEvents.length
+        : 0;
+    const avgSessionSec = Math.round(avgSessionMs / 1000);
+    const avgSessionFormatted =
+      avgSessionSec > 0
+        ? avgSessionSec >= 60
+          ? `${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`
+          : `${avgSessionSec}s`
+        : "—";
+
+    // ─── Public vs Admin Traffic (daily) ───
+    const adminDailyAgg: Record<string, number> = {};
+    const publicDailyAgg: Record<string, number> = {};
+    metrics.forEach((m) => {
+      const d = m.timestamp?.split("T")[0];
+      if (!d) return;
+      if (m.is_admin) adminDailyAgg[d] = (adminDailyAgg[d] || 0) + 1;
+      else publicDailyAgg[d] = (publicDailyAgg[d] || 0) + 1;
+    });
+    const trafficSplitData = [];
+    for (let j = parseInt(dateRange) - 1; j >= 0; j--) {
+      const d = new Date(Date.now() - j * 86400000).toISOString().split("T")[0];
+      trafficSplitData.push({
+        date: d,
+        displayDate: new Date(d).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+        }),
+        admin: adminDailyAgg[d] || 0,
+        public: publicDailyAgg[d] || 0,
+      });
+    }
+
     return {
       totalEvents: filtered.length,
       todayActions,
@@ -183,6 +302,14 @@ export default function AnalyticsAdminView() {
       deviceData,
       topActions,
       recentEvents: filtered.slice(0, 15),
+      referrerData,
+      topReferrers,
+      heatmapData,
+      heatmapMax,
+      DAY_NAMES,
+      topPages,
+      avgSessionFormatted,
+      trafficSplitData,
     };
   }, [metrics, dateRange, selectedModule, trafficSource, metricType]);
 
@@ -288,7 +415,7 @@ export default function AnalyticsAdminView() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
         {[
           {
             label: "Total Events",
@@ -303,6 +430,14 @@ export default function AnalyticsAdminView() {
             icon: Users,
             color: "text-purple-400",
             bg: "bg-purple-500/10",
+          },
+          {
+            label: "Avg. Session",
+            value: stats.avgSessionFormatted,
+            icon: Clock,
+            color: "text-cyan-400",
+            bg: "bg-cyan-500/10",
+            isText: true,
           },
           {
             label: "Active Modules",
@@ -350,7 +485,11 @@ export default function AnalyticsAdminView() {
               {card.label}
             </p>
             <p className="text-3xl font-black text-white">
-              {card.value.toLocaleString()}
+              {"isText" in card && card.isText
+                ? card.value
+                : typeof card.value === "number"
+                  ? card.value.toLocaleString()
+                  : card.value}
             </p>
           </div>
         ))}
@@ -590,6 +729,292 @@ export default function AnalyticsAdminView() {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* ─── Hourly Activity Heatmap ─── */}
+      <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
+        <h3 className="text-xl font-bold text-white mb-2">Activity Heatmap</h3>
+        <p className="text-xs text-zinc-500 font-medium mb-6 italic">
+          When users interact most — darker cells mean more activity.
+        </p>
+        <div className="overflow-x-auto">
+          <div className="min-w-[700px]">
+            {/* Hour labels */}
+            <div className="flex gap-[2px] mb-1 ml-12">
+              {Array.from({ length: 24 }, (_, h) => (
+                <div
+                  key={h}
+                  className="flex-1 text-center text-[9px] text-zinc-600 font-mono"
+                >
+                  {h === 0
+                    ? "12a"
+                    : h < 12
+                      ? `${h}a`
+                      : h === 12
+                        ? "12p"
+                        : `${h - 12}p`}
+                </div>
+              ))}
+            </div>
+            {/* Grid rows */}
+            {stats.heatmapData.map((hours, dayIdx) => (
+              <div
+                key={dayIdx}
+                className="flex items-center gap-[2px] mb-[2px]"
+              >
+                <span className="w-10 text-[10px] font-bold text-zinc-500 text-right pr-2 shrink-0">
+                  {stats.DAY_NAMES[dayIdx]}
+                </span>
+                {hours.map((count, hourIdx) => {
+                  const intensity =
+                    stats.heatmapMax > 0 ? count / stats.heatmapMax : 0;
+                  return (
+                    <div
+                      key={hourIdx}
+                      className="flex-1 aspect-square rounded-sm transition-colors cursor-default"
+                      style={{
+                        backgroundColor:
+                          intensity === 0
+                            ? "rgba(39, 39, 42, 0.3)"
+                            : `rgba(var(--accent-rgb, 99, 102, 241), ${0.15 + intensity * 0.85})`,
+                      }}
+                      title={`${stats.DAY_NAMES[dayIdx]} ${hourIdx}:00 — ${count} events`}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ─── Top Pages ─── */}
+        <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
+          <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-accent" /> Top Pages
+          </h3>
+          <p className="text-xs text-zinc-500 font-medium mb-6 italic">
+            Most visited paths across the system.
+          </p>
+          <div className="space-y-2">
+            {stats.topPages.map(([path, count], idx) => {
+              const pct =
+                stats.totalEvents > 0 ? (count / stats.totalEvents) * 100 : 0;
+              return (
+                <div
+                  key={path}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-900/40 transition-colors relative overflow-hidden"
+                >
+                  <div
+                    className="absolute inset-0 rounded-xl opacity-[0.04]"
+                    style={{
+                      background: `linear-gradient(90deg, var(--color-accent) ${pct}%, transparent ${pct}%)`,
+                    }}
+                  />
+                  <span className="w-6 h-6 rounded-md bg-zinc-900 flex items-center justify-center text-[10px] font-black text-zinc-500 shrink-0 relative z-10">
+                    {idx + 1}
+                  </span>
+                  <span className="text-sm font-medium text-zinc-300 truncate flex-1 relative z-10 font-mono">
+                    {path}
+                  </span>
+                  <div className="text-right shrink-0 relative z-10">
+                    <span className="text-sm font-black text-white">
+                      {count}
+                    </span>
+                    <span className="text-[10px] text-zinc-600 ml-1.5 font-bold">
+                      {pct.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            {stats.topPages.length === 0 && (
+              <p className="text-xs text-zinc-600 text-center py-8">
+                No page data yet.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* ─── Referrer Intelligence ─── */}
+        <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
+          <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+            <Link2 className="w-5 h-5 text-purple-400" /> Referrer Intelligence
+          </h3>
+          <p className="text-xs text-zinc-500 font-medium mb-6 italic">
+            Where your traffic comes from.
+          </p>
+
+          {/* Category bars */}
+          <div className="space-y-4 mb-8">
+            {stats.referrerData.map(([category, count]) => {
+              const pct =
+                stats.totalEvents > 0 ? (count / stats.totalEvents) * 100 : 0;
+              const colorMap: Record<string, string> = {
+                Direct: "var(--color-accent)",
+                Search: "#10b981",
+                Social: "#a855f7",
+                Other: "#f59e0b",
+              };
+              return (
+                <div key={category}>
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-bold text-zinc-300 flex items-center gap-2">
+                      <Globe
+                        className="w-3 h-3"
+                        style={{ color: colorMap[category] }}
+                      />
+                      {category}
+                    </span>
+                    <span className="text-zinc-500 font-mono">
+                      {count} ({pct.toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: colorMap[category],
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Top referrer domains */}
+          {stats.topReferrers.length > 0 && (
+            <>
+              <h4 className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mb-3">
+                Top Referrer Domains
+              </h4>
+              <div className="space-y-1">
+                {stats.topReferrers.map(([domain, count]) => (
+                  <div
+                    key={domain}
+                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-zinc-900/40 transition-colors"
+                  >
+                    <span className="text-xs text-zinc-400 font-medium truncate">
+                      {domain}
+                    </span>
+                    <span className="text-xs font-bold text-zinc-500">
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ─── Public vs Admin Traffic ─── */}
+      <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">
+              Public vs Admin Traffic
+            </h3>
+            <p className="text-xs text-zinc-500 font-medium tracking-wide italic">
+              Side-by-side comparison of traffic sources.
+            </p>
+          </div>
+          <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
+            <span className="flex items-center gap-1.5 text-accent">
+              <div className="w-2 h-2 rounded-full bg-accent" />
+              Admin
+            </span>
+            <span className="flex items-center gap-1.5 text-success">
+              <div className="w-2 h-2 rounded-full bg-success" />
+              Public
+            </span>
+          </div>
+        </div>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={stats.trafficSplitData}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="colorAdmin" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-accent)"
+                    stopOpacity={0.3}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-accent)"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+                <linearGradient id="colorPublic" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-success)"
+                    stopOpacity={0.3}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-success)"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#18181b"
+              />
+              <XAxis
+                dataKey="displayDate"
+                stroke="#3f3f46"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                interval={Math.floor(stats.trafficSplitData.length / 6)}
+              />
+              <YAxis
+                stroke="#3f3f46"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#09090b",
+                  border: "1px solid #27272a",
+                  borderRadius: "12px",
+                  fontSize: "12px",
+                }}
+                itemStyle={{ fontWeight: "bold" }}
+                cursor={{ stroke: "rgba(255,255,255,0.05)", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="admin"
+                stroke="var(--color-accent)"
+                fillOpacity={1}
+                fill="url(#colorAdmin)"
+                strokeWidth={2}
+                name="Admin"
+              />
+              <Area
+                type="monotone"
+                dataKey="public"
+                stroke="var(--color-success)"
+                fillOpacity={1}
+                fill="url(#colorPublic)"
+                strokeWidth={2}
+                name="Public"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
