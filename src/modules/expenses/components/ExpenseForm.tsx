@@ -279,6 +279,35 @@ export default function ExpenseForm({
             </button>
           </div>
 
+          {!editingId && suggestions.length > 0 && (
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600 px-2 block">
+                Frequent Patterns
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {suggestions.slice(0, 4).map((p, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => applyPrediction(p)}
+                    className="flex flex-col items-start p-3 bg-zinc-950/20 border border-zinc-800 rounded-2xl hover:border-accent/40 hover:bg-accent/5 transition-all text-left group"
+                  >
+                    <div className="flex items-center gap-2 mb-1 w-full text-zinc-300">
+                      <Zap className={cn("w-3 h-3 shrink-0 transition-colors", p.type === "income" ? "text-success" : "text-accent")} />
+                      <span className="text-[10px] font-black group-hover:text-white truncate">
+                        {p.description}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between w-full opacity-40 text-[8px] font-black uppercase tracking-tighter">
+                      <span>{p.category}</span>
+                      <span>{p.account}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
