@@ -298,6 +298,32 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "bill": {
+        let totalAttachments = 0;
+        let recentBill: any = null;
+
+        for (const s of docs) {
+          const payload = s.payload;
+          totalAttachments += payload.attachments?.length || 0;
+          
+          if (!recentBill) {
+            recentBill = s;
+          } else if (new Date(s.created_at).getTime() > new Date(recentBill.created_at).getTime()) {
+            recentBill = s;
+          }
+        }
+
+        const folderDocs = await contentColl.find({ module_type: "bill_folder", is_public: false }).toArray();
+
+        summary = {
+          total: docs.length,
+          folderCount: folderDocs.length,
+          totalAttachments,
+          recentBill,
+        };
+        break;
+      }
+
       default:
         summary = { total: docs.length };
         break;

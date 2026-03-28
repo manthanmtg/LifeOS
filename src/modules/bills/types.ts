@@ -14,6 +14,7 @@ export interface BillPayload {
   notes?: string;
   folder_id?: string;
   attachments: BillAttachment[];
+  tags?: string[];
 }
 
 export interface Bill {

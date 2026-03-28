@@ -18,6 +18,11 @@ import {
   MoreHorizontal,
   Check,
   X,
+  LayoutGrid,
+  List,
+  UploadCloud,
+  ImageIcon,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,7 +37,7 @@ import {
 import BillDetail from "./components/BillDetail";
 import BillModal from "./components/BillModal";
 import MoveFolderModal from "./components/MoveFolderModal";
-import type { Bill, BillFolder } from "./types";
+import type { Bill, BillFolder, BillAttachment } from "./types";
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
 
@@ -383,6 +388,9 @@ function BillCard({
   const firstImage = bill.payload.attachments?.find((a) =>
     a.content_type.startsWith("image/"),
   );
+  const firstPDF = bill.payload.attachments?.find((a) =>
+    a.content_type === "application/pdf"
+  );
 
   return (
     <motion.div
@@ -390,11 +398,11 @@ function BillCard({
       animate={{ opacity: 1, y: 0 }}
       draggable
       onDragStart={onDragStart}
-      className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20 transition-all"
+      className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20 transition-all flex flex-col h-full"
       onClick={onClick}
     >
-      {firstImage && (
-        <div className="h-28 sm:h-32 w-full bg-zinc-800 overflow-hidden">
+      {firstImage ? (
+        <div className="h-28 sm:h-32 w-full bg-zinc-800 overflow-hidden shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`data:${firstImage.content_type};base64,${firstImage.data}`}
@@ -402,9 +410,20 @@ function BillCard({
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
           />
         </div>
+      ) : firstPDF ? (
+        <div className="h-28 sm:h-32 w-full bg-zinc-800/50 flex flex-col items-center justify-center shrink-0 border-b border-zinc-800">
+          <FileText className="w-10 h-10 text-danger/70 mb-2" />
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-4 truncate w-full text-center">
+            {firstPDF.filename}
+          </span>
+        </div>
+      ) : (
+        <div className="h-20 sm:h-24 w-full bg-zinc-800/30 flex items-center justify-center shrink-0 border-b border-zinc-800/50">
+          <Receipt className="w-8 h-8 text-zinc-600/50" />
+        </div>
       )}
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-1.5">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-zinc-100 truncate">
@@ -420,19 +439,19 @@ function BillCard({
               e.stopPropagation();
               onEdit(bill);
             }}
-            className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-accent rounded-lg hover:bg-zinc-800 transition-all"
+            className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-accent rounded-lg hover:bg-zinc-800 transition-all shrink-0"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {bill.payload.description && (
-          <p className="text-xs text-zinc-500 line-clamp-2 mb-2 leading-relaxed">
+          <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed flex-1">
             {bill.payload.description}
           </p>
         )}
 
-        <div className="flex items-center gap-3 pt-2 border-t border-zinc-800">
+        <div className="flex items-center gap-3 pt-3 mt-auto border-t border-zinc-800/60">
           {folder && (
             <span className="flex items-center gap-1 text-[10px] text-zinc-600">
               <Folder className="w-3 h-3" />
@@ -440,12 +459,91 @@ function BillCard({
             </span>
           )}
           {attachCount > 0 && (
-            <span className="flex items-center gap-1 text-[10px] text-zinc-500 ml-auto">
+            <span className="flex items-center gap-1 text-[10px] text-zinc-500 ml-auto font-medium">
               <Paperclip className="w-3 h-3" />
               {attachCount}
             </span>
           )}
         </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function BillListRow({
+  bill,
+  folder,
+  onClick,
+  onEdit,
+  onDragStart,
+}: {
+  bill: Bill;
+  folder?: BillFolder;
+  onClick: () => void;
+  onEdit: (bill: Bill) => void;
+  onDragStart: () => void;
+}) {
+  const attachCount = bill.payload.attachments?.length ?? 0;
+  const hasPDF = bill.payload.attachments?.some(
+    (a) => a.content_type === "application/pdf",
+  );
+  const hasImg = bill.payload.attachments?.some((a) =>
+    a.content_type.startsWith("image/"),
+  );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      draggable
+      onDragStart={onDragStart}
+      onClick={onClick}
+      className="group flex items-center justify-between px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl cursor-pointer hover:border-zinc-600 hover:bg-zinc-800/60 transition-all gap-4"
+    >
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0">
+          {hasImg ? (
+            <ImageIcon className="w-4 h-4 text-accent/80" />
+          ) : hasPDF ? (
+            <FileText className="w-4 h-4 text-danger/80" />
+          ) : (
+            <Receipt className="w-4 h-4 text-zinc-500" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-zinc-100 truncate">
+            {bill.payload.name}
+          </p>
+          <p className="text-[11px] text-zinc-500 truncate flex items-center gap-2 mt-0.5">
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" /> {formatDate(bill.payload.bill_date)}
+            </span>
+            {folder && (
+              <>
+                <span className="text-zinc-700">&bull;</span>
+                <span className="flex items-center gap-1">
+                  <Folder className="w-3 h-3" /> {folder.payload.name}
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-4 shrink-0">
+        {attachCount > 0 && (
+          <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+            <Paperclip className="w-3.5 h-3.5" /> {attachCount}
+          </span>
+        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(bill);
+          }}
+          className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-accent rounded-lg hover:bg-zinc-800 transition-all"
+        >
+          <Edit3 className="w-4 h-4" />
+        </button>
       </div>
     </motion.div>
   );
@@ -505,6 +603,10 @@ export default function BillsAdminView() {
   const [loading, setLoading] = useState(true);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isDropTarget, setIsDropTarget] = useState(false);
+  const [globalUploading, setGlobalUploading] = useState(false);
 
   // Inline folder creation
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -806,12 +908,120 @@ export default function BillsAdminView() {
     setDraggedBillId(null);
   };
 
+  const handleGlobalDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDropTarget(false);
+
+    if (draggedBillId) return; // internal drag
+
+    const files = Array.from(e.dataTransfer.files);
+    if (!files.length) return;
+
+    setGlobalUploading(true);
+    let successCount = 0;
+
+    await Promise.all(
+      files.map(async (file) => {
+        try {
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          const base64Data = dataUrl.split(",")[1];
+          if (!base64Data) return;
+
+          const baseFileName = file.name.replace(/\.[^/.]+$/, "");
+
+          const attachment: BillAttachment = {
+            id: crypto.randomUUID(),
+            filename: file.name,
+            content_type: file.type || "application/octet-stream",
+            data: base64Data,
+            size: file.size,
+            uploaded_at: new Date().toISOString(),
+          };
+
+          const payload = {
+            name: baseFileName,
+            bill_date: new Date().toISOString(),
+            folder_id: currentFolderId || undefined,
+            attachments: [attachment],
+          };
+
+          const res = await fetch("/api/bills", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ payload }),
+          });
+
+          if (res.ok) {
+            successCount++;
+            const { data } = await res.json();
+            setBills((prev) => [data, ...prev]);
+          }
+        } catch (e) {
+          console.error("Upload failed", e);
+        }
+      })
+    );
+
+    setGlobalUploading(false);
+    if (successCount > 0) {
+      showToast(`Uploaded ${successCount} document${successCount !== 1 ? 's' : ''}`, "success");
+    }
+  };
+
   // ─── Render ────────────────────────────────────────────────────────────
 
   if (loading) return <AdminModuleSkeleton />;
 
   return (
-    <div className="animate-fade-in-up h-full">
+    <div 
+      className="animate-fade-in-up h-full relative"
+      onDragOver={(e) => {
+        if (!draggedBillId && e.dataTransfer.types.includes("Files")) {
+           e.preventDefault();
+           setIsDropTarget(true);
+        }
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsDropTarget(false);
+        }
+      }}
+      onDrop={handleGlobalDrop}
+    >
+      <AnimatePresence>
+        {isDropTarget && !draggedBillId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center border-2 border-dashed border-accent m-2"
+          >
+             <UploadCloud className="w-16 h-16 text-accent mb-4 animate-bounce" />
+             <h2 className="text-2xl font-bold text-white tracking-tight">Drop files to upload</h2>
+             <p className="text-zinc-400 mt-2">Instantly create bills from documents</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+         {globalUploading && (
+            <motion.div
+               initial={{ opacity: 0, y: 32 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: 32 }}
+               className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-zinc-900 border border-zinc-700 shadow-2xl rounded-2xl p-4 flex items-center gap-4"
+            >
+               <div className="w-5 h-5 border-2 border-zinc-600 border-t-accent rounded-full animate-spin shrink-0" />
+               <p className="text-sm font-medium text-zinc-200">Processing documents...</p>
+            </motion.div>
+         )}
+      </AnimatePresence>
+
       {/* Toast */}
       <AnimatePresence>
         {toast && (
@@ -839,6 +1049,32 @@ export default function BillsAdminView() {
             Bills
           </h1>
           <div className="flex items-center gap-2">
+            <div className="hidden sm:flex bg-zinc-900 border border-zinc-800 rounded-xl p-1 shrink-0 mr-1">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "p-1.5 rounded-lg transition-colors",
+                  viewMode === "grid"
+                    ? "bg-zinc-800 text-zinc-200"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+                title="Grid View"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "p-1.5 rounded-lg transition-colors",
+                  viewMode === "list"
+                    ? "bg-zinc-800 text-zinc-200"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+                title="List View"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
             <button
               onClick={() => setShowNewFolder(true)}
               className="flex items-center gap-2 px-3 py-2 border border-zinc-700 text-zinc-400 text-sm font-medium rounded-xl hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
@@ -967,22 +1203,41 @@ export default function BillsAdminView() {
                   Bills
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                {displayedBills.map((bill) => (
-                  <BillCard
-                    key={bill._id}
-                    bill={bill}
-                    folder={
-                      currentFolderId
-                        ? undefined
-                        : folders.find((f) => f._id === bill.payload.folder_id)
-                    }
-                    onClick={() => setDetailBill(bill)}
-                    onEdit={(b) => setBillModal({ open: true, bill: b })}
-                    onDragStart={() => setDraggedBillId(bill._id)}
-                  />
-                ))}
-              </div>
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {displayedBills.map((bill) => (
+                    <BillCard
+                      key={bill._id}
+                      bill={bill}
+                      folder={
+                        currentFolderId
+                          ? undefined
+                          : folders.find((f) => f._id === bill.payload.folder_id)
+                      }
+                      onClick={() => setDetailBill(bill)}
+                      onEdit={(b) => setBillModal({ open: true, bill: b })}
+                      onDragStart={() => setDraggedBillId(bill._id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {displayedBills.map((bill) => (
+                    <BillListRow
+                      key={bill._id}
+                      bill={bill}
+                      folder={
+                        currentFolderId
+                          ? undefined
+                          : folders.find((f) => f._id === bill.payload.folder_id)
+                      }
+                      onClick={() => setDetailBill(bill)}
+                      onEdit={(b) => setBillModal({ open: true, bill: b })}
+                      onDragStart={() => setDraggedBillId(bill._id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

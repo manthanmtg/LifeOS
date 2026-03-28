@@ -751,6 +751,7 @@ export const BillSchema = z.object({
   notes: z.string().optional(),
   folder_id: z.string().optional(),
   attachments: z.array(BillAttachmentSchema).default([]),
+  tags: z.array(z.string()).default([]),
 });
 
 export const BillFolderSchema = z.object({
