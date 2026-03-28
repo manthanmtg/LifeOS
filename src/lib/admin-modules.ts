@@ -12,8 +12,13 @@ export interface SystemConfig {
   moduleRegistry?: Record<string, ModuleVisibility>;
   orderingStrategy?: "custom" | "name" | "visits";
   visitSortScope?: "admin" | "public" | "all";
-  pageVisits?: Record<string, number>;
-  publicPageVisits?: Record<string, number>;
+  tieredVisits?: Record<
+    string,
+    {
+      admin: [number, number, number, number];
+      public: [number, number, number, number];
+    }
+  >;
 }
 
 export interface AdminModuleItem {
@@ -63,14 +68,32 @@ export function getOrderedAdminModules(
 
     if (strategy === "visits") {
       const scope = config?.visitSortScope || "admin";
-      const getVisits = (key: string) => {
-        const adminVisits = config?.pageVisits?.[key] || 0;
-        const publicVisits = config?.publicPageVisits?.[key] || 0;
-        if (scope === "admin") return adminVisits;
-        if (scope === "public") return publicVisits;
-        return adminVisits + publicVisits;
+
+      const getTiers = (key: string): [number, number, number, number] => {
+        const adminTiers = config?.tieredVisits?.[key]?.admin || [0, 0, 0, 0];
+        const publicTiers = config?.tieredVisits?.[key]?.public || [0, 0, 0, 0];
+
+        if (scope === "admin") return adminTiers;
+        if (scope === "public") return publicTiers;
+        return [
+          adminTiers[0] + publicTiers[0],
+          adminTiers[1] + publicTiers[1],
+          adminTiers[2] + publicTiers[2],
+          adminTiers[3] + publicTiers[3],
+        ];
       };
-      return getVisits(b.key) - getVisits(a.key);
+
+      const tiersA = getTiers(a.key);
+      const tiersB = getTiers(b.key);
+
+      // Compare 7-day, then 30-day, then 60-day, then 90-day
+      for (let i = 0; i < 4; i++) {
+        const diff = tiersB[i] - tiersA[i];
+        if (diff !== 0) return diff;
+      }
+
+      // Fallback to name if tie across all 90 days
+      return a.name.localeCompare(b.name);
     }
 
     const order = config?.moduleOrder || [];

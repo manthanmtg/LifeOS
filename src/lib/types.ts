@@ -12,8 +12,13 @@ export interface SystemConfig {
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
   visitSortScope?: "admin" | "public" | "all";
-  pageVisits?: Record<string, number>;
-  publicPageVisits?: Record<string, number>;
+  tieredVisits?: Record<
+    string,
+    {
+      admin: [number, number, number, number];
+      public: [number, number, number, number];
+    }
+  >;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any; // Allow for module-specific settings (e.g., expenseSettings)
 }

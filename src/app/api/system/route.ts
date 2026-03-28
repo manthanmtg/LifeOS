@@ -1,6 +1,7 @@
 import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { getTieredVisits } from "@/lib/metrics-cache";
 
 export async function GET() {
   try {
@@ -9,6 +10,9 @@ export async function GET() {
     const result = await systemColl.findOne({ _id: "global" });
 
     if (!result) return ApiError("Not initialized", 404);
+
+    // Inject the dynamically aggregated memory-cached visits
+    result.tieredVisits = await getTieredVisits();
 
     return ApiSuccess(result);
   } catch (err: unknown) {

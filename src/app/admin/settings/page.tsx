@@ -118,8 +118,13 @@ interface SystemConfig {
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
   visitSortScope?: "admin" | "public" | "all";
-  pageVisits?: Record<string, number>;
-  publicPageVisits?: Record<string, number>;
+  tieredVisits?: Record<
+    string,
+    {
+      admin: [number, number, number, number];
+      public: [number, number, number, number];
+    }
+  >;
 }
 
 const emojiToSvg = (emoji: string) =>
@@ -209,10 +214,32 @@ export default function SettingsPage() {
     }
 
     if (strategy === "visits") {
+      const scope = config.visitSortScope || "admin";
+
+      const getTiers = (key: string): [number, number, number, number] => {
+        const adminTiers = config?.tieredVisits?.[key]?.admin || [0, 0, 0, 0];
+        const publicTiers = config?.tieredVisits?.[key]?.public || [0, 0, 0, 0];
+
+        if (scope === "admin") return adminTiers;
+        if (scope === "public") return publicTiers;
+        return [
+          adminTiers[0] + publicTiers[0],
+          adminTiers[1] + publicTiers[1],
+          adminTiers[2] + publicTiers[2],
+          adminTiers[3] + publicTiers[3],
+        ];
+      };
+
       return [...moduleOrder].sort((a, b) => {
-        const visitsA = config.pageVisits?.[a] || 0;
-        const visitsB = config.pageVisits?.[b] || 0;
-        return visitsB - visitsA;
+        const tiersA = getTiers(a);
+        const tiersB = getTiers(b);
+
+        for (let i = 0; i < 4; i++) {
+          const diff = tiersB[i] - tiersA[i];
+          if (diff !== 0) return diff;
+        }
+
+        return a.localeCompare(b);
       });
     }
 
@@ -825,16 +852,24 @@ export default function SettingsPage() {
                             {config.orderingStrategy === "visits" &&
                               (() => {
                                 const scope = config.visitSortScope || "admin";
-                                const adminV = config.pageVisits?.[key] || 0;
-                                const publicV =
-                                  config.publicPageVisits?.[key] || 0;
+                                const getSum = (
+                                  arr?: [number, number, number, number],
+                                ) =>
+                                  arr ? arr[0] + arr[1] + arr[2] + arr[3] : 0;
+
+                                const adminV = getSum(
+                                  config.tieredVisits?.[key]?.admin,
+                                );
+                                const publicV = getSum(
+                                  config.tieredVisits?.[key]?.public,
+                                );
                                 const count =
                                   scope === "admin"
                                     ? adminV
                                     : scope === "public"
                                       ? publicV
                                       : adminV + publicV;
-                                return ` • ${count} ${scope === "all" ? "total" : scope} visits`;
+                                return ` • ${count} ${scope === "all" ? "total" : scope} visits (90d)`;
                               })()}
                           </p>
                         </div>
