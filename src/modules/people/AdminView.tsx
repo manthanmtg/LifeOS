@@ -8,13 +8,13 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+
 import {
   Plus,
   Trash2,
   Edit3,
   X,
   Users,
-  Search,
   RefreshCw,
   Heart,
   Phone,
@@ -31,27 +31,17 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const RELATIONSHIPS = [
-  "family",
-  "friend",
-  "colleague",
-  "acquaintance",
-  "mentor",
-  "client",
-  "other",
-] as const;
-type Relationship = (typeof RELATIONSHIPS)[number];
-
-const RELATIONSHIP_STYLES: Record<string, string> = {
-  family: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-  friend: "bg-success/15 text-success border-success/25",
-  colleague: "bg-purple-500/15 text-purple-300 border-purple-500/25",
-  acquaintance: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
-  mentor: "bg-warning/15 text-warning border-warning/25",
-  client: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
-  other: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
-};
+import { 
+  Person, 
+  Relationship, 
+  RELATIONSHIPS, 
+  Interaction, 
+  InteractionType, 
+  INTERACTION_TYPES,
+  SocialLink
+} from "./types";
+import PersonCard from "./components/PersonCard";
+import PeopleFilters, { PeopleFilterType } from "./components/PeopleFilters";
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
   family: "Family",
@@ -63,25 +53,6 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-const INTERACTION_TYPES = [
-  "call",
-  "meeting",
-  "message",
-  "email",
-  "gift",
-  "other",
-] as const;
-type InteractionType = (typeof INTERACTION_TYPES)[number];
-
-const INTERACTION_ICONS: Record<string, typeof Phone> = {
-  call: Phone,
-  meeting: Video,
-  message: MessageSquare,
-  email: Mail,
-  gift: Gift,
-  other: Clock,
-};
-
 const INTERACTION_LABELS: Record<string, string> = {
   call: "Call",
   meeting: "Meeting",
@@ -91,39 +62,24 @@ const INTERACTION_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-interface SocialLink {
-  platform: string;
-  url: string;
-}
+const RELATIONSHIP_STYLES: Record<string, string> = {
+  family: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  friend: "bg-success/15 text-success border-success/25",
+  colleague: "bg-purple-500/15 text-purple-300 border-purple-500/25",
+  acquaintance: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
+  mentor: "bg-warning/15 text-warning border-warning/25",
+  client: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
+  other: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
+};
 
-interface Interaction {
-  date: string;
-  type: InteractionType;
-  note?: string;
-}
-
-interface Person {
-  _id: string;
-  created_at: string;
-  updated_at: string;
-  payload: {
-    name: string;
-    relationship: Relationship;
-    phone?: string;
-    email?: string;
-    company?: string;
-    role?: string;
-    birthday?: string;
-    avatar_url?: string;
-    interests: string[];
-    tags: string[];
-    notes?: string;
-    social_links: SocialLink[];
-    interactions: Interaction[];
-    last_contacted?: string;
-    is_favorite: boolean;
-  };
-}
+const INTERACTION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  call: Phone,
+  meeting: Video,
+  message: MessageSquare,
+  email: Mail,
+  gift: Gift,
+  other: Clock,
+};
 
 function getInitials(name?: string): string {
   if (!name) return "";
@@ -212,10 +168,9 @@ export default function PeopleAdminView() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewingPerson, setViewingPerson] = useState<Person | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<PeopleFilterType>("all");
   const [relationshipFilter, setRelationshipFilter] = useState<string>("all");
-  const [tagFilter, setTagFilter] = useState<string>("all");
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -263,12 +218,6 @@ export default function PeopleAdminView() {
     fetchPeople();
   }, [fetchPeople]);
 
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    people.forEach((p) => (p.payload.tags || []).forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet).sort();
-  }, [people]);
-
   const resetForm = useCallback(() => {
     setFormName("");
     setFormRelationship("friend");
@@ -289,6 +238,7 @@ export default function PeopleAdminView() {
   }, []);
 
   const handleEdit = useCallback((person: Person) => {
+    setEditingId(person._id);
     setFormName(person.payload.name);
     setFormRelationship(person.payload.relationship);
     setFormPhone(person.payload.phone || "");
@@ -301,8 +251,7 @@ export default function PeopleAdminView() {
     setFormTags((person.payload.tags || []).join(", "));
     setFormNotes(person.payload.notes || "");
     setFormSocialLinks(person.payload.social_links || []);
-    setFormIsFavorite(person.payload.is_favorite);
-    setEditingId(person._id);
+    setFormIsFavorite(person.payload.is_favorite || false);
     setShowForm(true);
     setViewingPerson(null);
   }, []);
@@ -431,6 +380,49 @@ export default function PeopleAdminView() {
     }
   };
 
+  const handleQuickLog = async (person: Person, type: InteractionType) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const newInteraction: Interaction = {
+      date: today,
+      type,
+      note: `Quick Log: ${type}`,
+    };
+
+    const updatedInteractions = [
+      ...(person.payload.interactions || []),
+      newInteraction,
+    ];
+
+    try {
+      const res = await fetch(`/api/content/${person._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payload: {
+            ...person.payload,
+            interactions: updatedInteractions,
+            last_contacted: today,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to log interaction");
+      
+      await fetchPeople();
+      if (viewingPerson?._id === person._id) {
+        setViewingPerson((prev) => prev ? {
+          ...prev,
+          payload: {
+            ...prev.payload,
+            interactions: updatedInteractions,
+            last_contacted: today
+          }
+        } : null);
+      }
+    } catch (err: unknown) {
+      console.error("quickLog failed:", err);
+    }
+  };
+
   const handleLogInteraction = async () => {
     if (!viewingPerson) return;
 
@@ -463,15 +455,16 @@ export default function PeopleAdminView() {
       setInteractionType("other");
       setInteractionDate(new Date().toISOString().slice(0, 10));
       setShowInteractionForm(false);
+      
       await fetchPeople();
-
-      // Update the viewing person
-      const refreshed = await fetch("/api/content?module_type=person");
-      const refreshedData = await refreshed.json();
-      const updated = (refreshedData.data || []).find(
-        (p: Person) => p._id === viewingPerson._id,
-      );
-      if (updated) setViewingPerson(updated);
+      setViewingPerson((prev) => prev ? {
+        ...prev,
+        payload: {
+          ...prev.payload,
+          interactions: updatedInteractions,
+          last_contacted: interactionDate
+        }
+      } : null);
     } catch (err: unknown) {
       console.error("logInteraction failed:", err);
     }
@@ -490,23 +483,38 @@ export default function PeopleAdminView() {
   const filtered = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return sorted.filter((person) => {
-      if (showFavoritesOnly && !person.payload.is_favorite) return false;
+      // Main Filter Buckets
+      if (activeFilter === "favorites" && !person.payload.is_favorite) return false;
+      if (activeFilter === "upcoming" && !isUpcomingBirthday(person.payload.birthday)) return false;
+      if (activeFilter === "stale") {
+        const days = daysSince(person.payload.last_contacted);
+        if (days === null || days <= 90) return false;
+      }
+
+      // Sidebar/Sub-filters
       if (
         relationshipFilter !== "all" &&
         person.payload.relationship !== relationshipFilter
       )
         return false;
-      if (
-        tagFilter !== "all" &&
-        !(person.payload.tags || []).includes(tagFilter)
-      )
-        return false;
+
+      // Search Query
       if (!query) return true;
       const haystack =
         `${person.payload.name} ${person.payload.company || ""} ${person.payload.role || ""} ${(person.payload.tags || []).join(" ")} ${(person.payload.interests || []).join(" ")}`.toLowerCase();
       return haystack.includes(query);
     });
-  }, [sorted, searchQuery, relationshipFilter, tagFilter, showFavoritesOnly]);
+  }, [sorted, searchQuery, relationshipFilter, activeFilter]);
+
+  const counts: Record<PeopleFilterType, number> = {
+    all: people.length,
+    favorites: people.filter((p) => p.payload.is_favorite).length,
+    upcoming: people.filter((p) => isUpcomingBirthday(p.payload.birthday)).length,
+    stale: people.filter((p) => {
+      const days = daysSince(p.payload.last_contacted);
+      return days !== null && days > 90;
+    }).length,
+  };
 
   const stats = useMemo(() => {
     const total = people.length;
@@ -1311,350 +1319,51 @@ export default function PeopleAdminView() {
         </AnimatePresence>
       </Portal>
 
-      {/* Search & Filters */}
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, company, tags..."
-              aria-label="Search contacts"
-              className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
-            />
-          </div>
-          <button
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-colors flex items-center gap-1.5",
-              showFavoritesOnly
-                ? "bg-pink-500/15 border-pink-500/35 text-pink-300"
-                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
-            )}
-          >
-            <Heart
-              className="w-3 h-3"
-              fill={showFavoritesOnly ? "currentColor" : "none"}
-            />{" "}
-            Favorites
-          </button>
-        </div>
+      <PeopleFilters
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        relationshipFilter={relationshipFilter}
+        onRelationshipChange={setRelationshipFilter}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        counts={counts}
+      />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setRelationshipFilter("all")}
-            className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-colors",
-              relationshipFilter === "all"
-                ? "bg-accent/15 border-accent/35 text-accent"
-                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
-            )}
-          >
-            All
-          </button>
-          {RELATIONSHIPS.map((r) => (
-            <button
-              key={r}
-              onClick={() => setRelationshipFilter(r)}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs border transition-colors",
-                relationshipFilter === r
-                  ? RELATIONSHIP_STYLES[r]
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
-              )}
-            >
-              {RELATIONSHIP_LABELS[r]}
-            </button>
-          ))}
-        </div>
-
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] text-zinc-600 uppercase tracking-wider font-bold">
-              Tags:
-            </span>
-            <button
-              onClick={() => setTagFilter("all")}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[10px] border transition-colors",
-                tagFilter === "all"
-                  ? "bg-accent/15 border-accent/35 text-accent"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300",
-              )}
-            >
-              All
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setTagFilter(tag)}
-                className={cn(
-                  "px-2.5 py-1 rounded-md text-[10px] border transition-colors",
-                  tagFilter === tag
-                    ? "bg-accent/15 border-accent/35 text-accent"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <p className="text-xs text-zinc-500 text-right">
-          {filtered.length} contact{filtered.length !== 1 ? "s" : ""}
-        </p>
-      </div>
-
-      {/* Contact cards */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 animate-pulse space-y-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-zinc-800" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-2/3 bg-zinc-800 rounded" />
-                  <div className="h-3 w-1/3 bg-zinc-800 rounded" />
-                </div>
-              </div>
-              <div className="h-3 w-full bg-zinc-800 rounded" />
-              <div className="h-3 w-2/3 bg-zinc-800 rounded" />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="h-44 bg-zinc-900 border border-zinc-800 rounded-[2rem] animate-pulse" />
           ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-          <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p className="text-sm">
-            {people.length === 0
-              ? "No contacts yet. Add your first contact to get started."
-              : "No contacts match your filters."}
-          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((person) => {
-            const days = daysSince(person.payload.last_contacted);
-            const upcoming = isUpcomingBirthday(person.payload.birthday);
-
-            return (
-              <motion.article
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((person) => (
+              <PersonCard
                 key={person._id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 hover:border-zinc-700 transition-colors group cursor-pointer"
-                onClick={() => setViewingPerson(person)}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
-                    {person.payload.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={person.payload.avatar_url}
-                        alt={person.payload.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm font-bold text-zinc-400">
-                        {getInitials(person.payload.name)}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-zinc-50 truncate">
-                        {person.payload.name}
-                      </p>
-                      {person.payload.is_favorite && (
-                        <Heart
-                          className="w-3 h-3 text-pink-400 shrink-0"
-                          fill="currentColor"
-                        />
-                      )}
-                      {upcoming && (
-                        <Cake className="w-3 h-3 text-warning shrink-0" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                      <span
-                        className={cn(
-                          "text-[10px] px-2 py-0.5 rounded-full border",
-                          RELATIONSHIP_STYLES[person.payload.relationship],
-                        )}
-                      >
-                        {RELATIONSHIP_LABELS[person.payload.relationship]}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavorite(person);
-                      }}
-                      aria-label="Toggle favorite"
-                      className={cn(
-                        "p-1.5 rounded-md transition-colors",
-                        person.payload.is_favorite
-                          ? "text-pink-400 hover:bg-zinc-800"
-                          : "text-zinc-500 hover:text-pink-400 hover:bg-zinc-800",
-                      )}
-                    >
-                      <Heart
-                        className="w-3.5 h-3.5"
-                        fill={
-                          person.payload.is_favorite ? "currentColor" : "none"
-                        }
-                      />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(person);
-                      }}
-                      aria-label="Edit contact"
-                      className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteConfirmId(person._id);
-                      }}
-                      aria-label="Delete contact"
-                      className="p-1.5 rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {(person.payload.company || person.payload.role) && (
-                  <p className="text-xs text-zinc-500 flex items-center gap-1.5 truncate">
-                    <Building2 className="w-3 h-3 shrink-0" />
-                    {person.payload.role}
-                    {person.payload.role && person.payload.company
-                      ? " at "
-                      : ""}
-                    {person.payload.company}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap gap-3 text-xs text-zinc-500">
-                  {person.payload.phone && (
-                    <span className="flex items-center gap-1">
-                      <Phone className="w-3 h-3" /> {person.payload.phone}
-                    </span>
-                  )}
-                  {person.payload.email && (
-                    <span className="flex items-center gap-1 truncate">
-                      <Mail className="w-3 h-3 shrink-0" />{" "}
-                      {person.payload.email}
-                    </span>
-                  )}
-                </div>
-
-                {days !== null && (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full w-fit",
-                      contactStatusBg(days),
-                      contactStatusColor(days),
-                    )}
-                  >
-                    <Clock className="w-2.5 h-2.5" />
-                    {days === 0 ? "Today" : `${days}d ago`}
-                  </div>
-                )}
-
-                {(person.payload.tags || []).length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-auto">
-                    {(person.payload.tags || []).slice(0, 4).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-[10px]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {person.payload.tags.length > 4 && (
-                      <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-500 text-[10px]">
-                        +{person.payload.tags.length - 4}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </motion.article>
-            );
-          })}
+                person={person}
+                onView={(p) => setViewingPerson(p)}
+                onEdit={handleEdit}
+                onDelete={(id) => setDeleteConfirmId(id)}
+                onToggleFavorite={handleToggleFavorite}
+                onQuickLog={handleQuickLog}
+              />
+            ))}
+          </AnimatePresence>
         </div>
       )}
 
-      {/* Delete confirmation modal (list view) */}
-      <Portal>
-        <AnimatePresence>
-          {deleteConfirmId && !viewingPerson && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-              onClick={() => setDeleteConfirmId(null)}
-            >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-sm mx-4 space-y-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
-                    <AlertCircle className="w-5 h-5 text-danger" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-50">
-                      Delete contact?
-                    </h3>
-                    <p className="text-xs text-zinc-500">
-                      This action cannot be undone.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setDeleteConfirmId(null)}
-                    className="text-sm text-zinc-400 hover:text-zinc-200 px-4 py-2 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => handleDelete(deleteConfirmId)}
-                    disabled={isDeletingId === deleteConfirmId}
-                    className="text-sm bg-danger/20 text-danger hover:bg-danger/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {isDeletingId === deleteConfirmId && (
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    )}
-                    Delete
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Portal>
+      {filtered.length === 0 && !loading && (
+        <div className="flex flex-col items-center justify-center py-20 px-4 bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] text-center">
+          <div className="w-16 h-16 bg-zinc-800/50 rounded-2xl flex items-center justify-center mb-4">
+            <Users className="w-8 h-8 text-zinc-600" />
+          </div>
+          <h3 className="text-zinc-300 font-bold mb-1">No contacts found</h3>
+          <p className="text-zinc-500 text-sm max-w-xs mx-auto">
+            Try adjusting your search or filters to find who you&apos;re looking for.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

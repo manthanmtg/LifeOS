@@ -6,8 +6,7 @@ import {
   Edit2, 
   Trash2, 
   Flag, 
-  Calendar,
-  Eye
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TodoDocument } from "../types";
