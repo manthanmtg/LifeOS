@@ -4,7 +4,7 @@ import { ApiSuccess, ApiError } from "@/lib/api-response";
 
 export async function POST(request: Request) {
   try {
-    const { moduleKey } = await request.json();
+    const { moduleKey, source } = await request.json();
     if (!moduleKey || typeof moduleKey !== "string")
       return ApiError("Module key is required", 400);
 
@@ -13,12 +13,14 @@ export async function POST(request: Request) {
       return ApiError("Invalid module key", 400);
     }
 
+    const field = source === "public" ? "publicPageVisits" : "pageVisits";
+
     const db = await getDb();
     const systemColl = db.collection<SystemConfig>("system");
 
     await systemColl.updateOne(
       { _id: "global" },
-      { $inc: { [`pageVisits.${moduleKey}`]: 1 } },
+      { $inc: { [`${field}.${moduleKey}`]: 1 } },
     );
 
     return ApiSuccess({ success: true });

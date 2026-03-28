@@ -11,7 +11,9 @@ export interface SystemConfig {
   widgetRegistry?: Record<string, boolean>;
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
+  visitSortScope?: "admin" | "public" | "all";
   pageVisits?: Record<string, number>;
+  publicPageVisits?: Record<string, number>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any; // Allow for module-specific settings (e.g., expenseSettings)
 }

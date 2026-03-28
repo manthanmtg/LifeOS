@@ -117,7 +117,9 @@ interface SystemConfig {
   moduleRegistry: Record<string, { enabled: boolean; isPublic: boolean }>;
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
+  visitSortScope?: "admin" | "public" | "all";
   pageVisits?: Record<string, number>;
+  publicPageVisits?: Record<string, number>;
 }
 
 const emojiToSvg = (emoji: string) =>
@@ -632,6 +634,49 @@ export default function SettingsPage() {
                       );
                     })}
                   </div>
+
+                  {/* Visit Sort Scope sub-options */}
+                  <AnimatePresence>
+                    {config?.orderingStrategy === "visits" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-center gap-1 bg-zinc-950/60 border border-zinc-800/80 p-1 rounded-xl w-fit">
+                          {[
+                            { id: "admin", label: "Admin Views" },
+                            { id: "public", label: "Public Views" },
+                            { id: "all", label: "All Views" },
+                          ].map((scope) => {
+                            const isActive =
+                              (config?.visitSortScope || "admin") === scope.id;
+                            return (
+                              <button
+                                key={scope.id}
+                                onClick={() =>
+                                  saveConfig({
+                                    visitSortScope:
+                                      scope.id as SystemConfig["visitSortScope"],
+                                  })
+                                }
+                                className={cn(
+                                  "px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
+                                  isActive
+                                    ? "bg-accent/15 text-accent shadow-sm"
+                                    : "text-zinc-500 hover:text-zinc-300",
+                                )}
+                              >
+                                {scope.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
@@ -778,7 +823,19 @@ export default function SettingsPage() {
                                 ? "Visible to public visitors"
                                 : "Only visible to Admin"}
                             {config.orderingStrategy === "visits" &&
-                              ` • ${config.pageVisits?.[key] || 0} visits`}
+                              (() => {
+                                const scope = config.visitSortScope || "admin";
+                                const adminV = config.pageVisits?.[key] || 0;
+                                const publicV =
+                                  config.publicPageVisits?.[key] || 0;
+                                const count =
+                                  scope === "admin"
+                                    ? adminV
+                                    : scope === "public"
+                                      ? publicV
+                                      : adminV + publicV;
+                                return ` • ${count} ${scope === "all" ? "total" : scope} visits`;
+                              })()}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">

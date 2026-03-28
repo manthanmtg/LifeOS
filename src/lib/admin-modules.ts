@@ -11,7 +11,9 @@ export interface SystemConfig {
   moduleOrder?: string[];
   moduleRegistry?: Record<string, ModuleVisibility>;
   orderingStrategy?: "custom" | "name" | "visits";
+  visitSortScope?: "admin" | "public" | "all";
   pageVisits?: Record<string, number>;
+  publicPageVisits?: Record<string, number>;
 }
 
 export interface AdminModuleItem {
@@ -60,9 +62,15 @@ export function getOrderedAdminModules(
     }
 
     if (strategy === "visits") {
-      const visitsA = config?.pageVisits?.[a.key] || 0;
-      const visitsB = config?.pageVisits?.[b.key] || 0;
-      return visitsB - visitsA;
+      const scope = config?.visitSortScope || "admin";
+      const getVisits = (key: string) => {
+        const adminVisits = config?.pageVisits?.[key] || 0;
+        const publicVisits = config?.publicPageVisits?.[key] || 0;
+        if (scope === "admin") return adminVisits;
+        if (scope === "public") return publicVisits;
+        return adminVisits + publicVisits;
+      };
+      return getVisits(b.key) - getVisits(a.key);
     }
 
     const order = config?.moduleOrder || [];

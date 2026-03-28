@@ -32,6 +32,7 @@ export async function PUT(request: Request) {
       "widgetRegistry",
       "moduleOrder",
       "orderingStrategy",
+      "visitSortScope",
     ];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

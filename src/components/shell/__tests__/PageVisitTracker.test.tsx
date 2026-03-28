@@ -18,7 +18,21 @@ describe("PageVisitTracker", () => {
       expect(global.fetch).toHaveBeenCalledWith("/api/system/track-visit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moduleKey: "todo" }),
+        body: JSON.stringify({ moduleKey: "todo", source: "admin" }),
+      }),
+    );
+  });
+
+  it("tracks public module visits", async () => {
+    navigationState.pathname = "/resume";
+
+    render(<PageVisitTracker />);
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith("/api/system/track-visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleKey: "resume", source: "public" }),
       }),
     );
   });
