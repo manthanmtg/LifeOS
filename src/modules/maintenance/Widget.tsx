@@ -19,11 +19,15 @@ export default function MaintenanceWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=maintenance_task")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=maintenance_task", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((d) => setTasks(d.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const summary = useMemo(() => {

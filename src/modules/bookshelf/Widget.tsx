@@ -20,11 +20,13 @@ export default function BookshelfWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=book")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=book", { signal: controller.signal })
       .then((response) => response.json())
       .then((data) => setBooks(data.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const summary = useMemo(() => {

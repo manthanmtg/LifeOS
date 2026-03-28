@@ -29,13 +29,13 @@ export default function AdminLayout({
           <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full pt-14 lg:pt-6">
             <AdminHeader />
             <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-              >
-                {children}
-              </motion.div>
+              key={pathname}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+            >
+              {children}
+            </motion.div>
           </div>
         </main>
         <CommandPalette />

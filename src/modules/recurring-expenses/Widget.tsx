@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sparkles, Timer } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { cn } from "@/lib/utils";
@@ -58,50 +58,71 @@ export default function RecurringExpensesWidget() {
   const format = settings.numberFormat || "western";
 
   useEffect(() => {
-    fetch("/api/content?module_type=recurring_expense")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=recurring_expense", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((d) => setSubs(d.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
-  const active = subs.filter((s) => s.payload.is_active);
-  const totalBurn = active.reduce(
-    (s, sub) =>
-      s + monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle),
-    0,
-  );
-  const overdueCount = active.filter((s) => {
-    const days = Math.ceil(
-      (new Date(s.payload.next_renewal_date).getTime() - NOW_REFERENCE) /
-        (1000 * 60 * 60 * 24),
+  const {
+    active,
+    totalBurn,
+    overdueCount,
+    nextRenewal,
+    daysUntilNext,
+    dueSoonCount,
+  } = useMemo(() => {
+    const act = subs.filter((s) => s.payload.is_active);
+    const burn = act.reduce(
+      (s, sub) =>
+        s + monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle),
+      0,
     );
-    return days < 0;
-  }).length;
-
-  const nextRenewal = active
-    .filter((s) => s.payload.enable_reminders !== false)
-    .sort(
-      (a, b) =>
-        new Date(a.payload.next_renewal_date).getTime() -
-        new Date(b.payload.next_renewal_date).getTime(),
-    )[0];
-
-  const daysUntilNext = nextRenewal
-    ? Math.ceil(
-        (new Date(nextRenewal.payload.next_renewal_date).getTime() -
-          NOW_REFERENCE) /
+    const overdue = act.filter((s) => {
+      const days = Math.ceil(
+        (new Date(s.payload.next_renewal_date).getTime() - NOW_REFERENCE) /
           (1000 * 60 * 60 * 24),
-      )
-    : null;
+      );
+      return days < 0;
+    }).length;
 
-  const dueSoonCount = active.filter((s) => {
-    const days = Math.ceil(
-      (new Date(s.payload.next_renewal_date).getTime() - NOW_REFERENCE) /
-        (1000 * 60 * 60 * 24),
-    );
-    return days >= 0 && days <= 7;
-  }).length;
+    const next = act
+      .filter((s) => s.payload.enable_reminders !== false)
+      .sort(
+        (a, b) =>
+          new Date(a.payload.next_renewal_date).getTime() -
+          new Date(b.payload.next_renewal_date).getTime(),
+      )[0];
+
+    const daysNext = next
+      ? Math.ceil(
+          (new Date(next.payload.next_renewal_date).getTime() - NOW_REFERENCE) /
+            (1000 * 60 * 60 * 24),
+        )
+      : null;
+
+    const dueSoon = act.filter((s) => {
+      const days = Math.ceil(
+        (new Date(s.payload.next_renewal_date).getTime() - NOW_REFERENCE) /
+          (1000 * 60 * 60 * 24),
+      );
+      return days >= 0 && days <= 7;
+    }).length;
+
+    return {
+      active: act,
+      totalBurn: burn,
+      overdueCount: overdue,
+      nextRenewal: next,
+      daysUntilNext: daysNext,
+      dueSoonCount: dueSoon,
+    };
+  }, [subs]);
 
   return (
     <WidgetCard

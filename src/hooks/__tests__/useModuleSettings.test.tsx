@@ -1,11 +1,12 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useModuleSettings } from "../useModuleSettings";
+import { useModuleSettings, _resetSystemCache } from "../useModuleSettings";
 
 describe("useModuleSettings", () => {
   beforeEach(() => {
     vi.useRealTimers();
     global.fetch = vi.fn();
+    _resetSystemCache();
   });
 
   it("loads stored settings and merges them with defaults", async () => {

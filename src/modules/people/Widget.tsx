@@ -46,11 +46,13 @@ export default function PeopleWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=person")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=person", { signal: controller.signal })
       .then((response) => response.json())
       .then((data) => setPeople(data.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const summary = useMemo(() => {

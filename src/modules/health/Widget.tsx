@@ -29,11 +29,15 @@ export default function HealthWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=health_profile")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=health_profile", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((d) => setProfiles(d.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const summary = useMemo(() => {

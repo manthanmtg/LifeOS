@@ -96,45 +96,51 @@ export default function CropHistoryAdminView() {
   );
 
   const [records, setRecords] = useState<CropRecord[]>([]);
-  const [loadingRecords, setLoadingRecords] = useState(true);
-  void loadingRecords;
 
   const [activeTab, setActiveTab] = useState<
     "spreadsheet" | "analytics" | "settings" | "docs"
   >("spreadsheet");
   const [activeCropId, setActiveCropId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (settingsLoaded && settings.crops.length > 0 && !activeCropId) {
-      setActiveCropId(settings.crops[0].id);
+  // Derive the effective crop ID: user selection if valid, otherwise first crop
+  const resolvedCropId = useMemo(() => {
+    if (activeCropId && settings.crops.some((c) => c.id === activeCropId)) {
+      return activeCropId;
     }
-  }, [settingsLoaded, settings.crops, activeCropId]);
+    return settings.crops[0]?.id ?? null;
+  }, [activeCropId, settings.crops]);
 
   const fetchRecords = useCallback(async () => {
-    setLoadingRecords(true);
     try {
       const res = await fetch("/api/content?module_type=crop_history");
       const data = await res.json();
       if (res.ok) setRecords(data.data || []);
     } catch (e) {
       console.error("Failed to fetch records", e);
-    } finally {
-      setLoadingRecords(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
+    let cancelled = false;
+    fetch("/api/content?module_type=crop_history")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setRecords(data.data || []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const activeCrop = useMemo(
-    () => settings.crops.find((c) => c.id === activeCropId),
-    [settings.crops, activeCropId],
+    () => settings.crops.find((c) => c.id === resolvedCropId),
+    [settings.crops, resolvedCropId],
   );
 
   const activeCropRecords = useMemo(
-    () => records.filter((r) => r.payload.crop_id === activeCropId),
-    [records, activeCropId],
+    () => records.filter((r) => r.payload.crop_id === resolvedCropId),
+    [records, resolvedCropId],
   );
 
   const schedulePeriods = useMemo(() => {
@@ -157,7 +163,7 @@ export default function CropHistoryAdminView() {
     }
 
     return periods.sort();
-  }, [activeCropRecords, activeCrop?.periodOrder]);
+  }, [activeCropRecords, activeCrop]);
 
   const areas = settings.sources || [];
 

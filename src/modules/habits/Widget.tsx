@@ -17,11 +17,13 @@ export default function HabitsWidget() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetch("/api/content?module_type=habit")
+    const controller = new AbortController();
+    fetch("/api/content?module_type=habit", { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setHabits(d.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const today = todayStr();

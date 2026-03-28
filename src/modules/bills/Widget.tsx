@@ -11,9 +11,11 @@ export default function BillsWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const opts = { signal: controller.signal };
     Promise.all([
-      fetch("/api/bills").then((r) => r.json()),
-      fetch("/api/bills/folders").then((r) => r.json()),
+      fetch("/api/bills", opts).then((r) => r.json()),
+      fetch("/api/bills/folders", opts).then((r) => r.json()),
     ])
       .then(([billsData, foldersData]) => {
         setBills(billsData.data || []);
@@ -21,6 +23,7 @@ export default function BillsWidget() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const stats = useMemo(() => {
