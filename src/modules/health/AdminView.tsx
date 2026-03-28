@@ -36,6 +36,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import ImageCropper from "@/components/ui/ImageCropper";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -459,6 +460,7 @@ export default function HealthAdminView() {
   );
   const [formData, setFormData] = useState<HealthPayload>(emptyPayload());
   const [allergyInput, setAllergyInput] = useState("");
+  const [cropFileState, setCropFileState] = useState<{ url: string; type: string } | null>(null);
 
   // Detail view
   const [selectedProfile, setSelectedProfile] = useState<HealthProfile | null>(
@@ -537,19 +539,28 @@ export default function HealthAdminView() {
       showToast("Only images are allowed for profile pictures", "error");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64Data = result.split(",")[1];
-      setFormData((f) => ({
-        ...f,
-        profile_pic: {
-          data: base64Data,
-          content_type: file.type,
-        },
-      }));
-    };
-    reader.readAsDataURL(file);
+    
+    const url = URL.createObjectURL(file);
+    setCropFileState({ url, type: file.type });
+    // Reset file input
+    if (e.target) e.target.value = "";
+  };
+
+  const handleCropComplete = (base64Data: string, mimeType: string) => {
+    setFormData((f) => ({
+      ...f,
+      profile_pic: {
+        data: base64Data,
+        content_type: mimeType,
+      },
+    }));
+    if (cropFileState?.url) URL.revokeObjectURL(cropFileState.url);
+    setCropFileState(null);
+  };
+
+  const closeCropper = () => {
+    if (cropFileState?.url) URL.revokeObjectURL(cropFileState.url);
+    setCropFileState(null);
   };
 
   const saveProfile = async () => {
@@ -3412,6 +3423,15 @@ export default function HealthAdminView() {
         isVisible={toast.visible}
         onClose={() => setToast((t) => ({ ...t, visible: false }))}
       />
+
+      {cropFileState && (
+        <ImageCropper
+          imageSrc={cropFileState.url}
+          mimeType={cropFileState.type}
+          onClose={closeCropper}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }
