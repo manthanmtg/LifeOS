@@ -580,6 +580,18 @@ export const WhiteboardNoteSchema = z.object({
 });
 
 // --- 20. HEALTH PROFILES ---
+export const BillAttachmentSchema = z.object({
+  id: z.string().min(1),
+  filename: z.string().min(1),
+  content_type: z.string().min(1),
+  data: z.string().min(1), // base64
+  size: z.number().int().min(0),
+  uploaded_at: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+});
+
 export const HealthProfileSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.enum(["self", "family", "pet"]).default("self"),
@@ -711,6 +723,7 @@ export const HealthProfileSchema = z.object({
         title: z.string().min(1),
         date: z.string().optional(),
         notes: z.string().optional(),
+        attachments: z.array(BillAttachmentSchema).default([]),
       }),
     )
     .default([]),
@@ -737,18 +750,6 @@ export const DeckSchema = z.object({
   embed_enabled: z.boolean().default(false),
 });
 
-// --- 23. BILLS ---
-export const BillAttachmentSchema = z.object({
-  id: z.string().min(1),
-  filename: z.string().min(1),
-  content_type: z.string().min(1),
-  data: z.string().min(1), // base64
-  size: z.number().int().min(0),
-  uploaded_at: z
-    .string()
-    .datetime()
-    .default(() => new Date().toISOString()),
-});
 
 export const BillSchema = z.object({
   name: z.string().min(1, "Bill name is required"),

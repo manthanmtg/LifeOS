@@ -31,6 +31,14 @@ import {
   TrendingUp,
   Copy,
   CalendarX2,
+  ImageIcon,
+  Download,
+  Eye,
+  Check,
+  Search,
+  Filter,
+  ArrowUpDown,
+  FileSearch,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -38,6 +46,8 @@ import Toast, { type ToastType } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import ImageCropper from "@/components/ui/ImageCropper";
 import ImagePreview from "@/components/ui/ImagePreview";
+import DocPreview from "@/components/ui/DocPreview";
+import PdfThumbnail from "@/modules/bills/components/PdfThumbnail";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -137,12 +147,22 @@ interface Measurement {
   notes?: string;
 }
 
+interface BillAttachment {
+  id: string;
+  filename: string;
+  content_type: string;
+  data: string; // base64
+  size: number;
+  uploaded_at: string;
+}
+
 interface HealthDocument {
   id: string;
   type: DocType;
   title: string;
   date?: string;
   notes?: string;
+  attachments: BillAttachment[];
 }
 
 interface HealthPayload {
@@ -284,14 +304,25 @@ const LAB_STATUS_CONFIG: Record<
   },
 };
 
-const DOC_TYPE_CONFIG: Record<DocType, { label: string; color: string }> = {
-  prescription: { label: "Prescription", color: "text-blue-400" },
-  bill: { label: "Bill", color: "text-warning" },
-  lab_report: { label: "Lab Report", color: "text-teal-400" },
-  discharge_summary: { label: "Discharge", color: "text-purple-400" },
-  insurance: { label: "Insurance", color: "text-success" },
-  imaging: { label: "Imaging", color: "text-cyan-400" },
-  other: { label: "Other", color: "text-zinc-400" },
+const DOC_TYPE_CONFIG: Record<
+  DocType,
+  { label: string; color: string; icon: typeof FileText | typeof ImageIcon }
+> = {
+  prescription: {
+    label: "Prescription",
+    icon: FileText,
+    color: "text-blue-400",
+  },
+  bill: { label: "Bill", icon: FileText, color: "text-emerald-400" },
+  lab_report: { label: "Lab Report", icon: FileText, color: "text-purple-400" },
+  discharge_summary: {
+    label: "Discharge",
+    icon: FileText,
+    color: "text-orange-400",
+  },
+  insurance: { label: "Insurance", icon: FileText, color: "text-cyan-400" },
+  imaging: { label: "Imaging", icon: ImageIcon, color: "text-rose-400" },
+  other: { label: "Other", icon: FileText, color: "text-zinc-500" },
 };
 
 const BLOOD_GROUPS: BloodGroup[] = [
@@ -468,6 +499,12 @@ export default function HealthAdminView() {
   const [previewImage, setPreviewImage] = useState<{
     src: string;
     name: string;
+  } | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<{
+    src: string;
+    contentType: string;
+    filename: string;
+    size?: number;
   } | null>(null);
 
   // Detail view
@@ -912,7 +949,7 @@ export default function HealthAdminView() {
       setDocForm({ ...doc, date: formatDateInput(doc.date) });
     } else {
       setEditingDoc(null);
-      setDocForm({ type: "other" });
+      setDocForm({ type: "other", attachments: [] });
     }
     setShowSubForm("document");
   };
@@ -928,8 +965,49 @@ export default function HealthAdminView() {
       title: docForm.title || "",
       date: docForm.date ? toISODate(docForm.date) : undefined,
       notes: docForm.notes || undefined,
+      attachments: docForm.attachments || [],
     };
     await saveSubRecord("documents", record, editingDoc);
+  };
+
+  const handleDocFilesChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(e.target.files || []);
+    const newAttachments: BillAttachment[] = [...(docForm.attachments || [])];
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) continue; // 5MB limit
+      try {
+        const raw = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const data = raw.split(",")[1];
+        newAttachments.push({
+          id: uuid(),
+          filename: file.name,
+          content_type: file.type,
+          data,
+          size: file.size,
+          uploaded_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("Failed to read file", err);
+      }
+    }
+
+    setDocForm((f) => ({ ...f, attachments: newAttachments }));
+    e.target.value = "";
+  };
+
+  const removeDocAttachment = (id: string) => {
+    setDocForm((f) => ({
+      ...f,
+      attachments: (f.attachments || []).filter((a) => a.id !== id),
+    }));
   };
 
   // ─── Vaccination helpers ────────────────────────────────────────────────
@@ -3035,55 +3113,102 @@ export default function HealthAdminView() {
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
-                              <FileText
-                                className={cn("w-4 h-4", dtConfig.color)}
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-zinc-200 truncate">
-                                {doc.title}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span
-                                  className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
-                                    dtConfig.color,
-                                  )}
-                                >
-                                  {dtConfig.label}
-                                </span>
-                                {doc.date && (
-                                  <span className="text-[11px] text-zinc-500">
-                                    {formatDate(doc.date)}
-                                  </span>
-                                )}
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-4 min-w-0">
+                              <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center shrink-0">
+                                <dtConfig.icon
+                                  className={cn("w-5 h-5", dtConfig.color)}
+                                />
                               </div>
-                              {doc.notes && (
-                                <p className="text-xs text-zinc-500 mt-1">
-                                  {doc.notes}
+                              <div className="min-w-0">
+                                <p className="text-sm font-bold text-zinc-100 truncate">
+                                  {doc.title}
                                 </p>
-                              )}
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span
+                                    className={cn(
+                                      "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/50 border border-zinc-700/30",
+                                      dtConfig.color,
+                                    )}
+                                  >
+                                    {dtConfig.label}
+                                  </span>
+                                  {doc.date && (
+                                    <span className="text-[11px] text-zinc-500 font-medium">
+                                      {formatDate(doc.date)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => openDocForm(doc)}
+                                className="p-2 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                                title="Edit"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  deleteSubRecord("documents", doc.id)
+                                }
+                                className="p-2 rounded-xl hover:bg-danger/10 text-zinc-500 hover:text-danger transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
-                            <button
-                              onClick={() => openDocForm(doc)}
-                              className="p-1.5 rounded-lg hover:bg-zinc-800"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                deleteSubRecord("documents", doc.id)
-                              }
-                              className="p-1.5 rounded-lg hover:bg-danger/50"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-danger" />
-                            </button>
-                          </div>
+
+                          {doc.notes && (
+                            <p className="text-xs text-zinc-500 line-clamp-2 bg-zinc-950/50 p-2 rounded-lg border border-zinc-800/50">
+                              {doc.notes}
+                            </p>
+                          )}
+
+                          {doc.attachments && doc.attachments.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-800/50 mt-1">
+                              {doc.attachments.map((att) => (
+                                <div
+                                  key={att.id}
+                                  onClick={() =>
+                                    setPreviewDoc({
+                                      src: att.data,
+                                      contentType: att.content_type,
+                                      filename: att.filename,
+                                      size: att.size,
+                                    })
+                                  }
+                                  className="relative group/att w-20 h-20 rounded-xl bg-zinc-800 border border-zinc-700/50 overflow-hidden cursor-pointer hover:border-accent transition-all hover:scale-[1.02] active:scale-95"
+                                >
+                                  {att.content_type === "application/pdf" ? (
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900">
+                                      <div className="scale-[0.4] origin-top opacity-60 group-hover/att:opacity-100 transition-opacity pointer-events-none">
+                                        <PdfThumbnail base64Data={att.data} />
+                                      </div>
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
+                                        <FileText className="w-3.5 h-3.5 text-rose-400" />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <img
+                                        src={`data:${att.content_type};base64,${att.data}`}
+                                        alt={att.filename}
+                                        className="w-full h-full object-cover opacity-60 group-hover/att:opacity-100 transition-all duration-300"
+                                      />
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/att:opacity-100 transition-opacity" />
+                                    </>
+                                  )}
+                                  <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-sm opacity-0 group-hover/att:opacity-100 transition-all scale-75 group-hover/att:scale-100">
+                                    <Eye className="w-3 h-3 text-white" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     );
@@ -3140,6 +3265,81 @@ export default function HealthAdminView() {
                     />
                   </div>
                 </div>
+                <div className="space-y-3 pb-2">
+                  <div className="flex items-center justify-between">
+                    <label className={labelCls}>Attachments</label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        document.getElementById("health-doc-upload")?.click()
+                      }
+                      className="text-[10px] font-bold uppercase tracking-wider text-accent hover:text-accent/80 transition-colors"
+                    >
+                      Add Files
+                    </button>
+                    <input
+                      id="health-doc-upload"
+                      type="file"
+                      multiple
+                      accept="image/*,application/pdf"
+                      onChange={handleDocFilesChange}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    {(docForm.attachments || []).map((att) => (
+                      <div
+                        key={att.id}
+                        className="flex items-center justify-between gap-3 p-2.5 bg-zinc-900 border border-zinc-800 rounded-xl group hover:border-zinc-700 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-700/50">
+                            {att.content_type === "application/pdf" ? (
+                              <FileText className="w-4 h-4 text-rose-400" />
+                            ) : (
+                              <ImageIcon className="w-4 h-4 text-accent" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-zinc-300 truncate">
+                              {att.filename}
+                            </p>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">
+                              {(att.size / 1024).toFixed(0)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeDocAttachment(att.id)}
+                          className="p-1.5 rounded-lg hover:bg-danger/20 text-zinc-500 hover:text-danger transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    {(docForm.attachments || []).length === 0 && (
+                      <div
+                        onClick={() =>
+                          document.getElementById("health-doc-upload")?.click()
+                        }
+                        className="flex flex-col items-center justify-center py-8 px-4 border-2 border-dashed border-zinc-800 rounded-2xl hover:border-zinc-700 hover:bg-zinc-800/30 transition-all cursor-pointer group"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                          <Plus className="w-5 h-5 text-zinc-600" />
+                        </div>
+                        <p className="text-xs text-zinc-500 font-medium">
+                          No files attached
+                        </p>
+                        <p className="text-[10px] text-zinc-700 uppercase tracking-widest mt-1">
+                          Drop images or PDFs here
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div>
                   <label className={labelCls}>Notes</label>
                   <textarea
@@ -3501,6 +3701,15 @@ export default function HealthAdminView() {
           onClose={() => setPreviewImage(null)}
         />
       )}
+      {previewDoc && (
+        <DocPreview
+          src={`data:${previewDoc.contentType};base64,${previewDoc.src}`}
+          contentType={previewDoc.contentType}
+          filename={previewDoc.filename}
+          size={previewDoc.size}
+          onClose={() => setPreviewDoc(null)}
+        />
+      )}
     </div>
   );
-}
+};
