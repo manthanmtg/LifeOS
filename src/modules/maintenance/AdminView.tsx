@@ -527,7 +527,9 @@ export default function MaintenanceAdminView() {
             ...completingTask.payload,
             last_completed: completedAt,
             next_due: nextDue,
-            status: "upcoming",
+            status: completingTask.payload.is_recurring
+              ? "upcoming"
+              : "completed",
             history: newHistory,
           },
         }),
@@ -1309,10 +1311,17 @@ export default function MaintenanceAdminView() {
                   </div>
                 </ModalSection>
 
-                {/* ── Section: Cost (managed only) ── */}
-                {form.service_type === "managed" && (
-                  <ModalSection icon={CircleDollarSign} title="Cost Estimate">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* ── Section: Cost ── */}
+                <ModalSection
+                  icon={CircleDollarSign}
+                  title={
+                    form.service_type === "managed"
+                      ? "Cost Estimate"
+                      : "Currency"
+                  }
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {form.service_type === "managed" && (
                       <div>
                         <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Estimated Cost
@@ -1333,30 +1342,30 @@ export default function MaintenanceAdminView() {
                           className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
                         />
                       </div>
-                      <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-                          Currency
-                        </label>
-                        <select
-                          value={form.currency}
-                          onChange={(e) =>
-                            setForm((f) => ({
-                              ...f,
-                              currency: e.target.value,
-                            }))
-                          }
-                          className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 transition-all appearance-none"
-                        >
-                          {Object.keys(CURR_SYM).map((c) => (
-                            <option key={c} value={c}>
-                              {c} ({CURR_SYM[c]})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    )}
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        Currency
+                      </label>
+                      <select
+                        value={form.currency}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            currency: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-300 focus:outline-none focus:border-zinc-600 transition-all appearance-none"
+                      >
+                        {Object.keys(CURR_SYM).map((c) => (
+                          <option key={c} value={c}>
+                            {c} ({CURR_SYM[c]})
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  </ModalSection>
-                )}
+                  </div>
+                </ModalSection>
 
                 {/* ── Section: Additional ── */}
                 <ModalSection icon={StickyNote} title="Additional">
@@ -1448,33 +1457,42 @@ export default function MaintenanceAdminView() {
                 {editingId && form.history.length > 0 && (
                   <ModalSection icon={History} title="Completion History">
                     <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {[...form.history].reverse().map((h) => (
-                        <div
-                          key={h.id}
-                          className="flex items-start gap-3 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs"
-                        >
-                          <div className="w-2 h-2 mt-1.5 rounded-full bg-success shrink-0" />
-                          <div className="flex-1 min-w-0 space-y-0.5">
-                            <p className="text-zinc-300 font-medium">
-                              {formatDate(h.completed_at)}
-                            </p>
-                            {h.vendor && (
-                              <p className="text-zinc-500">
-                                Vendor: {h.vendor}
+                      {[...form.history]
+                        .sort(
+                          (a, b) =>
+                            new Date(b.completed_at).getTime() -
+                            new Date(a.completed_at).getTime(),
+                        )
+                        .map((h) => (
+                          <div
+                            key={h.id}
+                            className="flex items-start gap-3 p-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-xs"
+                          >
+                            <div className="w-2 h-2 mt-1.5 rounded-full bg-success shrink-0" />
+                            <div className="flex-1 min-w-0 space-y-0.5">
+                              <p className="text-zinc-300 font-medium">
+                                {formatDate(h.completed_at)}
                               </p>
-                            )}
-                            {h.cost !== undefined && (
-                              <p className="text-zinc-500">
-                                Cost: {CURR_SYM[form.currency] || form.currency}{" "}
-                                {h.cost.toLocaleString("en-IN")}
-                              </p>
-                            )}
-                            {h.notes && (
-                              <p className="text-zinc-600 italic">{h.notes}</p>
-                            )}
+                              {h.vendor && (
+                                <p className="text-zinc-500">
+                                  Vendor: {h.vendor}
+                                </p>
+                              )}
+                              {h.cost !== undefined && (
+                                <p className="text-zinc-500">
+                                  Cost:{" "}
+                                  {CURR_SYM[form.currency] || form.currency}{" "}
+                                  {h.cost.toLocaleString("en-IN")}
+                                </p>
+                              )}
+                              {h.notes && (
+                                <p className="text-zinc-600 italic">
+                                  {h.notes}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </ModalSection>
                 )}
@@ -1676,7 +1694,11 @@ export default function MaintenanceAdminView() {
                     <div className="absolute left-[9px] top-2 bottom-2 w-px bg-zinc-800" />
                     <div className="space-y-4">
                       {[...historyTask.payload.history]
-                        .reverse()
+                        .sort(
+                          (a, b) =>
+                            new Date(b.completed_at).getTime() -
+                            new Date(a.completed_at).getTime(),
+                        )
                         .map((h, i) => (
                           <div
                             key={h.id}

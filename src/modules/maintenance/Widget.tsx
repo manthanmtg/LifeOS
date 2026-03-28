@@ -1,69 +1,33 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Wrench, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 
-interface MaintenanceTask {
-  payload: {
-    name: string;
-    status: string;
-    next_due?: string;
-    last_completed?: string;
-    priority: string;
-  };
-}
-
 export default function MaintenanceWidget() {
-  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
+  const [summary, setSummary] = useState({
+    total: 0,
+    overdue: 0,
+    upcoming: 0,
+    completedThisMonth: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/content?module_type=maintenance_task", {
+    fetch("/api/maintenance/summary", {
       signal: controller.signal,
     })
       .then((r) => r.json())
-      .then((d) => setTasks(d.data || []))
+      .then((d) => {
+        if (d.data) {
+          setSummary(d.data);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, []);
-
-  const summary = useMemo(() => {
-    const now = new Date();
-    const thirtyDaysLater = new Date(now);
-    thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    let overdue = 0;
-    let upcoming = 0;
-    let completedThisMonth = 0;
-
-    for (const t of tasks) {
-      const p = t.payload;
-      if (p.next_due) {
-        const due = new Date(p.next_due);
-        if (due < now && p.status !== "completed" && p.status !== "skipped") {
-          overdue++;
-        } else if (
-          due >= now &&
-          due <= thirtyDaysLater &&
-          p.status !== "completed"
-        ) {
-          upcoming++;
-        }
-      }
-      if (p.status === "completed" && p.last_completed) {
-        const completed = new Date(p.last_completed);
-        if (completed >= monthStart) {
-          completedThisMonth++;
-        }
-      }
-    }
-
-    return { total: tasks.length, overdue, upcoming, completedThisMonth };
-  }, [tasks]);
 
   return (
     <WidgetCard
