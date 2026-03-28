@@ -1,18 +1,19 @@
 # Random Module Enhancer Prompt
 
 ## Objective
-Select a random module from the LifeOS codebase and perform a comprehensive "Intelligence Enlightenment" modernization. The goal is to transform monolithic views into high-performance, component-driven architectures with premium UI/UX and smart features.
+Select exactly one random module from the LifeOS codebase and perform a comprehensive "Intelligence Enlightenment" modernization. The goal is to transform monolithic views into high-performance, component-driven architectures with premium UI/UX and smart features.
 
 ## Workflow
 
 ### 1. Discovery & Audit
-- **Path Selection**: Randomly pick a module directory in `src/modules/` (excluding `_template`).
+- **Path Selection**: Randomly pick EXACTLY ONE module directory in `src/modules/` (excluding `_template`).
 - **Complexity Analysis**: Identify monolithic files (e.g., `AdminView.tsx` > 300 lines) and complex state logic.
 - **UX Audit**: Look for basic UI elements that lack "LifeOS Premium" feel—missing animations, generic colors, or low information density.
 - **Intelligence Gap**: Check for missing "Smart" features like metrics sparklines, automated categorization, "Quick-Log" actions, or predictive inputs.
 
 ### 2. Architectural Refactoring
 - **Component Extraction**: Break down large views into specialized sub-components (e.g., `[Module]Metrics`, `[Module]List`, `[Module]Filters`, `[Module]Card`).
+- **Component Sharing**: Identify and extract generic patterns (e.g., PDF/Image viewers, specialized carousels) into shared locations like `src/components/ui/` to minimize duplication and keep the application lightweight.
 - **Purity Fixes**: Move non-deterministic calculations (like `new Date()`) out of the render path and use `useMemo`/`useEffect` appropriately.
 - **Type Safety**: Eliminate `any` types and ensure strict interface definitions.
 

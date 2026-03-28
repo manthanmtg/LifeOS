@@ -1,7 +1,7 @@
 # Visual Polish Artist Prompt
 
 ## Objective
-Elevate the UI/UX of a specific component or module to "Premium LifeOS" standards using advanced CSS and Framer Motion.
+Elevate the UI/UX of exactly one specific component or module to "Premium LifeOS" standards using advanced CSS and Framer Motion.
 
 ## Aesthetic checklist
 1. **Animations**: Use `layout` and `AnimatePresence` for smooth list updates. Add subtle `whileHover={{ scale: 1.02 }}` and `whileTap={{ scale: 0.98 }}` to buttons.

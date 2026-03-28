@@ -1,7 +1,7 @@
 # Lint & Purity Doctor Prompt
 
 ## Objective
-Audit and resolve all technical debt related to linting rules, type safety, and React purity across the specified files or directory.
+Audit and resolve all technical debt related to linting rules, type safety, and React purity across exactly one specified module, directory, or set of files.
 
 ## Core Rules
 1. **Zero Lint Errors**: Run `pnpm lint` and fix all violations (unused imports, any types, missing dependencies).
