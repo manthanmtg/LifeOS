@@ -5,9 +5,6 @@ import {
   Plus,
   Search,
   Calendar,
-  CheckCircle2,
-  Trash2,
-  Edit2,
   Clock,
   Filter,
   CheckSquare,
@@ -15,15 +12,17 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TodoDocument, TodoPayload, TodoPriority } from "./types";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import TodoModal from "./TodoModal";
+import TodoCard from "./components/TodoCard";
+import TodoFilters, { TodoFilterType } from "./components/TodoFilters";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 
 export default function TodoAdminView() {
   const [todos, setTodos] = useState<TodoDocument[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"todo" | "done">("todo");
+  const [activeFilter, setActiveFilter] = useState<TodoFilterType>("todo");
   const [quickAddTitle, setQuickAddTitle] = useState("");
   const [quickAddPriority, setQuickAddPriority] =
     useState<TodoPriority>("medium");
@@ -231,14 +230,31 @@ export default function TodoAdminView() {
       setTodos((prev) => {
         const updated = [...prev];
         updated.splice(lastDeleted.index, 0, lastDeleted.todo);
-        const reSynced = updated.map((todo, idx) => ({
-          ...todo,
-          payload: { ...todo.payload, order: idx },
-        }));
-        return reSynced;
+        return updated;
       });
       lastDeletedTodoRef.current = null;
       setTimeout(() => showToast("Deletion undone", "success"), 50);
+    }
+  };
+
+  const clearCompleted = async () => {
+    const completedTodos = todos.filter((t) => t.payload.completed);
+    if (completedTodos.length === 0) return;
+
+    if (!confirm("Are you sure you want to permanently clear all completed tasks?")) return;
+
+    try {
+      showToast(`Clearing ${completedTodos.length} tasks...`, "info");
+      await Promise.all(
+        completedTodos.map((t) =>
+          fetch(`/api/content/${t._id}`, { method: "DELETE" }),
+        ),
+      );
+      setTodos((prev) => prev.filter((t) => !t.payload.completed));
+      showToast("Completed tasks cleared", "success");
+    } catch {
+      showToast("Failed to clear some tasks", "error");
+      fetchTodos();
     }
   };
 
@@ -253,12 +269,37 @@ export default function TodoAdminView() {
   };
 
   const filteredTodos = todos
-    .filter((t) => t.payload && t.payload.completed === (activeTab === "done"))
-    .filter((t) =>
-      t.payload?.title?.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+    .filter((t) => {
+      if (!t.payload) return false;
+      const matchesSearch = t.payload.title
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      const isCompleted = t.payload.completed;
+      const dueDate = t.payload.due_date ? new Date(t.payload.due_date) : null;
+      const isToday =
+        dueDate && dueDate.toDateString() === new Date().toDateString();
+      const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
+      const isHigh = t.payload.priority === "high";
+
+      switch (activeFilter) {
+        case "done":
+          return isCompleted;
+        case "todo":
+          return !isCompleted;
+        case "today":
+          return !isCompleted && isToday;
+        case "overdue":
+          return isOverdue;
+        case "high":
+          return !isCompleted && isHigh;
+        default:
+          return !isCompleted;
+      }
+    })
     .sort((a, b) => {
-      if (activeTab === "done") {
+      if (activeFilter === "done") {
         return (
           new Date(b.payload?.completed_at || b.updated_at).getTime() -
           new Date(a.payload?.completed_at || a.updated_at).getTime()
@@ -282,6 +323,25 @@ export default function TodoAdminView() {
       );
     });
 
+  const counts: Record<TodoFilterType, number> = {
+    todo: todos.filter((t) => !t.payload?.completed).length,
+    done: todos.filter((t) => t.payload?.completed).length,
+    today: todos.filter((t) => {
+      const dueDate = t.payload?.due_date ? new Date(t.payload.due_date) : null;
+      return (
+        !t.payload?.completed &&
+        dueDate &&
+        dueDate.toDateString() === new Date().toDateString()
+      );
+    }).length,
+    overdue: todos.filter((t) => {
+      const dueDate = t.payload?.due_date ? new Date(t.payload.due_date) : null;
+      return !t.payload?.completed && dueDate && dueDate < new Date();
+    }).length,
+    high: todos.filter((t) => !t.payload?.completed && t.payload?.priority === "high")
+      .length,
+  };
+
   return (
     <div className="flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header Area */}
@@ -296,31 +356,23 @@ export default function TodoAdminView() {
         </div>
 
         {/* Tab switcher — full-width on mobile */}
-        <div className="flex w-full md:w-auto bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
-          <button
-            onClick={() => setActiveTab("todo")}
-            className={cn(
-              "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all touch-manipulation",
-              activeTab === "todo"
-                ? "bg-zinc-800 text-zinc-50 shadow-lg"
-                : "text-zinc-500 hover:text-zinc-300",
-            )}
-          >
-            TODO
-          </button>
-          <button
-            onClick={() => setActiveTab("done")}
-            className={cn(
-              "flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-semibold transition-all touch-manipulation",
-              activeTab === "done"
-                ? "bg-zinc-800 text-zinc-50 shadow-lg"
-                : "text-zinc-500 hover:text-zinc-300",
-            )}
-          >
-            Done
-          </button>
+        <div className="flex items-center gap-3">
+          {activeFilter === "done" && counts.done > 0 && (
+            <button
+              onClick={clearCompleted}
+              className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-danger hover:bg-danger/10 transition-colors"
+            >
+              Clear Completed
+            </button>
+          )}
         </div>
       </div>
+
+      <TodoFilters
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        counts={counts}
+      />
 
       {/* Quick Add & Search */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -342,8 +394,6 @@ export default function TodoAdminView() {
               </div>
               <input
                 type="text"
-                inputMode="text"
-                enterKeyHint="done"
                 value={quickAddTitle}
                 onChange={(e) => setQuickAddTitle(e.target.value)}
                 placeholder="What needs to be done?"
@@ -351,7 +401,6 @@ export default function TodoAdminView() {
                 disabled={isSaving}
               />
             </div>
-            {/* Submit quick-add — visible on mobile when there's text */}
             {quickAddTitle.trim() && (
               <button
                 type="submit"
@@ -371,7 +420,6 @@ export default function TodoAdminView() {
               <Filter className="w-5 h-5 rotate-90" />
             </button>
           </div>
-          {/* Priority pills — scrollable on small screens */}
           <div className="overflow-x-auto scrollbar-none -mx-1 px-1">
             <div className="flex items-center gap-2 min-w-max">
               <Flag className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
@@ -418,47 +466,33 @@ export default function TodoAdminView() {
       {/* List Header / Sorting */}
       <div className="flex items-center justify-between gap-3 px-1">
         <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] shrink-0">
-          {activeTab === "todo"
-            ? `${filteredTodos.length} Active`
-            : `${filteredTodos.length} Completed`}
+          {filteredTodos.length} Results
         </span>
 
-        {activeTab === "todo" && (
+        {activeFilter !== "done" && (
           <div className="overflow-x-auto scrollbar-none -mr-1 pr-1">
             <div className="flex bg-zinc-900/50 border border-zinc-800 rounded-xl p-1 min-w-max">
-              <button
-                onClick={() => setSortBy("recent")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                  sortBy === "recent"
-                    ? "bg-zinc-800 text-accent"
-                    : "text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                <Clock className="w-3 h-3" /> Recent
-              </button>
-              <button
-                onClick={() => setSortBy("due_date")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                  sortBy === "due_date"
-                    ? "bg-zinc-800 text-accent"
-                    : "text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                <Calendar className="w-3 h-3" /> Due
-              </button>
-              <button
-                onClick={() => setSortBy("priority")}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                  sortBy === "priority"
-                    ? "bg-zinc-800 text-accent"
-                    : "text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                <Flag className="w-3 h-3" /> Priority
-              </button>
+              {(["recent", "due_date", "priority"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSortBy(s)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                    sortBy === s
+                      ? "bg-zinc-800 text-accent"
+                      : "text-zinc-500 hover:text-zinc-300",
+                  )}
+                >
+                  {s === "recent" ? (
+                    <Clock className="w-3 h-3" />
+                  ) : s === "due_date" ? (
+                    <Calendar className="w-3 h-3" />
+                  ) : (
+                    <Flag className="w-3 h-3" />
+                  )}
+                  {s.replace("_", " ")}
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -479,124 +513,13 @@ export default function TodoAdminView() {
           <div className="space-y-3">
             <AnimatePresence mode="popLayout">
               {filteredTodos.map((todo) => (
-                <motion.div
+                <TodoCard
                   key={todo._id}
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className={cn(
-                    "group bg-zinc-900 border border-zinc-800 p-4 rounded-2xl hover:border-accent/20 transition-all shadow-sm hover:shadow-accent/5",
-                    todo.payload.completed && "opacity-50 grayscale-[0.5]",
-                  )}
-                >
-                  {/* Main row */}
-                  <div className="flex items-center gap-3">
-                    {/* Checkbox — padded for 44px touch target on mobile */}
-                    <button
-                      onClick={() => toggleComplete(todo)}
-                      className="relative group/check shrink-0 -m-1 p-1 touch-manipulation"
-                      aria-label={
-                        todo.payload.completed
-                          ? "Mark as incomplete"
-                          : "Mark as complete"
-                      }
-                    >
-                      <div
-                        className={cn(
-                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                          todo.payload.completed
-                            ? "bg-success border-success"
-                            : "border-zinc-700 group-hover/check:border-accent",
-                        )}
-                      >
-                        {todo.payload.completed && (
-                          <CheckCircle2 className="w-4 h-4 text-white" />
-                        )}
-                        {!todo.payload.completed && (
-                          <div className="w-2 h-2 rounded-full bg-accent opacity-0 group-hover/check:opacity-100 transition-opacity" />
-                        )}
-                      </div>
-                    </button>
-
-                    {/* Title + notes */}
-                    <div className="flex-1 min-w-0">
-                      <h3
-                        className={cn(
-                          "text-sm font-semibold text-zinc-100 truncate transition-all tracking-tight",
-                          todo.payload.completed &&
-                            "line-through text-zinc-500",
-                        )}
-                      >
-                        {todo.payload.title}
-                      </h3>
-                      {todo.payload.notes && (
-                        <p className="text-xs text-zinc-500 truncate mt-0.5 font-medium">
-                          {todo.payload.notes}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Action buttons — min 44px touch targets */}
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <button
-                        onClick={() => openEditModal(todo)}
-                        className="p-2.5 text-zinc-600 hover:text-accent hover:bg-accent/10 rounded-xl transition-all touch-manipulation"
-                        aria-label="Edit task"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(todo._id)}
-                        className="p-2.5 text-zinc-600 hover:text-danger hover:bg-danger/10 rounded-xl transition-all touch-manipulation"
-                        aria-label="Delete task"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Metadata row — always visible, aligned with title */}
-                  {(todo.payload.priority || todo.payload.due_date) && (
-                    <div className="flex items-center gap-2 mt-2 ml-9 flex-wrap">
-                      {todo.payload.priority && (
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider",
-                            todo.payload.completed
-                              ? "bg-zinc-900 border-zinc-800 text-zinc-600"
-                              : todo.payload.priority === "high"
-                                ? "bg-danger/10 border-danger/20 text-danger"
-                                : todo.payload.priority === "medium"
-                                  ? "bg-warning/10 border-warning/20 text-warning"
-                                  : "bg-success/10 border-success/20 text-success",
-                          )}
-                        >
-                          <Flag className="w-3 h-3" />
-                          {todo.payload.priority}
-                        </div>
-                      )}
-                      {todo.payload.due_date && (
-                        <div
-                          className={cn(
-                            "flex items-center gap-1 px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider",
-                            todo.payload.completed
-                              ? "bg-zinc-900 border-zinc-800 text-zinc-600"
-                              : new Date(todo.payload.due_date) < new Date()
-                                ? "bg-danger/10 border-danger/20 text-danger"
-                                : "bg-zinc-800 border-zinc-700 text-zinc-400",
-                          )}
-                        >
-                          <Calendar className="w-3 h-3" />
-                          {new Date(todo.payload.due_date).toLocaleDateString(
-                            undefined,
-                            { month: "short", day: "numeric" },
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
+                  todo={todo}
+                  onToggle={toggleComplete}
+                  onEdit={openEditModal}
+                  onDelete={setConfirmDeleteId}
+                />
               ))}
             </AnimatePresence>
           </div>
