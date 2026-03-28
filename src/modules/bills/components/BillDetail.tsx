@@ -389,7 +389,7 @@ export default function BillDetail({
 
             {/* Centered image */}
             <div
-              className="flex items-center justify-center w-full h-full p-4 pt-16 pb-4"
+              className="w-full h-full p-6 pt-20 pb-6 flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
               <motion.img
@@ -398,7 +398,7 @@ export default function BillDetail({
                 exit={{ scale: 0.9 }}
                 src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
                 alt={previewAttachment.filename}
-                className="max-w-full max-h-full rounded-xl object-contain"
+                className="w-full h-full rounded-xl object-contain object-center"
                 onClick={() => setPreviewAttachment(null)}
               />
             </div>
