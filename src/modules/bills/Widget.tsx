@@ -58,10 +58,13 @@ export default function BillsWidget() {
                 {stats.recentBill.payload.name}
               </p>
               <p className="text-[10px] text-zinc-600 mt-0.5">
-                {new Date(stats.recentBill.payload.bill_date).toLocaleDateString(
-                  undefined,
-                  { month: "short", day: "numeric", year: "numeric" },
-                )}
+                {new Date(
+                  stats.recentBill.payload.bill_date,
+                ).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </p>
             </div>
           ) : (

@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "lucide-react";
 import getCroppedImg from "@/lib/cropImage";
 import { createPortal } from "react-dom";
@@ -49,13 +48,8 @@ export default function ImageCropper({
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6"
-    >
-      <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-full">
+    <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-4 sm:p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
           <h3 className="text-base sm:text-lg font-bold text-zinc-50">
             Crop Photo
@@ -63,7 +57,7 @@ export default function ImageCropper({
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="p-1 rounded-lg hover:bg-zinc-800 disabled:opacity-50"
+            className="p-1 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition-colors"
           >
             <X className="w-5 h-5 text-zinc-400" />
           </button>
@@ -83,7 +77,7 @@ export default function ImageCropper({
           />
         </div>
 
-        <div className="p-6 space-y-6 shrink-0">
+        <div className="p-6 space-y-6 shrink-0 bg-zinc-950 border-t border-zinc-900">
           <div>
             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-3">
               Zoom
@@ -125,7 +119,7 @@ export default function ImageCropper({
           </div>
         </div>
       </div>
-    </motion.div>,
+    </div>,
     document.body,
   );
 }

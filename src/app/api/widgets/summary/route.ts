@@ -17,7 +17,11 @@ function computeFirstDueDate(startISO: string, dueDay: number) {
   return clampDueDay(start.getFullYear(), start.getMonth() + 1, dueDay);
 }
 
-function computeEmiFromFormula(principal: number, annualRate: number, months: number) {
+function computeEmiFromFormula(
+  principal: number,
+  annualRate: number,
+  months: number,
+) {
   const r = annualRate / 12 / 100;
   if (months <= 0) return 0;
   if (r === 0) return principal / months;
@@ -33,7 +37,9 @@ function roundTo(n: number, decimals: number) {
 function computeScheduleLite(loan: any, decimals: number) {
   const processingFee =
     (loan.processing_fee_amount ?? 0) +
-    (loan.processing_fee_percent ? (loan.processing_fee_percent / 100) * loan.principal : 0);
+    (loan.processing_fee_percent
+      ? (loan.processing_fee_percent / 100) * loan.principal
+      : 0);
   const financedFee = loan.processing_fee_financed ? processingFee : 0;
   const basePrincipal = loan.principal + financedFee;
 
@@ -43,42 +49,66 @@ function computeScheduleLite(loan: any, decimals: number) {
   const dueDay = loan.due_day_of_month;
 
   const adjustments = [...(loan.rate_adjustments || [])]
-    .filter((a: any) => !!a.effective_date && Number.isFinite(a.annual_interest_rate))
-    .sort((a, b) => new Date(a.effective_date).getTime() - new Date(b.effective_date).getTime());
+    .filter(
+      (a: any) => !!a.effective_date && Number.isFinite(a.annual_interest_rate),
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.effective_date).getTime() -
+        new Date(b.effective_date).getTime(),
+    );
 
   const getAnnualRateForDueDate = (dueDate: Date) => {
     let rate = loan.annual_interest_rate;
     for (const adj of adjustments) {
-      if (new Date(adj.effective_date).getTime() <= dueDate.getTime()) rate = adj.annual_interest_rate;
+      if (new Date(adj.effective_date).getTime() <= dueDate.getTime())
+        rate = adj.annual_interest_rate;
       else break;
     }
     return rate;
   };
 
-  const strategy = loan.interest_type === "floating" ? loan.recast_strategy : "keep_emi_adjust_tenure";
+  const strategy =
+    loan.interest_type === "floating"
+      ? loan.recast_strategy
+      : "keep_emi_adjust_tenure";
   const plannedMonths = loan.tenure_months;
   const hardCapMonths = 480;
-  const maxMonths = strategy === "keep_emi_adjust_tenure" ? hardCapMonths : plannedMonths;
+  const maxMonths =
+    strategy === "keep_emi_adjust_tenure" ? hardCapMonths : plannedMonths;
 
   let balance = basePrincipal;
   let currentEmi = loan.monthly_emi;
   const rows = [];
 
   for (let i = 0; i < maxMonths; i++) {
-    const dueDate = clampDueDay(firstDue.getFullYear(), firstDue.getMonth() + i, dueDay);
+    const dueDate = clampDueDay(
+      firstDue.getFullYear(),
+      firstDue.getMonth() + i,
+      dueDay,
+    );
     const annualRate = getAnnualRateForDueDate(dueDate);
     const r = annualRate / 12 / 100;
 
-    if (loan.interest_type === "floating" && strategy === "keep_tenure_adjust_emi") {
-      const prevDue = clampDueDay(dueDate.getFullYear(), dueDate.getMonth() - 1, dueDay);
-      const prevRate = i === 0 ? loan.annual_interest_rate : getAnnualRateForDueDate(prevDue);
+    if (
+      loan.interest_type === "floating" &&
+      strategy === "keep_tenure_adjust_emi"
+    ) {
+      const prevDue = clampDueDay(
+        dueDate.getFullYear(),
+        dueDate.getMonth() - 1,
+        dueDay,
+      );
+      const prevRate =
+        i === 0 ? loan.annual_interest_rate : getAnnualRateForDueDate(prevDue);
       if (annualRate !== prevRate) {
         const remaining = Math.max(1, plannedMonths - i);
         currentEmi = computeEmiFromFormula(balance, annualRate, remaining);
       }
     }
 
-    const emi = strategy === "keep_emi_adjust_tenure" ? loan.monthly_emi : currentEmi;
+    const emi =
+      strategy === "keep_emi_adjust_tenure" ? loan.monthly_emi : currentEmi;
     const interest = roundTo(balance * r, decimals);
     if (emi <= interest + 1e-9) break;
 
@@ -126,13 +156,19 @@ export async function GET(request: Request) {
         let latestService: any = null;
         let fuelCostThisMonth = 0;
         const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const monthStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1,
+        ).toISOString();
 
         const getExpiryStatus = (dateStr?: string) => {
           if (!dateStr) return "none";
           const expiry = new Date(dateStr);
           if (expiry < now) return "expired";
-          const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          const diffDays = Math.ceil(
+            (expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+          );
           if (diffDays <= 30) return "warning";
           return "ok";
         };
@@ -147,7 +183,8 @@ export async function GET(request: Request) {
           if (svc === "expired" || svc === "warning") alertCount++;
 
           for (const sr of p.service_records || []) {
-            if (!latestService || sr.date > latestService.date) latestService = sr;
+            if (!latestService || sr.date > latestService.date)
+              latestService = sr;
           }
 
           for (const fl of p.fuel_logs || []) {
@@ -155,7 +192,12 @@ export async function GET(request: Request) {
           }
         }
 
-        summary = { total: docs.length, alertCount, latestService, fuelCostThisMonth };
+        summary = {
+          total: docs.length,
+          alertCount,
+          latestService,
+          fuelCostThisMonth,
+        };
         break;
       }
 
@@ -166,14 +208,17 @@ export async function GET(request: Request) {
         const isOverdueOrSoon = (dateStr?: string) => {
           if (!dateStr) return false;
           const target = new Date(dateStr);
-          const diffDays = Math.ceil((target.getTime() - nowRef) / (1000 * 60 * 60 * 24));
+          const diffDays = Math.ceil(
+            (target.getTime() - nowRef) / (1000 * 60 * 60 * 24),
+          );
           return diffDays <= 7;
         };
 
         for (const p of docs) {
           const payload = p.payload;
           for (const med of payload.medications || []) {
-            if (med.status === "active" && isOverdueOrSoon(med.refill_date)) alertCount++;
+            if (med.status === "active" && isOverdueOrSoon(med.refill_date))
+              alertCount++;
           }
           for (const vac of payload.vaccinations || []) {
             if (isOverdueOrSoon(vac.next_due)) alertCount++;
@@ -188,26 +233,34 @@ export async function GET(request: Request) {
       }
 
       case "todo": {
-        const activeTodos = docs.filter((t) => !t.payload.completed).sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        const recentlyDone = docs.filter((t) => t.payload.completed).sort(
-          (a, b) =>
-            new Date(b.payload?.completed_at || b.updated_at).getTime() -
-            new Date(a.payload?.completed_at || a.updated_at).getTime()
-        );
+        const activeTodos = docs
+          .filter((t) => !t.payload.completed)
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+        const recentlyDone = docs
+          .filter((t) => t.payload.completed)
+          .sort(
+            (a, b) =>
+              new Date(b.payload?.completed_at || b.updated_at).getTime() -
+              new Date(a.payload?.completed_at || a.updated_at).getTime(),
+          );
 
         summary = {
           activeCount: activeTodos.length,
           doneCount: recentlyDone.length,
-          topActive: activeTodos.slice(0, 2).map((t) => ({ _id: t._id, title: t.payload.title })),
+          topActive: activeTodos
+            .slice(0, 2)
+            .map((t) => ({ _id: t._id, title: t.payload.title })),
         };
         break;
       }
 
       case "recurring_expense": {
         const act = docs.filter((s) => s.payload.is_active);
-        
+
         const monthlyEquivalent = (cost: number, cycle: string) => {
           if (cycle === "yearly") return cost / 12;
           if (cycle === "quarterly") return cost / 3;
@@ -216,28 +269,45 @@ export async function GET(request: Request) {
           return cost;
         };
 
-        const totalBurn = act.reduce((s, sub) => s + monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle), 0);
-        
+        const totalBurn = act.reduce(
+          (s, sub) =>
+            s + monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle),
+          0,
+        );
+
         let overdueCount = 0;
         let dueSoonCount = 0;
         let nextRenewal: any = null;
 
         for (const s of act) {
           const payload = s.payload;
-          const diffDays = Math.ceil((new Date(payload.next_renewal_date).getTime() - nowRef) / (1000 * 60 * 60 * 24));
-          
+          const diffDays = Math.ceil(
+            (new Date(payload.next_renewal_date).getTime() - nowRef) /
+              (1000 * 60 * 60 * 24),
+          );
+
           if (diffDays < 0) overdueCount++;
           if (diffDays >= 0 && diffDays <= 7) dueSoonCount++;
 
           if (payload.enable_reminders !== false) {
-            if (!nextRenewal || new Date(payload.next_renewal_date) < new Date(nextRenewal.next_renewal_date)) {
-              nextRenewal = { name: payload.name, next_renewal_date: payload.next_renewal_date };
+            if (
+              !nextRenewal ||
+              new Date(payload.next_renewal_date) <
+                new Date(nextRenewal.next_renewal_date)
+            ) {
+              nextRenewal = {
+                name: payload.name,
+                next_renewal_date: payload.next_renewal_date,
+              };
             }
           }
         }
 
         const daysUntilNext = nextRenewal
-          ? Math.ceil((new Date(nextRenewal.next_renewal_date).getTime() - nowRef) / (1000 * 60 * 60 * 24))
+          ? Math.ceil(
+              (new Date(nextRenewal.next_renewal_date).getTime() - nowRef) /
+                (1000 * 60 * 60 * 24),
+            )
           : null;
 
         summary = {
@@ -263,8 +333,12 @@ export async function GET(request: Request) {
           const payload = l.payload;
           const processingFee =
             (payload.processing_fee_amount ?? 0) +
-            (payload.processing_fee_percent ? (payload.processing_fee_percent / 100) * payload.principal : 0);
-          const financedFee = payload.processing_fee_financed ? processingFee : 0;
+            (payload.processing_fee_percent
+              ? (payload.processing_fee_percent / 100) * payload.principal
+              : 0);
+          const financedFee = payload.processing_fee_financed
+            ? processingFee
+            : 0;
           const startPrincipal = payload.principal + financedFee;
 
           const sched = computeScheduleLite(payload, decimals);
@@ -272,16 +346,29 @@ export async function GET(request: Request) {
           let outstanding = startPrincipal;
           let nextDue = null;
           if (sched.length > 0) {
-            nextDue = sched.find((r) => new Date(r.due_date).getTime() >= nowAsDate.getTime()) || null;
-            const last = [...sched].reverse().find((r) => new Date(r.due_date).getTime() < nowAsDate.getTime()) || null;
+            nextDue =
+              sched.find(
+                (r) => new Date(r.due_date).getTime() >= nowAsDate.getTime(),
+              ) || null;
+            const last =
+              [...sched]
+                .reverse()
+                .find(
+                  (r) => new Date(r.due_date).getTime() < nowAsDate.getTime(),
+                ) || null;
             if (last) outstanding = last.closing_balance;
           }
 
           const currencyKey = payload.currency || defaultCurrency;
-          outstandingByCurrencyMap[currencyKey] = (outstandingByCurrencyMap[currencyKey] || 0) + outstanding;
+          outstandingByCurrencyMap[currencyKey] =
+            (outstandingByCurrencyMap[currencyKey] || 0) + outstanding;
 
           if (nextDue) {
-            if (!nearest || new Date(nextDue.due_date).getTime() < new Date(nearest.due).getTime()) {
+            if (
+              !nearest ||
+              new Date(nextDue.due_date).getTime() <
+                new Date(nearest.due).getTime()
+            ) {
               nearest = { title: payload.title, due: nextDue.due_date };
             }
           }
@@ -294,7 +381,11 @@ export async function GET(request: Request) {
           }))
           .sort((a, b) => a.currency.localeCompare(b.currency));
 
-        summary = { activeCount: active.length, outstandingByCurrency, nearest };
+        summary = {
+          activeCount: active.length,
+          outstandingByCurrency,
+          nearest,
+        };
         break;
       }
 
@@ -305,15 +396,20 @@ export async function GET(request: Request) {
         for (const s of docs) {
           const payload = s.payload;
           totalAttachments += payload.attachments?.length || 0;
-          
+
           if (!recentBill) {
             recentBill = s;
-          } else if (new Date(s.created_at).getTime() > new Date(recentBill.created_at).getTime()) {
+          } else if (
+            new Date(s.created_at).getTime() >
+            new Date(recentBill.created_at).getTime()
+          ) {
             recentBill = s;
           }
         }
 
-        const folderDocs = await contentColl.find({ module_type: "bill_folder", is_public: false }).toArray();
+        const folderDocs = await contentColl
+          .find({ module_type: "bill_folder", is_public: false })
+          .toArray();
 
         summary = {
           total: docs.length,

@@ -353,76 +353,77 @@ export default function BillDetail({
       </div>
 
       {/* Image lightbox */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {previewAttachment && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md"
-              onClick={() => setPreviewAttachment(null)}
-            >
-            {/* Fixed top bar */}
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
-              <p className="text-sm text-zinc-300 font-medium truncate">
-                {previewAttachment.filename}
-                <span className="text-zinc-500 ml-2 text-xs">
-                  {formatBytes(previewAttachment.size)}
-                </span>
-              </p>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDownload(previewAttachment);
-                  }}
-                  className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
-                  title="Download"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setPreviewAttachment(null)}
-                  className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
-                  title="Close (Esc)"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {previewAttachment && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md"
+                onClick={() => setPreviewAttachment(null)}
+              >
+                {/* Fixed top bar */}
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
+                  <p className="text-sm text-zinc-300 font-medium truncate">
+                    {previewAttachment.filename}
+                    <span className="text-zinc-500 ml-2 text-xs">
+                      {formatBytes(previewAttachment.size)}
+                    </span>
+                  </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(previewAttachment);
+                      }}
+                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                      title="Download"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setPreviewAttachment(null)}
+                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                      title="Close (Esc)"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
 
-            {/* Centered preview */}
-            <div
-              className="w-full h-full p-6 pt-20 pb-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {previewAttachment.content_type.startsWith("image/") ? (
-                <motion.img
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0.9 }}
-                  src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
-                  alt={previewAttachment.filename}
-                  className="w-full h-full rounded-xl object-contain object-center shadow-2xl"
-                  onClick={() => setPreviewAttachment(null)}
-                />
-              ) : (
-                <motion.iframe
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.9, opacity: 0 }}
-                  src={`data:application/pdf;base64,${previewAttachment.data}#toolbar=0&view=Fit`}
-                  title={previewAttachment.filename}
-                  className="w-full h-full rounded-xl border border-zinc-800 shadow-2xl bg-white"
-                />
-              )}
-            </div>
-          </motion.div>
+                {/* Centered preview */}
+                <div
+                  className="w-full h-full p-6 pt-20 pb-6"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {previewAttachment.content_type.startsWith("image/") ? (
+                    <motion.img
+                      initial={{ scale: 0.9 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0.9 }}
+                      src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
+                      alt={previewAttachment.filename}
+                      className="w-full h-full rounded-xl object-contain object-center shadow-2xl"
+                      onClick={() => setPreviewAttachment(null)}
+                    />
+                  ) : (
+                    <motion.iframe
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      src={`data:application/pdf;base64,${previewAttachment.data}#toolbar=0&view=Fit`}
+                      title={previewAttachment.filename}
+                      className="w-full h-full rounded-xl border border-zinc-800 shadow-2xl bg-white"
+                    />
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-        </AnimatePresence>,
-        document.body
-      )}
     </>
   );
 }

@@ -63,7 +63,8 @@ export default function HealthWidget() {
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
                 <p className="text-[13px] text-warning font-medium leading-relaxed">
-                  {summary.alertCount} alert{summary.alertCount !== 1 ? "s" : ""}
+                  {summary.alertCount} alert
+                  {summary.alertCount !== 1 ? "s" : ""}
                 </p>
               </div>
               <p className="text-[10px] text-zinc-600 mt-1 ml-5.5">
@@ -82,4 +83,3 @@ export default function HealthWidget() {
     </WidgetCard>
   );
 }
-

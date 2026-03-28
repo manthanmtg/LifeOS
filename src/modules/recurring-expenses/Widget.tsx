@@ -41,7 +41,7 @@ export default function RecurringExpensesWidget() {
     "recurringExpenseSettings",
     { defaultCurrency: "USD", enableReminders: true, numberFormat: "western" },
   );
-  
+
   const [summary, setSummary] = useState<RecurringSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
@@ -145,4 +145,3 @@ export default function RecurringExpensesWidget() {
     </WidgetCard>
   );
 }
-

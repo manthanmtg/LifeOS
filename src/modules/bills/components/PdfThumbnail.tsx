@@ -45,12 +45,14 @@ export default function PdfThumbnail({
       <div
         className={cn(
           "flex flex-col items-center justify-center bg-zinc-800/50 border-b border-zinc-800",
-          className
+          className,
         )}
       >
         <FileText
           className={
-            isListRow ? "w-4 h-4 text-danger/80" : "w-10 h-10 text-danger/70 mb-2"
+            isListRow
+              ? "w-4 h-4 text-danger/80"
+              : "w-10 h-10 text-danger/70 mb-2"
           }
         />
       </div>
@@ -61,14 +63,12 @@ export default function PdfThumbnail({
     <div
       className={cn(
         "overflow-hidden flex items-center justify-center bg-zinc-800",
-        className
+        className,
       )}
     >
       <Document
         file={file}
-        loading={
-          <div className="animate-pulse bg-zinc-800 w-full h-full" />
-        }
+        loading={<div className="animate-pulse bg-zinc-800 w-full h-full" />}
         error={() => {
           setError(true);
           return null;

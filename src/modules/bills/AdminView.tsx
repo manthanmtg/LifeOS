@@ -22,7 +22,6 @@ import {
   List,
   UploadCloud,
   ImageIcon,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -389,8 +388,8 @@ function BillCard({
   const firstImage = bill.payload.attachments?.find((a) =>
     a.content_type.startsWith("image/"),
   );
-  const firstPDF = bill.payload.attachments?.find((a) =>
-    a.content_type === "application/pdf"
+  const firstPDF = bill.payload.attachments?.find(
+    (a) => a.content_type === "application/pdf",
   );
 
   return (
@@ -412,9 +411,9 @@ function BillCard({
           />
         </div>
       ) : firstPDF ? (
-        <PdfThumbnail 
-          base64Data={firstPDF.data} 
-          className="h-28 sm:h-32 w-full shrink-0 border-b border-zinc-800" 
+        <PdfThumbnail
+          base64Data={firstPDF.data}
+          className="h-28 sm:h-32 w-full shrink-0 border-b border-zinc-800"
         />
       ) : (
         <div className="h-20 sm:h-24 w-full bg-zinc-800/30 flex items-center justify-center shrink-0 border-b border-zinc-800/50">
@@ -505,10 +504,14 @@ function BillListRow({
             <ImageIcon className="w-4 h-4 text-accent/80" />
           </div>
         ) : hasPDF ? (
-          <PdfThumbnail 
-             base64Data={bill.payload.attachments!.find(a => a.content_type === "application/pdf")!.data}
-             className="w-9 h-9 rounded-lg shrink-0 pointer-events-none"
-             isListRow
+          <PdfThumbnail
+            base64Data={
+              bill.payload.attachments!.find(
+                (a) => a.content_type === "application/pdf",
+              )!.data
+            }
+            className="w-9 h-9 rounded-lg shrink-0 pointer-events-none"
+            isListRow
           />
         ) : (
           <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0">
@@ -521,7 +524,8 @@ function BillListRow({
           </p>
           <p className="text-[11px] text-zinc-500 truncate flex items-center gap-2 mt-0.5">
             <span className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> {formatDate(bill.payload.bill_date)}
+              <Calendar className="w-3 h-3" />{" "}
+              {formatDate(bill.payload.bill_date)}
             </span>
             {folder && (
               <>
@@ -969,12 +973,15 @@ export default function BillsAdminView() {
         } catch (e) {
           console.error("Upload failed", e);
         }
-      })
+      }),
     );
 
     setGlobalUploading(false);
     if (successCount > 0) {
-      showToast(`Uploaded ${successCount} document${successCount !== 1 ? 's' : ''}`, "success");
+      showToast(
+        `Uploaded ${successCount} document${successCount !== 1 ? "s" : ""}`,
+        "success",
+      );
     }
   };
 
@@ -983,12 +990,12 @@ export default function BillsAdminView() {
   if (loading) return <AdminModuleSkeleton />;
 
   return (
-    <div 
+    <div
       className="animate-fade-in-up h-full relative"
       onDragOver={(e) => {
         if (!draggedBillId && e.dataTransfer.types.includes("Files")) {
-           e.preventDefault();
-           setIsDropTarget(true);
+          e.preventDefault();
+          setIsDropTarget(true);
         }
       }}
       onDragLeave={(e) => {
@@ -1006,25 +1013,31 @@ export default function BillsAdminView() {
             exit={{ opacity: 0 }}
             className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center border-2 border-dashed border-accent m-2"
           >
-             <UploadCloud className="w-16 h-16 text-accent mb-4 animate-bounce" />
-             <h2 className="text-2xl font-bold text-white tracking-tight">Drop files to upload</h2>
-             <p className="text-zinc-400 mt-2">Instantly create bills from documents</p>
+            <UploadCloud className="w-16 h-16 text-accent mb-4 animate-bounce" />
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              Drop files to upload
+            </h2>
+            <p className="text-zinc-400 mt-2">
+              Instantly create bills from documents
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-         {globalUploading && (
-            <motion.div
-               initial={{ opacity: 0, y: 32 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: 32 }}
-               className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-zinc-900 border border-zinc-700 shadow-2xl rounded-2xl p-4 flex items-center gap-4"
-            >
-               <div className="w-5 h-5 border-2 border-zinc-600 border-t-accent rounded-full animate-spin shrink-0" />
-               <p className="text-sm font-medium text-zinc-200">Processing documents...</p>
-            </motion.div>
-         )}
+        {globalUploading && (
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 32 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-zinc-900 border border-zinc-700 shadow-2xl rounded-2xl p-4 flex items-center gap-4"
+          >
+            <div className="w-5 h-5 border-2 border-zinc-600 border-t-accent rounded-full animate-spin shrink-0" />
+            <p className="text-sm font-medium text-zinc-200">
+              Processing documents...
+            </p>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Toast */}
@@ -1217,7 +1230,9 @@ export default function BillsAdminView() {
                       folder={
                         currentFolderId
                           ? undefined
-                          : folders.find((f) => f._id === bill.payload.folder_id)
+                          : folders.find(
+                              (f) => f._id === bill.payload.folder_id,
+                            )
                       }
                       onClick={() => setDetailBill(bill)}
                       onEdit={(b) => setBillModal({ open: true, bill: b })}
@@ -1234,7 +1249,9 @@ export default function BillsAdminView() {
                       folder={
                         currentFolderId
                           ? undefined
-                          : folders.find((f) => f._id === bill.payload.folder_id)
+                          : folders.find(
+                              (f) => f._id === bill.payload.folder_id,
+                            )
                       }
                       onClick={() => setDetailBill(bill)}
                       onEdit={(b) => setBillModal({ open: true, bill: b })}

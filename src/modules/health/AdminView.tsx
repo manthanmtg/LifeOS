@@ -460,7 +460,10 @@ export default function HealthAdminView() {
   );
   const [formData, setFormData] = useState<HealthPayload>(emptyPayload());
   const [allergyInput, setAllergyInput] = useState("");
-  const [cropFileState, setCropFileState] = useState<{ url: string; type: string } | null>(null);
+  const [cropFileState, setCropFileState] = useState<{
+    url: string;
+    type: string;
+  } | null>(null);
 
   // Detail view
   const [selectedProfile, setSelectedProfile] = useState<HealthProfile | null>(
@@ -532,18 +535,24 @@ export default function HealthAdminView() {
     fetchProfiles();
   }, [fetchProfiles]);
 
-  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePicUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       showToast("Only images are allowed for profile pictures", "error");
       return;
     }
-    
-    const url = URL.createObjectURL(file);
-    setCropFileState({ url, type: file.type });
-    // Reset file input
-    if (e.target) e.target.value = "";
+
+    try {
+      const url = URL.createObjectURL(file);
+      setCropFileState({ url, type: file.type });
+    } catch (err) {
+      console.error("Blob generation failed", err);
+      showToast("Failed to process image", "error");
+    }
+    // We purposely don't reset value here to handle potential Safari re-upload issues
   };
 
   const handleCropComplete = (base64Data: string, mimeType: string) => {
@@ -1126,7 +1135,9 @@ export default function HealthAdminView() {
                     ) : (
                       <div className="text-zinc-500 group-hover:text-zinc-300 transition-colors flex flex-col items-center">
                         <Plus className="w-6 h-6 mb-1" />
-                        <span className="text-[10px] font-medium uppercase tracking-wider">Photo</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">
+                          Photo
+                        </span>
                       </div>
                     )}
                     <input
@@ -1138,7 +1149,9 @@ export default function HealthAdminView() {
                   </label>
                   {formData.profile_pic && (
                     <button
-                      onClick={() => setFormData(f => ({ ...f, profile_pic: undefined }))}
+                      onClick={() =>
+                        setFormData((f) => ({ ...f, profile_pic: undefined }))
+                      }
                       className="mt-3 text-[11px] font-medium text-danger hover:text-red-400 transition-colors uppercase tracking-wider"
                     >
                       Remove Photo
@@ -1392,6 +1405,15 @@ export default function HealthAdminView() {
             </div>
           ))}
         </div>
+
+        {cropFileState && (
+          <ImageCropper
+            imageSrc={cropFileState.url}
+            mimeType={cropFileState.type}
+            onClose={closeCropper}
+            onCropComplete={handleCropComplete}
+          />
+        )}
       </div>
     );
   }
@@ -3207,6 +3229,15 @@ export default function HealthAdminView() {
           isVisible={toast.visible}
           onClose={() => setToast((t) => ({ ...t, visible: false }))}
         />
+
+        {cropFileState && (
+          <ImageCropper
+            imageSrc={cropFileState.url}
+            mimeType={cropFileState.type}
+            onClose={closeCropper}
+            onCropComplete={handleCropComplete}
+          />
+        )}
       </div>
     );
   }
