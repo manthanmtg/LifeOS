@@ -103,6 +103,10 @@ const widgetImports: Record<string, ComponentType> = {
     ssr: false,
     loading: () => <WidgetSkeleton />,
   }),
+  "crop-history": dynamic(() => import("@/modules/crop-history/Widget"), {
+    ssr: false,
+    loading: () => <WidgetSkeleton />,
+  }),
 };
 
 interface ModuleVisibility {

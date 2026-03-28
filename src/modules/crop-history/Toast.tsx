@@ -35,7 +35,7 @@ export default function Toast({
   const colors = {
     success: "border-success/20 bg-success/10 text-success",
     error: "border-danger/20 bg-danger/10 text-danger",
-    info: "border-blue-500/20 bg-blue-500/10 text-blue-400",
+    info: "border-accent/20 bg-accent/10 text-accent",
   }[type];
 
   return (

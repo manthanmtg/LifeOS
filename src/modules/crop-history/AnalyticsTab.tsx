@@ -363,98 +363,122 @@ function CropAnalytics({
       {kpiData && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {revenueField && (
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-4 h-4 text-success" />
-                <p className="text-sm font-medium text-zinc-400">
-                  {kpiData.revenue.label} ({kpiData.latestPeriod})
+            <div className="relative overflow-hidden bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+              <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-success/10 blur-2xl" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-success/10">
+                    <DollarSign className="w-3.5 h-3.5 text-success" />
+                  </div>
+                  <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    {kpiData.revenue.label}
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-success">
+                  {formatINR(kpiData.revenue.current)}
+                </p>
+                <p className="text-[10px] text-zinc-500 mt-0.5">
+                  {kpiData.latestPeriod}
+                </p>
+                {kpiData.prevPeriod &&
+                  (() => {
+                    const c = pctChange(
+                      kpiData.revenue.current,
+                      kpiData.revenue.previous,
+                    );
+                    if (c === null) return null;
+                    return (
+                      <p
+                        className={cn(
+                          "text-xs mt-2 flex items-center gap-1",
+                          c > 0 ? "text-success" : "text-danger",
+                        )}
+                      >
+                        {c > 0 ? (
+                          <TrendingUp className="w-3 h-3" />
+                        ) : (
+                          <TrendingDown className="w-3 h-3" />
+                        )}
+                        {c > 0 ? "+" : ""}
+                        {c.toFixed(1)}% vs {kpiData.prevPeriod}
+                      </p>
+                    );
+                  })()}
+                <p className="text-[10px] text-zinc-600 mt-2 pt-2 border-t border-zinc-800">
+                  Avg / {kpiData.totalPeriods} periods:{" "}
+                  {formatINR(kpiData.revenue.avg)}
                 </p>
               </div>
-              <p className="text-2xl font-bold text-success">
-                {formatINR(kpiData.revenue.current)}
-              </p>
-              {kpiData.prevPeriod &&
-                (() => {
-                  const c = pctChange(
-                    kpiData.revenue.current,
-                    kpiData.revenue.previous,
-                  );
-                  if (c === null) return null;
-                  return (
-                    <p
-                      className={cn(
-                        "text-xs mt-1 flex items-center gap-1",
-                        c > 0 ? "text-success" : "text-danger",
-                      )}
-                    >
-                      {c > 0 ? (
-                        <TrendingUp className="w-3 h-3" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3" />
-                      )}
-                      {c > 0 ? "+" : ""}
-                      {c.toFixed(1)}% from {kpiData.prevPeriod}
-                    </p>
-                  );
-                })()}
-              <p className="text-[10px] text-zinc-600 mt-2">
-                Avg across {kpiData.totalPeriods} periods:{" "}
-                {formatINR(kpiData.revenue.avg)}
-              </p>
             </div>
           )}
           {yieldField && (
-            <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Wheat className="w-4 h-4 text-blue-500" />
-                <p className="text-sm font-medium text-zinc-400">
-                  Total {kpiData.yield.label} ({kpiData.latestPeriod})
+            <div className="relative overflow-hidden bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+              <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-accent/10 blur-2xl" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-accent/10">
+                    <Wheat className="w-3.5 h-3.5 text-accent" />
+                  </div>
+                  <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                    {kpiData.yield.label}
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-accent">
+                  {formatNum(kpiData.yield.current, 0)}
+                  {kpiData.yield.unit ? ` ${kpiData.yield.unit}` : ""}
                 </p>
+                <p className="text-[10px] text-zinc-500 mt-0.5">
+                  {kpiData.latestPeriod}
+                </p>
+                {kpiData.prevPeriod &&
+                  (() => {
+                    const c = pctChange(
+                      kpiData.yield.current,
+                      kpiData.yield.previous,
+                    );
+                    if (c === null) return null;
+                    return (
+                      <p
+                        className={cn(
+                          "text-xs mt-2 flex items-center gap-1",
+                          c > 0 ? "text-success" : "text-danger",
+                        )}
+                      >
+                        {c > 0 ? (
+                          <TrendingUp className="w-3 h-3" />
+                        ) : (
+                          <TrendingDown className="w-3 h-3" />
+                        )}
+                        {c > 0 ? "+" : ""}
+                        {c.toFixed(1)}% vs {kpiData.prevPeriod}
+                      </p>
+                    );
+                  })()}
               </div>
-              <p className="text-2xl font-bold text-blue-400">
-                {formatNum(kpiData.yield.current, 0)}
-                {kpiData.yield.unit ? ` ${kpiData.yield.unit}` : ""}
-              </p>
-              {kpiData.prevPeriod &&
-                (() => {
-                  const c = pctChange(
-                    kpiData.yield.current,
-                    kpiData.yield.previous,
-                  );
-                  if (c === null) return null;
-                  return (
-                    <p
-                      className={cn(
-                        "text-xs mt-1 flex items-center gap-1",
-                        c > 0 ? "text-success" : "text-danger",
-                      )}
-                    >
-                      {c > 0 ? (
-                        <TrendingUp className="w-3 h-3" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3" />
-                      )}
-                      {c > 0 ? "+" : ""}
-                      {c.toFixed(1)}% from {kpiData.prevPeriod}
-                    </p>
-                  );
-                })()}
             </div>
           )}
-          <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-4 h-4 text-warning" />
-              <p className="text-sm font-medium text-zinc-400">
-                Best Area ({kpiData.latestPeriod})
+          <div className="relative overflow-hidden bg-zinc-900 border border-zinc-800 p-5 rounded-2xl">
+            <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-warning/10 blur-2xl" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 rounded-lg bg-warning/10">
+                  <MapPin className="w-3.5 h-3.5 text-warning" />
+                </div>
+                <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                  Best Area
+                </p>
+              </div>
+              <p className="text-2xl font-bold text-zinc-100">
+                {kpiData.bestArea.name}
+              </p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">
+                {kpiData.latestPeriod}
+              </p>
+              <p className="text-xs text-warning mt-2">
+                {formatNum(kpiData.bestArea.value, 0)}{" "}
+                {kpiData.bestArea.unit || kpiData.bestArea.fieldName}
               </p>
             </div>
-            <p className="text-2xl font-bold text-zinc-100">
-              {kpiData.bestArea.name}
-            </p>
-            <p className="text-xs text-zinc-500 mt-1">
-              {formatNum(kpiData.bestArea.value, 0)}{" "}
-              {kpiData.bestArea.unit || kpiData.bestArea.fieldName}
-            </p>
           </div>
         </div>
       )}
@@ -710,11 +734,11 @@ function CropAnalytics({
                     : null;
                 const isCurrency = f.format === "currency";
                 return (
-                  <tr key={f.id} className="hover:bg-zinc-800/30 bg-blue-950/5">
-                    <td className="px-3 py-2.5 text-blue-400/80 font-medium">
+                  <tr key={f.id} className="hover:bg-zinc-800/30 bg-accent/5">
+                    <td className="px-3 py-2.5 text-accent/80 font-medium">
                       {f.name}
                       {f.unit && (
-                        <span className="text-blue-500/40 ml-1 text-xs">
+                        <span className="text-accent/40 ml-1 text-xs">
                           {f.unit}
                         </span>
                       )}
@@ -722,7 +746,7 @@ function CropAnalytics({
                     {values.map((v: number, i: number) => (
                       <td
                         key={i}
-                        className="text-right px-3 py-2.5 text-blue-300 font-mono font-medium"
+                        className="text-right px-3 py-2.5 text-accent font-mono font-medium"
                       >
                         {isCurrency ? formatINR(v) : formatNum(v, 1)}
                       </td>

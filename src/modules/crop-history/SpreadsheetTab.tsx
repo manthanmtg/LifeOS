@@ -809,9 +809,9 @@ export function SpreadsheetTab({
 
               {/* Calculated Fields */}
               {activeCrop.calculatedFields.length > 0 && (
-                <tr className="bg-blue-950/10 hover:bg-blue-950/20 transition-colors border-t-2 border-blue-900/20">
+                <tr className="bg-accent/5 hover:bg-accent/10 transition-colors border-t-2 border-accent/20">
                   <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
-                    <div className="font-semibold text-blue-400 text-xs md:text-sm">
+                    <div className="font-semibold text-accent text-xs md:text-sm">
                       Calculated
                     </div>
                     <div className="text-[10px] text-zinc-500 mt-1 hidden md:block">
@@ -838,17 +838,17 @@ export function SpreadsheetTab({
                               return (
                                 <div
                                   key={f.id}
-                                  className="flex justify-between items-center px-4 py-2 bg-blue-950/5"
+                                  className="flex justify-between items-center px-4 py-2 bg-accent/5"
                                 >
                                   <span
-                                    className="text-xs text-blue-400/70 w-16 md:w-24 shrink-0 truncate"
+                                    className="text-xs text-accent/70 w-16 md:w-24 shrink-0 truncate"
                                     title={`${f.name} = ${f.formula}`}
                                   >
                                     {f.name}
                                   </span>
                                   <div className="flex items-center gap-1">
                                     <div
-                                      className="w-24 text-right text-blue-300 font-mono font-medium p-1 truncate"
+                                      className="w-24 text-right text-accent font-mono font-medium p-1 truncate"
                                       title={val.toString()}
                                     >
                                       {formatCalcValue(val, f.format, f.unit)}
