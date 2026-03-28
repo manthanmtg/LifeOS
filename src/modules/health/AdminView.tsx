@@ -151,6 +151,10 @@ interface HealthPayload {
   blood_group: BloodGroup;
   gender?: Gender;
   avatar_url?: string;
+  profile_pic?: {
+    data: string;
+    content_type: string;
+  };
   emergency_contact?: string;
   insurance_info?: string;
   allergies: string[];
@@ -525,6 +529,28 @@ export default function HealthAdminView() {
   useEffect(() => {
     fetchProfiles();
   }, [fetchProfiles]);
+
+  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showToast("Only images are allowed for profile pictures", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Data = result.split(",")[1];
+      setFormData((f) => ({
+        ...f,
+        profile_pic: {
+          data: base64Data,
+          content_type: file.type,
+        },
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const saveProfile = async () => {
     if (!formData.name.trim()) {
@@ -1078,6 +1104,36 @@ export default function HealthAdminView() {
                 </button>
               </div>
               <div className="p-4 sm:p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
+                <div className="flex flex-col items-center justify-center pb-2">
+                  <label className="relative group cursor-pointer w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 flex items-center justify-center overflow-hidden transition-all shadow-xl">
+                    {formData.profile_pic ? (
+                      <img
+                        src={`data:${formData.profile_pic.content_type};base64,${formData.profile_pic.data}`}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-zinc-500 group-hover:text-zinc-300 transition-colors flex flex-col items-center">
+                        <Plus className="w-6 h-6 mb-1" />
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Photo</span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePicUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {formData.profile_pic && (
+                    <button
+                      onClick={() => setFormData(f => ({ ...f, profile_pic: undefined }))}
+                      className="mt-3 text-[11px] font-medium text-danger hover:text-red-400 transition-colors uppercase tracking-wider"
+                    >
+                      Remove Photo
+                    </button>
+                  )}
+                </div>
                 <div>
                   <label className={labelCls}>Name *</label>
                   <input
@@ -1379,12 +1435,20 @@ export default function HealthAdminView() {
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div
               className={cn(
-                "w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0",
+                "w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 overflow-hidden",
                 typeConfig.bg,
                 typeConfig.color,
               )}
             >
-              {getInitials(p.name)}
+              {p.profile_pic ? (
+                <img
+                  src={`data:${p.profile_pic.content_type};base64,${p.profile_pic.data}`}
+                  alt={p.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getInitials(p.name)
+              )}
             </div>
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold text-zinc-50 tracking-tight truncate">
@@ -3248,12 +3312,20 @@ export default function HealthAdminView() {
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0",
+                      "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden",
                       typeConfig.bg,
                       typeConfig.color,
                     )}
                   >
-                    {getInitials(pl.name)}
+                    {pl.profile_pic ? (
+                      <img
+                        src={`data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`}
+                        alt={pl.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getInitials(pl.name)
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-base font-bold text-zinc-100 truncate">

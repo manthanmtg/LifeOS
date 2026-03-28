@@ -590,6 +590,12 @@ export const HealthProfileSchema = z.object({
     .default("unknown"),
   gender: z.enum(["male", "female", "other"]).optional(),
   avatar_url: z.string().optional(),
+  profile_pic: z
+    .object({
+      data: z.string(),
+      content_type: z.string(),
+    })
+    .optional(),
   emergency_contact: z.string().optional(),
   insurance_info: z.string().optional(),
   allergies: z.array(z.string()).default([]),
