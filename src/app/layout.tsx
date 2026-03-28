@@ -4,7 +4,6 @@ import "./globals.css";
 import { Suspense } from "react";
 import ThemeProvider from "@/components/ThemeProvider";
 import MetricsTracker from "@/components/analytics/MetricsTracker";
-import PageVisitTracker from "@/components/shell/PageVisitTracker";
 import { ensureSystemConfig } from "@/lib/seed";
 import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
@@ -110,7 +109,6 @@ export default async function RootLayout({
         <ThemeProvider defaultTheme={activeTheme}>
           <Suspense fallback={null}>
             <MetricsTracker />
-            <PageVisitTracker />
           </Suspense>
           {children}
         </ThemeProvider>
