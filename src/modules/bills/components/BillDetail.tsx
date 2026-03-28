@@ -110,7 +110,10 @@ export default function BillDetail({
   };
 
   const handlePreview = (attachment: Bill["payload"]["attachments"][0]) => {
-    if (attachment.content_type.startsWith("image/")) {
+    if (
+      attachment.content_type.startsWith("image/") ||
+      attachment.content_type === "application/pdf"
+    ) {
       setPreviewAttachment(attachment);
     } else {
       const blob = new Blob(
@@ -387,20 +390,31 @@ export default function BillDetail({
               </div>
             </div>
 
-            {/* Centered image */}
+            {/* Centered preview */}
             <div
               className="w-full h-full p-6 pt-20 pb-6 flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <motion.img
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-                src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
-                alt={previewAttachment.filename}
-                className="w-full h-full rounded-xl object-contain object-center"
-                onClick={() => setPreviewAttachment(null)}
-              />
+              {previewAttachment.content_type.startsWith("image/") ? (
+                <motion.img
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.9 }}
+                  src={`data:${previewAttachment.content_type};base64,${previewAttachment.data}`}
+                  alt={previewAttachment.filename}
+                  className="w-full h-full rounded-xl object-contain object-center shadow-2xl"
+                  onClick={() => setPreviewAttachment(null)}
+                />
+              ) : (
+                <motion.iframe
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  src={`data:application/pdf;base64,${previewAttachment.data}#toolbar=0`}
+                  title={previewAttachment.filename}
+                  className="w-full h-full rounded-xl border border-zinc-800 shadow-2xl bg-white"
+                />
+              )}
             </div>
           </motion.div>
         )}

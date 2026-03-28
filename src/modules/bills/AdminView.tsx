@@ -37,6 +37,7 @@ import {
 import BillDetail from "./components/BillDetail";
 import BillModal from "./components/BillModal";
 import MoveFolderModal from "./components/MoveFolderModal";
+import PdfThumbnail from "./components/PdfThumbnail";
 import type { Bill, BillFolder, BillAttachment } from "./types";
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
@@ -411,12 +412,10 @@ function BillCard({
           />
         </div>
       ) : firstPDF ? (
-        <div className="h-28 sm:h-32 w-full bg-zinc-800/50 flex flex-col items-center justify-center shrink-0 border-b border-zinc-800">
-          <FileText className="w-10 h-10 text-danger/70 mb-2" />
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest px-4 truncate w-full text-center">
-            {firstPDF.filename}
-          </span>
-        </div>
+        <PdfThumbnail 
+          base64Data={firstPDF.data} 
+          className="h-28 sm:h-32 w-full shrink-0 border-b border-zinc-800" 
+        />
       ) : (
         <div className="h-20 sm:h-24 w-full bg-zinc-800/30 flex items-center justify-center shrink-0 border-b border-zinc-800/50">
           <Receipt className="w-8 h-8 text-zinc-600/50" />
@@ -501,15 +500,21 @@ function BillListRow({
       className="group flex items-center justify-between px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl cursor-pointer hover:border-zinc-600 hover:bg-zinc-800/60 transition-all gap-4"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0">
-          {hasImg ? (
+        {hasImg ? (
+          <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0">
             <ImageIcon className="w-4 h-4 text-accent/80" />
-          ) : hasPDF ? (
-            <FileText className="w-4 h-4 text-danger/80" />
-          ) : (
+          </div>
+        ) : hasPDF ? (
+          <PdfThumbnail 
+             base64Data={bill.payload.attachments!.find(a => a.content_type === "application/pdf")!.data}
+             className="w-9 h-9 rounded-lg shrink-0 pointer-events-none"
+             isListRow
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center shrink-0">
             <Receipt className="w-4 h-4 text-zinc-500" />
-          )}
-        </div>
+          </div>
+        )}
         <div className="min-w-0">
           <p className="text-sm font-semibold text-zinc-100 truncate">
             {bill.payload.name}
