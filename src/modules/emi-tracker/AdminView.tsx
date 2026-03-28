@@ -2098,17 +2098,7 @@ export default function EmiTrackerAdminView() {
                       <div
                         className="absolute inset-y-0 left-0 bg-accent transition-all duration-500 ease-out"
                         style={{ width: `${(progress * 100).toFixed(0)}%` }}
-                      >
-                        <div
-                          className="absolute inset-0 bg-white/20"
-                          style={{
-                            backgroundImage:
-                              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                            backgroundSize: "200% 100%",
-                            animation: "shimmer 2s infinite linear",
-                          }}
-                        />
-                      </div>
+                      />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
                       <span>
@@ -2350,17 +2340,7 @@ export default function EmiTrackerAdminView() {
                               style={{
                                 width: `${(selectedProgress.clearedPrincipalPct * 100).toFixed(0)}%`,
                               }}
-                            >
-                              <div
-                                className="absolute inset-0 bg-white/20"
-                                style={{
-                                  backgroundImage:
-                                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                                  backgroundSize: "200% 100%",
-                                  animation: "shimmer 2s infinite linear",
-                                }}
-                              />
-                            </div>
+                            />
                           </div>
                           <div className="mt-4 pt-4 border-t border-zinc-800/50 grid grid-cols-2 gap-y-3 gap-x-4 text-[11px] text-zinc-400">
                             <div>

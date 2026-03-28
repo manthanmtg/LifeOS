@@ -392,7 +392,7 @@ export default function BillDetail({
 
             {/* Centered preview */}
             <div
-              className="w-full h-full p-6 pt-20 pb-6 flex items-center justify-center"
+              className="w-full h-full p-6 pt-20 pb-6"
               onClick={(e) => e.stopPropagation()}
             >
               {previewAttachment.content_type.startsWith("image/") ? (
@@ -410,7 +410,7 @@ export default function BillDetail({
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  src={`data:application/pdf;base64,${previewAttachment.data}#toolbar=0`}
+                  src={`data:application/pdf;base64,${previewAttachment.data}#toolbar=0&view=Fit`}
                   title={previewAttachment.filename}
                   className="w-full h-full rounded-xl border border-zinc-800 shadow-2xl bg-white"
                 />
