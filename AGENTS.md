@@ -1,6 +1,6 @@
-# AGENT.md
+# AGENTS.md
 
-This file provides guidance to AI agents (Cascade, Claude Code, etc.) when working with code in this repository.
+This file provides consolidated guidance to all AI agents (Antigravity, Claude Code, Cascade, Cursor, etc.) working within this repository.
 
 ## Commands
 
