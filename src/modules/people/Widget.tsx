@@ -70,7 +70,7 @@ export default function PeopleWidget() {
               className="w-3 h-3"
               fill={stats.favorites > 0 ? "currentColor" : "none"}
             />{" "}
-            {stats.favorites} VIPs
+            {stats.favorites} Favorites
           </span>
           <span className="flex items-center gap-1.5 group-hover:text-accent transition-colors">
             <Activity className="w-3 h-3" /> {stats.health}% Health
@@ -117,7 +117,7 @@ export default function PeopleWidget() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-black text-danger uppercase tracking-widest">
-                  Latency Detected
+                  Needs Attention
                 </p>
                 <p className="text-[10px] text-zinc-500 font-medium truncate italic">
                   {stats.staleCount} entities requiring outreach

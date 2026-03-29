@@ -136,10 +136,10 @@ export default function PersonForm({
             </div>
             <div>
               <h2 className="text-3xl font-black text-zinc-100 italic tracking-tighter uppercase">
-                {person ? "Refine Intent" : "Manifest Connection"}
+                {person ? "Edit Contact" : "Add Contact"}
               </h2>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mt-1">
-                Strategic Alignment
+                Personal CRM
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function PersonForm({
             <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
               <Star className="w-4 h-4 text-accent" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Identity Matrix
+                Basic Info
               </h3>
             </div>
 
@@ -180,7 +180,7 @@ export default function PersonForm({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter designation..."
+                  placeholder="Full name"
                   className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 transition-all font-bold text-lg"
                   required
                 />
@@ -188,7 +188,7 @@ export default function PersonForm({
 
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
-                  Vector / Relationship
+                  Relationship
                 </label>
                 <select
                   value={relationship}
@@ -220,7 +220,7 @@ export default function PersonForm({
                 <Heart
                   className={cn("w-4 h-4", isFavorite && "fill-current")}
                 />
-                {isFavorite ? "VIP Priority" : "Standard Priority"}
+                {isFavorite ? "Favorited" : "Add to Favorites"}
               </button>
             </div>
           </div>
@@ -230,14 +230,14 @@ export default function PersonForm({
             <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
               <Building2 className="w-4 h-4 text-zinc-500" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Logistical Data
+                Contact Details
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5" /> Email Node
+                  <Mail className="w-3.5 h-3.5" /> Email
                 </label>
                 <input
                   type="email"
@@ -249,7 +249,7 @@ export default function PersonForm({
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5" /> Voice Frequency
+                  <Phone className="w-3.5 h-3.5" /> Phone
                 </label>
                 <input
                   type="tel"
@@ -264,7 +264,7 @@ export default function PersonForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
-                  Guild / Company
+                  Company
                 </label>
                 <input
                   type="text"
@@ -275,7 +275,7 @@ export default function PersonForm({
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
-                  Designation / Role
+                  Role
                 </label>
                 <input
                   type="text"
@@ -292,14 +292,14 @@ export default function PersonForm({
             <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
               <Zap className="w-4 h-4 text-warning" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Strategic Context
+                Additional Info
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Cake className="w-3.5 h-3.5" /> Temporal Milestone
+                  <Cake className="w-3.5 h-3.5" /> Birthday
                 </label>
                 <input
                   type="date"
@@ -310,7 +310,7 @@ export default function PersonForm({
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <LinkIcon className="w-3.5 h-3.5" /> Avatar Matrix (URL)
+                  <LinkIcon className="w-3.5 h-3.5" /> Profile Photo URL
                 </label>
                 <input
                   type="url"
@@ -324,7 +324,7 @@ export default function PersonForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5" /> Shared Vectors (Interests)
+                  <Zap className="w-3.5 h-3.5" /> Interests
                 </label>
                 <input
                   type="text"
@@ -336,7 +336,7 @@ export default function PersonForm({
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <TagIcon className="w-3.5 h-3.5" /> Context Labels (Tags)
+                  <TagIcon className="w-3.5 h-3.5" /> Tags
                 </label>
                 <input
                   type="text"
@@ -350,12 +350,12 @@ export default function PersonForm({
 
             <div className="space-y-3">
               <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                <AlignLeft className="w-3.5 h-3.5" /> Strategic Dossier (Notes)
+                <AlignLeft className="w-3.5 h-3.5" /> Notes
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Detail contextual information for relationship maintenance..."
+                placeholder="Anything worth remembering about this person..."
                 rows={4}
                 className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-[2.5rem] px-8 py-6 text-sm font-medium leading-relaxed text-zinc-200 outline-none focus:border-accent/40 resize-none"
               />
@@ -368,7 +368,7 @@ export default function PersonForm({
               onClick={onClose}
               className="flex-1 px-10 py-6 rounded-[2rem] text-[12px] font-black uppercase tracking-[0.4em] text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-900"
             >
-              Abort
+              Cancel
             </button>
             <button
               type="submit"
@@ -377,10 +377,10 @@ export default function PersonForm({
             >
               <Save className="w-6 h-6 group-hover:rotate-12 transition-transform" />
               {isSaving
-                ? "SYNCING..."
+                ? "Saving..."
                 : person
-                  ? "UPDATE ALIGNMENT"
-                  : "MANIFEST CONNECTION"}
+                  ? "Save Changes"
+                  : "Add Contact"}
             </button>
           </div>
         </form>
