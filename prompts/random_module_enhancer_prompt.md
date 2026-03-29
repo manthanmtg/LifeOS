@@ -18,13 +18,18 @@ Select exactly one random module from the LifeOS codebase and perform a comprehe
 - **Type Safety**: Eliminate `any` types and ensure strict interface definitions.
 
 ### 3. Visual & UX Enhancement
-- **High-Density UI**: Implement compact, information-rich layouts that minimize scrolling.
+- **Mindblowing UI/UX**: Transform basic interfaces into "wow" experiences with vibrant colors, glassmorphism, and dynamic depth.
+- **High-Density UI**: Implement compact, information-rich layouts that minimize scrolling while maintaining clarity.
+- **Mobile-First Responsiveness**: Ensure the module is perfectly usable and visually stunning on mobile devices—optimized touch targets, responsive grids, and adaptive layouts.
 - **Premium Aesthetics**: Use `framer-motion` for layout transitions, Lucide React for consistent iconography, and the semantic color system (accent, success, warning, danger).
 - **Micro-interactions**: Add hover effects, loading skeletons, and "Quick-Fill"/"Quick-Action" bento grids.
 
 ### 4. Verification
 - **Build Quality**: Run `pnpm check` to ensure zero linting, type, or test regressions.
-- **Refinement**: Verify that responsiveness is maintained and that 'Zen Mode' visibility is respected.
+- **Refinement**: Verify that responsiveness is flawless across all breakpoints and that 'Zen Mode' visibility is respected.
+
+### 5. Documentation & Submission
+- **Descriptive Commits/PRs**: Write a thorough description of the changes. Enumerate specific refactors (e.g., "Extracted [X] component"), UI improvements (e.g., "Added glassmorphic cards"), and functional enhancements. Explain the *why* behind design choices.
 
 ## Design Philosophy
 - **Rich Aesthetics**: Vibrant, gradient-touched, and glassmorphic where appropriate.
