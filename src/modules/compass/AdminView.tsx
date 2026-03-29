@@ -1,46 +1,58 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { Plus, Trash2, CheckCircle, Filter } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CompassTask } from "./types";
 import WorkspaceModal from "./WorkspaceModal";
-
-const PRIORITY_MAP = {
-  p1: { label: "P1: Urgent", color: "text-danger bg-danger/10" },
-  p2: { label: "P2: High", color: "text-warning bg-warning/10" },
-  p3: { label: "P3: Normal", color: "text-blue-400 bg-blue-400/10" },
-  p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10" },
-  p5: { label: "P5: Backburner", color: "text-zinc-500 bg-zinc-800/50" },
-};
+import CompassMetrics from "./CompassMetrics";
+import CompassTaskCard from "./CompassTaskCard";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 const COLUMNS = [
-  { id: "backlog", title: "Backlog", color: "bg-zinc-800" },
-  {
-    id: "in_progress",
-    title: "In Progress",
-    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  },
-  {
-    id: "review",
-    title: "Review",
-    color: "bg-warning/20 text-warning border-warning/30",
-  },
-  {
-    id: "done",
-    title: "Done",
-    color: "bg-success/20 text-success border-success/30",
-  },
+  { id: "backlog", title: "Backlog", dotColor: "bg-zinc-500" },
+  { id: "in_progress", title: "In Progress", dotColor: "bg-accent" },
+  { id: "review", title: "Review", dotColor: "bg-warning" },
+  { id: "done", title: "Done", dotColor: "bg-success" },
 ] as const;
+
+const PRIORITY_FILTERS = [
+  { value: null, label: "All" },
+  { value: "p1", label: "P1" },
+  { value: "p2", label: "P2" },
+  { value: "p3", label: "P3" },
+  { value: "p4", label: "P4" },
+  { value: "p5", label: "P5" },
+] as const;
+
+function KanbanSkeleton() {
+  return (
+    <div className="flex h-full gap-6 min-w-max animate-pulse">
+      {COLUMNS.map((col) => (
+        <div key={col.id} className="w-80 flex flex-col gap-3">
+          <div className="flex items-center justify-between px-1 mb-1">
+            <SkeletonBlock className="h-4 w-24 rounded" />
+            <SkeletonBlock className="h-4 w-6 rounded-full" />
+          </div>
+          {[...Array(col.id === "backlog" ? 3 : col.id === "in_progress" ? 2 : 1)].map((_, i) => (
+            <SkeletonBlock key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function CompassAdminView() {
   const [tasks, setTasks] = useState<CompassTask[]>([]);
   const [loading, setLoading] = useState(true);
-  void loading;
   const [quickAddTitle, setQuickAddTitle] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
+  const [filterPriority, setFilterPriority] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Drag state
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -122,7 +134,6 @@ export default function CompassAdminView() {
   // --- Drag and Drop Logic ---
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     setDraggedTaskId(taskId);
-    // Set visual drag image to be slightly transparent
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = "move";
     }
@@ -148,9 +159,8 @@ export default function CompassAdminView() {
     if (taskIndex === -1) return;
 
     const task = tasks[taskIndex];
-    if (task.payload.status === colId) return; // No change
+    if (task.payload.status === colId) return;
 
-    // Optimistic update
     const updatedTask = {
       ...task,
       payload: {
@@ -164,7 +174,6 @@ export default function CompassAdminView() {
     setTasks(newTasks);
     setIsUpdatingId(draggedTaskId);
 
-    // API update
     try {
       const res = await fetch(`/api/content/${task._id}`, {
         method: "PUT",
@@ -175,7 +184,7 @@ export default function CompassAdminView() {
       if (!res.ok) throw new Error(data.error || "Failed to update status");
     } catch (err: unknown) {
       console.error("Failed to update status", err);
-      fetchTasks(); // rollback on failure
+      fetchTasks();
     } finally {
       setIsUpdatingId(null);
     }
@@ -192,7 +201,6 @@ export default function CompassAdminView() {
     setDraggedTaskId(null);
     setIsDeletingId(taskIdToDelete);
 
-    // Optimistic delete
     setTasks((prev) => prev.filter((t) => t._id !== taskIdToDelete));
 
     try {
@@ -203,28 +211,29 @@ export default function CompassAdminView() {
       if (!res.ok) throw new Error(data.error || "Failed to delete task");
     } catch (err: unknown) {
       console.error("Failed to delete task", err);
-      fetchTasks(); // rollback on failure
+      fetchTasks();
     } finally {
       setIsDeletingId(null);
     }
   };
 
   const getTasksByStatus = (status: string) => {
-    return (
-      tasks
-        .filter((t) => t.payload.status === status)
-        // Sort by updated_at desc usually, or created_at desc
-        .sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
-    );
+    return tasks
+      .filter((t) => t.payload.status === status)
+      .filter((t) => !filterPriority || t.payload.priority === filterPriority)
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col space-y-6 animate-fade-in-up">
-      {/* Header & Quick Add */}
-      <div className="flex items-center gap-6 shrink-0">
+    <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4 animate-fade-in-up">
+      {/* Metrics */}
+      {!loading && <CompassMetrics tasks={tasks} />}
+
+      {/* Header: Quick Add + Controls */}
+      <div className="flex items-center gap-3 shrink-0">
         <div className="flex-1">
           <form onSubmit={handleQuickAdd} className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -236,11 +245,25 @@ export default function CompassAdminView() {
               onChange={(e) => setQuickAddTitle(e.target.value)}
               placeholder="Type an idea and press Enter..."
               aria-label="Quick add task"
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-12 pr-4 py-4 text-sm text-zinc-50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all shadow-sm disabled:opacity-50"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-zinc-50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all shadow-sm disabled:opacity-50"
               disabled={isSaving}
             />
           </form>
         </div>
+
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          aria-label="Toggle priority filters"
+          className={cn(
+            "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-colors border",
+            showFilters || filterPriority
+              ? "bg-accent/20 border-accent/40 text-accent"
+              : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
+          )}
+        >
+          <Filter className="w-4 h-4" />
+          Filter
+        </button>
 
         <button
           onClick={() => setFocusMode(!focusMode)}
@@ -253,15 +276,47 @@ export default function CompassAdminView() {
           )}
         >
           <CheckCircle className="w-4 h-4" />
-          {focusMode ? "Exit Focus Mode" : "Focus Mode"}
+          {focusMode ? "Exit Focus" : "Focus Mode"}
         </button>
       </div>
 
+      {/* Priority Filter Pills */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center gap-2 shrink-0 overflow-hidden"
+          >
+            <span className="text-xs text-zinc-500 font-medium">Priority:</span>
+            {PRIORITY_FILTERS.map((pf) => (
+              <button
+                key={String(pf.value)}
+                onClick={() => setFilterPriority(pf.value)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-semibold transition-colors border",
+                  filterPriority === pf.value
+                    ? "bg-accent/20 border-accent/40 text-accent"
+                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
+                )}
+              >
+                {pf.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Kanban Board */}
       <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
-        <div className="flex h-full gap-6 min-w-max">
-          {COLUMNS.filter((col) => !focusMode || col.id === "in_progress").map(
-            (col) => {
+        {loading ? (
+          <KanbanSkeleton />
+        ) : (
+          <div className="flex h-full gap-6 min-w-max">
+            {COLUMNS.filter(
+              (col) => !focusMode || col.id === "in_progress",
+            ).map((col) => {
               const colTasks = getTasksByStatus(col.id);
               const isOver = draggedOverCol === col.id;
 
@@ -277,10 +332,7 @@ export default function CompassAdminView() {
                   <div className="flex items-center justify-between mb-4 px-1 shrink-0">
                     <h3 className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
                       <span
-                        className={cn(
-                          "w-2 h-2 rounded-full",
-                          col.color.split(" ")[0],
-                        )}
+                        className={cn("w-2 h-2 rounded-full", col.dotColor)}
                       />
                       {col.title}
                     </h3>
@@ -294,90 +346,36 @@ export default function CompassAdminView() {
                     className={cn(
                       "flex-1 overflow-y-auto rounded-2xl p-2 transition-colors duration-200 border-2",
                       isOver
-                        ? "bg-zinc-900 border-zinc-700 dashed"
+                        ? "bg-zinc-900 border-zinc-700 border-dashed"
                         : "bg-transparent border-transparent",
                     )}
                   >
                     <div className="space-y-3">
-                      {colTasks.map((task) => {
-                        const ageDays =
-                          (Date.now() -
-                            new Date(
-                              task.updated_at || task.created_at,
-                            ).getTime()) /
-                          (1000 * 60 * 60 * 24);
-                        const isStuck = col.id === "in_progress" && ageDays > 7;
-
-                        return (
-                          <div
+                      <AnimatePresence>
+                        {colTasks.map((task) => (
+                          <motion.div
                             key={task._id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, task._id)}
-                            onDragEnd={handleDragEnd}
-                            onClick={() => setSelectedTask(task)}
-                            className={cn(
-                              "bg-zinc-900 border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-all shadow-sm group",
-                              draggedTaskId === task._id &&
-                                "opacity-50 scale-95",
-                              isStuck && "border-warning/30 bg-warning/5",
-                            )}
+                            layout
+                            initial={{ opacity: 0, scale: 0.96 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.96 }}
+                            transition={{ duration: 0.15 }}
                           >
-                            <div className="flex gap-2 items-start justify-between mb-2">
-                              <h4 className="text-sm font-medium text-zinc-300 leading-snug">
-                                {task.payload.title}
-                              </h4>
-                              {(isUpdatingId === task._id ||
-                                isDeletingId === task._id) && (
-                                <RefreshCw className="w-3.5 h-3.5 text-accent animate-spin shrink-0" />
-                              )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2 items-center text-zinc-500 mt-3">
-                              <span
-                                className={cn(
-                                  "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded",
-                                  PRIORITY_MAP[task.payload.priority].color,
-                                )}
-                              >
-                                {PRIORITY_MAP[task.payload.priority].label}
-                              </span>
-                              {task.payload.category_tags
-                                ?.slice(0, 2)
-                                .map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="text-[10px] text-zinc-400 bg-zinc-800 px-1.5 py-0.5 rounded"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-
-                              <div className="ml-auto flex items-center gap-3">
-                                {task.payload.checklist?.length > 0 && (
-                                  <span className="text-xs flex items-center gap-1">
-                                    <CheckCircle className="w-3 h-3" />
-                                    {
-                                      task.payload.checklist.filter(
-                                        (c) => c.completed,
-                                      ).length
-                                    }
-                                    /{task.payload.checklist.length}
-                                  </span>
-                                )}
-                                {isStuck && (
-                                  <span
-                                    className="text-xs text-warning/80 flex items-center gap-1"
-                                    title="Stuck > 7 days"
-                                  >
-                                    <Clock className="w-3 h-3" />{" "}
-                                    {Math.floor(ageDays)}d
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                            <CompassTaskCard
+                              task={task}
+                              isDragging={draggedTaskId === task._id}
+                              isUpdating={isUpdatingId === task._id}
+                              isDeleting={isDeletingId === task._id}
+                              isInProgress={col.id === "in_progress"}
+                              onClick={() => setSelectedTask(task)}
+                              onDragStart={(e) =>
+                                handleDragStart(e, task._id)
+                              }
+                              onDragEnd={handleDragEnd}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
 
                       {colTasks.length === 0 && (
                         <div className="h-24 border-2 border-dashed border-zinc-800 rounded-xl flex items-center justify-center text-sm text-zinc-500 font-medium opacity-50">
@@ -388,9 +386,9 @@ export default function CompassAdminView() {
                   </div>
                 </div>
               );
-            },
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
 
       {/* Drop to Delete Zone */}
