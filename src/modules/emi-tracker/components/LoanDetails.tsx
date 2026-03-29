@@ -17,6 +17,7 @@ import {
   formatMoney, 
   CURR_SYM, 
   computeSchedule,
+  getOutstandingAsOf,
   roundTo,
   toCSV,
   downloadTextFile,
@@ -63,6 +64,17 @@ export default function LoanDetails({
     };
     return computeSchedule(simulatedPayload, decimals);
   }, [loan.payload, extraMonthly, schedule, decimals]);
+
+  const { outstanding, nextDue } = useMemo(() => {
+    const now = new Date();
+    return getOutstandingAsOf(schedule.rows, now);
+  }, [schedule]);
+
+  const totalPrincipal = loan.payload.principal;
+  const totalInterest = schedule.totals.total_interest;
+  const totalPayable = totalPrincipal + totalInterest;
+  const principalPaid = totalPrincipal - outstanding;
+  const progressPercent = Math.min(100, Math.max(0, (principalPaid / totalPrincipal) * 100));
 
   const interestSavedTotal = useMemo(() => {
     const originalInterest = schedule.totals.total_interest;
@@ -126,6 +138,25 @@ export default function LoanDetails({
             <Settings className="w-5 h-5" />
           </button>
         </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Payable", value: totalPayable, sub: "Principal + Interest", color: "text-zinc-100", icon: Calculator },
+          { label: "Balance Left", value: outstanding, sub: `${progressPercent.toFixed(1)}% Paid`, color: "text-accent", icon: TrendingUp },
+          { label: "Interest Paid", value: totalInterest, sub: "Across tenure", color: "text-blue-400", icon: Info },
+          { label: "Next EMI", value: nextDue?.emi || 0, sub: nextDue ? nextDue.due_date.slice(0, 10) : "Finalized", color: "text-orange-400", icon: BarChart3 }
+        ].map((m, i) => (
+          <div key={i} className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-sm hover:border-zinc-700/50 transition-all group overflow-hidden relative">
+             <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                <m.icon className="w-20 h-20" />
+             </div>
+             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5">{m.label}</p>
+             <h4 className={cn("text-lg font-black tracking-tight", m.color)}>
+               {formatMoney(m.value, sym, 0, numberFormat)}
+             </h4>
+             <p className="text-[10px] text-zinc-500 font-medium italic mt-1">{m.sub}</p>
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center gap-1 p-1 bg-zinc-900/50 border border-zinc-800/50 rounded-2xl overflow-x-auto no-scrollbar shadow-inner">

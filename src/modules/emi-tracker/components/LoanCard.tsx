@@ -89,22 +89,35 @@ export default function LoanCard({
           />
         </div>
         
-        {isSelected && (
-          <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">Monthly EMI</span>
-              <span className="text-xs font-bold text-zinc-300">
-                {formatMoney(loan.payload.monthly_emi, sym, decimals, numberFormat)}
-              </span>
-            </div>
-            <div className="flex flex-col text-right">
-              <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">Tenure</span>
-              <span className="text-xs font-bold text-zinc-300">
-                {loan.payload.tenure_months} mo
-              </span>
-            </div>
+        <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">Monthly EMI</span>
+            <span className={cn(
+              "text-xs font-bold",
+              isSelected ? "text-zinc-100" : "text-zinc-400"
+            )}>
+              {formatMoney(loan.payload.monthly_emi, sym, decimals, numberFormat)}
+            </span>
           </div>
-        )}
+          <div className="flex flex-col text-center">
+            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">Rate</span>
+            <span className={cn(
+              "text-xs font-bold",
+              isSelected ? "text-zinc-100" : "text-zinc-400"
+            )}>
+              {loan.payload.annual_interest_rate}%
+            </span>
+          </div>
+          <div className="flex flex-col text-right">
+            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">Tenure</span>
+            <span className={cn(
+              "text-xs font-bold",
+              isSelected ? "text-zinc-100" : "text-zinc-400"
+            )}>
+              {loan.payload.tenure_months} mo
+            </span>
+          </div>
+        </div>
       </div>
     </button>
   );
