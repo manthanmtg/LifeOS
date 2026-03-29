@@ -24,6 +24,7 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart,
@@ -100,8 +101,8 @@ function getRainIntensity(mmAmount: number): {
   if (mmAmount <= 7.5)
     return {
       label: "Moderate",
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/10 border-blue-500/20",
+      color: "text-warning",
+      bgColor: "bg-warning/10 border-warning/20",
       icon: Cloud,
     };
   if (mmAmount <= 35)
@@ -619,26 +620,8 @@ export default function RainTrackerAdminView() {
 
   const selectedArea = areas.find((a) => a._id === selectedAreaId);
 
-  const filteredAreas = useMemo(() => {
-    return areas;
-  }, [areas]);
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full border-2 border-zinc-800 border-t-accent animate-spin" />
-            <CloudRain className="w-5 h-5 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="text-sm text-zinc-500">Loading rainfall data...</p>
-        </motion.div>
-      </div>
-    );
+    return <AdminModuleSkeleton />;
   }
 
   return (
@@ -742,7 +725,7 @@ export default function RainTrackerAdminView() {
         </AnimatePresence>
 
         <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-1.5 no-scrollbar">
-          {filteredAreas.length === 0 && !showAreaForm && (
+          {areas.length === 0 && !showAreaForm && (
             <div className="text-center p-8 flex flex-col items-center gap-3">
               <div className="p-3 bg-zinc-900/50 rounded-xl border border-zinc-800">
                 <MapPin className="w-5 h-5 text-zinc-600" />
@@ -752,7 +735,7 @@ export default function RainTrackerAdminView() {
               </p>
             </div>
           )}
-          {filteredAreas.map((area, i) => {
+          {areas.map((area, i) => {
             const entryCount = areaEntryCounts[area._id] || 0;
             const lastRain = areaLastRain[area._id];
             const isSelected = selectedAreaId === area._id;
@@ -982,7 +965,7 @@ export default function RainTrackerAdminView() {
               unit={displayUnit}
               trend={last30Trend}
               icon={TrendingUp}
-              accentClass="bg-blue-500/20"
+              accentClass="bg-warning/20"
               delay={0.1}
             />
             <StatCard
