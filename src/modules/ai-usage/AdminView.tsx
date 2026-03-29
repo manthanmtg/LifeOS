@@ -164,10 +164,10 @@ const PROVIDER_META: Record<
   },
   anthropic: {
     name: "Anthropic",
-    color: "text-orange-400",
+    color: "text-warning",
     colorHex: "#fb923c",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/20",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
     gradient: "from-orange-500/20 via-orange-500/5 to-transparent",
     keyPrefix: "sk-ant-admin",
     keyLabel: "Admin API Key",
@@ -224,9 +224,9 @@ const UNSUPPORTED_PROVIDERS: Record<
   },
   mistral: {
     name: "Mistral AI",
-    color: "text-indigo-400",
-    bg: "bg-indigo-500/10",
-    border: "border-indigo-500/20",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
     dashboardUrl: "https://console.mistral.ai",
     reason: "No public usage API.",
   },
@@ -240,17 +240,17 @@ const UNSUPPORTED_PROVIDERS: Record<
   },
   perplexity: {
     name: "Perplexity",
-    color: "text-teal-400",
-    bg: "bg-teal-500/10",
-    border: "border-teal-500/20",
+    color: "text-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
     dashboardUrl: "https://www.perplexity.ai/settings/api",
     reason: "No usage tracking API.",
   },
   deepseek: {
     name: "DeepSeek",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/20",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
     dashboardUrl: "https://platform.deepseek.com",
     reason: "No usage tracking API.",
   },
@@ -272,9 +272,9 @@ const UNSUPPORTED_PROVIDERS: Record<
   },
   cohere: {
     name: "Cohere",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
     dashboardUrl: "https://dashboard.cohere.com",
     reason: "No usage tracking API.",
   },
@@ -1182,8 +1182,8 @@ export default function AiUsageAdminView() {
                         : undefined
                     }
                     icon={Hash}
-                    accent="text-orange-400"
-                    accentBg="bg-orange-500/10"
+                    accent="text-warning"
+                    accentBg="bg-warning/10"
                   />
                   <StatCard
                     label="Output Tokens"
@@ -1194,8 +1194,8 @@ export default function AiUsageAdminView() {
                         : undefined
                     }
                     icon={TrendingUp}
-                    accent="text-purple-400"
-                    accentBg="bg-purple-500/10"
+                    accent="text-accent"
+                    accentBg="bg-accent/10"
                   />
                 </div>
 
@@ -1404,7 +1404,7 @@ export default function AiUsageAdminView() {
                   LifeOS will automatically fetch usage and cost data. Currently
                   supported:{" "}
                   <span className="text-success font-semibold">OpenAI</span> and{" "}
-                  <span className="text-orange-400 font-semibold">
+                  <span className="text-warning font-semibold">
                     Anthropic
                   </span>
                   . Keys are stored securely and never exposed in public API
@@ -2390,7 +2390,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
           <Bot className="w-4 h-4" />{" "}
           <span className="text-xs font-semibold">OpenAI</span>
         </div>
-        <div className="flex items-center gap-2 text-orange-400/60">
+        <div className="flex items-center gap-2 text-warning/60">
           <Bot className="w-4 h-4" />{" "}
           <span className="text-xs font-semibold">Anthropic</span>
         </div>

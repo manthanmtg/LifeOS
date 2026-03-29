@@ -143,7 +143,7 @@ export default function DocumentList({
                 </a>
                 <button
                   onClick={() => onDelete(idx)}
-                  className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
+                  className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
                   title="Delete Document"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

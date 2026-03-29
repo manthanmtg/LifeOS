@@ -166,15 +166,15 @@ const FUEL_TYPE_CONFIG: Record<
   },
   cng: {
     label: "CNG",
-    color: "text-teal-400",
-    bg: "bg-teal-500/10",
-    border: "border-teal-500/20",
+    color: "text-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
   },
   lpg: {
     label: "LPG",
-    color: "text-orange-400",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/20",
+    color: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
   },
   other: {
     label: "Other",
@@ -190,21 +190,21 @@ const SERVICE_TYPE_CONFIG: Record<
 > = {
   routine: { label: "Routine", icon: Wrench, color: "text-blue-400" },
   repair: { label: "Repair", icon: Wrench, color: "text-danger" },
-  inspection: { label: "Inspection", icon: Eye, color: "text-purple-400" },
+  inspection: { label: "Inspection", icon: Eye, color: "text-accent" },
   tire: { label: "Tire", icon: Disc, color: "text-zinc-400" },
   oil_change: { label: "Oil Change", icon: Droplets, color: "text-warning" },
-  brake: { label: "Brake", icon: CircleDot, color: "text-orange-400" },
+  brake: { label: "Brake", icon: CircleDot, color: "text-warning" },
   battery: { label: "Battery", icon: Battery, color: "text-success" },
-  wash: { label: "Wash", icon: Sparkles, color: "text-cyan-400" },
+  wash: { label: "Wash", icon: Sparkles, color: "text-accent" },
   other: { label: "Other", icon: HelpCircle, color: "text-zinc-500" },
 };
 
 const DOC_TYPE_CONFIG: Record<DocType, { label: string; color: string }> = {
   insurance: { label: "Insurance", color: "text-blue-400" },
-  registration: { label: "Registration", color: "text-purple-400" },
+  registration: { label: "Registration", color: "text-accent" },
   pollution: { label: "Pollution Cert", color: "text-success" },
   license: { label: "License", color: "text-warning" },
-  warranty: { label: "Warranty", color: "text-teal-400" },
+  warranty: { label: "Warranty", color: "text-success" },
   other: { label: "Other", color: "text-zinc-400" },
 };
 

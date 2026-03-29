@@ -78,7 +78,7 @@ export default function ScheduleTable({
                   <td className="px-4 py-2.5 text-right text-zinc-300 tabular-nums">
                     {formatMoney(row.principal, currencySymbol, decimals, numberFormat)}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-rose-400/80 tabular-nums font-medium">
+                  <td className="px-4 py-2.5 text-right text-danger/80 tabular-nums font-medium">
                     {formatMoney(row.interest, currencySymbol, decimals, numberFormat)}
                   </td>
                   <td className="px-4 py-2.5 text-right text-accent tabular-nums font-bold">
@@ -97,7 +97,7 @@ export default function ScheduleTable({
               <td className="px-4 py-3 text-right tabular-nums">
                 {formatMoney(schedule.totals.total_principal, currencySymbol, decimals, numberFormat)}
               </td>
-              <td className="px-4 py-3 text-right text-rose-400 tabular-nums">
+              <td className="px-4 py-3 text-right text-danger tabular-nums">
                 {formatMoney(schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
               </td>
               <td className="px-4 py-3 text-right text-accent tabular-nums">

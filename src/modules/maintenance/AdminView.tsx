@@ -118,16 +118,16 @@ const CATEGORY_ICONS: Record<Category, LucideIcon> = {
 
 const CATEGORY_COLORS: Record<Category, string> = {
   home: "bg-blue-500/15 text-blue-400 border-blue-500/20",
-  appliance: "bg-orange-500/15 text-orange-400 border-orange-500/20",
-  vehicle: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
-  electronics: "bg-purple-500/15 text-purple-400 border-purple-500/20",
-  plumbing: "bg-sky-500/15 text-sky-400 border-sky-500/20",
+  appliance: "bg-warning/15 text-warning border-warning/20",
+  vehicle: "bg-accent/15 text-accent border-accent/20",
+  electronics: "bg-accent/15 text-accent border-accent/20",
+  plumbing: "bg-accent/15 text-accent border-accent/20",
   electrical: "bg-warning/15 text-warning border-warning/20",
-  hvac: "bg-teal-500/15 text-teal-400 border-teal-500/20",
+  hvac: "bg-success/15 text-success border-success/20",
   garden: "bg-success/15 text-success border-success/20",
-  cleaning: "bg-pink-500/15 text-pink-400 border-pink-500/20",
-  insurance: "bg-indigo-500/15 text-indigo-400 border-indigo-500/20",
-  subscription: "bg-violet-500/15 text-violet-400 border-violet-500/20",
+  cleaning: "bg-danger/15 text-danger border-danger/20",
+  insurance: "bg-accent/15 text-accent border-accent/20",
+  subscription: "bg-accent/15 text-accent border-accent/20",
   other: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
 };
 

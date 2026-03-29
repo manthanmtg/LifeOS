@@ -169,7 +169,7 @@ export default function CalculatorsPublicView({
     <section className="space-y-6">
       <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
         <div className="absolute -top-16 -right-8 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
 
         <div className="relative">
           <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-50">

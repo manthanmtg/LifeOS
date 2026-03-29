@@ -155,7 +155,7 @@ export default function LoanDetails({
           { label: "Total Payable", value: totalPayable, sub: "Principal + Interest", color: "text-zinc-100", icon: Calculator, amounts: `${formatMoney(totalPrincipal, sym, 0, numberFormat)} + ${formatMoney(totalInterest, sym, 0, numberFormat)}` },
           { label: "Balance Left", value: outstanding, sub: `${progressPercent.toFixed(1)}% Paid`, color: "text-accent", icon: TrendingUp, amounts: `${formatMoney(principalPaid, sym, 0, numberFormat)} / ${formatMoney(totalPrincipal, sym, 0, numberFormat)}` },
           { label: "Interest Paid", value: totalInterest, sub: "Across tenure", color: "text-blue-400", icon: Info, amounts: `${formatMoney(paidInterest, sym, 0, numberFormat)} + ${formatMoney(remainingInterest, sym, 0, numberFormat)} (Left)` },
-          { label: "Next EMI", value: nextDue?.emi || 0, sub: nextDue ? nextDue.due_date.slice(0, 10) : "Finalized", color: "text-orange-400", icon: BarChart3 }
+          { label: "Next EMI", value: nextDue?.emi || 0, sub: nextDue ? nextDue.due_date.slice(0, 10) : "Finalized", color: "text-warning", icon: BarChart3 }
         ].map((m, i) => (
           <div key={i} className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-sm hover:border-zinc-700/50 transition-all group overflow-hidden relative">
              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">

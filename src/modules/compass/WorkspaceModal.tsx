@@ -623,7 +623,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   payload.priority === "p1"
                     ? "border-danger/50 text-danger focus:ring-danger"
                     : payload.priority === "p2"
-                      ? "border-orange-500/50 text-orange-400 focus:ring-orange-500"
+                      ? "border-warning/50 text-warning focus:ring-warning"
                       : payload.priority === "p3"
                         ? "border-blue-500/50 text-blue-400 focus:ring-blue-500"
                         : payload.priority === "p4"

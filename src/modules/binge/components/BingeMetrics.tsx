@@ -188,25 +188,25 @@ export default function BingeMetrics({ items }: BingeMetricsProps) {
       label: "Movies",
       value: stats.movies,
       icon: Film,
-      color: "text-purple-400",
+      color: "text-accent",
     },
     {
       label: "Series",
       value: stats.series,
       icon: Tv,
-      color: "text-cyan-400",
+      color: "text-accent",
     },
     {
       label: "Anime",
       value: stats.anime,
       icon: Clapperboard,
-      color: "text-pink-400",
+      color: "text-danger",
     },
     {
       label: "Docs",
       value: stats.docs,
       icon: Film,
-      color: "text-orange-400",
+      color: "text-warning",
     },
   ];
 

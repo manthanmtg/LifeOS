@@ -93,8 +93,8 @@ function getRainIntensity(mmAmount: number): {
   if (mmAmount <= 2.5)
     return {
       label: "Light",
-      color: "text-sky-400",
-      bgColor: "bg-sky-500/10 border-sky-500/20",
+      color: "text-accent",
+      bgColor: "bg-accent/10 border-accent/20",
       icon: CloudDrizzle,
     };
   if (mmAmount <= 7.5)
@@ -107,14 +107,14 @@ function getRainIntensity(mmAmount: number): {
   if (mmAmount <= 35)
     return {
       label: "Heavy",
-      color: "text-indigo-400",
-      bgColor: "bg-indigo-500/10 border-indigo-500/20",
+      color: "text-accent",
+      bgColor: "bg-accent/10 border-accent/20",
       icon: CloudRain,
     };
   return {
     label: "Very Heavy",
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/10 border-purple-500/20",
+    color: "text-accent",
+    bgColor: "bg-accent/10 border-accent/20",
     icon: CloudLightning,
   };
 }
@@ -973,7 +973,7 @@ export default function RainTrackerAdminView() {
               value={String(analyticsData.last7)}
               unit={displayUnit}
               icon={Calendar}
-              accentClass="bg-sky-500/20"
+              accentClass="bg-accent/20"
               delay={0.05}
             />
             <StatCard
@@ -990,7 +990,7 @@ export default function RainTrackerAdminView() {
               value={String(analyticsData.avgPerEntry)}
               unit={displayUnit}
               icon={Droplets}
-              accentClass="bg-indigo-500/20"
+              accentClass="bg-accent/20"
               delay={0.15}
             />
           </div>
@@ -1003,8 +1003,8 @@ export default function RainTrackerAdminView() {
               transition={{ delay: 0.2 }}
               className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex items-center gap-3"
             >
-              <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                <CloudLightning className="w-4 h-4 text-purple-400" />
+              <div className="p-2 bg-accent/10 rounded-lg border border-accent/20">
+                <CloudLightning className="w-4 h-4 text-accent" />
               </div>
               <div>
                 <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">

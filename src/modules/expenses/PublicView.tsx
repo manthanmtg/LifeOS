@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Housing: "bg-blue-500/15 text-blue-400",
-  Food: "bg-orange-500/15 text-orange-400",
-  Transportation: "bg-purple-500/15 text-purple-400",
+  Food: "bg-warning/15 text-warning",
+  Transportation: "bg-accent/15 text-accent",
   Utilities: "bg-warning/15 text-warning",
-  Entertainment: "bg-pink-500/15 text-pink-400",
-  "Tech/Recurring": "bg-cyan-500/15 text-cyan-400",
+  Entertainment: "bg-danger/15 text-danger",
+  "Tech/Recurring": "bg-accent/15 text-accent",
   Health: "bg-success/15 text-success",
   Other: "bg-zinc-500/15 text-zinc-400",
 };

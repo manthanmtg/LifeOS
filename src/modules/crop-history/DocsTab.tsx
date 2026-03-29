@@ -113,8 +113,8 @@ export function DocsTab() {
         </p>
 
         <div className="space-y-4">
-          <div className="bg-sky-500/5 border border-sky-500/10 rounded-lg p-3.5">
-            <p className="text-sky-300 font-medium mb-1">1. Per-Area Fields</p>
+          <div className="bg-accent/5 border border-accent/10 rounded-lg p-3.5">
+            <p className="text-accent font-medium mb-1">1. Per-Area Fields</p>
             <p>
               Values entered for each area, each period. The system can
               aggregate these across areas using formulas.
@@ -293,7 +293,7 @@ export function DocsTab() {
             <p className="text-zinc-200 font-medium mb-3">Coffee Crop Setup</p>
             <div className="space-y-2 text-zinc-400">
               <p>
-                <strong className="text-sky-300">Per-Area Fields:</strong>{" "}
+                <strong className="text-accent">Per-Area Fields:</strong>{" "}
                 Undried (kg), OT (%)
               </p>
               <p>
@@ -301,7 +301,7 @@ export function DocsTab() {
                 Price (₹/50kg bag)
               </p>
               <p>
-                <strong className="text-orange-300">Constants:</strong>{" "}
+                <strong className="text-warning">Constants:</strong>{" "}
                 <Code>UNDRIED_TO_BAG_CONVERT = 120</Code>
               </p>
               <p>
@@ -333,7 +333,7 @@ export function DocsTab() {
             <p className="text-zinc-200 font-medium mb-3">Areca Crop Setup</p>
             <div className="space-y-2 text-zinc-400">
               <p>
-                <strong className="text-sky-300">Per-Area Fields:</strong>{" "}
+                <strong className="text-accent">Per-Area Fields:</strong>{" "}
                 Weight (kg)
               </p>
               <p>

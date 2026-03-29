@@ -1099,7 +1099,7 @@ export default function BlogAdminView() {
                     disabled={isDeletingId === post._id}
                     aria-label="Delete post"
                     title="Delete post"
-                    className="p-1.5 text-zinc-500 hover:text-rose-400 rounded-md hover:bg-zinc-800 disabled:opacity-50"
+                    className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50"
                   >
                     {isDeletingId === post._id ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />

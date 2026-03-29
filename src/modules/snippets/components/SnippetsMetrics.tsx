@@ -141,7 +141,7 @@ export default function SnippetsMetrics({
       label: "Unique Tags",
       value: stats.tagCount,
       icon: Tag,
-      color: "text-purple-400",
+      color: "text-accent",
     },
   ];
 

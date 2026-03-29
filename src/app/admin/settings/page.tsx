@@ -514,7 +514,7 @@ export default function SettingsPage() {
                       className={cn(
                         "p-2 rounded-lg transition-all",
                         !config?.color_mode || config?.color_mode === "dark"
-                          ? "bg-zinc-800 text-indigo-300 shadow-sm"
+                          ? "bg-zinc-800 text-accent shadow-sm"
                           : "text-zinc-500 hover:text-zinc-300",
                       )}
                     >

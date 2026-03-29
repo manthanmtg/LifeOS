@@ -323,7 +323,7 @@ export default function ReadingAdminView() {
     <div className="animate-fade-in-up space-y-6">
       <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
 
         <div className="relative space-y-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

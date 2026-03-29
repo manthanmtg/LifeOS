@@ -8,7 +8,7 @@ import WorkspaceModal from "./WorkspaceModal";
 
 const PRIORITY_MAP = {
   p1: { label: "P1: Urgent", color: "text-danger bg-danger/10" },
-  p2: { label: "P2: High", color: "text-orange-400 bg-orange-400/10" },
+  p2: { label: "P2: High", color: "text-warning bg-warning/10" },
   p3: { label: "P3: Normal", color: "text-blue-400 bg-blue-400/10" },
   p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10" },
   p5: { label: "P5: Backburner", color: "text-zinc-500 bg-zinc-800/50" },

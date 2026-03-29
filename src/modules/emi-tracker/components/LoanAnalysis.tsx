@@ -248,7 +248,7 @@ export default function LoanAnalysis({
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Total Interest</span>
-              <span className="text-2xl font-black text-rose-500 italic tracking-tighter">
+              <span className="text-2xl font-black text-danger italic tracking-tighter">
                 {formatMoney(metrics.totalInterest, currencySymbol, 0, numberFormat)}
               </span>
             </div>
@@ -329,7 +329,7 @@ export default function LoanAnalysis({
         <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2">
             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Structural Overhead</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-rose-500 italic">{(metrics.totalInterest / metrics.totalPrincipal * 100).toFixed(1)}%</span>
+              <span className="text-2xl font-black text-danger italic">{(metrics.totalInterest / metrics.totalPrincipal * 100).toFixed(1)}%</span>
               <span className="text-[10px] font-bold text-zinc-500 text-xs uppercase text-nowrap">Debt Cost</span>
             </div>
             <p className="text-[10px] text-zinc-500 italic mt-1 leading-relaxed">Direct cost of borrowing relative to the initial principal amount.</p>

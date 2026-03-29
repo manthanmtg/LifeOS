@@ -83,7 +83,7 @@ export default function LoanForm({
 
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
         {formError && (
-          <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-bold flex items-center gap-3">
+          <div className="p-5 rounded-2xl bg-danger/10 border border-danger/20 text-danger text-sm font-bold flex items-center gap-3">
             <AlertTriangle className="w-5 h-5" />
             {formError}
           </div>

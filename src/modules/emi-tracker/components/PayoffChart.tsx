@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload, label, currencySymbol, numberFormat }:
           <div className="h-px bg-zinc-800 my-1" />
           <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-zinc-400">Interest:</span>
-            <span className="text-xs font-bold text-rose-400">
+            <span className="text-xs font-bold text-danger">
               {formatMoney(payload[1].value, currencySymbol, 0, numberFormat)}
             </span>
           </div>

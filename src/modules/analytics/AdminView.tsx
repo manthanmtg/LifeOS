@@ -428,15 +428,15 @@ export default function AnalyticsAdminView() {
             label: "Unique sessions",
             value: stats.uniqueSessions,
             icon: Users,
-            color: "text-purple-400",
-            bg: "bg-purple-500/10",
+            color: "text-accent",
+            bg: "bg-accent/10",
           },
           {
             label: "Avg. Session",
             value: stats.avgSessionFormatted,
             icon: Clock,
-            color: "text-cyan-400",
-            bg: "bg-cyan-500/10",
+            color: "text-accent",
+            bg: "bg-accent/10",
             isText: true,
           },
           {
@@ -841,7 +841,7 @@ export default function AnalyticsAdminView() {
         {/* ─── Referrer Intelligence ─── */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
           <h3 className="text-xl font-bold text-zinc-50 mb-1 flex items-center gap-2">
-            <Link2 className="w-5 h-5 text-purple-400" /> Referrer Intelligence
+            <Link2 className="w-5 h-5 text-accent" /> Referrer Intelligence
           </h3>
           <p className="text-xs text-zinc-500 font-medium mb-6 italic">
             Where your traffic comes from.

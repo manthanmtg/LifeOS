@@ -73,8 +73,8 @@ export default function EMIMetrics({
         ? quickStats.nearestDue.loan.payload.title 
         : "No upcoming dues",
       icon: Calendar,
-      color: "text-orange-400",
-      bg: "bg-orange-400/10",
+      color: "text-warning",
+      bg: "bg-warning/10",
     },
   ];
 
