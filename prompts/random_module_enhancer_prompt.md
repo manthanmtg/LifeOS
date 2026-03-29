@@ -2,46 +2,47 @@
 
 ## Objective
 
-Select exactly one random module from the LifeOS codebase and perform a comprehensive "Intelligence Enlightenment" modernization. The goal is to transform monolithic views into high-performance, component-driven architectures with premium UI/UX and smart features.
+Pick exactly one random module from `src/modules/` (excluding `_template`) and make it genuinely better — cleaner code, tighter UI, and a smoother experience. The primary focus is incremental, practical improvement. Smart features (metrics, quick actions, trends, automations) are welcome when they add real value, but they're a bonus, not the goal.
 
 ## Workflow
 
-### 1. Discovery & Audit
+### 1. Audit
 
-- **Path Selection**: Randomly pick EXACTLY ONE module directory in `src/modules/` (excluding `_template`).
-- **Complexity Analysis**: Identify monolithic files (e.g., `AdminView.tsx` > 300 lines) and complex state logic.
-- **UX Audit**: Look for basic UI elements that lack "LifeOS Premium" feel—missing animations, generic colors, or low information density.
-- **Intelligence Gap**: Check for missing "Smart" features like metrics sparklines, automated categorization, "Quick-Log" actions, or predictive inputs.
-- **Feature Preservation (CRITICAL)**: Map out EVERY existing piece of functionality in the legacy module. The modernization MUST NOT remove any data points, metrics, or actions. Features can be moved, reorganized, or grouped, but they must remain accessible.
+- **Pick a module**: Randomly select ONE module directory.
+- **Read everything**: Understand every file, every feature, every data point it handles.
+- **Spot problems**: Monolithic files (>300 lines), messy state, `any` types, missing loading states, hardcoded colors, cramped or wasteful layouts, confusing labels, bad mobile experience.
+- **Spot opportunities**: Look for places where a smart addition would genuinely help — a trend line on data that changes over time, a quick-action shortcut for a frequent task, a summary metric that saves scrolling. Only flag these if they'd actually be useful.
+- **Map all features**: List every existing capability. Nothing gets dropped — features can move or get reorganized, but they must all remain accessible.
 
-### 2. Architectural Refactoring
+### 2. Refactor
 
-- **Component Extraction**: Break down large views into specialized sub-components (e.g., `[Module]Metrics`, `[Module]List`, `[Module]Filters`, `[Module]Card`).
-- **Component Sharing**: Identify and extract generic patterns (e.g., PDF/Image viewers, specialized carousels) into shared locations like `src/components/ui/` to minimize duplication and keep the application lightweight.
-- **Purity Fixes**: Move non-deterministic calculations (like `new Date()`) out of the render path and use `useMemo`/`useEffect` appropriately.
-- **Type Safety**: Eliminate `any` types and ensure strict interface definitions.
+- **Break up large files**: Extract logical sub-components (`[Module]Metrics`, `[Module]List`, `[Module]Card`, etc.) when a file is doing too much.
+- **Share common patterns**: If the module builds something generic (viewer, carousel, reusable card), move it to `src/components/ui/`.
+- **Fix render purity**: Move `new Date()`, `Date.now()`, and similar calls out of the render path into `useMemo`/`useEffect` or module-level constants.
+- **Tighten types**: Replace `any` with proper interfaces.
 
-### 3. Visual & UX Enhancement
+### 3. Improve the UI
 
-- **Mindblowing UI/UX**: Transform basic interfaces into "wow" experiences with vibrant colors, glassmorphism, and dynamic depth.
-- **High-Density UI**: Implement compact, information-rich layouts that minimize scrolling while maintaining clarity.
-- **Mobile-First Responsiveness**: Ensure the module is perfectly usable and visually stunning on mobile devices—optimized touch targets, responsive grids, and adaptive layouts.
-- **Premium Aesthetics**: Use `framer-motion` for layout transitions, Lucide React for consistent iconography, and the semantic color system (accent, success, warning, danger).
-- **Micro-interactions**: Add hover effects, loading skeletons, and "Quick-Fill"/"Quick-Action" bento grids.
+- **Compact, not cramped**: High information density without wasted space. Reduce oversized padding, unnecessary large text, and visual bloat.
+- **Responsive**: Must work well on mobile — proper touch targets, adaptive grids, no horizontal overflow.
+- **Consistent styling**: Use the semantic color system (`accent`, `success`, `warning`, `danger`, `zinc-*` neutrals). No hardcoded Tailwind color names. Follow the rules in `AGENTS.md`.
+- **Smooth interactions**: Use `framer-motion` for meaningful transitions (list reordering, modals, tab switches). Add loading skeletons where data is fetched.
+- **Clear language**: Labels and empty states should be human and direct, not jargon-heavy or theatrical.
 
-### 4. Verification
+### 4. Verify
 
-- **Build Quality**: Run `pnpm check` to ensure zero linting, type, or test regressions.
-- **Test Enhancement**: If tests are missing or have low coverage, add or enhance Vitest tests for the module. Ensure critical user flows and complex logic are properly covered.
-- **Refinement**: Verify that responsiveness is flawless across all breakpoints and that 'Zen Mode' visibility is respected.
+- **Build check**: Run `pnpm check` — zero lint, type, or test regressions.
+- **Add tests if missing**: Cover critical user flows and complex logic with Vitest.
+- **Responsive check**: Verify all breakpoints look right.
 
-### 5. Documentation & Submission
+### 5. Commit
 
-- **Descriptive Commits/PRs**: Write a thorough description of the changes. Enumerate specific refactors (e.g., "Extracted [X] component"), UI improvements (e.g., "Added glassmorphic cards"), and functional enhancements. Explain the _why_ behind design choices.
+- **Descriptive message**: Summarize what changed and why. List specific refactors, UI fixes, and any new capabilities.
 
-## Design Philosophy
+## Principles
 
-- **Rich Aesthetics**: Vibrant, gradient-touched, and glassmorphic where appropriate.
-- **Intelligence First**: If a module has data, it should have a metric. If it has a metric, it should have a trend.
-- **Zen & Flow**: Actions should be frictionless and feedback should be immediate.
-- **Zero-Feature-Regression**: All legacy capabilities MUST be present in the new version. If the previous version showed a specific metric, the new version must show it (even if in a more refined way).
+- **Keep it simple**: Don't add complexity for its own sake. Every change should have a clear reason.
+- **No feature regression**: Everything the old version did, the new version does — just better.
+- **Useful data**: If the module tracks data, surface it meaningfully. Don't add metrics or charts just to fill space.
+- **Smart where it counts**: Trends, sparklines, quick actions, and automations are great — when they solve a real problem. Don't add them just to look clever.
+- **Frictionless actions**: Common tasks should be fast and obvious. Feedback should be immediate.
