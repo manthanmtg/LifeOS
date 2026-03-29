@@ -29,6 +29,7 @@ import ScheduleTable from "./ScheduleTable";
 import PaymentList from "./PaymentList";
 import DocumentList from "./DocumentList";
 import RateAdjustmentList from "./RateAdjustmentList";
+import LoanAnalysis from "./LoanAnalysis";
 
 interface LoanDetailsProps {
   loan: EmiLoan;
@@ -38,7 +39,7 @@ interface LoanDetailsProps {
   isSubmitting: boolean;
 }
 
-type Tab = "overview" | "schedule" | "payments" | "documents" | "adjustments";
+type Tab = "overview" | "analysis" | "schedule" | "payments" | "documents" | "adjustments";
 
 export default function LoanDetails({
   loan,
@@ -87,7 +88,8 @@ export default function LoanDetails({
   }, [schedule, simulatedSchedule]);
 
   const tabs: { id: Tab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { id: "overview", label: "Intelligence", icon: BarChart3 },
+    { id: "overview", label: "Simulator", icon: Calculator },
+    { id: "analysis", label: "Analysis", icon: BarChart3 },
     { id: "schedule", label: "Schedule", icon: Info },
     { id: "payments", label: "History", icon: History },
     { id: "documents", label: "Vault", icon: Files },
@@ -270,6 +272,16 @@ export default function LoanDetails({
                   </div>
                 </div>
               </div>
+            )}
+
+            {activeTab === "analysis" && (
+              <LoanAnalysis 
+                loan={loan} 
+                schedule={schedule} 
+                currencySymbol={sym} 
+                numberFormat={numberFormat} 
+                decimals={decimals} 
+              />
             )}
 
             {activeTab === "schedule" && (
