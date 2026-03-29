@@ -29,13 +29,13 @@ export default function ScheduleTable({
         <div className="flex items-center gap-2">
           <button
             onClick={onExportCSV}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all text-xs font-bold"
           >
             <Download className="w-3.5 h-3.5" /> CSV
           </button>
           <button
             onClick={onPrintPDF}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all text-xs font-bold"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all text-xs font-bold"
           >
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
@@ -103,7 +103,7 @@ export default function ScheduleTable({
               <td className="px-4 py-3 text-right text-accent tabular-nums">
                 {formatMoney(schedule.totals.total_prepayment, currencySymbol, decimals, numberFormat)}
               </td>
-              <td className="px-4 py-3 text-right text-white tabular-nums">
+              <td className="px-4 py-3 text-right text-zinc-50 tabular-nums">
                 {formatMoney(schedule.totals.total_principal + schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
               </td>
             </tr>

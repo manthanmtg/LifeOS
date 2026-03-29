@@ -139,12 +139,12 @@ export default function LoanDetails({
         <div className="flex items-center gap-3">
           <button
             onClick={onEdit}
-            className="flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-zinc-800/80 text-zinc-300 hover:text-white border border-zinc-700/50 hover:bg-zinc-700 transition-all font-bold text-sm shadow-md"
+            className="flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 border border-zinc-700/50 hover:bg-zinc-700 transition-all font-bold text-sm shadow-md"
           >
             <Edit3 className="w-4 h-4" /> Edit Profile
           </button>
           <button
-             className="p-2.5 rounded-2xl bg-zinc-800/80 text-zinc-400 hover:text-white border border-zinc-700/50 transition-all shadow-md"
+             className="p-2.5 rounded-2xl bg-zinc-800/80 text-zinc-400 hover:text-zinc-50 border border-zinc-700/50 transition-all shadow-md"
           >
             <Settings className="w-5 h-5" />
           </button>
@@ -273,14 +273,14 @@ export default function LoanDetails({
                   <div className="bg-accent/5 border border-accent/20 rounded-3xl p-6 shadow-xl flex flex-col justify-center gap-6 relative overflow-hidden group">
                      <div className="relative z-10">
                         <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-1">Potential Savings</p>
-                        <h4 className="text-3xl font-black text-white tracking-tight">
+                        <h4 className="text-3xl font-black text-zinc-50 tracking-tight">
                           {formatMoney(interestSavedTotal, sym, 0, numberFormat)}
                         </h4>
                         <p className="text-xs text-zinc-400 font-medium mt-2">Total Interest Saved</p>
                      </div>
                      <div className="relative z-10 pt-4 border-t border-accent/10">
                         <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-1">Tenure Reduction</p>
-                        <h4 className="text-2xl font-black text-white tracking-tight">
+                        <h4 className="text-2xl font-black text-zinc-50 tracking-tight">
                           {tenureSaved} <span className="text-lg font-bold text-accent/80">Months</span>
                         </h4>
                         <p className="text-xs text-zinc-400 font-medium mt-2 italic">Earlier payoff date</p>

@@ -312,7 +312,7 @@ export default function SlidesAdminView() {
                   resetForm();
                   setShowForm(true);
                 }}
-                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+                className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
               >
                 <Plus className="w-4 h-4" /> New Deck
               </button>
@@ -471,7 +471,7 @@ export default function SlidesAdminView() {
                 type="file"
                 accept=".pdf,.ppt,.pptx,.html,.htm"
                 onChange={handleFileChange}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-accent file:text-white hover:file:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-accent file:text-zinc-50 hover:file:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />
               {uploadedFile && (
@@ -602,7 +602,7 @@ export default function SlidesAdminView() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-accent hover:bg-accent-hover text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />

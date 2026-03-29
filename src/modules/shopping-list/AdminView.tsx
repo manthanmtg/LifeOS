@@ -714,7 +714,7 @@ export default function ShoppingListAdminView() {
                           }
                           className="w-5 h-5 rounded-md bg-success flex items-center justify-center transition-all shrink-0"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-zinc-50" />
                         </button>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-zinc-400 line-through truncate">

@@ -56,7 +56,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
           <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-1">
             Monthly Burn
           </p>
-          <h3 className="text-3xl font-black text-white tracking-tighter">
+          <h3 className="text-3xl font-black text-zinc-50 tracking-tighter">
             {sym}
             {formatNumber(
               subs.reduce(
@@ -78,7 +78,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
           <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-1">
             Active Subscriptions
           </p>
-          <h3 className="text-3xl font-black text-white tracking-tighter">
+          <h3 className="text-3xl font-black text-zinc-50 tracking-tighter">
             {subs.filter((s) => s.payload.is_active).length}
           </h3>
           <p className="text-[10px] text-success font-black mt-2 uppercase tracking-tighter">
@@ -103,7 +103,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
             className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col justify-between group relative overflow-hidden hover:border-zinc-600 transition-all shadow-2xl"
           >
             <div className="absolute -right-4 -top-4 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <RotateCw className="w-24 h-24 text-white" />
+              <RotateCw className="w-24 h-24 text-zinc-50" />
             </div>
 
             <div className="flex justify-between items-start mb-6">
@@ -112,7 +112,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
                   <Shield className="w-6 h-6 text-accent" />
                 </div>
                 <div>
-                  <h4 className="font-black text-white text-lg tracking-tight">
+                  <h4 className="font-black text-zinc-50 text-lg tracking-tight">
                     {sub.payload.name}
                   </h4>
                   <div className="flex items-center gap-2 mt-1">
@@ -126,7 +126,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-black text-white tracking-tighter">
+                <p className="text-2xl font-black text-zinc-50 tracking-tighter">
                   {sym}
                   {formatNumber(sub.payload.cost, settings.numberFormat)}
                 </p>
@@ -139,7 +139,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
 
             <div className="flex items-center justify-between pt-6 border-t border-zinc-800/50">
               <div className="flex items-center gap-2">
-                <button className="px-4 py-2 bg-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-zinc-750 transition-all">
+                <button className="px-4 py-2 bg-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-zinc-50 hover:bg-zinc-750 transition-all">
                   Settings
                 </button>
                 {sub.payload.url && (
@@ -153,7 +153,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
                   </a>
                 )}
               </div>
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-accent hover:border-accent transition-all group/btn">
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-2xl text-xs font-black uppercase tracking-widest text-zinc-50 hover:bg-accent hover:border-accent transition-all group/btn">
                 Renew Manual{" "}
                 <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
               </button>

@@ -199,7 +199,7 @@ export default function EmiTrackerAdminView() {
                         setEditLoan(null);
                         setIsFormOpen(true);
                     }}
-                    className="p-2 rounded-xl bg-accent text-white shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
+                    className="p-2 rounded-xl bg-accent text-zinc-50 shadow-lg shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
                 >
                     <Plus className="w-4 h-4" />
                 </button>
@@ -262,7 +262,7 @@ export default function EmiTrackerAdminView() {
               </p>
               <button
                 onClick={() => setIsFormOpen(true)}
-                className="mt-8 px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-2xl text-sm font-bold transition-all shadow-xl"
+                className="mt-8 px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-zinc-50 rounded-2xl text-sm font-bold transition-all shadow-xl"
               >
                 Get Started
               </button>

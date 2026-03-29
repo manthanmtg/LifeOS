@@ -93,7 +93,7 @@ export default function ExpensesAdminView() {
       {/* Header & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-white flex items-center gap-3">
+          <h1 className="text-4xl font-black tracking-tight text-zinc-50 flex items-center gap-3">
             <div className="p-2 bg-accent/10 rounded-xl">
               <CreditCard className="w-8 h-8 text-accent" />
             </div>

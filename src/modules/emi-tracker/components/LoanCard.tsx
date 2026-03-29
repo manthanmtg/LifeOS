@@ -45,7 +45,7 @@ export default function LoanCard({
         <div className="max-w-[65%]">
           <h4 className={cn(
             "text-sm font-bold truncate transition-colors",
-            isSelected ? "text-white" : "text-zinc-300 group-hover:text-zinc-100"
+            isSelected ? "text-zinc-50" : "text-zinc-300 group-hover:text-zinc-100"
           )}>
             {loan.payload.title}
           </h4>

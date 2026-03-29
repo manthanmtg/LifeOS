@@ -264,7 +264,7 @@ function DeleteZone({ isDragging }: { isDragging: boolean }) {
         className={cn(
           "relative px-14 py-7 rounded-full border-2 flex items-center justify-center gap-5 transition-all duration-300 shadow-[0_-20px_60px_-15px_rgba(239,68,68,0.3)]",
           isOver
-            ? "bg-danger-muted border-danger text-white scale-110 -translate-y-10"
+            ? "bg-danger-muted border-danger text-zinc-50 scale-110 -translate-y-10"
             : "bg-zinc-950 border-danger/40 text-danger/80",
         )}
       >
@@ -759,7 +759,7 @@ export default function IdeasAdminView() {
                     resetForm();
                     setShowForm(true);
                   }}
-                  className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+                  className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
                 >
                   <Plus className="w-4 h-4" /> New Idea
                 </button>
@@ -915,7 +915,7 @@ export default function IdeasAdminView() {
                     }
                   }}
                   disabled={!newCat.trim()}
-                  className="px-4 py-2 bg-accent hover:bg-accent-hover disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-accent hover:bg-accent-hover disabled:opacity-40 text-zinc-50 rounded-lg text-sm font-medium transition-colors"
                 >
                   Add
                 </button>
@@ -1062,7 +1062,7 @@ export default function IdeasAdminView() {
                   type="submit"
                   disabled={isSubmitting}
                   aria-label={editingId ? "Update idea" : "Add idea"}
-                  className="bg-accent hover:bg-accent-hover text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />

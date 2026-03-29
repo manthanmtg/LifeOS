@@ -212,7 +212,7 @@ export default function ExpenseForm({
       >
         <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-gradient-to-r from-accent/5 to-transparent">
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">
+            <h2 className="text-2xl font-black text-zinc-50 tracking-tight">
               {editingId
                 ? `Refine ${type === "income" ? "Income" : "Expense"}`
                 : "Master Entry"}
@@ -247,7 +247,7 @@ export default function ExpenseForm({
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
                 type === "expense"
-                  ? "bg-zinc-800 text-white shadow-lg"
+                  ? "bg-zinc-800 text-zinc-50 shadow-lg"
                   : "text-zinc-500 hover:text-zinc-300",
               )}
             >
@@ -265,7 +265,7 @@ export default function ExpenseForm({
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
                 type === "income"
-                  ? "bg-zinc-800 text-white shadow-lg"
+                  ? "bg-zinc-800 text-zinc-50 shadow-lg"
                   : "text-zinc-500 hover:text-zinc-300",
               )}
             >
@@ -299,7 +299,7 @@ export default function ExpenseForm({
                           p.type === "income" ? "text-success" : "text-accent",
                         )}
                       />
-                      <span className="text-[10px] font-black group-hover:text-white truncate">
+                      <span className="text-[10px] font-black group-hover:text-zinc-50 truncate">
                         {p.description}
                       </span>
                     </div>
@@ -338,7 +338,7 @@ export default function ExpenseForm({
                     "w-full bg-zinc-950 border border-zinc-800 rounded-3xl pl-16 pr-8 py-6 text-5xl font-black transition-all placeholder:text-zinc-900 focus:outline-none",
                     type === "income"
                       ? "text-success focus:border-success/40"
-                      : "text-white focus:border-accent",
+                      : "text-zinc-50 focus:border-accent",
                   )}
                 />
               </div>
@@ -357,7 +357,7 @@ export default function ExpenseForm({
                     ? "Where did this come from?"
                     : "What was this for?"
                 }
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-accent transition-all"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-zinc-50 focus:outline-none focus:border-accent transition-all"
               />
               <AnimatePresence>
                 {showSuggestions && (
@@ -383,7 +383,7 @@ export default function ExpenseForm({
                                 : "text-accent",
                             )}
                           />
-                          <span className="text-sm font-bold text-zinc-300 group-hover:text-white">
+                          <span className="text-sm font-bold text-zinc-300 group-hover:text-zinc-50">
                             {p.description}
                           </span>
                         </div>
@@ -422,7 +422,7 @@ export default function ExpenseForm({
                   placeholder={
                     type === "income" ? "e.g. Employer" : "e.g. Amazon"
                   }
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 focus:outline-none focus:border-zinc-600 transition-all"
                 />
               </div>
             </div>
@@ -438,7 +438,7 @@ export default function ExpenseForm({
                   onChange={(e) =>
                     setAccount(e.target.value as Prediction["account"])
                   }
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-zinc-600 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 appearance-none focus:outline-none focus:border-zinc-600 transition-all"
                 >
                   <option value="UPI">UPI</option>
                   <option value="Credit Card">Credit Card</option>
@@ -457,7 +457,7 @@ export default function ExpenseForm({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-3 text-sm text-white appearance-none focus:outline-none focus:border-zinc-600 transition-all"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-3 text-sm text-zinc-50 appearance-none focus:outline-none focus:border-zinc-600 transition-all"
               >
                 {settings.categories.map((c) => (
                   <option key={c} value={c}>
@@ -477,7 +477,7 @@ export default function ExpenseForm({
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 focus:outline-none focus:border-zinc-600 transition-all"
                 />
               </div>
             </div>
@@ -497,7 +497,7 @@ export default function ExpenseForm({
                       type="button"
                       onClick={() => setTags(tags.filter((tag) => tag !== t))}
                     >
-                      <X className="w-3 h-3 hover:text-white" />
+                      <X className="w-3 h-3 hover:text-zinc-50" />
                     </button>
                   </span>
                 ))}
@@ -512,7 +512,7 @@ export default function ExpenseForm({
                     e.key === "Enter" && (e.preventDefault(), handleAddTag())
                   }
                   placeholder="Add tags..."
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600 transition-all"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 focus:outline-none focus:border-zinc-600 transition-all"
                 />
               </div>
             </div>
@@ -522,7 +522,7 @@ export default function ExpenseForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 px-6 bg-zinc-800 hover:bg-zinc-750 text-zinc-400 hover:text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all"
+              className="flex-1 py-4 px-6 bg-zinc-800 hover:bg-zinc-750 text-zinc-400 hover:text-zinc-50 font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all"
             >
               Cancel
             </button>
@@ -532,8 +532,8 @@ export default function ExpenseForm({
               className={cn(
                 "flex-[2] py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50",
                 type === "income"
-                  ? "bg-success hover:bg-success-muted text-white shadow-success/20"
-                  : "bg-accent hover:bg-accent-hover text-white shadow-accent/20",
+                  ? "bg-success hover:bg-success-muted text-zinc-50 shadow-success/20"
+                  : "bg-accent hover:bg-accent-hover text-zinc-50 shadow-accent/20",
               )}
             >
               {isSubmitting ? (

@@ -1173,7 +1173,7 @@ export default function SettingsPage() {
                                       exit={{ scale: 0 }}
                                       className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-accent rounded-full flex items-center justify-center shadow-lg shadow-accent/30"
                                     >
-                                      <Check className="w-3 h-3 text-white" />
+                                      <Check className="w-3 h-3 text-zinc-50" />
                                     </motion.div>
                                   )}
                                 </AnimatePresence>
@@ -1541,7 +1541,7 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={handleExport}
-                    className="mt-auto flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-accent/20"
+                    className="mt-auto flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-accent/20"
                   >
                     <Download className="w-4 h-4" /> Export Complete Backup
                   </button>
@@ -1599,7 +1599,7 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed bottom-6 right-6 bg-accent border border-accent/20 text-white shadow-2xl flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl z-50 pointer-events-none"
+            className="fixed bottom-6 right-6 bg-accent border border-accent/20 text-zinc-50 shadow-2xl flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl z-50 pointer-events-none"
           >
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             Saving System Config...

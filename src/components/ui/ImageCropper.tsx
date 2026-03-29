@@ -106,7 +106,7 @@ export default function ImageCropper({
             <button
               onClick={handleSave}
               disabled={isProcessing}
-              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-white/20"
+              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-zinc-50 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-white/20"
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

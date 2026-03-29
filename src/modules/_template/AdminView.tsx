@@ -206,7 +206,7 @@ export default function TemplateAdminView() {
                 resetForm();
                 setShowForm(true);
               }}
-              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
             >
               <Plus className="w-4 h-4" /> New Item
             </button>
@@ -275,7 +275,7 @@ export default function TemplateAdminView() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-accent hover:bg-accent-hover text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-6 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />

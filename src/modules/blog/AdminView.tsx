@@ -686,7 +686,7 @@ export default function BlogAdminView() {
         <button
           onClick={openNewPost}
           aria-label="Create new post"
-          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+          className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> New Post
         </button>
@@ -759,7 +759,7 @@ export default function BlogAdminView() {
                 aria-label={
                   editingId ? "Save post changes" : "Publish new post"
                 }
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors disabled:opacity-50"
               >
                 {manualSaving ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />

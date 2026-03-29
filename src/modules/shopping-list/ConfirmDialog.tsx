@@ -71,8 +71,8 @@ export default function ConfirmDialog({
                   }}
                   className={`flex-1 px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg ${
                     variant === "danger"
-                      ? "bg-danger text-white hover:bg-danger-muted shadow-danger/20"
-                      : "bg-warning text-white hover:bg-warning-muted shadow-warning/20"
+                      ? "bg-danger text-zinc-50 hover:bg-danger-muted shadow-danger/20"
+                      : "bg-warning text-zinc-50 hover:bg-warning-muted shadow-warning/20"
                   }`}
                 >
                   {confirmLabel}

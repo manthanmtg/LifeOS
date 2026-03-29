@@ -528,7 +528,7 @@ export function SpreadsheetTab({
                 <button
                   onClick={handleSaveAll}
                   disabled={isSaving}
-                  className="text-xs md:text-sm font-medium bg-success-muted hover:bg-success text-white px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                  className="text-xs md:text-sm font-medium bg-success-muted hover:bg-success text-zinc-50 px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isSaving && !savingPeriod ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />

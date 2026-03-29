@@ -730,7 +730,7 @@ export default function RainTrackerAdminView() {
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="px-3 py-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-semibold rounded-lg disabled:opacity-50 transition-colors"
+                      className="px-3 py-1.5 bg-accent hover:bg-accent-hover text-zinc-50 text-xs font-semibold rounded-lg disabled:opacity-50 transition-colors"
                     >
                       Save
                     </button>
@@ -1263,7 +1263,7 @@ export default function RainTrackerAdminView() {
                         setEditingEntryId(null);
                         setShowEntryForm(true);
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-accent-hover text-white text-xs font-semibold rounded-lg transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-accent-hover text-zinc-50 text-xs font-semibold rounded-lg transition-all"
                     >
                       <Plus className="w-3 h-3" /> Log
                     </button>
@@ -1441,7 +1441,7 @@ export default function RainTrackerAdminView() {
                           <button
                             type="submit"
                             disabled={isSaving}
-                            className="w-full px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl disabled:opacity-50 transition-colors"
+                            className="w-full px-4 py-2.5 bg-accent hover:bg-accent-hover text-zinc-50 text-sm font-bold rounded-xl disabled:opacity-50 transition-colors"
                           >
                             {isSaving
                               ? "Saving..."

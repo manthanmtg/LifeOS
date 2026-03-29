@@ -429,7 +429,7 @@ export default function PortfolioAdminView() {
               onClick={handleSave}
               disabled={saving || !isDirty}
               aria-label="Save profile changes"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50"
             >
               {saving ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -784,7 +784,7 @@ export default function PortfolioAdminView() {
                         className={cn(
                           "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
                           res.payload.is_active
-                            ? "bg-accent text-white"
+                            ? "bg-accent text-zinc-50"
                             : "bg-zinc-900 text-zinc-500 hover:text-zinc-300 border border-zinc-700/50",
                         )}
                       >

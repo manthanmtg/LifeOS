@@ -163,11 +163,11 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             className="absolute top-8 left-8 right-8 flex items-center justify-between z-30 pointer-events-none"
           >
             <div className="bg-white/5 backdrop-blur-2xl rounded-2xl px-6 py-4 border border-white/10 pointer-events-auto">
-              <h2 className="text-white font-medium text-xl tracking-tight">
+              <h2 className="text-zinc-50 font-medium text-xl tracking-tight">
                 {current.payload.title}
               </h2>
               {current.payload.author && (
-                <p className="text-white/40 text-xs font-light mt-1 uppercase tracking-widest">
+                <p className="text-zinc-50/40 text-xs font-light mt-1 uppercase tracking-widest">
                   {current.payload.author}
                 </p>
               )}
@@ -179,7 +179,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                   e.stopPropagation();
                   toggleFullscreen();
                 }}
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-white/50 hover:text-white transition-all hover:bg-white/10"
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-zinc-50/50 hover:text-zinc-50 transition-all hover:bg-white/10"
                 title="Fullscreen (F)"
               >
                 {isFullscreen ? (
@@ -193,7 +193,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                   e.stopPropagation();
                   onClose();
                 }}
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-white/50 hover:text-danger transition-all hover:bg-white/10"
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-zinc-50/50 hover:text-danger transition-all hover:bg-white/10"
                 title="Close (Esc)"
               >
                 <X className="w-6 h-6" />
@@ -225,7 +225,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
               const src = getIframeSrc(current);
               if (!src) {
                 return (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-50/20">
                     <Presentation className="w-24 h-24 mb-4" />
                     <p>No content available</p>
                   </div>
@@ -264,7 +264,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
 
         {/* Subtle Counter */}
         {total > 0 && (
-          <div className="absolute bottom-8 right-8 px-4 py-2 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full text-[10px] text-white/40 z-20 tabular-nums uppercase tracking-widest">
+          <div className="absolute bottom-8 right-8 px-4 py-2 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full text-[10px] text-zinc-50/40 z-20 tabular-nums uppercase tracking-widest">
             {currentIndex + 1} / {total}
           </div>
         )}
@@ -277,7 +277,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-white/20 text-[10px] pointer-events-none select-none uppercase tracking-widest bg-black/40 backdrop-blur-xl px-4 py-2 rounded-full border border-white/5"
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-zinc-50/20 text-[10px] pointer-events-none select-none uppercase tracking-widest bg-black/40 backdrop-blur-xl px-4 py-2 rounded-full border border-white/5"
           >
             Click sides to navigate · ESC to exit
           </motion.div>

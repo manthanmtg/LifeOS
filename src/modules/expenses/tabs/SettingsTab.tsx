@@ -58,7 +58,7 @@ export default function SettingsTab({
         <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 shadow-2xl">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+              <h3 className="text-xl font-black text-zinc-50 tracking-tight flex items-center gap-2">
                 <SettingsIcon className="w-5 h-5 text-accent" /> Categories
               </h3>
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">
@@ -74,12 +74,12 @@ export default function SettingsTab({
               onChange={(e) => setNewCategory(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCategory()}
               placeholder="Add new category..."
-              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-3 text-sm text-white focus:outline-none focus:border-accent transition-all"
+              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-3 text-sm text-zinc-50 focus:outline-none focus:border-accent transition-all"
             />
             <button
               onClick={addCategory}
               disabled={saving}
-              className="px-6 py-3 bg-accent text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent-hover transition-all flex items-center gap-2 shadow-lg shadow-accent/20"
+              className="px-6 py-3 bg-accent text-zinc-50 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-accent-hover transition-all flex items-center gap-2 shadow-lg shadow-accent/20"
             >
               <Plus className="w-4 h-4 stroke-[3]" /> Add
             </button>
@@ -115,7 +115,7 @@ export default function SettingsTab({
       <div className="space-y-8">
         <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 shadow-2xl space-y-8">
           <div>
-            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-2 mb-6">
+            <h3 className="text-sm font-black text-zinc-50 uppercase tracking-[0.2em] flex items-center gap-2 mb-6">
               <DollarSign className="w-4 h-4 text-accent" /> Financial Config
             </h3>
 
@@ -131,7 +131,7 @@ export default function SettingsTab({
                     onChange={(e) =>
                       handleUpdate({ defaultCurrency: e.target.value })
                     }
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-zinc-600 transition-all cursor-pointer"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 appearance-none focus:outline-none focus:border-zinc-600 transition-all cursor-pointer"
                   >
                     {CURRENCIES.map((c) => (
                       <option key={c} value={c}>
@@ -156,7 +156,7 @@ export default function SettingsTab({
                         monthlyBudget: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600 transition-all"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-50 focus:outline-none focus:border-zinc-600 transition-all"
                   />
                 </div>
               </div>

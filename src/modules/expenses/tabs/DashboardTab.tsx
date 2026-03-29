@@ -208,7 +208,7 @@ export default function DashboardTab({
       <div className="md:col-span-4 lg:col-span-2 space-y-3">
         <motion.button
           onClick={() => setShowForm(true)}
-          className="w-full bg-accent hover:bg-accent-hover text-white rounded-2xl p-4 flex items-center justify-between shadow-xl shadow-accent/20 transition-all group"
+          className="w-full bg-accent hover:bg-accent-hover text-zinc-50 rounded-2xl p-4 flex items-center justify-between shadow-xl shadow-accent/20 transition-all group"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -226,7 +226,7 @@ export default function DashboardTab({
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={exportToCSV}
-            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all group"
+            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-50 hover:border-zinc-600 transition-all group"
           >
             <Download className="w-4 h-4 text-zinc-500 group-hover:text-accent transition-colors" />
             <span className="font-black text-[9px] uppercase tracking-widest text-center">
@@ -236,7 +236,7 @@ export default function DashboardTab({
 
           <button
             onClick={onRefresh}
-            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 text-zinc-400 hover:text-white hover:border-zinc-600 transition-all group"
+            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-50 hover:border-zinc-600 transition-all group"
           >
             <RefreshCw
               className={cn(
@@ -267,7 +267,7 @@ export default function DashboardTab({
       <div className="md:col-span-4 lg:col-span-2 space-y-6">
         <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-6 shadow-2xl">
           <div className="flex items-center justify-between mb-6">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+            <h4 className="text-[10px] font-black text-zinc-50 uppercase tracking-[0.2em] flex items-center gap-2">
               <Wallet className="w-3 h-3 text-accent" /> Account Dynamics
             </h4>
             <div className="px-2 py-0.5 bg-zinc-800 rounded-lg text-[8px] font-black text-zinc-500 uppercase">
@@ -292,7 +292,7 @@ export default function DashboardTab({
                     )}
                   />
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-zinc-400 group-hover:text-white transition-colors">
+                    <span className="text-xs font-bold text-zinc-400 group-hover:text-zinc-50 transition-colors">
                       {wallet.name}
                     </span>
                     <div className="flex items-center gap-2 opacity-30 text-[8px] font-black uppercase">
@@ -311,7 +311,7 @@ export default function DashboardTab({
                     "text-xs font-black tracking-tighter italic",
                     wallet.total >= 0
                       ? "text-success"
-                      : "text-white opacity-80",
+                      : "text-zinc-50 opacity-80",
                   )}
                 >
                   {wallet.total >= 0 ? "+" : "-"}
@@ -325,7 +325,7 @@ export default function DashboardTab({
         </div>
 
         <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-[2.5rem] p-6 shadow-2xl overflow-hidden">
-          <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-4 text-center">
+          <h4 className="text-[10px] font-black text-zinc-50 uppercase tracking-[0.2em] mb-4 text-center">
             Neural Filters
           </h4>
           <div className="flex flex-wrap gap-2 justify-center">
@@ -337,8 +337,8 @@ export default function DashboardTab({
                   className={cn(
                     "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all border",
                     searchQuery === cat
-                      ? "bg-accent text-white border-accent shadow-lg shadow-accent/20"
-                      : "bg-zinc-950/50 border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700",
+                      ? "bg-accent text-zinc-50 border-accent shadow-lg shadow-accent/20"
+                      : "bg-zinc-950/50 border-zinc-800 text-zinc-500 hover:text-zinc-50 hover:border-zinc-700",
                   )}
                 >
                   {cat}

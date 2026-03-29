@@ -320,7 +320,7 @@ export default function AnalyticsAdminView() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-white mb-2">
+          <h1 className="text-4xl font-black tracking-tight text-zinc-50 mb-2">
             OS Analytics
           </h1>
           <p className="text-zinc-500 font-medium">
@@ -484,7 +484,7 @@ export default function AnalyticsAdminView() {
             <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
               {card.label}
             </p>
-            <p className="text-3xl font-black text-white">
+            <p className="text-3xl font-black text-zinc-50">
               {"isText" in card && card.isText
                 ? card.value
                 : typeof card.value === "number"
@@ -500,7 +500,7 @@ export default function AnalyticsAdminView() {
         <div className="xl:col-span-8 bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-xl font-bold text-white mb-1">
+              <h3 className="text-xl font-bold text-zinc-50 mb-1">
                 System Engagement
               </h3>
               <p className="text-xs text-zinc-500 font-medium tracking-wide italic">
@@ -573,7 +573,7 @@ export default function AnalyticsAdminView() {
 
         {/* Module distribution */}
         <div className="xl:col-span-4 bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-          <h3 className="text-xl font-bold text-white mb-6">
+          <h3 className="text-xl font-bold text-zinc-50 mb-6">
             Module Leaderboard
           </h3>
           <div className="space-y-6">
@@ -609,7 +609,7 @@ export default function AnalyticsAdminView() {
             <div className="flex items-center justify-around">
               {stats.deviceData.map((d) => (
                 <div key={d.name} className="text-center">
-                  <div className="text-lg font-black text-white mb-1">
+                  <div className="text-lg font-black text-zinc-50 mb-1">
                     {((d.value / stats.totalEvents) * 100).toFixed(0)}%
                   </div>
                   <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter flex items-center justify-center gap-1">
@@ -633,7 +633,7 @@ export default function AnalyticsAdminView() {
         {/* Live Event Feed */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
           <div className="p-8 pb-4">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <h3 className="text-xl font-bold text-zinc-50 flex items-center gap-2">
               <Activity className="w-5 h-5 text-accent animate-pulse" /> Live
               System Feed
             </h3>
@@ -693,7 +693,7 @@ export default function AnalyticsAdminView() {
 
         {/* Detailed Action Analysis */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-          <h3 className="text-xl font-bold text-white mb-6">
+          <h3 className="text-xl font-bold text-zinc-50 mb-6">
             Action Intelligence
           </h3>
           <div className="space-y-3">
@@ -718,7 +718,7 @@ export default function AnalyticsAdminView() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-black text-white leading-none">
+                    <p className="text-lg font-black text-zinc-50 leading-none">
                       {count}
                     </p>
                     <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-1">
@@ -734,7 +734,7 @@ export default function AnalyticsAdminView() {
 
       {/* ─── Hourly Activity Heatmap ─── */}
       <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-        <h3 className="text-xl font-bold text-white mb-2">Activity Heatmap</h3>
+        <h3 className="text-xl font-bold text-zinc-50 mb-2">Activity Heatmap</h3>
         <p className="text-xs text-zinc-500 font-medium mb-6 italic">
           When users interact most — darker cells mean more activity.
         </p>
@@ -792,7 +792,7 @@ export default function AnalyticsAdminView() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ─── Top Pages ─── */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-          <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-zinc-50 mb-1 flex items-center gap-2">
             <FileText className="w-5 h-5 text-accent" /> Top Pages
           </h3>
           <p className="text-xs text-zinc-500 font-medium mb-6 italic">
@@ -820,7 +820,7 @@ export default function AnalyticsAdminView() {
                     {path}
                   </span>
                   <div className="text-right shrink-0 relative z-10">
-                    <span className="text-sm font-black text-white">
+                    <span className="text-sm font-black text-zinc-50">
                       {count}
                     </span>
                     <span className="text-[10px] text-zinc-600 ml-1.5 font-bold">
@@ -840,7 +840,7 @@ export default function AnalyticsAdminView() {
 
         {/* ─── Referrer Intelligence ─── */}
         <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-          <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-zinc-50 mb-1 flex items-center gap-2">
             <Link2 className="w-5 h-5 text-purple-400" /> Referrer Intelligence
           </h3>
           <p className="text-xs text-zinc-500 font-medium mb-6 italic">
@@ -916,7 +916,7 @@ export default function AnalyticsAdminView() {
       <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-xl font-bold text-white mb-1">
+            <h3 className="text-xl font-bold text-zinc-50 mb-1">
               Public vs Admin Traffic
             </h3>
             <p className="text-xs text-zinc-500 font-medium tracking-wide italic">

@@ -199,8 +199,8 @@ export default function CropHistoryAdminView() {
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-zinc-800 bg-zinc-900 p-4 md:p-6">
-        <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-success/10 blur-3xl opacity-50" />
-        <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-accent/5 blur-2xl opacity-60" />
+        <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-success/10 blur-3xl opacity-50 pointer-events-none" />
+        <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-accent/5 blur-2xl opacity-60 pointer-events-none" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="flex items-center gap-2 md:gap-3 text-2xl md:text-3xl font-bold tracking-tight text-zinc-50">
@@ -265,15 +265,15 @@ export default function CropHistoryAdminView() {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {activeTab === "spreadsheet" && (
-          <motion.div
-            key="spreadsheet"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-          >
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, position: "absolute", pointerEvents: "none" }}
+          transition={{ duration: 0.15 }}
+        >
+          {activeTab === "spreadsheet" && (
             <SpreadsheetTab
               activeCrop={activeCrop}
               crops={settings.crops}
@@ -294,52 +294,26 @@ export default function CropHistoryAdminView() {
               }}
               onRefresh={fetchRecords}
             />
-          </motion.div>
-        )}
+          )}
 
-        {activeTab === "analytics" && (
-          <motion.div
-            key="analytics"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-          >
+          {activeTab === "analytics" && (
             <AnalyticsTab
               crops={settings.crops}
               allRecords={records}
               sources={areas}
             />
-          </motion.div>
-        )}
+          )}
 
-        {activeTab === "settings" && (
-          <motion.div
-            key="settings"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-          >
+          {activeTab === "settings" && (
             <SettingsTab
               settings={settings}
               updateSettings={updateSettings}
               saving={settingsSaving}
             />
-          </motion.div>
-        )}
+          )}
 
-        {activeTab === "docs" && (
-          <motion.div
-            key="docs"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-          >
-            <DocsTab />
-          </motion.div>
-        )}
+          {activeTab === "docs" && <DocsTab />}
+        </motion.div>
       </AnimatePresence>
     </div>
   );

@@ -27,7 +27,7 @@ const CustomTooltip = ({ active, payload, label, currencySymbol, numberFormat }:
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-zinc-400">Balance:</span>
-            <span className="text-xs font-bold text-white">
+            <span className="text-xs font-bold text-zinc-50">
               {formatMoney(payload[0].value, currencySymbol, 0, numberFormat)}
             </span>
           </div>

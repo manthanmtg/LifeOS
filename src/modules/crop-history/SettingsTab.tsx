@@ -824,7 +824,7 @@ export function SettingsTab({
             </div>
             <button
               onClick={handleAddArea}
-              className="bg-success-muted hover:bg-success text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="bg-success-muted hover:bg-success text-zinc-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             >
               Save
             </button>
@@ -1356,7 +1356,7 @@ export function SettingsTab({
                     <button
                       onClick={addCalcField}
                       disabled={!newCalcName.trim() || !newCalcFormula.trim()}
-                      className="bg-success-muted hover:bg-success disabled:opacity-40 disabled:hover:bg-success-muted text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                      className="bg-success-muted hover:bg-success disabled:opacity-40 disabled:hover:bg-success-muted text-zinc-50 px-5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" /> Add Calculated Field
                     </button>
@@ -1449,7 +1449,7 @@ export function SettingsTab({
               <button
                 onClick={handleSaveCrop}
                 disabled={!cropForm.name.trim()}
-                className="bg-success-muted hover:bg-success disabled:opacity-40 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                className="bg-success-muted hover:bg-success disabled:opacity-40 text-zinc-50 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
               >
                 <Save className="w-4 h-4" /> Save Crop Type
               </button>
@@ -1618,7 +1618,7 @@ export function SettingsTab({
       </div>
 
       {saving && (
-        <div className="fixed bottom-6 right-6 bg-zinc-800 border border-zinc-700 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 shadow-xl animate-fade-in-up z-50">
+        <div className="fixed bottom-6 right-6 bg-zinc-800 border border-zinc-700 text-zinc-50 px-4 py-2 rounded-full text-sm flex items-center gap-2 shadow-xl animate-fade-in-up z-50">
           <RefreshCw className="w-4 h-4 animate-spin" /> Saving Settings...
         </div>
       )}

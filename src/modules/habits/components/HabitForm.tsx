@@ -188,7 +188,7 @@ export default function HabitForm({
               type="submit"
               disabled={isSubmitting}
               aria-label={editingHabit ? "Update habit" : "Create habit"}
-              className="bg-accent hover:bg-accent-hover text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

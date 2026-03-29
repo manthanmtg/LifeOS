@@ -28,14 +28,14 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
           <a
             href={src}
             download={alt || "profile-picture"}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95"
             title="Download Image"
           >
             <Download className="w-5 h-5" />
           </a>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95"
             title="Close Preview"
           >
             <X className="w-5 h-5" />

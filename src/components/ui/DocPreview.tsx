@@ -68,14 +68,14 @@ export default function DocPreview({
           <a
             href={src}
             download={filename}
-            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
             title="Download"
           >
             <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </a>
           <button
             onClick={onClose}
-            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
             title="Close (Esc)"
           >
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
@@ -116,7 +116,7 @@ export default function DocPreview({
               <a
                 href={src}
                 download={filename}
-                className="px-6 py-2 bg-accent text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all"
+                className="px-6 py-2 bg-accent text-zinc-50 rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all"
               >
                 Download to View
               </a>

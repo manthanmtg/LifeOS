@@ -389,7 +389,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                         className={cn(
                           "mt-1 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
                           item.completed
-                            ? "bg-accent border-accent text-white"
+                            ? "bg-accent border-accent text-zinc-50"
                             : "border-zinc-700 hover:border-zinc-500",
                         )}
                       >
@@ -499,7 +499,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                             setIsAddingComment(false);
                           }}
                           disabled={!newComment.trim()}
-                          className="px-4 py-2 bg-accent hover:bg-accent/80 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                          className="px-4 py-2 bg-accent hover:bg-accent/80 text-zinc-50 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
                         >
                           Post
                         </button>
@@ -753,13 +753,13 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-lg overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-zinc-50 flex items-center gap-2">
                 <ListCheck className="w-4 h-4 text-accent" /> Bulk Import
                 Checklist
               </h3>
               <button
                 onClick={() => setIsImporting(false)}
-                className="text-zinc-500 hover:text-white"
+                className="text-zinc-500 hover:text-zinc-50"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -786,7 +786,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                 <button
                   onClick={handleBulkImport}
                   disabled={!importText.trim()}
-                  className="px-6 py-2 bg-accent hover:bg-accent/80 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+                  className="px-6 py-2 bg-accent hover:bg-accent/80 text-zinc-50 text-sm font-bold rounded-xl transition-all disabled:opacity-50"
                 >
                   Import Items
                 </button>
@@ -817,7 +817,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
               </div>
               <button
                 onClick={() => setSelectedSubtaskIndex(null)}
-                className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors"
+                className="p-2 text-zinc-500 hover:text-zinc-50 hover:bg-zinc-900 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -917,7 +917,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                             setIsAddingSubtaskComment(false);
                           }}
                           disabled={!newSubtaskComment.trim()}
-                          className="px-4 py-2 bg-accent hover:bg-accent/80 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                          className="px-4 py-2 bg-accent hover:bg-accent/80 text-zinc-50 text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
                         >
                           Post
                         </button>
@@ -1029,7 +1029,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   "px-6 py-2 rounded-xl text-sm font-bold transition-all",
                   payload.checklist[selectedSubtaskIndex].completed
                     ? "bg-success/10 text-success border border-success/20"
-                    : "bg-accent text-white hover:bg-accent/80 shadow-lg shadow-accent/20",
+                    : "bg-accent text-zinc-50 hover:bg-accent/80 shadow-lg shadow-accent/20",
                 )}
               >
                 {payload.checklist[selectedSubtaskIndex].completed

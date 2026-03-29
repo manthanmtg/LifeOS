@@ -214,7 +214,7 @@ export default function LoanAnalysis({
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Total Principal</span>
-              <span className="text-2xl font-black text-white italic tracking-tighter">
+              <span className="text-2xl font-black text-zinc-50 italic tracking-tighter">
                 {formatMoney(metrics.totalPrincipal, currencySymbol, 0, numberFormat)}
               </span>
             </div>

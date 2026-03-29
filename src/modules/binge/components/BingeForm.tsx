@@ -490,7 +490,7 @@ export default function BingeForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-accent hover:bg-accent-hover text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-5 py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {isSubmitting ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />

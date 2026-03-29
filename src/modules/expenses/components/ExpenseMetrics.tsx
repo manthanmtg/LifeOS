@@ -142,7 +142,7 @@ export default function ExpenseMetrics({
           <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
             Outflow
           </p>
-          <h2 className="text-3xl font-black text-white tracking-tighter">
+          <h2 className="text-3xl font-black text-zinc-50 tracking-tighter">
             {sym}
             {formatNumber(stats.expenseThis, settings.numberFormat)}
           </h2>
@@ -187,7 +187,7 @@ export default function ExpenseMetrics({
 
         <div className="flex-1 flex flex-col justify-center">
           <div className="flex justify-between items-end mb-2">
-            <span className="text-3xl font-black text-white">
+            <span className="text-3xl font-black text-zinc-50">
               {stats.budgetUsage.toFixed(0)}%
             </span>
             <span className="text-[9px] text-zinc-600 font-bold tracking-wider uppercase">

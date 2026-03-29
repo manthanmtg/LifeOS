@@ -71,12 +71,12 @@ export default function LoanForm({
     <div className="bg-zinc-900/60 backdrop-blur-2xl border border-zinc-800/80 rounded-[40px] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
       <div className="p-8 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-900/40">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight">
+          <h2 className="text-2xl font-black text-zinc-50 tracking-tight">
             {editLoan ? "Refine Loan Details" : "New Portfolio Asset"}
           </h2>
           <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">Configure your debt instrument</p>
         </div>
-        <button onClick={onClose} className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all shadow-lg">
+        <button onClick={onClose} className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all shadow-lg">
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -131,7 +131,7 @@ export default function LoanForm({
                   required 
                   value={principal} 
                   onChange={(e) => setPrincipal(Number(e.target.value))}
-                  className="w-full bg-transparent text-3xl font-black text-white focus:outline-none tabular-nums" 
+                  className="w-full bg-transparent text-3xl font-black text-zinc-50 focus:outline-none tabular-nums" 
                 />
                 <p className="text-xs text-zinc-500 font-bold italic tracking-tight truncate">
                   {currency === "INR" ? amountInWords(principal.toString()) : `${principal.toLocaleString()} ${currency}`}
@@ -177,7 +177,7 @@ export default function LoanForm({
                 <button 
                   type="button"
                   onClick={() => setEmi(suggestedEmi)}
-                  className="w-full py-2 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-white transition-all shadow-lg"
+                  className="w-full py-2 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-zinc-50 transition-all shadow-lg"
                 >
                   Auto-Calculate Suggestion
                 </button>
@@ -234,13 +234,13 @@ export default function LoanForm({
               <button 
                 type="button" 
                 onClick={onClose}
-                className="px-8 py-3.5 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-white font-bold text-sm transition-all"
+                className="px-8 py-3.5 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 font-bold text-sm transition-all"
               >
                 Cancel
               </button>
               <button 
                 disabled={isSaving}
-                className="px-10 py-3.5 rounded-2xl bg-accent text-white font-black text-sm shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
+                className="px-10 py-3.5 rounded-2xl bg-accent text-zinc-50 font-black text-sm shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
               >
                 {isSaving ? "Synchronizing..." : editLoan ? "Apply Updates" : "Deploy Asset"}
               </button>

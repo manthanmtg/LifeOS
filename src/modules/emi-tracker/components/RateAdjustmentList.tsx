@@ -73,7 +73,7 @@ export default function RateAdjustmentList({
             <button
               type="submit"
               disabled={isSubmitting || !adjRate}
-              className="w-full bg-accent hover:bg-accent-hover text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Log Change
             </button>
@@ -108,7 +108,7 @@ export default function RateAdjustmentList({
               </div>
               <button
                 onClick={() => onDelete(idx)}
-                className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 shadow-md"
+                className="p-2 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>

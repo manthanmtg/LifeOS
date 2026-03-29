@@ -106,7 +106,7 @@ export default function DocumentsTab({
                       <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => onEdit(doc)}
-                          className="p-2 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+                          className="p-2 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-colors"
                           title="Edit"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -162,7 +162,7 @@ export default function DocumentsTab({
                               </>
                             )}
                             <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-sm opacity-0 group-hover/att:opacity-100 transition-all scale-75 group-hover/att:scale-100">
-                              <Eye className="w-3 h-3 text-white" />
+                              <Eye className="w-3 h-3 text-zinc-50" />
                             </div>
                           </div>
                         ))}

@@ -204,7 +204,7 @@ export default function HabitsAdminView() {
           <motion.button
             onClick={handleOpenForm}
             aria-label="Add new habit"
-            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+            className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >

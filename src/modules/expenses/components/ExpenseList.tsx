@@ -71,7 +71,7 @@ export default function ExpenseList({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-lg font-black text-white tracking-tight">
+        <h3 className="text-lg font-black text-zinc-50 tracking-tight">
           Recent Ledger
         </h3>
         <div className="relative group">
@@ -128,7 +128,7 @@ export default function ExpenseList({
                       <Icon className="w-5 h-5" />
                       {expense.payload.is_recurring && (
                         <div className="absolute -top-1 -right-1 p-1 bg-accent rounded-full border-2 border-zinc-900 shadow-lg">
-                          <RefreshCw className="w-1.5 h-1.5 text-white" />
+                          <RefreshCw className="w-1.5 h-1.5 text-zinc-50" />
                         </div>
                       )}
                     </div>
@@ -170,7 +170,7 @@ export default function ExpenseList({
                       <p
                         className={cn(
                           "font-black text-lg tracking-tighter",
-                          isIncome ? "text-success" : "text-white",
+                          isIncome ? "text-success" : "text-zinc-50",
                         )}
                       >
                         {isIncome ? "+" : ""}

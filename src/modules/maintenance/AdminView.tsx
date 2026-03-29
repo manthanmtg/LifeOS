@@ -1788,7 +1788,7 @@ export default function MaintenanceAdminView() {
                 </button>
                 <button
                   onClick={() => deleteTask(deletingId)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-danger text-white font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-danger/20"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-danger text-zinc-50 font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-danger/20"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
                 </button>

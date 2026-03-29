@@ -60,13 +60,13 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
                 {item.payload.deck_url && (
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 backdrop-blur rounded-full p-3 border border-white/20">
-                      <Play className="w-5 h-5 text-white fill-white" />
+                      <Play className="w-5 h-5 text-zinc-50 fill-white" />
                     </div>
                   </div>
                 )}
               </div>
 
-              <h3 className="text-white font-medium line-clamp-1 text-sm">
+              <h3 className="text-zinc-50 font-medium line-clamp-1 text-sm">
                 {item.payload.title}
               </h3>
               {item.payload.description && (

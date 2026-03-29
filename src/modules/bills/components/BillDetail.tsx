@@ -245,7 +245,7 @@ export default function BillDetail({
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                          <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <Eye className="w-5 h-5 text-zinc-50 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </button>
                     ))}
@@ -335,7 +335,7 @@ export default function BillDetail({
                 <button
                   onClick={handleDeleteBill}
                   disabled={deleting}
-                  className="px-3 py-1.5 text-xs font-bold text-white bg-danger hover:bg-danger/80 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs font-bold text-zinc-50 bg-danger hover:bg-danger/80 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {deleting ? "Deleting..." : "Delete"}
                 </button>
@@ -378,14 +378,14 @@ export default function BillDetail({
                         e.stopPropagation();
                         handleDownload(previewAttachment);
                       }}
-                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 rounded-xl hover:bg-zinc-700 transition-colors"
                       title="Download"
                     >
                       <Download className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setPreviewAttachment(null)}
-                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                      className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 rounded-xl hover:bg-zinc-700 transition-colors"
                       title="Close (Esc)"
                     >
                       <X className="w-4 h-4" />
