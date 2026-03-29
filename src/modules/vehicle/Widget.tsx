@@ -55,8 +55,10 @@ export default function VehicleWidget() {
       {summary && (
         <div className="space-y-3">
           <WidgetStat
-            value={summary.total}
-            label={`vehicle${summary.total !== 1 ? "s" : ""} tracked`}
+            value={summary.alertCount}
+            label={
+              summary.alertCount > 0 ? "service alerts" : "all systems clear"
+            }
           />
           {summary.alertCount > 0 ? (
             <WidgetHighlight
@@ -68,7 +70,7 @@ export default function VehicleWidget() {
           ) : (
             <WidgetHighlight
               icon={Car}
-              text="All clear, no alerts"
+              text={`${summary.total} vehicle${summary.total !== 1 ? "s" : ""} tracked`}
               variant="success"
             />
           )}

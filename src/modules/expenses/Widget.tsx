@@ -5,6 +5,7 @@ import { Banknote, TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import { WidgetStat } from "@/components/dashboard/widget-primitives";
 import { formatCurrency, type NumberFormat } from "@/lib/formatters";
 
 interface Expense {
@@ -41,13 +42,13 @@ export default function ExpensesWidget() {
   const format = settings.numberFormat || "western";
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/content?module_type=expense", { signal: controller.signal })
+    const ac = new AbortController();
+    fetch("/api/content?module_type=expense", { signal: ac.signal })
       .then((r) => r.json())
       .then((d) => setExpenses(d.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
-    return () => controller.abort();
+    return () => ac.abort();
   }, []);
 
   const { totalThisMonth, trend, topCategory } = useMemo(() => {
@@ -55,14 +56,16 @@ export default function ExpensesWidget() {
     const thisMonth = expenses.filter((e) => {
       const d = new Date(e.payload.date);
       return (
-        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
       );
     });
     const lastMonth = expenses.filter((e) => {
       const d = new Date(e.payload.date);
       const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       return (
-        d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
+        d.getMonth() === lm.getMonth() &&
+        d.getFullYear() === lm.getFullYear()
       );
     });
 
@@ -80,12 +83,7 @@ export default function ExpensesWidget() {
     );
     const tc = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
 
-    return {
-      totalThisMonth: ttm,
-      totalLastMonth: tlm,
-      trend: t,
-      topCategory: tc,
-    };
+    return { totalThisMonth: ttm, trend: t, topCategory: tc };
   }, [expenses]);
 
   return (
@@ -121,13 +119,10 @@ export default function ExpensesWidget() {
         </div>
       }
     >
-      <div className="py-2">
-        <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-          <span className="text-zinc-500 mr-1 text-2xl font-medium">{sym}</span>
-          {formatCurrency(totalThisMonth, "", format).replace(/^/, "")}
-        </p>
-        <p className="text-xs text-zinc-500 mt-1 font-medium">this month</p>
-      </div>
+      <WidgetStat
+        value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
+        label="spent this month"
+      />
     </WidgetCard>
   );
 }

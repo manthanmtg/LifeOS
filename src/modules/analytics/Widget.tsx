@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { BarChart3, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import { WidgetStat } from "@/components/dashboard/widget-primitives";
 
 interface MetricEvent {
   timestamp: string;
@@ -66,14 +67,7 @@ export default function AnalyticsWidget() {
         </div>
       }
     >
-      <div className="py-2">
-        <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-          {todayCount}
-        </p>
-        <p className="text-xs text-zinc-500 mt-1 font-medium">
-          real-time engagements today
-        </p>
-      </div>
+      <WidgetStat value={todayCount} label="engagements today" />
     </WidgetCard>
   );
 }

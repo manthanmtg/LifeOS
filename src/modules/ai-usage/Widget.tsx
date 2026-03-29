@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bot, TrendingUp, TrendingDown } from "lucide-react";
+import { Bot, TrendingUp, TrendingDown, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 import { formatNumber } from "@/lib/formatters";
 
 interface AiUsageEntry {
@@ -15,13 +19,6 @@ interface AiUsageEntry {
     date: string;
   };
 }
-
-const CURR_SYM: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  INR: "₹",
-};
 
 export default function AiUsageWidget() {
   const [entries, setEntries] = useState<AiUsageEntry[]>([]);
@@ -57,13 +54,12 @@ export default function AiUsageWidget() {
       ? ((totalThisMonth - totalLastMonth) / totalLastMonth) * 100
       : 0;
 
-  const providerCounts = thisMonth.reduce<Record<string, number>>((acc, e) => {
-    acc[e.payload.provider] = (acc[e.payload.provider] || 0) + 1;
-    return acc;
-  }, {});
-  const topProvider = Object.entries(providerCounts).sort(
-    (a, b) => b[1] - a[1],
-  )[0];
+  const topProvider = Object.entries(
+    thisMonth.reduce<Record<string, number>>((acc, e) => {
+      acc[e.payload.provider] = (acc[e.payload.provider] || 0) + 1;
+      return acc;
+    }, {}),
+  ).sort((a, b) => b[1] - a[1])[0];
 
   const totalTokens = thisMonth.reduce(
     (s, e) => s + e.payload.input_tokens + e.payload.output_tokens,
@@ -103,27 +99,18 @@ export default function AiUsageWidget() {
         </div>
       }
     >
-      <div className="py-2 space-y-3">
-        <div>
-          <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-            <span className="text-zinc-500 mr-1 text-2xl font-medium">
-              {CURR_SYM.USD}
-            </span>
-            {formatNumber(totalThisMonth, "western", 2)}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">
-            this month &middot; {thisMonth.length} calls
-          </p>
-        </div>
-        {totalTokens > 0 && (
-          <div className="p-2.5 rounded-xl border border-zinc-800 bg-zinc-950/50">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-1">
-              Tokens Used
-            </p>
-            <p className="text-sm font-bold text-zinc-300">
-              {formatNumber(totalTokens / 1000, "western", 1)}K
-            </p>
-          </div>
+      <div className="space-y-3">
+        <WidgetStat
+          value={`$${formatNumber(totalThisMonth, "western", 2)}`}
+          label={`this month · ${thisMonth.length} calls`}
+        />
+        {totalTokens > 0 ? (
+          <WidgetHighlight
+            icon={Cpu}
+            text={`${formatNumber(totalTokens / 1000, "western", 1)}K tokens used`}
+          />
+        ) : (
+          <WidgetHighlight icon={Bot} text="No usage this month" />
         )}
       </div>
     </WidgetCard>

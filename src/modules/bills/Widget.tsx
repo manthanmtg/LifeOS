@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Receipt, Paperclip, FolderOpen } from "lucide-react";
+import { Receipt, FolderOpen } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
+
+const NOW_MS = Date.now();
 
 interface BillStats {
   total: number;
@@ -35,6 +37,15 @@ export default function BillsWidget() {
       .finally(() => setLoading(false));
   }, []);
 
+  const daysAgo =
+    stats?.recentBill
+      ? Math.floor(
+          (NOW_MS -
+            new Date(stats.recentBill.payload.bill_date).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
+      : null;
+
   return (
     <WidgetCard
       title="Bills"
@@ -43,31 +54,35 @@ export default function BillsWidget() {
       href="/admin/bills"
       footer={
         stats && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-zinc-500">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+            <span className="flex items-center gap-1.5">
               <FolderOpen className="w-3 h-3" /> {stats.folderCount} folders
             </span>
-            <span className="flex items-center gap-1.5 text-accent/80">
-              <Paperclip className="w-3 h-3" /> {stats.totalAttachments} files
-            </span>
+            {daysAgo !== null && (
+              <span>
+                {daysAgo === 0
+                  ? "added today"
+                  : daysAgo === 1
+                    ? "added yesterday"
+                    : `added ${daysAgo}d ago`}
+              </span>
+            )}
           </div>
         )
       }
     >
       {stats && (
         <div className="space-y-3">
-          <WidgetStat value={stats.total} label="records stored" />
+          <WidgetStat value={stats.total} label="bills archived" />
           {stats.recentBill ? (
             <WidgetHighlight
               icon={Receipt}
               text={stats.recentBill.payload.name}
-              subtext={new Date(
-                stats.recentBill.payload.bill_date,
-              ).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              subtext={
+                stats.recentBill.payload.amount !== undefined
+                  ? `${stats.recentBill.payload.currency ?? ""} ${stats.recentBill.payload.amount.toLocaleString()}`
+                  : undefined
+              }
             />
           ) : (
             <WidgetHighlight icon={Receipt} text="No bills yet" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Landmark, TrendingDown, Clock, AlertTriangle } from "lucide-react";
+import { Landmark, Clock, AlertTriangle } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -91,12 +91,19 @@ export default function EMITrackerWidget() {
         summary && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             <span className="flex items-center gap-1.5">
-              <TrendingDown className="w-3 h-3 text-accent" />
-              {amount > 0 ? "outstanding" : "debt free"}
+              <Landmark className="w-3 h-3" />
+              {summary.activeCount} active loan
+              {summary.activeCount !== 1 ? "s" : ""}
             </span>
-            <span>
-              {summary.activeCount} loan{summary.activeCount !== 1 ? "s" : ""}
-            </span>
+            {summary.nearest && (
+              <span>
+                due{" "}
+                {new Date(summary.nearest.due).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
+            )}
           </div>
         )
       }

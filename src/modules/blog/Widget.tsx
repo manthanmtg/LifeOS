@@ -62,7 +62,7 @@ export default function BlogWidget() {
       <div className="space-y-3">
         <WidgetStat
           value={published.length}
-          label={`published · ${totalMinutes} min read`}
+          label={`published · ${totalMinutes}m total read time`}
         />
         {latest ? (
           <WidgetHighlight

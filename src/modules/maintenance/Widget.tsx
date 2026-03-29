@@ -48,18 +48,27 @@ export default function MaintenanceWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat value={summary.total} label="tasks tracked" />
+        <WidgetStat
+          value={summary.overdue}
+          label={summary.overdue > 0 ? "overdue" : "all on schedule"}
+        />
         {summary.overdue > 0 ? (
           <WidgetHighlight
             icon={AlertTriangle}
-            text={`${summary.overdue} overdue task${summary.overdue !== 1 ? "s" : ""}`}
+            text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
             subtext="needs immediate attention"
             variant="danger"
+          />
+        ) : summary.upcoming > 0 ? (
+          <WidgetHighlight
+            icon={Clock}
+            text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} coming up`}
+            variant="warning"
           />
         ) : (
           <WidgetHighlight
             icon={Wrench}
-            text="All tasks up to date"
+            text={`${summary.total} tasks tracked, all clear`}
             variant="success"
           />
         )}

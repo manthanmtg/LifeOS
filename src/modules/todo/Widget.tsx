@@ -37,11 +37,10 @@ export default function TodoWidget() {
       footer={
         summary && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-accent/80">
-              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-              {summary.activeCount} active
+            <span className="flex items-center gap-1.5 text-success/80">
+              <CheckSquare className="w-3 h-3" />
+              {summary.doneCount} completed
             </span>
-            <span className="text-zinc-600">{summary.doneCount} done</span>
           </div>
         )
       }

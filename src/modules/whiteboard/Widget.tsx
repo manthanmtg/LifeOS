@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { PenLine, Shapes, Star, Globe } from "lucide-react";
+import { PenLine, Star, Globe } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
+
+const NOW_MS = Date.now();
 
 interface WhiteboardDoc {
   is_public: boolean;
@@ -33,13 +35,9 @@ export default function WhiteboardWidget() {
 
   const stats = useMemo(() => {
     const total = boards.length;
-    const totalElements = boards.reduce(
-      (sum, b) => sum + (b.payload.elements?.length || 0),
-      0,
-    );
     const favorites = boards.filter((b) => b.payload.is_favorite).length;
     const publicCount = boards.filter((b) => b.is_public).length;
-    return { total, totalElements, favorites, publicCount };
+    return { total, favorites, publicCount };
   }, [boards]);
 
   const latestBoard = useMemo(() => {
@@ -51,6 +49,13 @@ export default function WhiteboardWidget() {
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     )[0];
   }, [boards]);
+
+  const daysAgo = latestBoard
+    ? Math.floor(
+        (NOW_MS - new Date(latestBoard.updated_at).getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
+    : null;
 
   return (
     <WidgetCard
@@ -73,9 +78,15 @@ export default function WhiteboardWidget() {
               </span>
             )}
           </div>
-          <span className="flex items-center gap-1">
-            <Shapes className="w-3 h-3" /> {stats.totalElements} elements
-          </span>
+          {daysAgo !== null && (
+            <span>
+              {daysAgo === 0
+                ? "edited today"
+                : daysAgo === 1
+                  ? "edited yesterday"
+                  : `edited ${daysAgo}d ago`}
+            </span>
+          )}
         </div>
       }
     >

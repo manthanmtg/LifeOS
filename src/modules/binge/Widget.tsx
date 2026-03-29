@@ -47,9 +47,8 @@ export default function BingeWidget() {
       href="/admin/binge"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5 text-warning/80">
-            <Play className="w-3 h-3" fill="currentColor" />{" "}
-            {summary.watchingCount} watching
+          <span className="flex items-center gap-1.5 text-zinc-500">
+            <Tv className="w-3 h-3" /> {summary.total} titles
           </span>
           <span
             className={cn(
@@ -67,10 +66,13 @@ export default function BingeWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat value={summary.total} label="titles tracked" />
+        <WidgetStat
+          value={summary.watchingCount}
+          label="currently watching"
+        />
         {summary.latest ? (
           <WidgetHighlight
-            icon={Tv}
+            icon={Play}
             text={summary.latest.payload.title}
             subtext={
               summary.latest.payload.current_season

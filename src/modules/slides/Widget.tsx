@@ -44,9 +44,6 @@ export default function SlidesWidget() {
       href="/admin/slides"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5 text-accent/80">
-            <Presentation className="w-3 h-3" /> {summary.total} decks
-          </span>
           <span className="flex items-center gap-1.5 text-success/80">
             <Globe className="w-3 h-3" /> {summary.publicDecks} public
           </span>
