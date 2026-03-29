@@ -32,6 +32,9 @@ interface PersonFormProps {
   onSave: (payload: PersonPayload) => Promise<void>;
 }
 
+const inputCls =
+  "w-full bg-zinc-900/40 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/5 transition-all";
+
 export default function PersonForm({
   person,
   onClose,
@@ -102,7 +105,7 @@ export default function PersonForm({
       onClose();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to save connection";
+        err instanceof Error ? err.message : "Failed to save";
       setError(message);
     } finally {
       setIsSaving(false);
@@ -116,64 +119,64 @@ export default function PersonForm({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 100, scale: 0.95 }}
+        initial={{ opacity: 0, y: 60, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 100, scale: 0.95 }}
-        className="relative w-full md:max-w-3xl bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800/50 rounded-t-[3rem] md:rounded-[4rem] shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
+        exit={{ opacity: 0, y: 60, scale: 0.97 }}
+        className="relative w-full md:max-w-lg bg-zinc-950 border border-zinc-800 rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
-        <div className="flex justify-center pt-5 pb-1 md:hidden">
-          <div className="w-12 h-1.5 rounded-full bg-zinc-800" />
+        {/* Mobile drag handle */}
+        <div className="flex justify-center pt-3 pb-0 md:hidden">
+          <div className="w-10 h-1 rounded-full bg-zinc-800" />
         </div>
 
-        <div className="flex items-center justify-between px-10 py-8 border-b border-zinc-800/40 shrink-0">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-3xl bg-accent/10 border border-accent/20 flex items-center justify-center shadow-inner">
-              <User className="w-7 h-7 text-accent" />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/60 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-accent" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-zinc-100 tracking-tight">
+              <h2 className="text-base font-bold text-zinc-100">
                 {person ? "Edit Person" : "Add Someone"}
               </h2>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-[11px] text-zinc-500">
                 Someone worth remembering
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-4 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-[2rem] transition-all"
+            className="p-2 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-lg transition-all"
           >
-            <X className="w-8 h-8" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="p-10 space-y-12 overflow-y-auto flex-1 custom-scrollbar pb-20"
+          className="p-5 space-y-5 overflow-y-auto flex-1 custom-scrollbar"
         >
           {error && (
-            <div className="bg-danger/10 border border-danger/20 p-4 rounded-2xl text-danger text-xs font-bold uppercase tracking-widest text-center">
+            <div className="bg-danger/10 border border-danger/20 p-3 rounded-xl text-danger text-xs font-medium text-center">
               {error}
             </div>
           )}
 
-          {/* Section: Identity */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
-              <Star className="w-4 h-4 text-accent" />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Basic Info
-              </h3>
-            </div>
+          {/* Basic Info */}
+          <fieldset className="space-y-3">
+            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+              <Star className="w-3.5 h-3.5 text-accent" /> Basic Info
+            </legend>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
-                  Full Name
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  Name *
                 </label>
                 <input
                   autoFocus
@@ -181,13 +184,12 @@ export default function PersonForm({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full name"
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 transition-all font-bold text-lg"
+                  className={cn(inputCls, "font-medium")}
                   required
                 />
               </div>
-
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                   Relationship
                 </label>
                 <select
@@ -195,187 +197,180 @@ export default function PersonForm({
                   onChange={(e) =>
                     setRelationship(e.target.value as Relationship)
                   }
-                  className="w-full bg-zinc-900/40 border-2 border-zinc-800/50 rounded-3xl px-6 py-[1.125rem] text-sm font-black uppercase tracking-widest text-zinc-100 outline-none focus:border-accent/40"
+                  className={inputCls}
                 >
                   {RELATIONSHIPS.map((r) => (
                     <option key={r} value={r}>
-                      {r.toUpperCase()}
+                      {r.charAt(0).toUpperCase() + r.slice(1)}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <div className="flex items-center gap-6 p-2">
-              <button
-                type="button"
-                onClick={() => setIsFavorite(!isFavorite)}
-                className={cn(
-                  "flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all font-black text-[10px] uppercase tracking-widest",
-                  isFavorite
-                    ? "bg-pink-500 border-pink-600 text-zinc-950 shadow-lg shadow-pink-500/20"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-500",
-                )}
-              >
-                <Heart
-                  className={cn("w-4 h-4", isFavorite && "fill-current")}
-                />
-                {isFavorite ? "Favorited" : "Add to Favorites"}
-              </button>
-            </div>
-          </div>
+            <button
+              type="button"
+              onClick={() => setIsFavorite(!isFavorite)}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all",
+                isFavorite
+                  ? "bg-accent/15 border-accent/30 text-accent"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300",
+              )}
+            >
+              <Heart
+                className={cn("w-3.5 h-3.5", isFavorite && "fill-current")}
+              />
+              {isFavorite ? "In your inner circle" : "Add to inner circle"}
+            </button>
+          </fieldset>
 
-          {/* Section: Logistics */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
-              <Building2 className="w-4 h-4 text-zinc-500" />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Contact Details
-              </h3>
-            </div>
+          {/* Contact Details */}
+          <fieldset className="space-y-3">
+            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+              <Building2 className="w-3.5 h-3.5" /> Contact Details
+            </legend>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5" /> Email
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Mail className="w-3 h-3" /> Email
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@example.com"
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  className={inputCls}
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5" /> Phone
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Phone className="w-3 h-3" /> Phone
                 </label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+X XXX XXX XXXX"
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  className={inputCls}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                   Company
                 </label>
                 <input
                   type="text"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  className={inputCls}
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                   Role
                 </label>
                 <input
                   type="text"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  className={inputCls}
                 />
               </div>
             </div>
-          </div>
+          </fieldset>
 
-          {/* Section: Strategic Context */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-4 border-b border-zinc-900 pb-2">
-              <Zap className="w-4 h-4 text-warning" />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">
-                Additional Info
-              </h3>
-            </div>
+          {/* Additional Info */}
+          <fieldset className="space-y-3">
+            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+              <Zap className="w-3.5 h-3.5 text-warning" /> More
+            </legend>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Cake className="w-3.5 h-3.5" /> Birthday
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Cake className="w-3 h-3" /> Birthday
                 </label>
                 <input
                   type="date"
                   value={birthday}
                   onChange={(e) => setBirthday(e.target.value)}
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-3.5 text-sm text-zinc-200 outline-none focus:border-accent/40 [color-scheme:dark]"
+                  className={cn(inputCls, "[color-scheme:dark]")}
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <LinkIcon className="w-3.5 h-3.5" /> Profile Photo URL
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <LinkIcon className="w-3 h-3" /> Photo URL
                 </label>
                 <input
                   type="url"
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  className={inputCls}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5" /> Interests
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <Zap className="w-3 h-3" /> Interests
                 </label>
                 <input
                   type="text"
                   value={interests}
                   onChange={(e) => setInterests(e.target.value)}
-                  placeholder="Comma separated..."
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  placeholder="Comma separated"
+                  className={inputCls}
                 />
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                  <TagIcon className="w-3.5 h-3.5" /> Tags
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <TagIcon className="w-3 h-3" /> Tags
                 </label>
                 <input
                   type="text"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
-                  placeholder="Comma separated..."
-                  className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
+                  placeholder="Comma separated"
+                  className={inputCls}
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
-                <AlignLeft className="w-3.5 h-3.5" /> Notes
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <AlignLeft className="w-3 h-3" /> Notes
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Anything worth remembering about this person..."
-                rows={4}
-                className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-[2.5rem] px-8 py-6 text-sm font-medium leading-relaxed text-zinc-200 outline-none focus:border-accent/40 resize-none"
+                placeholder="Anything worth remembering..."
+                rows={3}
+                className={cn(inputCls, "resize-none leading-relaxed")}
               />
             </div>
-          </div>
+          </fieldset>
 
-          <div className="flex items-center gap-6 pt-10 border-t border-zinc-900">
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-4 border-t border-zinc-800/60">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-10 py-6 rounded-[2rem] text-[12px] font-black uppercase tracking-[0.4em] text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-900"
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-[2] bg-accent text-zinc-950 px-10 py-6 rounded-[2.5rem] text-[12px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-4 hover:bg-accent-hover transition-all shadow-2xl shadow-accent/20 disabled:opacity-50 active:scale-95 group"
+              className="flex-[2] bg-accent text-zinc-950 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-accent-hover transition-all shadow-lg shadow-accent/15 disabled:opacity-50 active:scale-[0.98]"
             >
-              <Save className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+              <Save className="w-4 h-4" />
               {isSaving
                 ? "Saving..."
                 : person
