@@ -34,4 +34,4 @@ Select a random module and ensure its dashboard widget (`Widget.tsx`) is a high-
 ### 5. Commit & Push
 
 - Create a descriptive, lowercase commit message following the `AGENTS.md` guidelines (e.g., `feat(binge): enhance dashboard widget with quick progress actions`).
-- Commit the changes and push to the remote branch.
+- Commit the changes and push to the remote branch. or create PR as clarified by user.
