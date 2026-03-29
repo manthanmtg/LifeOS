@@ -60,9 +60,9 @@ export function WidgetHighlight({
 }) {
   const styles: Record<string, string> = {
     default: "border-zinc-800 bg-zinc-950/50",
-    warning: "border-warning/20 bg-warning-muted",
-    success: "border-success/20 bg-success-muted",
-    danger: "border-danger/20 bg-danger-muted",
+    warning: "border-warning/15 bg-warning/10",
+    success: "border-success/15 bg-success/10",
+    danger: "border-danger/15 bg-danger/10",
     accent: "border-accent/20 bg-accent/5",
   };
   const iconStyles: Record<string, string> = {
