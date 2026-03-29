@@ -328,8 +328,6 @@ export default function BillsAdminView() {
         onAddFolder={() => setShowNewFolder(true)}
       />
 
-      <BillsMetrics bills={bills} />
-
       {!hasContent ? (
         <EmptyState
           isFolder={!!currentFolderId}

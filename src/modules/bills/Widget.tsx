@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Receipt, Paperclip, FolderOpen, Plus, TrendingUp, ArrowRight } from "lucide-react";
+import { Receipt, Paperclip, FolderOpen, Plus, ArrowRight } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import { motion } from "framer-motion";
 
@@ -54,22 +54,13 @@ export default function BillsWidget() {
       <div className="py-2 h-full flex flex-col justify-between overflow-hidden">
         {stats && (
           <>
-            <div className="relative">
-              <div className="flex items-end gap-2">
-                <span className="text-5xl font-black text-zinc-50 italic tracking-tighter">
-                  {stats.total}
-                </span>
-                <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em] pb-1.5">
-                  Records
-                </span>
-              </div>
-              
-              {/* Subtle background sparkline-like shape */}
-              <div className="absolute right-0 top-0 w-24 h-12 opacity-10">
-                <svg viewBox="0 0 100 40" className="w-full h-full stroke-accent fill-none stroke-[3]">
-                  <path d="M0,35 Q20,35 40,20 T80,10 T100,5" strokeLinecap="round" />
-                </svg>
-              </div>
+            <div className="flex items-end gap-2">
+              <span className="text-5xl font-black text-zinc-50 italic tracking-tighter">
+                {stats.total}
+              </span>
+              <span className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em] pb-1.5">
+                Records
+              </span>
             </div>
 
             <div className="mt-4 space-y-3">
@@ -112,16 +103,12 @@ export default function BillsWidget() {
                 </div>
               )}
 
-              {/* Quick Actions Bento Grid */}
-              <div className="grid grid-cols-2 gap-2 mt-auto">
-                <button className="flex items-center justify-center gap-2 p-2 rounded-xl bg-accent/5 border border-accent/10 text-accent hover:bg-accent/10 transition-all active:scale-95">
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Add Bill</span>
+              {/* Quick Action */}
+              <div className="mt-auto">
+                <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-accent text-zinc-950 hover:bg-accent-hover transition-all active:scale-95">
+                  <Plus className="w-4 h-4" />
+                  <span className="text-[11px] font-black uppercase tracking-widest">Add Bill</span>
                 </button>
-                <div className="flex items-center justify-center gap-2 p-2 rounded-xl bg-zinc-800/30 border border-zinc-800/50 text-zinc-500 hover:text-zinc-300 transition-all">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Trends</span>
-                </div>
               </div>
             </div>
           </>

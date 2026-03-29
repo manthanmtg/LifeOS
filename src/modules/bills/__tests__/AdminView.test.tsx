@@ -90,14 +90,6 @@ describe("BillsAdminView", () => {
     expect(screen.getAllByText("All Bills").length).toBeGreaterThan(0);
   });
 
-  it("displays bill count summary", async () => {
-    render(<BillsAdminView />);
-    await waitFor(() => {
-      expect(screen.getByText("Total Bills")).toBeDefined();
-      expect(screen.getByText("2")).toBeDefined();
-    });
-  });
-
   it("renders bill names after loading", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
