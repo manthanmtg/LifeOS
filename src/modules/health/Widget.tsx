@@ -8,15 +8,9 @@ import {
   Pill,
   Syringe,
   Activity,
-  User,
-  Users,
-  PawPrint,
-  Plus,
-  ShieldCheck,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import { cn } from "@/lib/utils";
 
 interface ProfileSummary {
   name: string;
@@ -43,11 +37,7 @@ const itemVariants = {
   }),
 };
 
-function ProfileTypeIcon({ type }: { type: string }) {
-  if (type === "pet") return <PawPrint className="w-3 h-3 text-accent/70" />;
-  if (type === "family") return <Users className="w-3 h-3 text-accent/70" />;
-  return <User className="w-3 h-3 text-accent/70" />;
-}
+
 
 export default function HealthWidget() {
   const [summary, setSummary] = useState<HealthSummary | null>(null);
@@ -109,131 +99,26 @@ export default function HealthWidget() {
             </p>
           </motion.div>
 
-          {/* 3-column stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <motion.div
-              custom={1}
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-2"
-            >
-              <Pill className="w-3 h-3 text-accent mb-1" />
-              <p className="text-sm font-bold text-accent tabular-nums">
-                {summary.activeMedCount}
-              </p>
-              <p className="text-[9px] text-zinc-600 font-medium leading-tight">
-                Meds
-              </p>
-            </motion.div>
-
-            <motion.div
-              custom={2}
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-2"
-            >
-              <Activity className="w-3 h-3 text-warning mb-1" />
-              <p className="text-sm font-bold text-warning tabular-nums">
-                {summary.activeConditionCount}
-              </p>
-              <p className="text-[9px] text-zinc-600 font-medium leading-tight">
-                Conditions
-              </p>
-            </motion.div>
-
-            <motion.div
-              custom={3}
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className={cn(
-                "rounded-lg border bg-zinc-950/50 p-2",
-                summary.alertCount > 0
-                  ? "border-danger/30"
-                  : "border-zinc-800",
-              )}
-            >
-              <AlertTriangle
-                className={cn(
-                  "w-3 h-3 mb-1",
-                  summary.alertCount > 0 ? "text-danger" : "text-zinc-700",
-                )}
-              />
-              <p
-                className={cn(
-                  "text-sm font-bold tabular-nums",
-                  summary.alertCount > 0 ? "text-danger" : "text-zinc-600",
-                )}
-              >
-                {summary.alertCount}
-              </p>
-              <p className="text-[9px] text-zinc-600 font-medium leading-tight">
-                Alerts
-              </p>
-            </motion.div>
-          </div>
-
-          {/* Profiles list */}
-          <div className="flex-1 space-y-1.5 overflow-hidden">
-            <AnimatePresence mode="popLayout">
-              {summary.profiles.slice(0, 3).map((profile, i) => (
-                <motion.div
-                  key={profile.name}
-                  custom={i + 4}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="group flex items-center gap-2.5 p-2 bg-zinc-900/40 border border-zinc-800/40 rounded-xl hover:border-accent/30 transition-all cursor-pointer"
-                  onClick={() => (window.location.href = "/admin/health")}
-                >
-                  <ProfileTypeIcon type={profile.type} />
-                  <span className="text-[11px] text-zinc-300 truncate font-bold tracking-tight group-hover:text-zinc-100 transition-colors flex-1">
-                    {profile.name}
-                  </span>
-                  {profile.alertCount > 0 && (
-                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-danger/10 border border-danger/20">
-                      <span className="text-[9px] font-bold text-danger">
-                        {profile.alertCount}
-                      </span>
-                    </span>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            {summary.total === 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-4 border-2 border-dashed border-zinc-900/50 rounded-2xl"
-              >
-                <ShieldCheck className="w-6 h-6 text-success/20 mb-2" />
-                <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">
-                  No profiles yet
-                </span>
-              </motion.div>
+          {/* Summary metrics line */}
+          <div className="flex items-center gap-4 px-1">
+            <div className="flex items-center gap-1.5">
+              <Pill className="w-3.5 h-3.5 text-accent" />
+              <span className="text-xs font-bold text-zinc-100">{summary.activeMedCount}</span>
+              <span className="text-[9px] text-zinc-500 font-medium uppercase tracking-wider">Meds</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-warning" />
+              <span className="text-xs font-bold text-zinc-100">{summary.activeConditionCount}</span>
+              <span className="text-[9px] text-zinc-500 font-medium uppercase tracking-wider">Stats</span>
+            </div>
+            {summary.alertCount > 0 && (
+              <div className="flex items-center gap-1.5 ml-auto">
+                <AlertTriangle className="w-3.5 h-3.5 text-danger" />
+                <span className="text-xs font-bold text-danger">{summary.alertCount}</span>
+                <span className="text-[9px] text-danger/70 font-bold uppercase tracking-wider">Alerts</span>
+              </div>
             )}
           </div>
-
-          {/* Quick action */}
-          <motion.div
-            custom={7}
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <button
-              onClick={() => (window.location.href = "/admin/health")}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-accent text-zinc-950 rounded-xl hover:bg-accent-hover transition-all active:scale-95 shadow-lg shadow-accent/10"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                Log Visit
-              </span>
-            </button>
-          </motion.div>
         </div>
       )}
 
