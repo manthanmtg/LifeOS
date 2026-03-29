@@ -204,36 +204,59 @@ export async function GET(request: Request) {
       case "health_profile": {
         let alertCount = 0;
         let latestVisit: any = null;
+        let activeMedCount = 0;
+        let activeConditionCount = 0;
+        let upcomingVacCount = 0;
 
-        const isOverdueOrSoon = (dateStr?: string) => {
+        const isWithinDays = (dateStr?: string, days = 7) => {
           if (!dateStr) return false;
           const target = new Date(dateStr);
           const diffDays = Math.ceil(
             (target.getTime() - nowRef) / (1000 * 60 * 60 * 24),
           );
-          return diffDays <= 7;
+          return diffDays <= days;
         };
+
+        const profiles: Array<{
+          name: string;
+          type: string;
+          alertCount: number;
+        }> = [];
 
         for (const p of docs) {
           const payload = p.payload;
+          let profileAlerts = 0;
+
           for (const med of payload.medications || []) {
-            if (med.status === "active" && isOverdueOrSoon(med.refill_date))
-              alertCount++;
+            if (med.status === "active") {
+              activeMedCount++;
+              if (isWithinDays(med.refill_date, 7)) {
+                alertCount++;
+                profileAlerts++;
+              }
+            }
           }
           for (const vac of payload.vaccinations || []) {
-            if (isOverdueOrSoon(vac.next_due)) alertCount++;
+            if (isWithinDays(vac.next_due, 30)) {
+              upcomingVacCount++;
+              if (isWithinDays(vac.next_due, 7)) {
+                alertCount++;
+                profileAlerts++;
+              }
+            }
+          }
+          for (const cond of payload.conditions || []) {
+            if (cond.status === "active") activeConditionCount++;
           }
           for (const v of payload.visits || []) {
             if (!latestVisit || v.date > latestVisit.date) latestVisit = v;
           }
-        }
 
-        let activeMedCount = 0;
-        for (const p of docs) {
-          const payload = p.payload;
-          for (const med of payload.medications || []) {
-            if (med.status === "active") activeMedCount++;
-          }
+          profiles.push({
+            name: payload.name,
+            type: payload.type || "self",
+            alertCount: profileAlerts,
+          });
         }
 
         summary = {
@@ -241,6 +264,9 @@ export async function GET(request: Request) {
           alertCount,
           latestVisit,
           activeMedCount,
+          activeConditionCount,
+          upcomingVacCount,
+          profiles,
         };
         break;
       }
