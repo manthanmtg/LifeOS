@@ -286,6 +286,9 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
               }}
               className="bg-zinc-800 border border-zinc-700 text-sm font-medium rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent"
             >
+              <option value="backlog">Backlog</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
               <option value="done">Done</option>
             </select>
             <span className="text-xs text-zinc-500 flex items-center gap-1.5 min-w-16">
@@ -625,7 +628,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     : payload.priority === "p2"
                       ? "border-warning/50 text-warning focus:ring-warning"
                       : payload.priority === "p3"
-                        ? "border-blue-500/50 text-blue-400 focus:ring-blue-500"
+                        ? "border-accent/50 text-accent focus:ring-accent"
                         : payload.priority === "p4"
                           ? "border-zinc-700 text-zinc-400 focus:ring-zinc-400"
                           : "border-zinc-800 text-zinc-500 focus:ring-zinc-800",
