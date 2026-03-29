@@ -36,15 +36,15 @@ export default function PeopleFilters({
     icon: LucideIcon;
     color: string;
   }> = [
-    { id: "all", label: "Registry", icon: Users, color: "text-zinc-100" },
+    { id: "all", label: "All Contacts", icon: Users, color: "text-zinc-100" },
     {
       id: "favorites",
-      label: "High Value",
+      label: "Favorites",
       icon: Heart,
       color: "text-pink-400",
     },
-    { id: "upcoming", label: "Milestones", icon: Cake, color: "text-warning" },
-    { id: "stale", label: "Latency", icon: Clock, color: "text-danger" },
+    { id: "upcoming", label: "Birthdays", icon: Cake, color: "text-warning" },
+    { id: "stale", label: "Needs Attention", icon: Clock, color: "text-danger" },
   ];
 
   return (
@@ -107,7 +107,7 @@ export default function PeopleFilters({
               <Filter className="w-3.5 h-3.5 text-zinc-600" />
             </div>
             <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] italic">
-              Segment:
+              Filter by:
             </span>
           </div>
 
@@ -142,7 +142,7 @@ export default function PeopleFilters({
 
         <div className="flex items-center gap-3 shrink-0 self-end md:self-auto">
           <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest italic">
-            Sorted by Intensity
+            Sorted by recent contact
           </span>
           <ChevronDown className="w-3 h-3 text-zinc-800" />
         </div>

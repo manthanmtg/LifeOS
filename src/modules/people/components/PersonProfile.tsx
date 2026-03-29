@@ -232,7 +232,7 @@ export default function PersonProfile({
 
               <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
-                  Temporal Milestone
+                  Birthday
                 </span>
                 <div className="flex items-center gap-3">
                   <Cake className="w-4 h-4 text-zinc-500" />
@@ -258,14 +258,14 @@ export default function PersonProfile({
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 rounded-[2.5rem] p-8 shadow-xl shadow-black/20">
             <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-8 flex items-center gap-2">
-              <AlignLeft className="w-4 h-4" /> Strategic Context
+              <AlignLeft className="w-4 h-4" /> About
             </h3>
 
             <div className="space-y-10">
               {notes && (
                 <div className="relative group">
                   <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-3 block opacity-60">
-                    Intelligence Dossier
+                    Notes
                   </span>
                   <p className="text-[13px] text-zinc-300 leading-relaxed bg-zinc-950/30 p-6 rounded-[2rem] border border-zinc-800/40 italic font-medium">
                     &quot;{notes}&quot;
@@ -294,7 +294,7 @@ export default function PersonProfile({
               {(tags || []).length > 0 && (
                 <div>
                   <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-4 block opacity-60 flex items-center gap-2">
-                    <TagIcon className="w-3 h-3" /> Tactical Segments
+                    <TagIcon className="w-3 h-3" /> Tags
                   </span>
                   <div className="flex flex-wrap gap-2.5">
                     {tags?.map((t) => (
@@ -318,7 +318,7 @@ export default function PersonProfile({
             <div className="flex items-center justify-between mb-10">
               <div className="flex flex-col">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">
-                  Temporal Ledger
+                  Interaction History
                 </h3>
                 <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">
                   {sortedInteractions.length} Historical Records
@@ -344,7 +344,7 @@ export default function PersonProfile({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
-                        Vector
+                        Type
                       </label>
                       <select
                         value={logType}
@@ -397,7 +397,7 @@ export default function PersonProfile({
                       disabled={isSubmitting}
                       className="flex-[2] bg-accent text-zinc-950 py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-accent/20 disabled:opacity-50 transition-all hover:bg-accent-hover"
                     >
-                      {isSubmitting ? "SYNCING..." : "COMMIT RECORD"}
+                      {isSubmitting ? "Saving..." : "Log Interaction"}
                     </button>
                     <button
                       type="button"

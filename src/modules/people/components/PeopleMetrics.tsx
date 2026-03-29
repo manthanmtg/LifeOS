@@ -42,7 +42,7 @@ export default function PeopleMetrics({ people }: PeopleMetricsProps) {
       description: "Non-stale connections",
     },
     {
-      label: "VIP Status",
+      label: "Favorites",
       value: stats.favorites,
       icon: Heart,
       color: "text-pink-400",

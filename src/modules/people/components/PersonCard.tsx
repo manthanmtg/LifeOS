@@ -94,7 +94,7 @@ export default function PersonCard({
       />
 
       <div className="flex items-start gap-5 relative z-10">
-        {/* Avatar Matrix */}
+        {/* Avatar */}
         <div className="relative shrink-0">
           {avatar_url ? (
             <div className="relative w-16 h-16 rounded-[1.5rem] overflow-hidden border border-zinc-700/50 shadow-inner">
