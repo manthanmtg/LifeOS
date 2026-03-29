@@ -37,6 +37,9 @@ interface PersonProfileProps {
   ) => Promise<void>;
 }
 
+const inputCls =
+  "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 outline-none focus:border-accent/40 transition-colors";
+
 export default function PersonProfile({
   person,
   onBack,
@@ -93,7 +96,10 @@ export default function PersonProfile({
     }
   };
 
-  const interactionIcons: Record<InteractionType, React.ComponentType<{ className?: string }>> = {
+  const interactionIcons: Record<
+    InteractionType,
+    React.ComponentType<{ className?: string }>
+  > = {
     call: Phone,
     meeting: Video,
     message: MessageSquare,
@@ -103,29 +109,28 @@ export default function PersonProfile({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-[10px] font-black bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-zinc-200 px-4 py-2 rounded-xl transition-all uppercase tracking-[0.2em]"
+        className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 transition-all"
       >
-        <ArrowLeft className="w-3 h-3" /> Back
+        <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
 
-      {/* Profile Header Card */}
-      <div className="relative overflow-hidden rounded-[3rem] border border-zinc-800 bg-zinc-900/40 backdrop-blur-md p-8 shadow-2xl shadow-black/40">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row gap-8 relative items-center md:items-start text-center md:text-left">
+      {/* Profile Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+        <div className="flex flex-col md:flex-row gap-5 items-center md:items-start text-center md:text-left">
+          {/* Avatar */}
           <div className="shrink-0 relative">
             {avatar_url ? (
               <img
                 src={avatar_url}
                 alt={name}
-                className="w-40 h-40 rounded-[2.5rem] object-cover border border-zinc-700 shadow-2xl"
+                className="w-20 h-20 rounded-2xl object-cover border border-zinc-700"
               />
             ) : (
-              <div className="w-40 h-40 rounded-[2.5rem] bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-2xl">
-                <span className="text-5xl font-black text-zinc-600 italic">
+              <div className="w-20 h-20 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+                <span className="text-2xl font-bold text-zinc-600">
                   {name
                     .split(" ")
                     .map((n) => n[0])
@@ -136,25 +141,25 @@ export default function PersonProfile({
               </div>
             )}
             {is_favorite && (
-              <div className="absolute -top-2 -right-2 w-12 h-12 bg-pink-500 text-zinc-950 rounded-2xl flex items-center justify-center shadow-lg shadow-pink-500/20 border-4 border-zinc-900">
-                <Heart className="w-6 h-6 fill-current" />
+              <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-accent text-zinc-950 rounded-lg flex items-center justify-center border-2 border-zinc-900">
+                <Heart className="w-3.5 h-3.5 fill-current" />
               </div>
             )}
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
               <div>
-                <h1 className="text-4xl font-bold text-zinc-50 tracking-tight mb-2">
+                <h1 className="text-2xl font-bold text-zinc-50 tracking-tight mb-1.5">
                   {name}
                 </h1>
-                <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl bg-zinc-950/40 text-zinc-400 border border-zinc-800/50 backdrop-blur-sm">
+                <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-zinc-950/40 text-zinc-400 border border-zinc-800/50">
                     {relationship}
                   </span>
                   {company && (
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-zinc-500 flex items-center gap-1.5 bg-zinc-950/40 px-3 py-1.5 rounded-xl border border-zinc-800/40 backdrop-blur-sm">
-                      <Building2 className="w-3 h-3" />{" "}
+                    <span className="text-[10px] font-medium text-zinc-500 flex items-center gap-1 bg-zinc-950/40 px-2.5 py-1 rounded-lg border border-zinc-800/40">
+                      <Building2 className="w-3 h-3" />
                       {role ? `${role} @ ` : ""}
                       {company}
                     </span>
@@ -162,50 +167,51 @@ export default function PersonProfile({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => onToggleFavorite(person)}
                   className={cn(
-                    "p-4 rounded-[1.5rem] transition-all border shadow-lg",
+                    "p-2 rounded-xl transition-all border",
                     is_favorite
-                      ? "bg-pink-500/20 border-pink-500/40 text-pink-400 shadow-pink-500/10"
+                      ? "bg-accent/15 border-accent/30 text-accent"
                       : "bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:text-zinc-200",
                   )}
                 >
                   <Heart
-                    className={cn("w-6 h-6", is_favorite && "fill-current")}
+                    className={cn("w-4 h-4", is_favorite && "fill-current")}
                   />
                 </button>
                 <button
                   onClick={() => onEdit(person)}
-                  className="p-4 rounded-[1.5rem] bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-accent hover:bg-accent/10 transition-all shadow-lg"
+                  className="p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-accent hover:bg-accent/10 transition-all"
                 >
-                  <Edit3 className="w-6 h-6" />
+                  <Edit3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onDelete(person._id)}
-                  className="p-4 rounded-[1.5rem] bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-danger hover:bg-danger/10 transition-all shadow-lg"
+                  className="p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-danger hover:bg-danger/10 transition-all"
                 >
-                  <Trash2 className="w-6 h-6" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-              <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
+            {/* Quick info row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              <div className="p-3 bg-zinc-950/20 rounded-xl border border-zinc-800/30">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
                   Last Seen
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <div
                     className={cn(
-                      "w-3 h-3 rounded-full shadow-lg",
+                      "w-2 h-2 rounded-full",
                       daysSinceContact !== null && daysSinceContact < 30
-                        ? "bg-success shadow-success/20"
-                        : "bg-warning shadow-warning/20",
+                        ? "bg-success"
+                        : "bg-warning",
                     )}
                   />
-                  <span className="text-sm font-black text-zinc-300 tracking-tight italic">
+                  <span className="text-xs font-semibold text-zinc-300">
                     {daysSinceContact === null
                       ? "Not yet"
                       : daysSinceContact === 0
@@ -215,35 +221,31 @@ export default function PersonProfile({
                 </div>
               </div>
 
-              <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
+              <div className="p-3 bg-zinc-950/20 rounded-xl border border-zinc-800/30">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
                   Contact
                 </span>
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5 overflow-hidden">
-                    {phone && <Phone className="w-4 h-4 text-zinc-500" />}
-                    {email && <Mail className="w-4 h-4 text-zinc-500" />}
-                  </div>
-                  <span className="text-sm font-black text-zinc-400 truncate italic">
+                <div className="flex items-center gap-2">
+                  {phone && <Phone className="w-3 h-3 text-zinc-500" />}
+                  {email && <Mail className="w-3 h-3 text-zinc-500" />}
+                  <span className="text-xs font-medium text-zinc-400 truncate">
                     {email || phone || "No info yet"}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
+              <div className="p-3 bg-zinc-950/20 rounded-xl border border-zinc-800/30">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
                   Birthday
                 </span>
-                <div className="flex items-center gap-3">
-                  <Cake className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm font-black text-zinc-300 tracking-tight italic">
+                <div className="flex items-center gap-2">
+                  <Cake className="w-3 h-3 text-zinc-500" />
+                  <span className="text-xs font-semibold text-zinc-300">
                     {birthday
-                      ? new Date(birthday)
-                          .toLocaleDateString(undefined, {
-                            month: "long",
-                            day: "numeric",
-                          })
-                          .toUpperCase()
+                      ? new Date(birthday).toLocaleDateString(undefined, {
+                          month: "long",
+                          day: "numeric",
+                        })
                       : "Not set"}
                   </span>
                 </div>
@@ -253,36 +255,37 @@ export default function PersonProfile({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
-        {/* Left Column: Contextual Intelligence */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 rounded-[2.5rem] p-8 shadow-xl shadow-black/20">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-8 flex items-center gap-2">
-              <AlignLeft className="w-4 h-4" /> About
+      {/* Content grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 pb-10">
+        {/* About */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="bg-zinc-900/40 border border-zinc-800/40 rounded-2xl p-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 mb-4 flex items-center gap-2">
+              <AlignLeft className="w-3.5 h-3.5" /> About
             </h3>
 
-            <div className="space-y-10">
+            <div className="space-y-5">
               {notes && (
-                <div className="relative group">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-3 block opacity-60">
+                <div>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 mb-2 block">
                     Notes
                   </span>
-                  <p className="text-[13px] text-zinc-300 leading-relaxed bg-zinc-950/30 p-6 rounded-[2rem] border border-zinc-800/40 italic font-medium">
-                    &quot;{notes}&quot;
+                  <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-950/30 p-3 rounded-xl border border-zinc-800/40">
+                    {notes}
                   </p>
                 </div>
               )}
 
               {(interests || []).length > 0 && (
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-4 block opacity-60 flex items-center gap-2">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 mb-2 block flex items-center gap-1.5">
                     <Zap className="w-3 h-3" /> Interests
                   </span>
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-1.5">
                     {interests?.map((i) => (
                       <span
                         key={i}
-                        className="px-4 py-2 rounded-2xl bg-zinc-900 border border-zinc-800 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-accent hover:border-accent/40 hover:bg-zinc-950 transition-all cursor-default"
+                        className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[10px] font-medium text-zinc-400"
                       >
                         {i}
                       </span>
@@ -293,14 +296,14 @@ export default function PersonProfile({
 
               {(tags || []).length > 0 && (
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-4 block opacity-60 flex items-center gap-2">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600 mb-2 block flex items-center gap-1.5">
                     <TagIcon className="w-3 h-3" /> Tags
                   </span>
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-1.5">
                     {tags?.map((t) => (
                       <span
                         key={t}
-                        className="px-4 py-2 rounded-2xl bg-accent/5 border border-accent/20 text-[10px] font-black uppercase tracking-widest text-accent shadow-sm shadow-accent/5"
+                        className="px-2.5 py-1 rounded-lg bg-accent/5 border border-accent/20 text-[10px] font-medium text-accent"
                       >
                         {t}
                       </span>
@@ -308,42 +311,50 @@ export default function PersonProfile({
                   </div>
                 </div>
               )}
+
+              {!notes &&
+                !(interests || []).length &&
+                !(tags || []).length && (
+                  <p className="text-xs text-zinc-600 py-6 text-center">
+                    No details added yet
+                  </p>
+                )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Interaction Records */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 rounded-[3rem] p-10 shadow-xl shadow-black/20">
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex flex-col">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">
+        {/* Moments */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-zinc-900/40 border border-zinc-800/40 rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">
                   Moments Together
                 </h3>
-                <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">
+                <span className="text-[9px] font-medium text-zinc-700">
                   {sortedInteractions.length} logged
                 </span>
               </div>
               <button
                 onClick={() => setShowLogForm(!showLogForm)}
-                className="flex items-center gap-2 px-6 py-3 bg-accent text-zinc-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-accent-hover transition-all shadow-xl shadow-accent/10 active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 bg-accent text-zinc-950 text-xs font-semibold rounded-xl hover:bg-accent-hover transition-all active:scale-95"
               >
-                <Plus className="w-4 h-4" /> Add Moment
+                <Plus className="w-3.5 h-3.5" /> Add Moment
               </button>
             </div>
 
             <AnimatePresence>
               {showLogForm && (
                 <motion.form
-                  initial={{ opacity: 0, y: -20, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                  initial={{ opacity: 0, y: -12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
                   onSubmit={handleLog}
-                  className="bg-zinc-950/60 border border-zinc-800/80 rounded-[2.5rem] p-8 mb-12 space-y-6 shadow-2xl"
+                  className="bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-4 mb-5 space-y-3"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
                         Type
                       </label>
                       <select
@@ -351,7 +362,7 @@ export default function PersonProfile({
                         onChange={(e) =>
                           setLogType(e.target.value as InteractionType)
                         }
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-4 text-xs font-black uppercase tracking-widest text-zinc-100 outline-none focus:border-accent/40"
+                        className={inputCls}
                       >
                         {[
                           "call",
@@ -362,47 +373,47 @@ export default function PersonProfile({
                           "other",
                         ].map((t) => (
                           <option key={t} value={t}>
-                            {t.toUpperCase()}
+                            {t.charAt(0).toUpperCase() + t.slice(1)}
                           </option>
                         ))}
                       </select>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
                         Date
                       </label>
                       <input
                         type="date"
                         value={logDate}
                         onChange={(e) => setLogDate(e.target.value)}
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-3.5 text-xs font-black text-zinc-200 outline-none focus:border-accent/40 [color-scheme:dark]"
+                        className={cn(inputCls, "[color-scheme:dark]")}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
-                        Note
-                      </label>
-                      <textarea
-                        value={logNote}
-                        onChange={(e) => setLogNote(e.target.value)}
-                        placeholder="What happened? How did it go?"
-                      rows={3}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-sm font-medium text-zinc-200 outline-none focus:border-accent/40 resize-none leading-relaxed"
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
+                      Note
+                    </label>
+                    <textarea
+                      value={logNote}
+                      onChange={(e) => setLogNote(e.target.value)}
+                      placeholder="What happened? How did it go?"
+                      rows={2}
+                      className={cn(inputCls, "resize-none leading-relaxed")}
                     />
                   </div>
-                  <div className="flex items-center gap-3 pt-2">
+                  <div className="flex items-center gap-2 pt-1">
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-[2] bg-accent text-zinc-950 py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-accent/20 disabled:opacity-50 transition-all hover:bg-accent-hover"
+                      className="flex-[2] bg-accent text-zinc-950 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50 transition-all hover:bg-accent-hover"
                     >
                       {isSubmitting ? "Saving..." : "Save"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowLogForm(false)}
-                      className="flex-1 py-5 rounded-[1.5rem] bg-zinc-900 text-zinc-500 text-[10px] font-black uppercase tracking-widest border border-zinc-800 hover:text-zinc-200 transition-all"
+                      className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-zinc-500 text-xs font-medium border border-zinc-800 hover:text-zinc-200 transition-all"
                     >
                       Cancel
                     </button>
@@ -411,24 +422,24 @@ export default function PersonProfile({
               )}
             </AnimatePresence>
 
-            <div className="space-y-4">
+            <div className="space-y-2.5">
               {sortedInteractions.length > 0 ? (
                 sortedInteractions.map((it, i) => {
                   const Icon = interactionIcons[it.type] || Clock;
                   return (
                     <div
                       key={i}
-                      className="group relative flex items-start gap-6 p-6 bg-zinc-950/20 border border-zinc-900/40 rounded-[2rem] transition-all hover:bg-zinc-900/40 hover:border-accent/10"
+                      className="group flex items-start gap-3 p-3 bg-zinc-950/20 border border-zinc-900/40 rounded-xl transition-all hover:bg-zinc-900/40 hover:border-accent/10"
                     >
-                      <div className="w-12 h-12 rounded-[1.25rem] bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 shadow-lg group-hover:border-accent/40 group-hover:shadow-accent/5 transition-all">
-                        <Icon className="w-5 h-5 text-zinc-500 group-hover:text-accent transition-colors" />
+                      <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-accent/40 transition-all">
+                        <Icon className="w-3.5 h-3.5 text-zinc-500 group-hover:text-accent transition-colors" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-100 italic group-hover:text-accent transition-colors">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-xs font-semibold text-zinc-200 capitalize group-hover:text-accent transition-colors">
                             {it.type}
                           </span>
-                          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                          <span className="text-[10px] font-medium text-zinc-600">
                             {new Date(it.date).toLocaleDateString(undefined, {
                               month: "short",
                               day: "numeric",
@@ -436,7 +447,7 @@ export default function PersonProfile({
                             })}
                           </span>
                         </div>
-                        <p className="text-[13px] text-zinc-400 leading-relaxed font-medium transition-colors group-hover:text-zinc-300">
+                        <p className="text-xs text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">
                           {it.note || "No notes added"}
                         </p>
                       </div>
@@ -444,8 +455,8 @@ export default function PersonProfile({
                   );
                 })
               ) : (
-                <div className="py-24 flex flex-col items-center text-center">
-                  <Clock className="w-12 h-12 text-zinc-700 mb-4" />
+                <div className="py-12 flex flex-col items-center text-center">
+                  <Clock className="w-10 h-10 text-zinc-700 mb-3" />
                   <span className="text-sm text-zinc-600 font-medium">
                     No moments yet
                   </span>
