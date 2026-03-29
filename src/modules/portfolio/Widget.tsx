@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Briefcase, Sparkles } from "lucide-react";
+import { Briefcase, User } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 
 interface Profile {
   payload: {
@@ -28,6 +32,8 @@ export default function PortfolioWidget() {
       .finally(() => setLoading(false));
   }, []);
 
+  const p = profile?.payload;
+
   return (
     <WidgetCard
       title="Portfolio"
@@ -35,13 +41,10 @@ export default function PortfolioWidget() {
       loading={loading}
       href="/admin/portfolio"
       footer={
-        profile && (
+        p && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="text-zinc-500 inline-flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> {profile.payload.skills.length}{" "}
-              skills
-            </span>
-            {profile.payload.available_for_hire ? (
+            <span className="text-zinc-500">{p.full_name || "Portfolio"}</span>
+            {p.available_for_hire ? (
               <span className="flex items-center gap-1 text-success">
                 <Briefcase className="w-3 h-3" /> Open
               </span>
@@ -52,22 +55,18 @@ export default function PortfolioWidget() {
         )
       }
     >
-      {profile ? (
-        <div>
-          <p className="text-xs text-zinc-500 font-medium mb-1">
-            {profile.payload.full_name || "Identity"}
-          </p>
-          <p className="text-xl font-bold text-zinc-50 line-clamp-2 tracking-tight leading-tight">
-            {profile.payload.hero_title}
-          </p>
-          {profile.payload.sub_headline && (
-            <p className="text-[11px] text-zinc-400 mt-2 line-clamp-1 leading-relaxed">
-              {profile.payload.sub_headline}
-            </p>
-          )}
+      {p ? (
+        <div className="space-y-3">
+          <WidgetStat value={p.skills.length} label="skills" />
+          <WidgetHighlight
+            icon={Briefcase}
+            text={p.hero_title}
+            subtext={p.sub_headline}
+            variant={p.available_for_hire ? "success" : "default"}
+          />
         </div>
       ) : (
-        <p className="text-sm text-zinc-500">No profile yet. Set one up!</p>
+        <p className="text-sm text-zinc-500">No profile yet. Set one up.</p>
       )}
     </WidgetCard>
   );
