@@ -204,6 +204,27 @@ export default function LoanDetails({
                   />
                 </div>
 
+                <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg">
+                  <h3 className="text-sm font-bold text-zinc-300 mb-6 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-blue-400" />
+                    Technical Profile
+                  </h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                      { label: "Interest Type", value: loan.payload.interest_type, sub: "Rate model" },
+                      { label: "Processing Fee", value: loan.payload.processing_fee_amount ? formatMoney(loan.payload.processing_fee_amount, sym, 0, numberFormat) : "None", sub: loan.payload.processing_fee_financed ? "Financed" : "Upfront" },
+                      { label: "Recast Strategy", value: loan.payload.recast_strategy === "keep_tenure_adjust_emi" ? "Keep Tenure" : "Keep EMI", sub: "Default behavior" },
+                      { label: "Start Date", value: loan.payload.start_date.slice(0, 10), sub: "Initial disbursement" },
+                    ].map((item, i) => (
+                      <div key={i} className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
+                        <p className="text-sm font-bold text-zinc-200 capitalize">{item.value}</p>
+                        <p className="text-[10px] text-zinc-500 font-medium italic">{item.sub}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg space-y-6">
                     <div>
