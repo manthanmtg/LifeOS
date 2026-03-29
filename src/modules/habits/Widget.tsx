@@ -1,21 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Target, Check } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Target, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-
-interface Habit {
-  payload: { name: string; completions: { date: string; count: number }[] };
-}
-
-function todayStr(): string {
-  return new Date().toISOString().split("T")[0];
-}
+import { Habit, computeMetrics } from "./components/types";
 
 export default function HabitsWidget() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/content?module_type=habit", { signal: controller.signal })
@@ -26,10 +20,7 @@ export default function HabitsWidget() {
     return () => controller.abort();
   }, []);
 
-  const today = todayStr();
-  const completedToday = habits.filter((h) =>
-    h.payload.completions.some((c) => c.date === today && c.count > 0),
-  );
+  const metrics = useMemo(() => computeMetrics(habits), [habits]);
 
   return (
     <WidgetCard
@@ -39,28 +30,48 @@ export default function HabitsWidget() {
       href="/admin/habits"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1 text-success">
-            <Check className="w-3 h-3" /> {completedToday.length}/
-            {habits.length} completed today
+          <span
+            className={cn(
+              "flex items-center gap-1",
+              metrics.weeklyTrend >= 0 ? "text-success" : "text-danger",
+            )}
+          >
+            <TrendingUp className="w-3 h-3" />
+            {metrics.weeklyCompletionRate}% weekly
           </span>
+          {metrics.bestCurrentStreak > 0 && (
+            <span className="flex items-center gap-1 text-warning">
+              <Flame className="w-3 h-3" />
+              {metrics.bestCurrentStreak}d streak
+            </span>
+          )}
         </div>
       }
     >
       <div className="py-2">
         <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-          {habits.length}
+          {metrics.completedToday}
+          <span className="text-2xl text-zinc-500">/{metrics.totalHabits}</span>
         </p>
         <p className="text-xs text-zinc-500 mt-1 font-medium italic">
-          active tracking protocols
+          completed today
         </p>
-        <div className="mt-4 flex gap-1">
-          {Array.from({ length: 7 }).map((_, i) => (
+        {/* 7-day sparkline bars */}
+        <div className="mt-4 flex items-end gap-0.5 h-6">
+          {metrics.last7Days.map((pct, i) => (
             <div
               key={i}
-              className={cn(
-                "w-2 h-2 rounded-full",
-                i < completedToday.length ? "bg-success" : "bg-zinc-800",
-              )}
+              className="flex-1 rounded-sm transition-all"
+              style={{
+                height: `${Math.max(pct, 4)}%`,
+                backgroundColor:
+                  pct >= 70
+                    ? "var(--color-success)"
+                    : pct >= 40
+                      ? "var(--color-warning)"
+                      : "var(--color-zinc-700, #3f3f46)",
+                opacity: 0.8,
+              }}
             />
           ))}
         </div>

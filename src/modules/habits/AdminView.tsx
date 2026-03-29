@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Settings, Target, RefreshCw } from "lucide-react";
+import { Plus, Settings, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -12,7 +12,9 @@ import {
   getDaysArray,
   computeMetrics,
   heatmapDaysCount,
+  getDateStr,
 } from "./components/types";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import HabitsMetrics from "./components/HabitsMetrics";
 import HabitCard from "./components/HabitCard";
 import HabitForm from "./components/HabitForm";
@@ -54,6 +56,8 @@ export default function HabitsAdminView() {
     () => getDaysArray(heatmapDaysCount(settings.heatmapMonths)),
     [settings.heatmapMonths],
   );
+
+  const todayStr = useMemo(() => getDateStr(new Date()), []);
 
   const metrics = useMemo(() => computeMetrics(habits), [habits]);
 
@@ -237,10 +241,7 @@ export default function HabitsAdminView() {
 
       {/* Habit list */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-          <RefreshCw className="w-8 h-8 animate-spin text-accent mb-3" />
-          <span>Loading habits...</span>
-        </div>
+        <AdminModuleSkeleton />
       ) : habits.length === 0 ? (
         <motion.div
           className="text-center text-zinc-500 py-16"
@@ -260,6 +261,7 @@ export default function HabitsAdminView() {
                 key={habit._id}
                 habit={habit}
                 days={days}
+                todayStr={todayStr}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onToggleDay={toggleDay}

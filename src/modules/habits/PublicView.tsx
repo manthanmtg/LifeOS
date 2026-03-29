@@ -1,57 +1,24 @@
 "use client";
 
-import { Target, Flame } from "lucide-react";
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { Target, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Habit {
-  _id: string;
-  payload: {
-    name: string;
-    description?: string;
-    frequency: string;
-    target_count: number;
-    color: string;
-    completions: { date: string; count: number }[];
-  };
-}
-
-function getDateStr(d: Date): string {
-  return d.toISOString().split("T")[0];
-}
-
-function getStreak(completions: { date: string; count: number }[]): number {
-  const dateSet = new Set(
-    completions.filter((c) => c.count > 0).map((c) => c.date),
-  );
-  const today = new Date();
-  let current = 0;
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    if (dateSet.has(getDateStr(d))) current++;
-    else break;
-  }
-  return current;
-}
+import {
+  Habit,
+  getDateStr,
+  getStreak,
+  getDaysArray,
+} from "./components/types";
 
 function getLast30Days(): string[] {
-  const arr: string[] = [];
-  const today = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    arr.push(getDateStr(d));
-  }
-  return arr;
+  return getDaysArray(30);
 }
 
-export default function HabitsPublicView({
-  items,
-}: {
-  items: Record<string, unknown>[];
-}) {
-  const habits = items as unknown as Habit[];
-  const days = getLast30Days();
+export default function HabitsPublicView({ items }: { items: Habit[] }) {
+  const habits = items;
+  const today = useMemo(() => getDateStr(new Date()), []);
+  const days = useMemo(() => getLast30Days(), []);
 
   if (habits.length === 0) {
     return (
@@ -64,24 +31,32 @@ export default function HabitsPublicView({
 
   return (
     <div className="space-y-4">
-      {habits.map((habit) => {
+      {habits.map((habit, i) => {
         const completionSet = new Set(
           habit.payload.completions
             .filter((c) => c.count > 0)
             .map((c) => c.date),
         );
-        const streak = getStreak(habit.payload.completions);
+        const streakInfo = getStreak(habit.payload.completions);
         const rate30 = days.filter((d) => completionSet.has(d)).length;
+        const completedToday = completionSet.has(today);
 
         return (
-          <div
+          <motion.div
             key={habit._id}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 transition-colors"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06, duration: 0.35, ease: "easeOut" }}
+            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 transition-colors relative overflow-hidden group"
           >
-            <div className="flex items-center justify-between mb-3">
+            <div
+              className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-xl"
+              style={{ backgroundColor: habit.payload.color }}
+            />
+            <div className="flex items-center justify-between mb-3 ml-2">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="w-3 h-3 rounded-full shrink-0"
                   style={{ backgroundColor: habit.payload.color }}
                 />
                 <div>
@@ -95,38 +70,52 @@ export default function HabitsPublicView({
                   )}
                 </div>
               </div>
-              {streak > 0 && (
-                <div className="flex items-center gap-1 text-orange-400">
-                  <Flame className="w-4 h-4" />
-                  <span className="text-sm font-bold">{streak}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {completedToday && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success">
+                    Done today
+                  </span>
+                )}
+                {streakInfo.current > 0 && (
+                  <div className="flex items-center gap-1 text-warning">
+                    <Flame className="w-4 h-4" />
+                    <span className="text-sm font-bold">{streakInfo.current}d</span>
+                  </div>
+                )}
+              </div>
             </div>
-            {/* Mini heatmap — last 30 days */}
-            <div className="flex gap-[3px] flex-wrap">
-              {days.map((day) => (
-                <div
-                  key={day}
-                  title={day}
-                  className={cn(
-                    "w-3 h-3 rounded-sm transition-colors",
-                    completionSet.has(day)
-                      ? "opacity-100"
-                      : "bg-zinc-800 opacity-50",
-                  )}
-                  style={
-                    completionSet.has(day)
-                      ? { backgroundColor: habit.payload.color }
-                      : undefined
-                  }
-                />
-              ))}
+            <div className="ml-2">
+              <div className="flex gap-[3px] flex-wrap mb-3">
+                {days.map((day) => (
+                  <div
+                    key={day}
+                    title={day}
+                    className={cn(
+                      "w-3 h-3 rounded-sm transition-colors",
+                      completionSet.has(day)
+                        ? "opacity-100"
+                        : "bg-zinc-800 opacity-50",
+                    )}
+                    style={
+                      completionSet.has(day)
+                        ? { backgroundColor: habit.payload.color }
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-4 text-xs text-zinc-500">
+                <span className="capitalize">{habit.payload.frequency}</span>
+                <span className="flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" />
+                  {rate30}/30 days
+                </span>
+                {streakInfo.longest > 0 && (
+                  <span>Best: {streakInfo.longest}d</span>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-              <span className="capitalize">{habit.payload.frequency}</span>
-              <span>{rate30}/30 days completed</span>
-            </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>
