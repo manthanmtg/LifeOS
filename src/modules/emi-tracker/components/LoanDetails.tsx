@@ -71,6 +71,15 @@ export default function LoanDetails({
     return getOutstandingAsOf(schedule.rows, now);
   }, [schedule]);
 
+  const { paidInterest, remainingInterest } = useMemo(() => {
+    const now = new Date();
+    let paid = 0;
+    schedule.rows.forEach(r => {
+      if (new Date(r.due_date) < now) paid += r.interest;
+    });
+    return { paidInterest: paid, remainingInterest: schedule.totals.total_interest - paid };
+  }, [schedule]);
+
   const totalPrincipal = loan.payload.principal;
   const totalInterest = schedule.totals.total_interest;
   const totalPayable = totalPrincipal + totalInterest;
@@ -143,9 +152,9 @@ export default function LoanDetails({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Payable", value: totalPayable, sub: "Principal + Interest", color: "text-zinc-100", icon: Calculator },
-          { label: "Balance Left", value: outstanding, sub: `${progressPercent.toFixed(1)}% Paid`, color: "text-accent", icon: TrendingUp },
-          { label: "Interest Paid", value: totalInterest, sub: "Across tenure", color: "text-blue-400", icon: Info },
+          { label: "Total Payable", value: totalPayable, sub: "Principal + Interest", color: "text-zinc-100", icon: Calculator, amounts: `${formatMoney(totalPrincipal, sym, 0, numberFormat)} + ${formatMoney(totalInterest, sym, 0, numberFormat)}` },
+          { label: "Balance Left", value: outstanding, sub: `${progressPercent.toFixed(1)}% Paid`, color: "text-accent", icon: TrendingUp, amounts: `${formatMoney(principalPaid, sym, 0, numberFormat)} / ${formatMoney(totalPrincipal, sym, 0, numberFormat)}` },
+          { label: "Interest Paid", value: totalInterest, sub: "Across tenure", color: "text-blue-400", icon: Info, amounts: `${formatMoney(paidInterest, sym, 0, numberFormat)} + ${formatMoney(remainingInterest, sym, 0, numberFormat)} (Left)` },
           { label: "Next EMI", value: nextDue?.emi || 0, sub: nextDue ? nextDue.due_date.slice(0, 10) : "Finalized", color: "text-orange-400", icon: BarChart3 }
         ].map((m, i) => (
           <div key={i} className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-sm hover:border-zinc-700/50 transition-all group overflow-hidden relative">
@@ -156,7 +165,14 @@ export default function LoanDetails({
              <h4 className={cn("text-lg font-black tracking-tight", m.color)}>
                {formatMoney(m.value, sym, 0, numberFormat)}
              </h4>
-             <p className="text-[10px] text-zinc-500 font-medium italic mt-1">{m.sub}</p>
+             <div className="mt-1 flex flex-col">
+               {"amounts" in m && m.amounts && (
+                 <span className="text-[10px] text-zinc-500 font-bold tabular-nums italic">
+                   {m.amounts}
+                 </span>
+               )}
+               <p className="text-[10px] text-zinc-500 font-medium italic">{m.sub}</p>
+             </div>
           </div>
         ))}
       </div>

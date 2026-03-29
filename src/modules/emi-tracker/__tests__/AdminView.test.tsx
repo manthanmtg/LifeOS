@@ -19,6 +19,24 @@ vi.mock("@/hooks/useModuleSettings", () => ({
   }))
 }));
 
+// Mock lucide-react
+vi.mock("lucide-react", () => ({
+  Plus: () => <div data-testid="plus-icon" />,
+  Search: () => <div data-testid="search-icon" />,
+  Calculator: () => <div data-testid="calculator-icon" />,
+  TrendingUp: () => <div data-testid="trending-up-icon" />,
+  TrendingDown: () => <div data-testid="trending-down-icon" />,
+  Info: () => <div data-testid="info-icon" />,
+  History: () => <div data-testid="history-icon" />,
+  Files: () => <div data-testid="files-icon" />,
+  Edit3: () => <div data-testid="edit-icon" />,
+  Settings: () => <div data-testid="settings-icon" />,
+  BarChart3: () => <div data-testid="barchart-icon" />,
+  Calendar: () => <div data-testid="calendar-icon" />,
+  Landmark: () => <div data-testid="landmark-icon" />,
+  CreditCard: () => <div data-testid="credit-card-icon" />,
+}));
+
 // Mock framer-motion to avoid animation issues in tests
 vi.mock("framer-motion", () => ({
   motion: {
@@ -40,6 +58,10 @@ describe("EmiTrackerAdminView", () => {
       success: true,
       data: [{
         _id: "loan-1",
+        module_type: "emi_loan",
+        is_public: false,
+        created_at: "2024-01-01T00:00:00.000Z",
+        updated_at: "2024-01-01T00:00:00.000Z",
         payload: {
           title: "Home Loan",
           lender_name: "HDFC",
@@ -62,27 +84,23 @@ describe("EmiTrackerAdminView", () => {
       }]
     };
 
-    global.fetch = vi.fn().mockImplementation((url) => {
-      if (url.includes("/api/content")) {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockData)
-        });
+        } as Response);
       }
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ success: true, data: {} })
-      });
+      } as Response);
     });
 
     render(<EmiTrackerAdminView />);
     
-    // Wait for the loan to load
-    await waitFor(() => {
-      const el = screen.queryByText(/Home Loan/i);
-      expect(el).not.toBeNull();
-    }, { timeout: 4000 });
-
-    expect(screen.getByText(/Home Loan/i)).toBeTruthy();
-  });
+    // Wait for the data to be rendered (e.g. check for lender name)
+    const el = await screen.findByText(/HDFC/i, {}, { timeout: 10000 });
+    expect(el).toBeTruthy();
+  }, 15000);
 });

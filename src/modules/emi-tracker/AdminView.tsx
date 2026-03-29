@@ -56,8 +56,8 @@ export default function EmiTrackerAdminView() {
           // setSelectedId(data.data[0]._id); // Don't auto-select to avoid heavy compute on load
         }
       }
-    } catch {
-      console.error("Failed to fetch loans");
+    } catch (err) {
+      console.error("Failed to fetch loans", err);
     } finally {
       setLoading(false);
     }
@@ -74,12 +74,12 @@ export default function EmiTrackerAdminView() {
 
   const loanCards = useMemo(() => {
     const now = new Date();
-    return loans
+    const filtered = loans
       .filter(l => 
         l.payload.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         l.payload.lender_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .map((loan) => {
+      );
+    return filtered.map((loan) => {
         const schedule = computeSchedule(loan.payload, settings.roundingDecimals);
         const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
         const totalPrincipal = loan.payload.principal;
