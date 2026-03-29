@@ -81,8 +81,8 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
       value: stats.currentCount,
       trend: stats.countTrend,
       icon: FileText,
-      color: "text-blue-400",
-      bgColor: "bg-blue-400/10",
+      color: "text-zinc-400",
+      bgColor: "bg-zinc-800/50",
     },
     {
       label: "Month Total",

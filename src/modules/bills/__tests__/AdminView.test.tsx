@@ -170,7 +170,7 @@ describe("BillsAdminView", () => {
 
     render(<BillsAdminView />);
     await waitFor(() => {
-      expect(screen.getByText(/No Records Found/i)).toBeDefined();
+      expect(screen.getByText(/No Bills Yet/i)).toBeDefined();
     });
   });
 
