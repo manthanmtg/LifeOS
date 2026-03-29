@@ -16,26 +16,16 @@ export default function PortfolioView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch profile
-        const profileRes = await fetch(
-          "/api/content?module_type=portfolio_profile",
-        );
-        const profileData = await profileRes.json();
+    Promise.all([
+      fetch("/api/content?module_type=portfolio_profile").then((r) => r.json()),
+      fetch("/api/content?module_type=portfolio_resume").then((r) => r.json()),
+    ])
+      .then(([profileData, resumeData]) => {
         if (profileData.data?.length > 0) {
           setProfile(profileData.data[0].payload as PortfolioProfile);
         }
-
-        // Fetch active resume
-        const resumeRes = await fetch(
-          "/api/content?module_type=portfolio_resume",
-        );
-        const resumeData = await resumeRes.json();
         const activeResume = (resumeData.data || []).find(
-          (r: {
-            payload: { is_active: boolean; filename: string; content: string };
-          }) => r.payload.is_active,
+          (r: { payload: { is_active: boolean } }) => r.payload.is_active,
         );
         if (activeResume) {
           setResume({
@@ -43,19 +33,14 @@ export default function PortfolioView() {
             content: activeResume.payload.content,
           });
         }
-      } catch {
+      })
+      .catch(() => {
         console.error("fetchData failed");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <PortfolioSkeleton />;
-  }
+  if (loading) return <PortfolioSkeleton />;
 
   if (!profile) {
     return (

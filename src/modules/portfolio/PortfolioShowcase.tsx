@@ -92,7 +92,7 @@ export default function PortfolioShowcase({
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ y: -2, scale: 1.02 }}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 hover:bg-white transition-all text-sm font-bold shadow-xl shadow-white/5"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 hover:bg-zinc-100 transition-all text-sm font-bold shadow-xl shadow-white/5"
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                   View Resume
@@ -127,7 +127,7 @@ export default function PortfolioShowcase({
             <div className="flex items-center justify-between gap-3 mb-10">
               <div className="space-y-1">
                 <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-accent">
-                  Skill Surface
+                  Skills
                 </p>
                 <p className="text-zinc-500 text-xs">
                   A collection of technologies and specialized tools.
@@ -135,7 +135,7 @@ export default function PortfolioShowcase({
               </div>
               <div className="h-px flex-1 bg-zinc-800 mx-8 hidden md:block" />
               <p className="text-zinc-500 text-[10px] uppercase tracking-widest">
-                {skills.length} Expertise
+                {skills.length} total
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
