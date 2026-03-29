@@ -228,7 +228,20 @@ export async function GET(request: Request) {
           }
         }
 
-        summary = { total: docs.length, alertCount, latestVisit };
+        let activeMedCount = 0;
+        for (const p of docs) {
+          const payload = p.payload;
+          for (const med of payload.medications || []) {
+            if (med.status === "active") activeMedCount++;
+          }
+        }
+
+        summary = {
+          total: docs.length,
+          alertCount,
+          latestVisit,
+          activeMedCount,
+        };
         break;
       }
 

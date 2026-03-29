@@ -15,30 +15,14 @@ import {
   Edit3,
   Trash2,
   ChevronLeft,
-  AlertTriangle,
-  Clock,
   Pill,
   Syringe,
   Stethoscope,
   FileText,
   Activity,
   Ruler,
-  User,
-  Users,
-  PawPrint,
   Droplets,
-  AlertCircle,
-  TrendingUp,
-  Copy,
-  CalendarX2,
   ImageIcon,
-  Download,
-  Eye,
-  Check,
-  Search,
-  Filter,
-  ArrowUpDown,
-  FileSearch,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -47,424 +31,60 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import ImageCropper from "@/components/ui/ImageCropper";
 import ImagePreview from "@/components/ui/ImagePreview";
 import DocPreview from "@/components/ui/DocPreview";
-import PdfThumbnail from "@/modules/bills/components/PdfThumbnail";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// Sub-components
+import HealthMetrics from "./components/HealthMetrics";
+import AlertsBanner from "./components/AlertsBanner";
+import ProfileCard from "./components/ProfileCard";
+import OverviewTab from "./components/OverviewTab";
+import MedicationsTab from "./components/MedicationsTab";
+import VaccinationsTab from "./components/VaccinationsTab";
+import VisitsTab from "./components/VisitsTab";
+import LabResultsTab from "./components/LabResultsTab";
+import BodyStatsTab from "./components/BodyStatsTab";
+import DocumentsTab from "./components/DocumentsTab";
 
-type ProfileType = "self" | "family" | "pet";
-type BloodGroup =
-  | "A+"
-  | "A-"
-  | "B+"
-  | "B-"
-  | "AB+"
-  | "AB-"
-  | "O+"
-  | "O-"
-  | "unknown";
-type Gender = "male" | "female" | "other";
-type ConditionStatus = "active" | "managed" | "resolved";
-type MedicationStatus = "active" | "completed" | "discontinued";
-type VisitType =
-  | "checkup"
-  | "consultation"
-  | "emergency"
-  | "surgery"
-  | "lab_test"
-  | "follow_up"
-  | "dental"
-  | "eye"
-  | "other";
-type LabStatus = "normal" | "borderline" | "abnormal";
-type DocType =
-  | "prescription"
-  | "bill"
-  | "lab_report"
-  | "discharge_summary"
-  | "insurance"
-  | "imaging"
-  | "other";
-
-interface Condition {
-  id: string;
-  name: string;
-  diagnosed_date?: string;
-  status: ConditionStatus;
-  notes?: string;
-}
-
-interface Medication {
-  id: string;
-  name: string;
-  dosage?: string;
-  prescribed_by?: string;
-  start_date?: string;
-  end_date?: string;
-  refill_date?: string;
-  status: MedicationStatus;
-  notes?: string;
-}
-
-interface Vaccination {
-  id: string;
-  name: string;
-  date_administered: string;
-  next_due?: string;
-  provider?: string;
-  batch_number?: string;
-  notes?: string;
-}
-
-interface Visit {
-  id: string;
-  date: string;
-  type: VisitType;
-  doctor?: string;
-  facility?: string;
-  diagnosis?: string;
-  prescription?: string;
-  cost?: number;
-  currency: string;
-  notes?: string;
-}
-
-interface LabResult {
-  id: string;
-  date: string;
-  test_name: string;
-  value: string;
-  unit?: string;
-  reference_range?: string;
-  status: LabStatus;
-  notes?: string;
-}
-
-interface Measurement {
-  id: string;
-  date: string;
-  height_cm?: number;
-  weight_kg?: number;
-  notes?: string;
-}
-
-interface BillAttachment {
-  id: string;
-  filename: string;
-  content_type: string;
-  data: string; // base64
-  size: number;
-  uploaded_at: string;
-}
-
-interface HealthDocument {
-  id: string;
-  type: DocType;
-  title: string;
-  date?: string;
-  notes?: string;
-  attachments: BillAttachment[];
-}
-
-interface HealthPayload {
-  name: string;
-  type: ProfileType;
-  relation?: string;
-  date_of_birth?: string;
-  blood_group: BloodGroup;
-  gender?: Gender;
-  avatar_url?: string;
-  profile_pic?: {
-    data: string;
-    content_type: string;
-  };
-  emergency_contact?: string;
-  insurance_info?: string;
-  allergies: string[];
-  conditions: Condition[];
-  medications: Medication[];
-  vaccinations: Vaccination[];
-  visits: Visit[];
-  lab_results: LabResult[];
-  measurements: Measurement[];
-  documents: HealthDocument[];
-  notes?: string;
-  tags: string[];
-}
-
-interface HealthProfile {
-  _id: string;
-  created_at: string;
-  updated_at: string;
-  payload: HealthPayload;
-}
-
-type DetailTab =
-  | "overview"
-  | "medications"
-  | "vaccinations"
-  | "visits"
-  | "lab_results"
-  | "body_stats"
-  | "documents";
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-const PROFILE_TYPE_CONFIG: Record<
-  ProfileType,
-  {
-    label: string;
-    color: string;
-    bg: string;
-    border: string;
-    icon: typeof User;
-  }
-> = {
-  self: {
-    label: "Self",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-    icon: User,
-  },
-  family: {
-    label: "Family",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
-    icon: Users,
-  },
-  pet: {
-    label: "Pet",
-    color: "text-warning",
-    bg: "bg-warning/10",
-    border: "border-warning/20",
-    icon: PawPrint,
-  },
-};
-
-const CONDITION_STATUS_CONFIG: Record<
+// Types, constants, helpers
+import type {
+  HealthProfile,
+  HealthPayload,
+  DetailTab,
+  Condition,
   ConditionStatus,
-  { label: string; color: string; bg: string }
-> = {
-  active: { label: "Active", color: "text-danger", bg: "bg-danger/10" },
-  managed: { label: "Managed", color: "text-warning", bg: "bg-warning/10" },
-  resolved: { label: "Resolved", color: "text-success", bg: "bg-success/10" },
-};
-
-const MEDICATION_STATUS_CONFIG: Record<
+  Medication,
   MedicationStatus,
-  { label: string; color: string; bg: string }
-> = {
-  active: { label: "Active", color: "text-success", bg: "bg-success/10" },
-  completed: {
-    label: "Completed",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-  },
-  discontinued: {
-    label: "Discontinued",
-    color: "text-zinc-400",
-    bg: "bg-zinc-500/10",
-  },
-};
-
-const VISIT_TYPE_CONFIG: Record<VisitType, { label: string; color: string }> = {
-  checkup: { label: "Checkup", color: "text-blue-400" },
-  consultation: { label: "Consultation", color: "text-purple-400" },
-  emergency: { label: "Emergency", color: "text-danger" },
-  surgery: { label: "Surgery", color: "text-orange-400" },
-  lab_test: { label: "Lab Test", color: "text-teal-400" },
-  follow_up: { label: "Follow-up", color: "text-cyan-400" },
-  dental: { label: "Dental", color: "text-purple-400" },
-  eye: { label: "Eye", color: "text-teal-400" },
-  other: { label: "Other", color: "text-zinc-400" },
-};
-
-const LAB_STATUS_CONFIG: Record<
+  Vaccination,
+  Visit,
+  VisitType,
+  LabResult,
   LabStatus,
-  { label: string; color: string; bg: string; border: string }
-> = {
-  normal: {
-    label: "Normal",
-    color: "text-success",
-    bg: "bg-success/10",
-    border: "border-success/20",
-  },
-  borderline: {
-    label: "Borderline",
-    color: "text-warning",
-    bg: "bg-warning/10",
-    border: "border-warning/20",
-  },
-  abnormal: {
-    label: "Abnormal",
-    color: "text-danger",
-    bg: "bg-danger/10",
-    border: "border-danger/20",
-  },
-};
-
-const DOC_TYPE_CONFIG: Record<
+  Measurement,
+  HealthDocument,
   DocType,
-  { label: string; color: string; icon: typeof FileText | typeof ImageIcon }
-> = {
-  prescription: {
-    label: "Prescription",
-    icon: FileText,
-    color: "text-blue-400",
-  },
-  bill: { label: "Bill", icon: FileText, color: "text-emerald-400" },
-  lab_report: { label: "Lab Report", icon: FileText, color: "text-purple-400" },
-  discharge_summary: {
-    label: "Discharge",
-    icon: FileText,
-    color: "text-orange-400",
-  },
-  insurance: { label: "Insurance", icon: FileText, color: "text-cyan-400" },
-  imaging: { label: "Imaging", icon: ImageIcon, color: "text-rose-400" },
-  other: { label: "Other", icon: FileText, color: "text-zinc-500" },
-};
+  ProfileType,
+  BloodGroup,
+  Gender,
+  BillAttachment,
+} from "./components/types";
+import {
+  PROFILE_TYPE_CONFIG,
+  CONDITION_STATUS_CONFIG,
+  MEDICATION_STATUS_CONFIG,
+  VISIT_TYPE_CONFIG,
+  LAB_STATUS_CONFIG,
+  DOC_TYPE_CONFIG,
+  BLOOD_GROUPS,
+} from "./components/constants";
+import {
+  formatDateInput,
+  toISODate,
+  getDueStatus,
+  getInitials,
+  uuid,
+  emptyPayload,
+} from "./components/helpers";
 
-const BLOOD_GROUPS: BloodGroup[] = [
-  "A+",
-  "A-",
-  "B+",
-  "B-",
-  "AB+",
-  "AB-",
-  "O+",
-  "O-",
-  "unknown",
-];
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatDate(d: string): string {
-  if (!d) return "—";
-  const date = new Date(d);
-  return date.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatDateInput(d?: string): string {
-  if (!d) return "";
-  return d.slice(0, 10);
-}
-
-function toISODate(d: string): string {
-  if (!d) return "";
-  if (d.includes("T")) return d;
-  return `${d}T00:00:00.000Z`;
-}
-
-function daysUntil(dateStr?: string): number | null {
-  if (!dateStr) return null;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function getDueStatus(dateStr?: string): "overdue" | "warning" | "ok" | "none" {
-  if (!dateStr) return "none";
-  const days = daysUntil(dateStr);
-  if (days === null) return "none";
-  if (days < 0) return "overdue";
-  if (days <= 30) return "warning";
-  return "ok";
-}
-
-function dueBadge(dateStr?: string, label?: string) {
-  const status = getDueStatus(dateStr);
-  if (status === "none") return null;
-  const days = daysUntil(dateStr)!;
-  const config = {
-    overdue: {
-      text: `${label ? label + ": " : ""}Overdue ${Math.abs(days)}d`,
-      bg: "bg-danger/10",
-      border: "border-danger/20",
-      color: "text-danger",
-    },
-    warning: {
-      text: `${label ? label + ": " : ""}${days}d left`,
-      bg: "bg-warning/10",
-      border: "border-warning/20",
-      color: "text-warning",
-    },
-    ok: {
-      text: `${label ? label + ": " : ""}${days}d left`,
-      bg: "bg-success/10",
-      border: "border-success/20",
-      color: "text-success",
-    },
-  }[status];
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-        config.bg,
-        config.border,
-        config.color,
-      )}
-    >
-      {status === "overdue" ? (
-        <AlertTriangle className="w-3 h-3" />
-      ) : (
-        <Clock className="w-3 h-3" />
-      )}
-      {config.text}
-    </span>
-  );
-}
-
-function uuid() {
-  return crypto.randomUUID();
-}
-
-function emptyPayload(): HealthPayload {
-  return {
-    name: "",
-    type: "self",
-    blood_group: "unknown",
-    allergies: [],
-    conditions: [],
-    medications: [],
-    vaccinations: [],
-    visits: [],
-    lab_results: [],
-    measurements: [],
-    documents: [],
-    tags: [],
-  };
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-function calculateBMI(heightCm?: number, weightKg?: number): number | null {
-  if (!heightCm || !weightKg || heightCm <= 0) return null;
-  const heightM = heightCm / 100;
-  return weightKg / (heightM * heightM);
-}
-
-function bmiCategory(bmi: number): { label: string; color: string } {
-  if (bmi < 18.5) return { label: "Underweight", color: "text-warning" };
-  if (bmi < 25) return { label: "Normal", color: "text-success" };
-  if (bmi < 30) return { label: "Overweight", color: "text-warning" };
-  return { label: "Obese", color: "text-danger" };
-}
-
-// ─── Shared form elements ────────────────────────────────────────────────────
+// ─── Shared form styling ─────────────────────────────────────────────────────
 
 const inputCls =
   "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600";
@@ -586,7 +206,6 @@ export default function HealthAdminView() {
       showToast("Only images are allowed for profile pictures", "error");
       return;
     }
-
     try {
       const url = URL.createObjectURL(file);
       setCropFileState({ url, type: file.type });
@@ -594,16 +213,12 @@ export default function HealthAdminView() {
       console.error("Blob generation failed", err);
       showToast("Failed to process image", "error");
     }
-    // We purposely don't reset value here to handle potential Safari re-upload issues
   };
 
   const handleCropComplete = (base64Data: string, mimeType: string) => {
     setFormData((f) => ({
       ...f,
-      profile_pic: {
-        data: base64Data,
-        content_type: mimeType,
-      },
+      profile_pic: { data: base64Data, content_type: mimeType },
     }));
     if (cropFileState?.url) URL.revokeObjectURL(cropFileState.url);
     setCropFileState(null);
@@ -975,9 +590,8 @@ export default function HealthAdminView() {
   ) => {
     const files = Array.from(e.target.files || []);
     const newAttachments: BillAttachment[] = [...(docForm.attachments || [])];
-
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) continue; // 5MB limit
+      if (file.size > 5 * 1024 * 1024) continue;
       try {
         const raw = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -998,7 +612,6 @@ export default function HealthAdminView() {
         console.error("Failed to read file", err);
       }
     }
-
     setDocForm((f) => ({ ...f, attachments: newAttachments }));
     e.target.value = "";
   };
@@ -1175,7 +788,7 @@ export default function HealthAdminView() {
     );
   }
 
-  // ─── Profile Form Modal (shared across views) ─────────────────────────────
+  // ─── Profile Form Modal ─────────────────────────────────────────────────
 
   const profileFormModal = (
     <Portal>
@@ -1235,7 +848,7 @@ export default function HealthAdminView() {
                       onClick={() =>
                         setFormData((f) => ({ ...f, profile_pic: undefined }))
                       }
-                      className="mt-3 text-[11px] font-medium text-danger hover:text-red-400 transition-colors uppercase tracking-wider"
+                      className="mt-3 text-[11px] font-medium text-danger hover:text-danger/80 transition-colors uppercase tracking-wider"
                     >
                       Remove Photo
                     </button>
@@ -1507,19 +1120,6 @@ export default function HealthAdminView() {
     const p = selectedProfile.payload;
     const typeConfig = PROFILE_TYPE_CONFIG[p.type];
     const TypeIcon = typeConfig.icon;
-    const activeMeds = p.medications.filter((m) => m.status === "active");
-    const activeConditions = p.conditions.filter(
-      (c) => c.status !== "resolved",
-    );
-
-    // Latest measurement for BMI
-    const sortedMeasurements = [...p.measurements].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-    const latestMeasurement = sortedMeasurements[0];
-    const latestBMI = latestMeasurement
-      ? calculateBMI(latestMeasurement.height_cm, latestMeasurement.weight_kg)
-      : null;
 
     const TAB_CONFIG: Array<{
       key: DetailTab;
@@ -1643,297 +1243,23 @@ export default function HealthAdminView() {
           ))}
         </div>
 
-        {/* ─── Tab: Overview ──────────────────────────────────────── */}
+        {/* Tab Contents */}
         {activeTab === "overview" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Stats row */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className={labelCls}>Active Conditions</p>
-                <p className="text-2xl font-bold text-zinc-50">
-                  {activeConditions.length}
-                </p>
-              </div>
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className={labelCls}>Active Meds</p>
-                <p className="text-2xl font-bold text-zinc-50">
-                  {activeMeds.length}
-                </p>
-              </div>
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className={labelCls}>Total Visits</p>
-                <p className="text-2xl font-bold text-zinc-50">
-                  {p.visits.length}
-                </p>
-              </div>
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className={labelCls}>Latest BMI</p>
-                {latestBMI ? (
-                  <>
-                    <p
-                      className={cn(
-                        "text-2xl font-bold",
-                        bmiCategory(latestBMI).color,
-                      )}
-                    >
-                      {latestBMI.toFixed(1)}
-                    </p>
-                    <p
-                      className={cn(
-                        "text-xs mt-0.5",
-                        bmiCategory(latestBMI).color,
-                      )}
-                    >
-                      {bmiCategory(latestBMI).label}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-zinc-600 italic">No data</p>
-                )}
-              </div>
-            </div>
-
-            {/* Allergies */}
-            {p.allergies.length > 0 && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-                <p className={cn(labelCls, "mb-3")}>Allergies</p>
-                <div className="flex flex-wrap gap-2">
-                  {p.allergies.map((a, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 rounded-full text-xs font-medium bg-danger/10 border border-danger/20 text-danger"
-                    >
-                      {a}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Conditions */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className={labelCls}>Conditions</p>
-                <button
-                  onClick={() => openConditionForm()}
-                  className="flex items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-zinc-200 bg-zinc-800 rounded-lg hover:bg-zinc-700 transition-colors"
-                >
-                  <Plus className="w-3 h-3" /> Add
-                </button>
-              </div>
-              {p.conditions.length === 0 ? (
-                <p className="text-xs text-zinc-600 italic">
-                  No conditions tracked
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {p.conditions.map((c) => (
-                    <div
-                      key={c.id}
-                      className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0 group"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-zinc-200">
-                          {c.name}
-                        </p>
-                        {c.diagnosed_date && (
-                          <p className="text-[11px] text-zinc-500">
-                            Since {formatDate(c.diagnosed_date)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                            CONDITION_STATUS_CONFIG[c.status].bg,
-                            CONDITION_STATUS_CONFIG[c.status].color,
-                          )}
-                        >
-                          {CONDITION_STATUS_CONFIG[c.status].label}
-                        </span>
-                        <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => openConditionForm(c)}
-                            className="p-1 rounded hover:bg-zinc-800"
-                          >
-                            <Edit3 className="w-3 h-3 text-zinc-500" />
-                          </button>
-                          <button
-                            onClick={() => deleteSubRecord("conditions", c.id)}
-                            className="p-1 rounded hover:bg-danger/50"
-                          >
-                            <Trash2 className="w-3 h-3 text-danger" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Identity details */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
-              <p className={labelCls}>Details</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                {p.date_of_birth && (
-                  <div>
-                    <span className="text-zinc-500">Date of Birth</span>
-                    <p className="text-zinc-200 font-medium">
-                      {formatDate(p.date_of_birth)}
-                    </p>
-                  </div>
-                )}
-                {p.gender && (
-                  <div>
-                    <span className="text-zinc-500">Gender</span>
-                    <p className="text-zinc-200 font-medium capitalize">
-                      {p.gender}
-                    </p>
-                  </div>
-                )}
-                {p.emergency_contact && (
-                  <div>
-                    <span className="text-zinc-500">Emergency Contact</span>
-                    <p className="text-zinc-200 font-medium">
-                      {p.emergency_contact}
-                    </p>
-                  </div>
-                )}
-                {p.insurance_info && (
-                  <div>
-                    <span className="text-zinc-500">Insurance</span>
-                    <p className="text-zinc-200 font-medium">
-                      {p.insurance_info}
-                    </p>
-                  </div>
-                )}
-              </div>
-              {p.notes && (
-                <div className="pt-2 border-t border-zinc-800">
-                  <p className="text-sm text-zinc-400 whitespace-pre-wrap">
-                    {p.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
+          <OverviewTab
+            profile={selectedProfile}
+            onAddCondition={() => openConditionForm()}
+            onEditCondition={openConditionForm}
+            onDeleteCondition={(id) => deleteSubRecord("conditions", id)}
+          />
         )}
 
-        {/* ─── Tab: Medications ───────────────────────────────────── */}
         {activeTab === "medications" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.medications.length} medication
-                {p.medications.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openMedicationForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
-            </div>
-
-            {p.medications.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <Pill className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">
-                  No medications tracked
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {[...p.medications]
-                  .sort((a, b) => {
-                    const order: Record<MedicationStatus, number> = {
-                      active: 0,
-                      completed: 1,
-                      discontinued: 2,
-                    };
-                    return order[a.status] - order[b.status];
-                  })
-                  .map((med) => {
-                    const sConfig = MEDICATION_STATUS_CONFIG[med.status];
-                    return (
-                      <motion.div
-                        key={med.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
-                              <Pill className={cn("w-4 h-4", sConfig.color)} />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-zinc-200 truncate">
-                                {med.name}
-                              </p>
-                              <div className="flex flex-wrap items-center gap-2 mt-1">
-                                <span
-                                  className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                                    sConfig.bg,
-                                    sConfig.color,
-                                  )}
-                                >
-                                  {sConfig.label}
-                                </span>
-                                {med.dosage && (
-                                  <span className="text-[11px] text-zinc-500">
-                                    {med.dosage}
-                                  </span>
-                                )}
-                                {med.prescribed_by && (
-                                  <span className="text-[11px] text-zinc-600">
-                                    by {med.prescribed_by}
-                                  </span>
-                                )}
-                              </div>
-                              {med.refill_date && med.status === "active" && (
-                                <div className="mt-1.5">
-                                  {dueBadge(med.refill_date, "Refill")}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
-                            <button
-                              onClick={() => openMedicationForm(med)}
-                              className="p-1.5 rounded-lg hover:bg-zinc-800"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                deleteSubRecord("medications", med.id)
-                              }
-                              className="p-1.5 rounded-lg hover:bg-danger/50"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-danger" />
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
-            )}
-
-            {renderModal(
+          <MedicationsTab
+            payload={p}
+            onAdd={() => openMedicationForm()}
+            onEdit={openMedicationForm}
+            onDelete={(id) => deleteSubRecord("medications", id)}
+            renderModal={renderModal(
               `${editingMedication ? "Edit" : "Add"} Medication`,
               "medication",
               saveMedication,
@@ -2063,119 +1389,18 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
-        {/* ─── Tab: Vaccinations ──────────────────────────────────── */}
         {activeTab === "vaccinations" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.vaccinations.length} vaccination
-                {p.vaccinations.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openVaccinationForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
-            </div>
-
-            {p.vaccinations.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <Syringe className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">
-                  No vaccinations recorded
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {[...p.vaccinations]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.date_administered).getTime() -
-                      new Date(a.date_administered).getTime(),
-                  )
-                  .map((vac) => (
-                    <motion.div
-                      key={vac.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
-                            <Syringe className="w-4 h-4 text-teal-400" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-zinc-200 truncate">
-                              {vac.name}
-                            </p>
-                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-[11px] text-zinc-500">
-                                {formatDate(vac.date_administered)}
-                              </span>
-                              {vac.provider && (
-                                <span className="text-[11px] text-zinc-600">
-                                  by {vac.provider}
-                                </span>
-                              )}
-                            </div>
-                            {vac.next_due && (
-                              <div className="mt-1.5">
-                                {dueBadge(vac.next_due, "Next due")}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
-                          <button
-                            onClick={() => openVaccinationForm(vac)}
-                            className="p-1.5 rounded-lg hover:bg-zinc-800"
-                            title="Edit"
-                          >
-                            <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                          </button>
-                          <button
-                            onClick={() => duplicateVaccination(vac)}
-                            className="p-1.5 rounded-lg hover:bg-zinc-800"
-                            title="Duplicate"
-                          >
-                            <Copy className="w-3.5 h-3.5 text-zinc-500" />
-                          </button>
-                          {vac.next_due && (
-                            <button
-                              onClick={() => removeVaccinationDueDate(vac)}
-                              className="p-1.5 rounded-lg hover:bg-warning/20"
-                              title="Remove due date"
-                            >
-                              <CalendarX2 className="w-3.5 h-3.5 text-warning" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() =>
-                              deleteSubRecord("vaccinations", vac.id)
-                            }
-                            className="p-1.5 rounded-lg hover:bg-danger/50"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-danger" />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-            )}
-
-            {renderModal(
+          <VaccinationsTab
+            payload={p}
+            onAdd={() => openVaccinationForm()}
+            onEdit={openVaccinationForm}
+            onDelete={(id) => deleteSubRecord("vaccinations", id)}
+            onDuplicate={duplicateVaccination}
+            onRemoveDueDate={removeVaccinationDueDate}
+            renderModal={renderModal(
               `${editingVaccination ? "Edit" : "Add"} Vaccination`,
               "vaccination",
               saveVaccination,
@@ -2278,127 +1503,16 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
-        {/* ─── Tab: Visits ────────────────────────────────────────── */}
         {activeTab === "visits" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.visits.length} visit{p.visits.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openVisitForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Visit
-              </button>
-            </div>
-
-            {p.visits.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <Stethoscope className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">No visits recorded</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {[...p.visits]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime(),
-                  )
-                  .map((visit) => {
-                    const vtConfig = VISIT_TYPE_CONFIG[visit.type];
-                    return (
-                      <motion.div
-                        key={visit.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
-                              <Stethoscope
-                                className={cn("w-4 h-4", vtConfig.color)}
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span
-                                  className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
-                                    vtConfig.color,
-                                  )}
-                                >
-                                  {vtConfig.label}
-                                </span>
-                                <span className="text-[11px] text-zinc-500">
-                                  {formatDate(visit.date)}
-                                </span>
-                              </div>
-                              {visit.doctor && (
-                                <p className="text-sm text-zinc-300 mt-1">
-                                  Dr. {visit.doctor}
-                                </p>
-                              )}
-                              {visit.facility && (
-                                <p className="text-[11px] text-zinc-600">
-                                  {visit.facility}
-                                </p>
-                              )}
-                              {visit.diagnosis && (
-                                <p className="text-xs text-zinc-400 mt-1">
-                                  {visit.diagnosis}
-                                </p>
-                              )}
-                              {visit.notes && (
-                                <p className="text-xs text-zinc-500 mt-1">
-                                  {visit.notes}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {visit.cost != null && visit.cost > 0 && (
-                              <span className="text-sm font-bold text-zinc-300">
-                                {visit.currency === "INR"
-                                  ? "\u20B9"
-                                  : visit.currency}{" "}
-                                {visit.cost.toLocaleString()}
-                              </span>
-                            )}
-                            <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => openVisitForm(visit)}
-                                className="p-1.5 rounded-lg hover:bg-zinc-800"
-                              >
-                                <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  deleteSubRecord("visits", visit.id)
-                                }
-                                className="p-1.5 rounded-lg hover:bg-danger/50"
-                              >
-                                <Trash2 className="w-3.5 h-3.5 text-danger" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
-            )}
-
-            {renderModal(
+          <VisitsTab
+            payload={p}
+            onAdd={() => openVisitForm()}
+            onEdit={openVisitForm}
+            onDelete={(id) => deleteSubRecord("visits", id)}
+            renderModal={renderModal(
               `${editingVisit ? "Edit" : "Add"} Visit`,
               "visit",
               saveVisit,
@@ -2537,194 +1651,16 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
-        {/* ─── Tab: Lab Results ───────────────────────────────────── */}
         {activeTab === "lab_results" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.lab_results.length} result
-                {p.lab_results.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openLabForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Result
-              </button>
-            </div>
-
-            {p.lab_results.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <Activity className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">
-                  No lab results recorded
-                </p>
-              </div>
-            ) : (
-              (() => {
-                // Group by test_name
-                const grouped: Record<string, LabResult[]> = {};
-                for (const r of p.lab_results) {
-                  if (!grouped[r.test_name]) grouped[r.test_name] = [];
-                  grouped[r.test_name].push(r);
-                }
-                // Sort each group by date desc
-                for (const key of Object.keys(grouped)) {
-                  grouped[key].sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime(),
-                  );
-                }
-
-                return (
-                  <div className="space-y-4">
-                    {Object.entries(grouped).map(([testName, results]) => {
-                      const latest = results[0];
-                      const lsConfig = LAB_STATUS_CONFIG[latest.status];
-                      const hasTrend = results.length > 1;
-                      return (
-                        <div
-                          key={testName}
-                          className={cn(
-                            "bg-zinc-900 border rounded-2xl p-4",
-                            lsConfig.border,
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <div>
-                              <p className="text-sm font-semibold text-zinc-200">
-                                {testName}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span
-                                  className={cn(
-                                    "text-lg font-bold",
-                                    lsConfig.color,
-                                  )}
-                                >
-                                  {latest.value}
-                                </span>
-                                {latest.unit && (
-                                  <span className="text-xs text-zinc-500">
-                                    {latest.unit}
-                                  </span>
-                                )}
-                                <span
-                                  className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                                    lsConfig.bg,
-                                    lsConfig.color,
-                                  )}
-                                >
-                                  {lsConfig.label}
-                                </span>
-                              </div>
-                              {latest.reference_range && (
-                                <p className="text-[11px] text-zinc-600 mt-0.5">
-                                  Ref: {latest.reference_range}
-                                </p>
-                              )}
-                              <p className="text-[11px] text-zinc-500 mt-0.5">
-                                {formatDate(latest.date)}
-                              </p>
-                            </div>
-                            {hasTrend && (
-                              <div className="flex items-center gap-1 text-[10px] text-zinc-500">
-                                <TrendingUp className="w-3 h-3" />
-                                {results.length} readings
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Mini trend bar */}
-                          {hasTrend && (
-                            <div className="flex items-end gap-0.5 h-6 mt-2 mb-2">
-                              {[...results].reverse().map((r) => {
-                                const numVal = parseFloat(r.value);
-                                const allVals = results
-                                  .map((x) => parseFloat(x.value))
-                                  .filter((x) => !isNaN(x));
-                                const max = Math.max(...allVals);
-                                const height =
-                                  !isNaN(numVal) && max > 0
-                                    ? (numVal / max) * 100
-                                    : 50;
-                                const statusColor = LAB_STATUS_CONFIG[r.status];
-                                return (
-                                  <div
-                                    key={r.id}
-                                    className={cn(
-                                      "flex-1 rounded-t-sm transition-colors",
-                                      statusColor.bg,
-                                    )}
-                                    style={{
-                                      height: `${Math.max(height, 12)}%`,
-                                    }}
-                                    title={`${r.value} ${r.unit || ""} (${formatDate(r.date)})`}
-                                  />
-                                );
-                              })}
-                            </div>
-                          )}
-
-                          {/* All results for this test */}
-                          <div className="space-y-1 mt-2">
-                            {results.map((r) => {
-                              const rsConfig = LAB_STATUS_CONFIG[r.status];
-                              return (
-                                <div
-                                  key={r.id}
-                                  className="flex items-center justify-between py-1 group/item"
-                                >
-                                  <div className="flex items-center gap-2 text-xs">
-                                    <span className="text-zinc-500 w-16 sm:w-20 shrink-0">
-                                      {formatDate(r.date)}
-                                    </span>
-                                    <span
-                                      className={cn(
-                                        "font-medium",
-                                        rsConfig.color,
-                                      )}
-                                    >
-                                      {r.value} {r.unit || ""}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity">
-                                    <button
-                                      onClick={() => openLabForm(r)}
-                                      className="p-1 rounded hover:bg-zinc-800"
-                                    >
-                                      <Edit3 className="w-3 h-3 text-zinc-500" />
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        deleteSubRecord("lab_results", r.id)
-                                      }
-                                      className="p-1 rounded hover:bg-danger/50"
-                                    >
-                                      <Trash2 className="w-3 h-3 text-danger" />
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()
-            )}
-
-            {renderModal(
+          <LabResultsTab
+            payload={p}
+            onAdd={() => openLabForm()}
+            onEdit={openLabForm}
+            onDelete={(id) => deleteSubRecord("lab_results", id)}
+            renderModal={renderModal(
               `${editingLab ? "Edit" : "Add"} Lab Result`,
               "lab",
               saveLabResult,
@@ -2827,172 +1763,16 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
-        {/* ─── Tab: Body Stats ────────────────────────────────────── */}
         {activeTab === "body_stats" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.measurements.length} measurement
-                {p.measurements.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openMeasurementForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
-            </div>
-
-            {/* Latest reading card */}
-            {latestMeasurement && (
-              <div className="bg-gradient-to-r from-blue-500/5 to-transparent border border-blue-500/10 rounded-2xl p-5">
-                <p className={cn(labelCls, "mb-3")}>Latest Reading</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {latestMeasurement.height_cm && (
-                    <div>
-                      <p className="text-2xl font-bold text-zinc-50">
-                        {latestMeasurement.height_cm}
-                      </p>
-                      <p className="text-xs text-zinc-500">cm height</p>
-                    </div>
-                  )}
-                  {latestMeasurement.weight_kg && (
-                    <div>
-                      <p className="text-2xl font-bold text-zinc-50">
-                        {latestMeasurement.weight_kg}
-                      </p>
-                      <p className="text-xs text-zinc-500">kg weight</p>
-                    </div>
-                  )}
-                  {latestBMI && (
-                    <div>
-                      <p
-                        className={cn(
-                          "text-2xl font-bold",
-                          bmiCategory(latestBMI).color,
-                        )}
-                      >
-                        {latestBMI.toFixed(1)}
-                      </p>
-                      <p
-                        className={cn("text-xs", bmiCategory(latestBMI).color)}
-                      >
-                        {bmiCategory(latestBMI).label}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <p className="text-[11px] text-zinc-500 mt-2">
-                  {formatDate(latestMeasurement.date)}
-                </p>
-              </div>
-            )}
-
-            {/* Weight trend chart */}
-            {sortedMeasurements.length > 1 && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-                <p className={cn(labelCls, "mb-3")}>Weight Trend</p>
-                <div className="flex items-end gap-1 h-20">
-                  {[...sortedMeasurements]
-                    .reverse()
-                    .filter((m) => m.weight_kg)
-                    .map((m) => {
-                      const weights = sortedMeasurements
-                        .filter((x) => x.weight_kg)
-                        .map((x) => x.weight_kg!);
-                      const min = Math.min(...weights);
-                      const max = Math.max(...weights);
-                      const range = max - min || 1;
-                      const height = ((m.weight_kg! - min) / range) * 80 + 20;
-                      return (
-                        <div
-                          key={m.id}
-                          className="flex-1 bg-blue-500/20 rounded-t-sm hover:bg-blue-500/40 transition-colors"
-                          style={{ height: `${height}%` }}
-                          title={`${m.weight_kg} kg (${formatDate(m.date)})`}
-                        />
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-
-            {p.measurements.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <Ruler className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">
-                  No measurements recorded
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {sortedMeasurements.map((m) => {
-                  const bmi = calculateBMI(m.height_cm, m.weight_kg);
-                  return (
-                    <motion.div
-                      key={m.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                          <span className="text-[11px] text-zinc-500 w-20 sm:w-24">
-                            {formatDate(m.date)}
-                          </span>
-                          {m.height_cm && (
-                            <span className="text-sm text-zinc-300">
-                              {m.height_cm} cm
-                            </span>
-                          )}
-                          {m.weight_kg && (
-                            <span className="text-sm text-zinc-300">
-                              {m.weight_kg} kg
-                            </span>
-                          )}
-                          {bmi && (
-                            <span
-                              className={cn(
-                                "text-xs font-medium",
-                                bmiCategory(bmi).color,
-                              )}
-                            >
-                              BMI {bmi.toFixed(1)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => openMeasurementForm(m)}
-                            className="p-1.5 rounded-lg hover:bg-zinc-800"
-                          >
-                            <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              deleteSubRecord("measurements", m.id)
-                            }
-                            className="p-1.5 rounded-lg hover:bg-danger/50"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-danger" />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-
-            {renderModal(
+          <BodyStatsTab
+            payload={p}
+            onAdd={() => openMeasurementForm()}
+            onEdit={openMeasurementForm}
+            onDelete={(id) => deleteSubRecord("measurements", id)}
+            renderModal={renderModal(
               `${editingMeasurement ? "Edit" : "Add"} Measurement`,
               "measurement",
               saveMeasurement,
@@ -3065,158 +1845,19 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
-        {/* ─── Tab: Documents ─────────────────────────────────────── */}
         {activeTab === "documents" && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-400">
-                {p.documents.length} document
-                {p.documents.length !== 1 ? "s" : ""}
-              </p>
-              <button
-                onClick={() => openDocForm()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add
-              </button>
-            </div>
-
-            {p.documents.length === 0 ? (
-              <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
-                <FileText className="w-8 h-8 text-zinc-700 mx-auto mb-3" />
-                <p className="text-zinc-500 font-medium">No documents stored</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {[...p.documents]
-                  .sort((a, b) => {
-                    if (a.date && b.date)
-                      return (
-                        new Date(b.date).getTime() - new Date(a.date).getTime()
-                      );
-                    return 0;
-                  })
-                  .map((doc) => {
-                    const dtConfig = DOC_TYPE_CONFIG[doc.type];
-                    return (
-                      <motion.div
-                        key={doc.id}
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-                      >
-                        <div className="flex flex-col gap-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-4 min-w-0">
-                              <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center shrink-0">
-                                <dtConfig.icon
-                                  className={cn("w-5 h-5", dtConfig.color)}
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-bold text-zinc-100 truncate">
-                                  {doc.title}
-                                </p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span
-                                    className={cn(
-                                      "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/50 border border-zinc-700/30",
-                                      dtConfig.color,
-                                    )}
-                                  >
-                                    {dtConfig.label}
-                                  </span>
-                                  {doc.date && (
-                                    <span className="text-[11px] text-zinc-500 font-medium">
-                                      {formatDate(doc.date)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => openDocForm(doc)}
-                                className="p-2 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
-                                title="Edit"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  deleteSubRecord("documents", doc.id)
-                                }
-                                className="p-2 rounded-xl hover:bg-danger/10 text-zinc-500 hover:text-danger transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
-                          {doc.notes && (
-                            <p className="text-xs text-zinc-500 line-clamp-2 bg-zinc-950/50 p-2 rounded-lg border border-zinc-800/50">
-                              {doc.notes}
-                            </p>
-                          )}
-
-                          {doc.attachments && doc.attachments.length > 0 && (
-                            <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-800/50 mt-1">
-                              {doc.attachments.map((att) => (
-                                <div
-                                  key={att.id}
-                                  onClick={() =>
-                                    setPreviewDoc({
-                                      src: att.data,
-                                      contentType: att.content_type,
-                                      filename: att.filename,
-                                      size: att.size,
-                                    })
-                                  }
-                                  className="relative group/att w-20 h-20 rounded-xl bg-zinc-800 border border-zinc-700/50 overflow-hidden cursor-pointer hover:border-accent transition-all hover:scale-[1.02] active:scale-95"
-                                >
-                                  {att.content_type === "application/pdf" ? (
-                                    <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900">
-                                      <div className="scale-[0.4] origin-top opacity-60 group-hover/att:opacity-100 transition-opacity pointer-events-none">
-                                        <PdfThumbnail base64Data={att.data} />
-                                      </div>
-                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
-                                        <FileText className="w-3.5 h-3.5 text-rose-400" />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <img
-                                        src={`data:${att.content_type};base64,${att.data}`}
-                                        alt={att.filename}
-                                        className="w-full h-full object-cover opacity-60 group-hover/att:opacity-100 transition-all duration-300"
-                                      />
-                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/att:opacity-100 transition-opacity" />
-                                    </>
-                                  )}
-                                  <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-sm opacity-0 group-hover/att:opacity-100 transition-all scale-75 group-hover/att:scale-100">
-                                    <Eye className="w-3 h-3 text-white" />
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
-            )}
-
-            {renderModal(
+          <DocumentsTab
+            payload={p}
+            onAdd={() => openDocForm()}
+            onEdit={openDocForm}
+            onDelete={(id) => deleteSubRecord("documents", id)}
+            onPreviewDoc={(src, contentType, filename, size) =>
+              setPreviewDoc({ src, contentType, filename, size })
+            }
+            renderModal={renderModal(
               `${editingDoc ? "Edit" : "Add"} Document`,
               "document",
               saveDocument,
@@ -3296,7 +1937,7 @@ export default function HealthAdminView() {
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-700/50">
                             {att.content_type === "application/pdf" ? (
-                              <FileText className="w-4 h-4 text-rose-400" />
+                              <FileText className="w-4 h-4 text-danger" />
                             ) : (
                               <ImageIcon className="w-4 h-4 text-accent" />
                             )}
@@ -3353,7 +1994,7 @@ export default function HealthAdminView() {
                 </div>
               </>,
             )}
-          </motion.div>
+          />
         )}
 
         {/* Condition form modal */}
@@ -3459,6 +2100,16 @@ export default function HealthAdminView() {
             onClose={() => setPreviewImage(null)}
           />
         )}
+
+        {previewDoc && (
+          <DocPreview
+            src={`data:${previewDoc.contentType};base64,${previewDoc.src}`}
+            contentType={previewDoc.contentType}
+            filename={previewDoc.filename}
+            size={previewDoc.size}
+            onClose={() => setPreviewDoc(null)}
+          />
+        )}
       </div>
     );
   }
@@ -3486,40 +2137,13 @@ export default function HealthAdminView() {
         </button>
       </div>
 
-      {/* Alerts banner */}
-      {profileAlerts.length > 0 && (
-        <div className="bg-warning/5 border border-warning/20 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4 text-warning" />
-            <p className="text-xs font-bold text-warning uppercase tracking-widest">
-              {profileAlerts.length} Alert
-              {profileAlerts.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-          <div className="space-y-2">
-            {profileAlerts.slice(0, 5).map((a, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between text-xs"
-              >
-                <span className="text-zinc-300">
-                  {a.profileName} — {a.label}
-                </span>
-                <span
-                  className={cn(
-                    "font-medium",
-                    a.status === "overdue" ? "text-danger" : "text-warning",
-                  )}
-                >
-                  {a.status === "overdue"
-                    ? `Overdue ${Math.abs(daysUntil(a.date)!)}d`
-                    : `${daysUntil(a.date)}d left`}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Metrics bento grid */}
+      {profiles.length > 0 && (
+        <HealthMetrics profiles={profiles} alertCount={profileAlerts.length} />
       )}
+
+      {/* Alerts banner */}
+      <AlertsBanner alerts={profileAlerts} />
 
       {/* Profile Cards */}
       {profiles.length === 0 ? (
@@ -3534,134 +2158,17 @@ export default function HealthAdminView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {profiles.map((profile) => {
-            const pl = profile.payload;
-            const typeConfig = PROFILE_TYPE_CONFIG[pl.type];
-            const TypeIcon = typeConfig.icon;
-            const activeCondCount = pl.conditions.filter(
-              (c) => c.status !== "resolved",
-            ).length;
-            const activeMedCount = pl.medications.filter(
-              (m) => m.status === "active",
-            ).length;
-
-            // Count alerts for this profile
-            let alerts = 0;
-            for (const med of pl.medications || []) {
-              if (med.status === "active" && med.refill_date) {
-                const s = getDueStatus(med.refill_date);
-                if (s === "overdue" || s === "warning") alerts++;
-              }
-            }
-            for (const vac of pl.vaccinations || []) {
-              if (vac.next_due) {
-                const s = getDueStatus(vac.next_due);
-                if (s === "overdue" || s === "warning") alerts++;
-              }
-            }
-
-            return (
-              <motion.div
-                key={profile._id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => {
-                  setSelectedProfile(profile);
-                  setActiveTab("overview");
-                }}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-zinc-700 hover:shadow-lg hover:shadow-accent/5 transition-all cursor-pointer group"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    onClick={(e) => {
-                      if (pl.profile_pic) {
-                        e.stopPropagation();
-                        setPreviewImage({
-                          src: `data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`,
-                          name: pl.name,
-                        });
-                      }
-                    }}
-                    className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden cursor-pointer hover:scale-110 transition-transform bg-zinc-800 border border-zinc-700",
-                      typeConfig.bg,
-                      typeConfig.color,
-                    )}
-                  >
-                    {pl.profile_pic ? (
-                      <img
-                        src={`data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`}
-                        alt={pl.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      getInitials(pl.name)
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-bold text-zinc-100 truncate">
-                      {pl.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={cn(
-                          "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
-                          typeConfig.bg,
-                          typeConfig.border,
-                          typeConfig.color,
-                        )}
-                      >
-                        <TypeIcon className="w-3 h-3 inline mr-0.5" />
-                        {typeConfig.label}
-                      </span>
-                      {pl.relation && (
-                        <span className="text-[11px] text-zinc-500">
-                          {pl.relation}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {pl.blood_group !== "unknown" && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger shrink-0">
-                      {pl.blood_group}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center gap-3 text-xs text-zinc-500">
-                  {activeCondCount > 0 && (
-                    <span className="flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3 text-warning" />{" "}
-                      {activeCondCount} condition
-                      {activeCondCount !== 1 ? "s" : ""}
-                    </span>
-                  )}
-                  {activeMedCount > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Pill className="w-3 h-3 text-blue-400" />{" "}
-                      {activeMedCount} med{activeMedCount !== 1 ? "s" : ""}
-                    </span>
-                  )}
-                  {pl.vaccinations.length > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Syringe className="w-3 h-3 text-teal-400" />{" "}
-                      {pl.vaccinations.length}
-                    </span>
-                  )}
-                </div>
-
-                {alerts > 0 && (
-                  <div className="mt-3 p-2 rounded-xl border border-warning/20 bg-warning/5 flex items-center gap-2">
-                    <AlertTriangle className="w-3 h-3 text-warning shrink-0" />
-                    <span className="text-[11px] text-warning font-medium">
-                      {alerts} alert{alerts !== 1 ? "s" : ""} need attention
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
+          {profiles.map((profile) => (
+            <ProfileCard
+              key={profile._id}
+              profile={profile}
+              onClick={() => {
+                setSelectedProfile(profile);
+                setActiveTab("overview");
+              }}
+              onPreviewImage={(src, name) => setPreviewImage({ src, name })}
+            />
+          ))}
         </div>
       )}
 
@@ -3712,4 +2219,4 @@ export default function HealthAdminView() {
       )}
     </div>
   );
-};
+}

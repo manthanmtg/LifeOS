@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { HeartPulse, AlertTriangle, Calendar } from "lucide-react";
+import { HeartPulse, AlertTriangle, Calendar, Pill } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import { cn } from "@/lib/utils";
 
 interface HealthSummary {
   total: number;
   alertCount: number;
+  activeMedCount: number;
   latestVisit: { date: string; type: string } | null;
 }
 
@@ -43,6 +45,13 @@ export default function HealthWidget() {
             ) : (
               <span className="text-zinc-600">No visits logged</span>
             )}
+            {summary.activeMedCount > 0 && (
+              <span className="flex items-center gap-1.5 text-accent">
+                <Pill className="w-3 h-3" />
+                {summary.activeMedCount} med
+                {summary.activeMedCount !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
         )
       }
@@ -76,6 +85,18 @@ export default function HealthWidget() {
               <p className="text-[11px] text-zinc-500 text-center font-medium">
                 All clear, no alerts.
               </p>
+            </div>
+          )}
+
+          {summary.activeMedCount > 0 && (
+            <div
+              className={cn("flex items-center gap-2 text-xs text-zinc-500")}
+            >
+              <Pill className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>
+                {summary.activeMedCount} active medication
+                {summary.activeMedCount !== 1 ? "s" : ""}
+              </span>
             </div>
           )}
         </div>
