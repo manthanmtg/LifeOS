@@ -1,6 +1,13 @@
 "use client";
 
-import { Home, ChevronRight, Plus, ListFilter, LayoutGrid, List } from "lucide-react";
+import {
+  Home,
+  ChevronRight,
+  Plus,
+  ListFilter,
+  LayoutGrid,
+  List,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TodoHeaderProps {
@@ -41,7 +48,7 @@ export default function TodoHeader({
                 "p-2 rounded-lg transition-all",
                 viewMode === "list"
                   ? "bg-accent text-zinc-950 shadow-md"
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
               )}
             >
               <List className="w-4 h-4" />
@@ -52,7 +59,7 @@ export default function TodoHeader({
                 "p-2 rounded-lg transition-all",
                 viewMode === "grid"
                   ? "bg-accent text-zinc-950 shadow-md"
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
               )}
             >
               <LayoutGrid className="w-4 h-4" />

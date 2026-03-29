@@ -15,7 +15,7 @@ export default function EmptyState({
   onAddFolder,
 }: EmptyStateProps) {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="flex flex-col items-center justify-center py-24 text-center"
@@ -32,7 +32,7 @@ export default function EmptyState({
           <Plus className="w-4 h-4 text-accent" />
         </div>
       </div>
-      
+
       <h3 className="text-xl font-black text-zinc-200 mb-2 italic">
         {isFolder ? "This Vault is Empty" : "No Records Found"}
       </h3>
@@ -41,7 +41,7 @@ export default function EmptyState({
           ? "Deep dive into organization by adding bills or creating subfolders right here."
           : "Start your digital paper trail today. Organized, accessible, and enlightened."}
       </p>
-      
+
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <button
           onClick={onAddFolder}

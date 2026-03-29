@@ -44,7 +44,7 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
       </div>
 
       {/* Image Container */}
-      <div 
+      <div
         className="relative w-full h-full flex items-center justify-center"
         onClick={onClose}
       >
@@ -61,6 +61,6 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
         Click anywhere to close
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

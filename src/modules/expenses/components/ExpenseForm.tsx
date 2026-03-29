@@ -293,7 +293,12 @@ export default function ExpenseForm({
                     className="flex flex-col items-start p-3 bg-zinc-950/20 border border-zinc-800 rounded-2xl hover:border-accent/40 hover:bg-accent/5 transition-all text-left group"
                   >
                     <div className="flex items-center gap-2 mb-1 w-full text-zinc-300">
-                      <Zap className={cn("w-3 h-3 shrink-0 transition-colors", p.type === "income" ? "text-success" : "text-accent")} />
+                      <Zap
+                        className={cn(
+                          "w-3 h-3 shrink-0 transition-colors",
+                          p.type === "income" ? "text-success" : "text-accent",
+                        )}
+                      />
                       <span className="text-[10px] font-black group-hover:text-white truncate">
                         {p.description}
                       </span>

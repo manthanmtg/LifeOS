@@ -1,9 +1,11 @@
 # Module Generator Prompt
 
 ## Objective
+
 Generate a complete, standard-compliant LifeOS module based on a user-provided name and core feature set.
 
 ## Requirements
+
 1. **Registry**: Add the module to `src/registry.ts` with a suitable Lucide icon and `contentType`.
 2. **Schema**: Define a Zod schema in `src/lib/schemas.ts` and register it in `SchemaRegistry`.
 3. **Structure**: Create `src/modules/[name]/` with:
@@ -14,6 +16,7 @@ Generate a complete, standard-compliant LifeOS module based on a user-provided n
 5. **Sidebar**: Add the module icon to `IconMap` in `src/components/shell/AdminSidebar.tsx`.
 
 ## Design Guidelines
+
 - Follow the `_template` folder for structure.
 - Use `SkeletonBlock` and `WidgetSkeleton` for loading states.
 - Ensure all interactive components have `"use client"`.

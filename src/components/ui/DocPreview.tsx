@@ -110,7 +110,9 @@ export default function DocPreview({
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 space-y-4">
               <FileText className="w-16 h-16 opacity-20" />
-              <p className="text-sm font-medium">Preview not available for this file type</p>
+              <p className="text-sm font-medium">
+                Preview not available for this file type
+              </p>
               <a
                 href={src}
                 download={filename}

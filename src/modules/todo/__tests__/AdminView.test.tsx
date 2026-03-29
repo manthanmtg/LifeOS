@@ -33,7 +33,9 @@ describe("TodoAdminView", () => {
     );
 
     // Check for "Enlightened" Todo UI elements
-    expect(screen.getByPlaceholderText(/What objective will you conquer/i)).toBeDefined();
+    expect(
+      screen.getByPlaceholderText(/What objective will you conquer/i),
+    ).toBeDefined();
     expect(screen.getByText(/Focus Score/i)).toBeDefined();
     expect(screen.getByText(/Clean Slate/i)).toBeDefined();
   });

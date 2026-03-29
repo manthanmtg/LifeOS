@@ -1,6 +1,13 @@
 "use client";
 
-import { Calendar, Edit3, Paperclip, Receipt, ImageIcon, Folder } from "lucide-react";
+import {
+  Calendar,
+  Edit3,
+  Paperclip,
+  Receipt,
+  ImageIcon,
+  Folder,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDate } from "../helpers";
 import PdfThumbnail from "./PdfThumbnail";
@@ -60,7 +67,7 @@ export default function BillListRow({
             </div>
           )}
         </div>
-        
+
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h4 className="text-sm font-bold text-zinc-100 truncate group-hover:text-accent transition-colors">

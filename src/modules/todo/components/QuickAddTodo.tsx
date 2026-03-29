@@ -30,10 +30,14 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <Plus className={cn(
-              "w-5 h-5 transition-all duration-500",
-              isSaving ? "text-accent animate-spin" : "text-zinc-600 group-focus-within:text-accent group-focus-within:rotate-90"
-            )} />
+            <Plus
+              className={cn(
+                "w-5 h-5 transition-all duration-500",
+                isSaving
+                  ? "text-accent animate-spin"
+                  : "text-zinc-600 group-focus-within:text-accent group-focus-within:rotate-90",
+              )}
+            />
           </div>
           <input
             type="text"
@@ -44,7 +48,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
             className="w-full bg-transparent border-none rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 focus:ring-0 transition-all font-medium"
           />
         </div>
-        
+
         <div className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40">
           {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
             <button
@@ -58,9 +62,9 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
                   ? p === "high"
                     ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"
                     : p === "medium"
-                    ? "bg-warning text-zinc-950 shadow-lg shadow-warning/20"
-                    : "bg-success text-zinc-950 shadow-lg shadow-success/20"
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+                      ? "bg-warning text-zinc-950 shadow-lg shadow-warning/20"
+                      : "bg-success text-zinc-950 shadow-lg shadow-success/20"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
               )}
             >
               {p}

@@ -45,7 +45,8 @@ export default function BillsWidget() {
               <FolderOpen className="w-3.5 h-3.5" /> {stats.folderCount} Vaults
             </span>
             <span className="flex items-center gap-1.5 text-accent/80">
-              <Paperclip className="w-3.5 h-3.5" /> {stats.totalAttachments} Files
+              <Paperclip className="w-3.5 h-3.5" /> {stats.totalAttachments}{" "}
+              Files
             </span>
           </div>
         )
@@ -65,7 +66,7 @@ export default function BillsWidget() {
 
             <div className="mt-4 space-y-3">
               {stats.recentBill ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="group relative p-3 rounded-2xl border border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm overflow-hidden hover:border-accent/30 transition-all cursor-pointer"
@@ -73,7 +74,7 @@ export default function BillsWidget() {
                   <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <ArrowRight className="w-3.5 h-3.5 text-accent" />
                   </div>
-                  
+
                   <p className="text-[9px] uppercase font-black tracking-[0.2em] text-accent/40 mb-1.5">
                     Latest Activity
                   </p>
@@ -82,7 +83,9 @@ export default function BillsWidget() {
                   </h4>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-[10px] text-zinc-600 font-medium">
-                      {new Date(stats.recentBill.payload.bill_date).toLocaleDateString(undefined, {
+                      {new Date(
+                        stats.recentBill.payload.bill_date,
+                      ).toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
@@ -90,7 +93,8 @@ export default function BillsWidget() {
                     </p>
                     {stats.recentBill.payload.amount !== undefined && (
                       <span className="text-[10px] font-black text-success-muted">
-                        {stats.recentBill.payload.currency} {stats.recentBill.payload.amount.toLocaleString()}
+                        {stats.recentBill.payload.currency}{" "}
+                        {stats.recentBill.payload.amount.toLocaleString()}
                       </span>
                     )}
                   </div>
@@ -107,7 +111,9 @@ export default function BillsWidget() {
               <div className="mt-auto">
                 <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-accent text-zinc-950 hover:bg-accent-hover transition-all active:scale-95">
                   <Plus className="w-4 h-4" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">Add Bill</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest">
+                    Add Bill
+                  </span>
                 </button>
               </div>
             </div>

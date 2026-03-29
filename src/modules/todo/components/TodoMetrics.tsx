@@ -14,12 +14,15 @@ export default function TodoMetrics({ todos }: TodoMetricsProps) {
     const total = todos.length;
     const completed = todos.filter((t) => t.payload.completed).length;
     const focusScore = total === 0 ? 0 : Math.round((completed / total) * 100);
-    
+
     const now = new Date();
     const todayStr = now.toDateString();
     const overdue = todos.filter((t) => {
       if (t.payload.completed || !t.payload.due_date) return false;
-      return new Date(t.payload.due_date) < now && new Date(t.payload.due_date).toDateString() !== todayStr;
+      return (
+        new Date(t.payload.due_date) < now &&
+        new Date(t.payload.due_date).toDateString() !== todayStr
+      );
     }).length;
 
     // Velocity: completed in last 7 days
@@ -75,20 +78,26 @@ export default function TodoMetrics({ todos }: TodoMetricsProps) {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">
                 {card.label}
               </span>
-              <span className={`text-3xl font-black italic tracking-tighter ${card.color}`}>
+              <span
+                className={`text-3xl font-black italic tracking-tighter ${card.color}`}
+              >
                 {card.value}
               </span>
               <span className="text-[10px] font-medium text-zinc-600 mt-2 block">
                 {card.description}
               </span>
             </div>
-            <div className={`p-3 rounded-2xl ${card.bgColor} ${card.color} shadow-inner`}>
+            <div
+              className={`p-3 rounded-2xl ${card.bgColor} ${card.color} shadow-inner`}
+            >
               <card.icon className="w-5 h-5 shadow-sm" />
             </div>
           </div>
-          
+
           {/* Subtle gradient accent */}
-          <div className={`absolute -right-4 -bottom-4 w-24 h-24 ${card.bgColor} blur-3xl opacity-10 group-hover:opacity-20 transition-opacity`} />
+          <div
+            className={`absolute -right-4 -bottom-4 w-24 h-24 ${card.bgColor} blur-3xl opacity-10 group-hover:opacity-20 transition-opacity`}
+          />
         </motion.div>
       ))}
     </div>

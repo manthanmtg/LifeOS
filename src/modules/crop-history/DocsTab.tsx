@@ -140,9 +140,7 @@ export function DocsTab() {
           </div>
 
           <div className="bg-accent/5 border border-accent/10 rounded-lg p-3.5">
-            <p className="text-accent font-medium mb-1">
-              3. Calculated Fields
-            </p>
+            <p className="text-accent font-medium mb-1">3. Calculated Fields</p>
             <p>
               Auto-computed from the above fields using formulas. These appear
               as read-only rows in the spreadsheet.

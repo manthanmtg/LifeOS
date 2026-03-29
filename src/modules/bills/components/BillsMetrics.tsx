@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { Receipt, TrendingUp, TrendingDown, DollarSign, FileText } from "lucide-react";
+import {
+  Receipt,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  FileText,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import type { Bill } from "../types";
 
@@ -14,27 +20,43 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-    
+
     const lastMonthDate = new Date();
     lastMonthDate.setMonth(now.getMonth() - 1);
     const lastMonth = lastMonthDate.getMonth();
     const lastYear = lastMonthDate.getFullYear();
 
-    const currentMonthBills = bills.filter(b => {
+    const currentMonthBills = bills.filter((b) => {
       const d = new Date(b.payload.bill_date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     });
 
-    const lastMonthBills = bills.filter(b => {
+    const lastMonthBills = bills.filter((b) => {
       const d = new Date(b.payload.bill_date);
       return d.getMonth() === lastMonth && d.getFullYear() === lastYear;
     });
 
-    const currentTotal = currentMonthBills.reduce((sum, b) => sum + (b.payload.amount || 0), 0);
-    const lastTotal = lastMonthBills.reduce((sum, b) => sum + (b.payload.amount || 0), 0);
+    const currentTotal = currentMonthBills.reduce(
+      (sum, b) => sum + (b.payload.amount || 0),
+      0,
+    );
+    const lastTotal = lastMonthBills.reduce(
+      (sum, b) => sum + (b.payload.amount || 0),
+      0,
+    );
 
-    const countTrend = lastMonthBills.length === 0 ? 100 : Math.round(((currentMonthBills.length - lastMonthBills.length) / lastMonthBills.length) * 100);
-    const amountTrend = lastTotal === 0 ? 100 : Math.round(((currentTotal - lastTotal) / lastTotal) * 100);
+    const countTrend =
+      lastMonthBills.length === 0
+        ? 100
+        : Math.round(
+            ((currentMonthBills.length - lastMonthBills.length) /
+              lastMonthBills.length) *
+              100,
+          );
+    const amountTrend =
+      lastTotal === 0
+        ? 100
+        : Math.round(((currentTotal - lastTotal) / lastTotal) * 100);
 
     return {
       totalCount: bills.length,
@@ -99,10 +121,18 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
                     ) : (
                       <TrendingDown className="w-3 h-3 text-success" />
                     )}
-                    <span className={card.trend >= 0 ? "text-[10px] font-bold text-danger" : "text-[10px] font-bold text-success"}>
+                    <span
+                      className={
+                        card.trend >= 0
+                          ? "text-[10px] font-bold text-danger"
+                          : "text-[10px] font-bold text-success"
+                      }
+                    >
                       {Math.abs(card.trend)}% {card.trend >= 0 ? "up" : "down"}
                     </span>
-                    <span className="text-[10px] text-zinc-600 font-medium">vs last month</span>
+                    <span className="text-[10px] text-zinc-600 font-medium">
+                      vs last month
+                    </span>
                   </>
                 ) : (
                   <span className="text-[10px] text-zinc-600 font-medium">
@@ -115,9 +145,11 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
               <card.icon className="w-5 h-5" />
             </div>
           </div>
-          
+
           {/* Subtle background decoration */}
-          <div className={`absolute -right-4 -bottom-4 w-24 h-24 ${card.bgColor} blur-3xl opacity-20 pointer-events-none`} />
+          <div
+            className={`absolute -right-4 -bottom-4 w-24 h-24 ${card.bgColor} blur-3xl opacity-20 pointer-events-none`}
+          />
         </motion.div>
       ))}
     </div>

@@ -172,7 +172,8 @@ export default function BillDetail({
                 {bill.payload.amount !== undefined && (
                   <span className="text-xs font-bold text-success-muted bg-success/5 px-2 py-0.5 rounded-lg border border-success/10 flex items-center gap-1">
                     <DollarSign className="w-3 h-3" />
-                    {bill.payload.currency} {bill.payload.amount.toLocaleString()}
+                    {bill.payload.currency}{" "}
+                    {bill.payload.amount.toLocaleString()}
                   </span>
                 )}
               </div>
@@ -310,7 +311,10 @@ export default function BillDetail({
               </div>
 
               <div className="mt-3">
-                <AttachmentUpload billId={bill._id} onUploaded={onBillUpdated} />
+                <AttachmentUpload
+                  billId={bill._id}
+                  onUploaded={onBillUpdated}
+                />
               </div>
             </div>
           </div>

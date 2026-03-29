@@ -1,6 +1,14 @@
 "use client";
 
-import { Home, ChevronRight, Search, List, LayoutGrid, Plus, FolderPlus } from "lucide-react";
+import {
+  Home,
+  ChevronRight,
+  Search,
+  List,
+  LayoutGrid,
+  Plus,
+  FolderPlus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BillsHeaderProps {
@@ -30,8 +38,13 @@ export default function BillsHeader({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar py-1">
           {breadcrumb.map((crumb, i) => (
-            <div key={crumb.id ?? "root"} className="flex items-center gap-1 shrink-0">
-              {i > 0 && <ChevronRight className="w-4 h-4 text-zinc-700 shrink-0" />}
+            <div
+              key={crumb.id ?? "root"}
+              className="flex items-center gap-1 shrink-0"
+            >
+              {i > 0 && (
+                <ChevronRight className="w-4 h-4 text-zinc-700 shrink-0" />
+              )}
               {i === breadcrumb.length - 1 ? (
                 <span className="text-lg font-bold text-zinc-100 px-2 py-1 bg-zinc-800/50 rounded-lg">
                   {crumb.name}
@@ -93,7 +106,7 @@ export default function BillsHeader({
               "p-2 rounded-lg transition-all",
               viewMode === "grid"
                 ? "bg-accent text-zinc-950 shadow-md"
-                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/80"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/80",
             )}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -104,7 +117,7 @@ export default function BillsHeader({
               "p-2 rounded-lg transition-all",
               viewMode === "list"
                 ? "bg-accent text-zinc-950 shadow-md"
-                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/80"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/80",
             )}
           >
             <List className="w-4 h-4" />

@@ -750,7 +750,6 @@ export const DeckSchema = z.object({
   embed_enabled: z.boolean().default(false),
 });
 
-
 export const BillSchema = z.object({
   name: z.string().min(1, "Bill name is required"),
   bill_date: z.string().datetime("Must be a valid ISO date-time"),

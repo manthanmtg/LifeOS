@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckSquare, ListTodo, CheckCircle2, Plus, ArrowRight } from "lucide-react";
+import {
+  CheckSquare,
+  ListTodo,
+  CheckCircle2,
+  Plus,
+  ArrowRight,
+} from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -75,26 +81,28 @@ export default function TodoWidget() {
             </AnimatePresence>
 
             {summary.activeCount === 0 && (
-               <motion.div 
-               initial={{ opacity: 0 }} 
-               animate={{ opacity: 1 }}
-               className="h-full flex flex-col items-center justify-center py-4 border-2 border-dashed border-zinc-900/50 rounded-2xl"
-             >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full flex flex-col items-center justify-center py-4 border-2 border-dashed border-zinc-900/50 rounded-2xl"
+              >
                 <CheckCircle2 className="w-6 h-6 text-success/20 mb-2" />
                 <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">
                   All Objectives Met
                 </span>
-             </motion.div>
+              </motion.div>
             )}
           </div>
 
           <div className="mt-4">
-            <button 
+            <button
               onClick={() => (window.location.href = "/admin/todo")}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-accent text-zinc-950 rounded-xl hover:bg-accent-hover transition-all active:scale-95 shadow-lg shadow-accent/10"
             >
               <Plus className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Add Task</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                Add Task
+              </span>
             </button>
           </div>
         </div>

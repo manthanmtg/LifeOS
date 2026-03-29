@@ -44,10 +44,25 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
     }
   };
 
-  const priorityColors: Record<TodoPriority, { text: string; bg: string; border: string }> = {
-    high: { text: "text-danger", bg: "bg-danger/10", border: "border-danger/20" },
-    medium: { text: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
-    low: { text: "text-success", bg: "bg-success/10", border: "border-success/20" },
+  const priorityColors: Record<
+    TodoPriority,
+    { text: string; bg: string; border: string }
+  > = {
+    high: {
+      text: "text-danger",
+      bg: "bg-danger/10",
+      border: "border-danger/20",
+    },
+    medium: {
+      text: "text-warning",
+      bg: "bg-warning/10",
+      border: "border-warning/20",
+    },
+    low: {
+      text: "text-success",
+      bg: "bg-success/10",
+      border: "border-success/20",
+    },
   };
 
   return (
@@ -72,8 +87,16 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
 
         <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-800/40">
           <div className="flex items-center gap-4">
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-all", priorityColors[priority].bg, priorityColors[priority].border)}>
-              <CheckSquare className={cn("w-6 h-6", priorityColors[priority].text)} />
+            <div
+              className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-all",
+                priorityColors[priority].bg,
+                priorityColors[priority].border,
+              )}
+            >
+              <CheckSquare
+                className={cn("w-6 h-6", priorityColors[priority].text)}
+              />
             </div>
             <div>
               <h2 className="text-2xl font-black text-zinc-100 italic tracking-tight">
@@ -125,9 +148,9 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
                         ? p === "high"
                           ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"
                           : p === "medium"
-                          ? "bg-warning text-zinc-950 shadow-lg shadow-warning/20"
-                          : "bg-success text-zinc-950 shadow-lg shadow-success/20"
-                        : "text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800/40"
+                            ? "bg-warning text-zinc-950 shadow-lg shadow-warning/20"
+                            : "bg-success text-zinc-950 shadow-lg shadow-success/20"
+                        : "text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800/40",
                     )}
                   >
                     {p}
@@ -180,7 +203,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
             </button>
           </div>
         </form>
-        
+
         {/* Decorative corner accent */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[100px] pointer-events-none" />
       </motion.div>

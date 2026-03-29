@@ -1579,9 +1579,7 @@ export function SettingsTab({
                           <span className="text-xs font-medium text-accent">
                             {f.name}{" "}
                             {f.unit && (
-                              <span className="text-accent/40">
-                                ({f.unit})
-                              </span>
+                              <span className="text-accent/40">({f.unit})</span>
                             )}
                           </span>
                           <span

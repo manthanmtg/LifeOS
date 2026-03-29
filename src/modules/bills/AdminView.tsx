@@ -180,7 +180,12 @@ export default function BillsAdminView() {
   };
 
   const handleDeleteFolder = async (id: string) => {
-    if (!confirm("Are you sure? This will delete the folder and all nested content.")) return;
+    if (
+      !confirm(
+        "Are you sure? This will delete the folder and all nested content.",
+      )
+    )
+      return;
     try {
       const res = await fetch(`/api/bills/folders/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -264,7 +269,10 @@ export default function BillsAdminView() {
           setBills((prev) =>
             prev.map((b) =>
               b._id === moveModal.id
-                ? { ...b, payload: { ...b.payload, folder_id: targetId || undefined } }
+                ? {
+                    ...b,
+                    payload: { ...b.payload, folder_id: targetId || undefined },
+                  }
                 : b,
             ),
           );
@@ -303,7 +311,9 @@ export default function BillsAdminView() {
       if (res.ok) {
         setBills((prev) =>
           prev.map((b) =>
-            b._id === billId ? { ...b, payload: { ...b.payload, folder_id: folderId } } : b,
+            b._id === billId
+              ? { ...b, payload: { ...b.payload, folder_id: folderId } }
+              : b,
           ),
         );
         showToast(`Moved to folder`, "success");
@@ -357,8 +367,15 @@ export default function BillsAdminView() {
                     <FolderCard
                       key={folder._id}
                       folder={folder}
-                      billCount={bills.filter((b) => b.payload.folder_id === folder._id).length}
-                      subfolderCount={folders.filter((f) => f.payload.parent_id === folder._id).length}
+                      billCount={
+                        bills.filter((b) => b.payload.folder_id === folder._id)
+                          .length
+                      }
+                      subfolderCount={
+                        folders.filter(
+                          (f) => f.payload.parent_id === folder._id,
+                        ).length
+                      }
                       onClick={() => setCurrentFolderId(folder._id)}
                       onRename={(name) => handleRenameFolder(folder._id, name)}
                       onMove={() =>
@@ -367,7 +384,10 @@ export default function BillsAdminView() {
                           type: "folder",
                           id: folder._id,
                           currentFolderId: folder.payload.parent_id,
-                          excludeIds: [folder._id, ...getAllDescendantFolderIds(folders, folder._id)],
+                          excludeIds: [
+                            folder._id,
+                            ...getAllDescendantFolderIds(folders, folder._id),
+                          ],
                         })
                       }
                       onDelete={() => handleDeleteFolder(folder._id)}
@@ -397,7 +417,7 @@ export default function BillsAdminView() {
                 <span>Documents</span>
                 <div className="h-px bg-zinc-800/50 flex-1" />
               </h3>
-              
+
               {viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   <AnimatePresence mode="popLayout">
@@ -405,7 +425,9 @@ export default function BillsAdminView() {
                       <BillCard
                         key={bill._id}
                         bill={bill}
-                        folder={folders.find((f) => f._id === bill.payload.folder_id)}
+                        folder={folders.find(
+                          (f) => f._id === bill.payload.folder_id,
+                        )}
                         onClick={() => setDetailBill(bill)}
                         onEdit={(b) => setBillModal({ open: true, bill: b })}
                         onDragStart={() => setDraggedBillId(bill._id)}
@@ -420,7 +442,9 @@ export default function BillsAdminView() {
                       <BillListRow
                         key={bill._id}
                         bill={bill}
-                        folder={folders.find((f) => f._id === bill.payload.folder_id)}
+                        folder={folders.find(
+                          (f) => f._id === bill.payload.folder_id,
+                        )}
                         onClick={() => setDetailBill(bill)}
                         onEdit={(b) => setBillModal({ open: true, bill: b })}
                         onDragStart={() => setDraggedBillId(bill._id)}
@@ -481,10 +505,15 @@ export default function BillsAdminView() {
               "fixed bottom-8 right-8 z-[100] px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3 backdrop-blur-md border",
               toast.type === "success"
                 ? "bg-success/10 border-success/20 text-success"
-                : "bg-danger/10 border-danger/20 text-danger"
+                : "bg-danger/10 border-danger/20 text-danger",
             )}
           >
-            <div className={cn("w-2 h-2 rounded-full", toast.type === "success" ? "bg-success" : "bg-danger")} />
+            <div
+              className={cn(
+                "w-2 h-2 rounded-full",
+                toast.type === "success" ? "bg-success" : "bg-danger",
+              )}
+            />
             {toast.msg}
           </motion.div>
         )}

@@ -108,7 +108,7 @@ export default function BillCard({
           )}
         </div>
       </div>
-      
+
       {/* Premium hover overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </motion.div>

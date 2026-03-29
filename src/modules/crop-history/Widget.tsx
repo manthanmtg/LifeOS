@@ -46,17 +46,14 @@ export default function CropHistoryWidget() {
     let prevPeriod = "";
 
     for (const crop of settings.crops) {
-      const cropRecords = records.filter(
-        (r) => r.payload.crop_id === crop.id,
-      );
+      const cropRecords = records.filter((r) => r.payload.crop_id === crop.id);
       if (!cropRecords.length) continue;
 
-      const revenueField =
-        crop.analyticsConfig?.revenueFieldId
-          ? crop.calculatedFields.find(
-              (f) => f.id === crop.analyticsConfig?.revenueFieldId,
-            )
-          : crop.calculatedFields.find((f) => f.format === "currency");
+      const revenueField = crop.analyticsConfig?.revenueFieldId
+        ? crop.calculatedFields.find(
+            (f) => f.id === crop.analyticsConfig?.revenueFieldId,
+          )
+        : crop.calculatedFields.find((f) => f.format === "currency");
 
       if (!revenueField) continue;
 

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { FolderOpen, ChevronRight, MoreHorizontal, Check, FolderInput, Edit3, Trash2 } from "lucide-react";
+import {
+  FolderOpen,
+  ChevronRight,
+  MoreHorizontal,
+  Check,
+  FolderInput,
+  Edit3,
+  Trash2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import ContextMenu from "./ContextMenu";
@@ -71,9 +79,14 @@ export default function FolderCard({
               : "bg-accent/10 group-hover:bg-accent/20 group-hover:scale-105",
           )}
         >
-          <FolderOpen className={cn("w-6 h-6 text-accent transition-transform duration-300", isDragOver && "scale-110")} />
+          <FolderOpen
+            className={cn(
+              "w-6 h-6 text-accent transition-transform duration-300",
+              isDragOver && "scale-110",
+            )}
+          />
         </div>
-        
+
         <div className="min-w-0 flex-1">
           {editing ? (
             <div
@@ -107,11 +120,16 @@ export default function FolderCard({
                 {folder.payload.name}
               </h4>
               <p className="text-[10px] text-zinc-500 mt-1 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                <span>{billCount} bill{billCount !== 1 ? "s" : ""}</span>
+                <span>
+                  {billCount} bill{billCount !== 1 ? "s" : ""}
+                </span>
                 {subfolderCount > 0 && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                    <span>{subfolderCount} subfolder{subfolderCount !== 1 ? "s" : ""}</span>
+                    <span>
+                      {subfolderCount} subfolder
+                      {subfolderCount !== 1 ? "s" : ""}
+                    </span>
                   </>
                 )}
               </p>
@@ -162,7 +180,7 @@ export default function FolderCard({
           <ChevronRight className="w-4 h-4 text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all" />
         </div>
       </div>
-      
+
       {/* Premium accent bar */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/0 group-hover:bg-accent/40 transition-all" />
     </motion.div>

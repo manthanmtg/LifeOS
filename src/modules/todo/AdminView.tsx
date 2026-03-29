@@ -16,7 +16,14 @@ import QuickAddTodo from "./components/QuickAddTodo";
 // UI Components
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
-import { ListFilter, Search, Clock, Calendar, Flag, CheckSquare } from "lucide-react";
+import {
+  ListFilter,
+  Search,
+  Clock,
+  Calendar,
+  Flag,
+  CheckSquare,
+} from "lucide-react";
 
 export default function TodoAdminView() {
   const [todos, setTodos] = useState<TodoDocument[]>([]);
@@ -24,16 +31,23 @@ export default function TodoAdminView() {
   const [activeFilter, setActiveFilter] = useState<TodoFilterType>("todo");
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"recent" | "due_date" | "priority">("recent");
+  const [sortBy, setSortBy] = useState<"recent" | "due_date" | "priority">(
+    "recent",
+  );
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTodo, setEditingTodo] = useState<TodoDocument | undefined>(undefined);
+  const [editingTodo, setEditingTodo] = useState<TodoDocument | undefined>(
+    undefined,
+  );
 
   // Undo & Delayed Delete state
   const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastDeletedTodoRef = useRef<{ todo: TodoDocument; index: number } | null>(null);
+  const lastDeletedTodoRef = useRef<{
+    todo: TodoDocument;
+    index: number;
+  } | null>(null);
 
   // Custom Dialog & Toast state
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -50,13 +64,16 @@ export default function TodoAdminView() {
 
   const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
-  const showToast = useCallback((
-    message: string,
-    type: ToastType = "success",
-    action?: { label: string; onClick: () => void }
-  ) => {
-    setToast({ message, type, isVisible: true, action });
-  }, []);
+  const showToast = useCallback(
+    (
+      message: string,
+      type: ToastType = "success",
+      action?: { label: string; onClick: () => void },
+    ) => {
+      setToast({ message, type, isVisible: true, action });
+    },
+    [],
+  );
 
   const fetchTodos = useCallback(async () => {
     try {
@@ -80,18 +97,25 @@ export default function TodoAdminView() {
       const isEdit = !!editingTodo;
       const url = isEdit ? `/api/content/${editingTodo._id}` : "/api/content";
       const method = isEdit ? "PUT" : "POST";
-      
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isEdit ? { payload } : { module_type: "todo", is_public: false, payload }),
+        body: JSON.stringify(
+          isEdit
+            ? { payload }
+            : { module_type: "todo", is_public: false, payload },
+        ),
       });
-      
-      if (!res.ok) throw new Error(`Failed to ${isEdit ? "update" : "create"} todo`);
+
+      if (!res.ok)
+        throw new Error(`Failed to ${isEdit ? "update" : "create"} todo`);
       const data = await res.json();
-      
+
       if (isEdit) {
-        setTodos((prev) => prev.map((t) => (t._id === editingTodo._id ? data.data : t)));
+        setTodos((prev) =>
+          prev.map((t) => (t._id === editingTodo._id ? data.data : t)),
+        );
         showToast("Objective Refined", "success");
       } else {
         setTodos((prev) => [data.data, ...prev]);
@@ -99,7 +123,10 @@ export default function TodoAdminView() {
       }
       setIsModalOpen(false);
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to save todo", "error");
+      showToast(
+        err instanceof Error ? err.message : "Failed to save todo",
+        "error",
+      );
     }
   };
 
@@ -110,14 +137,21 @@ export default function TodoAdminView() {
       const res = await fetch("/api/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ module_type: "todo", is_public: false, payload }),
+        body: JSON.stringify({
+          module_type: "todo",
+          is_public: false,
+          payload,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to add todo");
       setTodos((prev) => [data.data, ...prev]);
       showToast("Task Captured", "success");
     } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to add todo", "error");
+      showToast(
+        err instanceof Error ? err.message : "Failed to add todo",
+        "error",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -127,10 +161,16 @@ export default function TodoAdminView() {
     const updatedPayload: TodoPayload = {
       ...todo.payload,
       completed: !todo.payload.completed,
-      completed_at: !todo.payload.completed ? new Date().toISOString() : undefined,
+      completed_at: !todo.payload.completed
+        ? new Date().toISOString()
+        : undefined,
     };
 
-    setTodos((prev) => prev.map((t) => (t._id === todo._id ? { ...t, payload: updatedPayload } : t)));
+    setTodos((prev) =>
+      prev.map((t) =>
+        t._id === todo._id ? { ...t, payload: updatedPayload } : t,
+      ),
+    );
 
     try {
       const res = await fetch(`/api/content/${todo._id}`, {
@@ -139,7 +179,7 @@ export default function TodoAdminView() {
         body: JSON.stringify({ payload: updatedPayload }),
       });
       if (!res.ok) throw new Error("Failed to update status");
-      
+
       if (updatedPayload.completed) {
         showToast("Objective Conquered!", "success");
       }
@@ -192,7 +232,11 @@ export default function TodoAdminView() {
     const completedTodos = todos.filter((t) => t.payload.completed);
     if (completedTodos.length === 0) return;
     try {
-      await Promise.all(completedTodos.map((t) => fetch(`/api/content/${t._id}`, { method: "DELETE" })));
+      await Promise.all(
+        completedTodos.map((t) =>
+          fetch(`/api/content/${t._id}`, { method: "DELETE" }),
+        ),
+      );
       setTodos((prev) => prev.filter((t) => !t.payload.completed));
       showToast("Cleared records", "success");
     } catch {
@@ -202,59 +246,104 @@ export default function TodoAdminView() {
   };
 
   const filteredTodos = useMemo(() => {
-    return todos.filter((t) => {
-      if (!t.payload) return false;
-      const matchesSearch = t.payload.title?.toLowerCase().includes(searchQuery.toLowerCase());
-      if (!matchesSearch) return false;
+    return todos
+      .filter((t) => {
+        if (!t.payload) return false;
+        const matchesSearch = t.payload.title
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        if (!matchesSearch) return false;
 
-      const isCompleted = t.payload.completed;
-      const dueDate = t.payload.due_date ? new Date(t.payload.due_date) : null;
-      const isToday = dueDate && dueDate.toDateString() === new Date().toDateString();
-      const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
-      const isHigh = t.payload.priority === "high";
+        const isCompleted = t.payload.completed;
+        const dueDate = t.payload.due_date
+          ? new Date(t.payload.due_date)
+          : null;
+        const isToday =
+          dueDate && dueDate.toDateString() === new Date().toDateString();
+        const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
+        const isHigh = t.payload.priority === "high";
 
-      switch (activeFilter) {
-        case "done": return isCompleted;
-        case "todo": return !isCompleted;
-        case "today": return !isCompleted && isToday;
-        case "overdue": return isOverdue;
-        case "high": return !isCompleted && isHigh;
-        default: return !isCompleted;
-      }
-    }).sort((a, b) => {
-      if (activeFilter === "done") {
-        return new Date(b.payload?.completed_at || b.updated_at).getTime() - new Date(a.payload?.completed_at || a.updated_at).getTime();
-      }
-      if (sortBy === "due_date") {
-        if (!a.payload?.due_date) return 1;
-        if (!b.payload?.due_date) return -1;
-        return new Date(a.payload.due_date).getTime() - new Date(b.payload.due_date).getTime();
-      }
-      if (sortBy === "priority") {
-        return PRIORITY_ORDER[a.payload?.priority || "medium"] - PRIORITY_ORDER[b.payload?.priority || "medium"];
-      }
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+        switch (activeFilter) {
+          case "done":
+            return isCompleted;
+          case "todo":
+            return !isCompleted;
+          case "today":
+            return !isCompleted && isToday;
+          case "overdue":
+            return isOverdue;
+          case "high":
+            return !isCompleted && isHigh;
+          default:
+            return !isCompleted;
+        }
+      })
+      .sort((a, b) => {
+        if (activeFilter === "done") {
+          return (
+            new Date(b.payload?.completed_at || b.updated_at).getTime() -
+            new Date(a.payload?.completed_at || a.updated_at).getTime()
+          );
+        }
+        if (sortBy === "due_date") {
+          if (!a.payload?.due_date) return 1;
+          if (!b.payload?.due_date) return -1;
+          return (
+            new Date(a.payload.due_date).getTime() -
+            new Date(b.payload.due_date).getTime()
+          );
+        }
+        if (sortBy === "priority") {
+          return (
+            PRIORITY_ORDER[a.payload?.priority || "medium"] -
+            PRIORITY_ORDER[b.payload?.priority || "medium"]
+          );
+        }
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      });
   }, [todos, searchQuery, activeFilter, sortBy]);
 
-  const counts = useMemo(() => ({
-    todo: todos.filter((t) => !t.payload?.completed).length,
-    done: todos.filter((t) => t.payload?.completed).length,
-    today: todos.filter((t) => {
-      const dueDate = t.payload?.due_date ? new Date(t.payload.due_date) : null;
-      return !t.payload?.completed && dueDate && dueDate.toDateString() === new Date().toDateString();
-    }).length,
-    overdue: todos.filter((t) => {
-      const dueDate = t.payload?.due_date ? new Date(t.payload.due_date) : null;
-      return !t.payload?.completed && dueDate && dueDate < new Date() && dueDate.toDateString() !== new Date().toDateString();
-    }).length,
-    high: todos.filter((t) => !t.payload?.completed && t.payload?.priority === "high").length,
-  }), [todos]);
+  const counts = useMemo(
+    () => ({
+      todo: todos.filter((t) => !t.payload?.completed).length,
+      done: todos.filter((t) => t.payload?.completed).length,
+      today: todos.filter((t) => {
+        const dueDate = t.payload?.due_date
+          ? new Date(t.payload.due_date)
+          : null;
+        return (
+          !t.payload?.completed &&
+          dueDate &&
+          dueDate.toDateString() === new Date().toDateString()
+        );
+      }).length,
+      overdue: todos.filter((t) => {
+        const dueDate = t.payload?.due_date
+          ? new Date(t.payload.due_date)
+          : null;
+        return (
+          !t.payload?.completed &&
+          dueDate &&
+          dueDate < new Date() &&
+          dueDate.toDateString() !== new Date().toDateString()
+        );
+      }).length,
+      high: todos.filter(
+        (t) => !t.payload?.completed && t.payload?.priority === "high",
+      ).length,
+    }),
+    [todos],
+  );
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
-      <TodoHeader 
-        onAddTodo={() => { setEditingTodo(undefined); setIsModalOpen(true); }}
+      <TodoHeader
+        onAddTodo={() => {
+          setEditingTodo(undefined);
+          setIsModalOpen(true);
+        }}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
@@ -277,19 +366,27 @@ export default function TodoAdminView() {
           </div>
 
           <div className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0">
-             {(["recent", "due_date", "priority"] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSortBy(s)}
-                  className={cn(
-                    "p-2 rounded-lg transition-all",
-                    sortBy === s ? "bg-accent text-zinc-950 shadow-md" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
-                  )}
-                  title={`Sort by ${s.replace("_", " ")}`}
-                >
-                  {s === "recent" ? <Clock className="w-4 h-4" /> : s === "due_date" ? <Calendar className="w-4 h-4" /> : <Flag className="w-4 h-4" />}
-                </button>
-              ))}
+            {(["recent", "due_date", "priority"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSortBy(s)}
+                className={cn(
+                  "p-2 rounded-lg transition-all",
+                  sortBy === s
+                    ? "bg-accent text-zinc-950 shadow-md"
+                    : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
+                )}
+                title={`Sort by ${s.replace("_", " ")}`}
+              >
+                {s === "recent" ? (
+                  <Clock className="w-4 h-4" />
+                ) : s === "due_date" ? (
+                  <Calendar className="w-4 h-4" />
+                ) : (
+                  <Flag className="w-4 h-4" />
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -316,15 +413,20 @@ export default function TodoAdminView() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-24 bg-zinc-900/40 border border-zinc-800/40 rounded-2xl animate-pulse" />
+              <div
+                key={i}
+                className="h-24 bg-zinc-900/40 border border-zinc-800/40 rounded-2xl animate-pulse"
+              />
             ))}
           </div>
         ) : filteredTodos.length > 0 ? (
-          <motion.div 
+          <motion.div
             layout
             className={cn(
               "grid gap-4 transition-all duration-500",
-              viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+              viewMode === "grid"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1",
             )}
           >
             <AnimatePresence mode="popLayout">
@@ -334,14 +436,17 @@ export default function TodoAdminView() {
                   todo={todo}
                   viewMode={viewMode}
                   onToggle={toggleComplete}
-                  onEdit={(t) => { setEditingTodo(t); setIsModalOpen(true); }}
+                  onEdit={(t) => {
+                    setEditingTodo(t);
+                    setIsModalOpen(true);
+                  }}
                   onDelete={setConfirmDeleteId}
                 />
               ))}
             </AnimatePresence>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center py-24 text-center bg-zinc-900/20 border-2 border-dashed border-zinc-900 rounded-[3rem]"
@@ -349,9 +454,12 @@ export default function TodoAdminView() {
             <div className="w-20 h-20 rounded-[2.5rem] bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 shadow-2xl">
               <CheckSquare className="w-10 h-10 text-zinc-800" />
             </div>
-            <h3 className="text-xl font-black text-zinc-300 mb-2 italic">Clean Slate</h3>
+            <h3 className="text-xl font-black text-zinc-300 mb-2 italic">
+              Clean Slate
+            </h3>
             <p className="text-sm text-zinc-500 max-w-xs font-medium">
-              Every great conquest begins with a single objective. Manifest your path above.
+              Every great conquest begins with a single objective. Manifest your
+              path above.
             </p>
           </motion.div>
         )}
