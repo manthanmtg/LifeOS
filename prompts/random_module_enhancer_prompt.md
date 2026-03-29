@@ -12,6 +12,7 @@ Select exactly one random module from the LifeOS codebase and perform a comprehe
 - **Complexity Analysis**: Identify monolithic files (e.g., `AdminView.tsx` > 300 lines) and complex state logic.
 - **UX Audit**: Look for basic UI elements that lack "LifeOS Premium" feel—missing animations, generic colors, or low information density.
 - **Intelligence Gap**: Check for missing "Smart" features like metrics sparklines, automated categorization, "Quick-Log" actions, or predictive inputs.
+- **Feature Preservation (CRITICAL)**: Map out EVERY existing piece of functionality in the legacy module. The modernization MUST NOT remove any data points, metrics, or actions. Features can be moved, reorganized, or grouped, but they must remain accessible.
 
 ### 2. Architectural Refactoring
 
@@ -43,3 +44,4 @@ Select exactly one random module from the LifeOS codebase and perform a comprehe
 - **Rich Aesthetics**: Vibrant, gradient-touched, and glassmorphic where appropriate.
 - **Intelligence First**: If a module has data, it should have a metric. If it has a metric, it should have a trend.
 - **Zen & Flow**: Actions should be frictionless and feedback should be immediate.
+- **Zero-Feature-Regression**: All legacy capabilities MUST be present in the new version. If the previous version showed a specific metric, the new version must show it (even if in a more refined way).
