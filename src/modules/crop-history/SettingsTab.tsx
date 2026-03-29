@@ -138,8 +138,8 @@ function FormulaBuilder({
     if (constants.length > 0) {
       groups.push({
         label: "Constants",
-        color: "text-orange-400",
-        bgColor: "bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/20",
+        color: "text-warning",
+        bgColor: "bg-warning/10 border-warning/20 hover:bg-warning/20",
         items: constants.map((c) => ({
           label: c.name,
           value: c.id,
@@ -151,8 +151,8 @@ function FormulaBuilder({
     if (calculatedFields.length > 0) {
       groups.push({
         label: "Previous Calculations",
-        color: "text-violet-400",
-        bgColor: "bg-violet-500/10 border-violet-500/20 hover:bg-violet-500/20",
+        color: "text-accent",
+        bgColor: "bg-accent/10 border-accent/20 hover:bg-accent/20",
         items: calculatedFields.map((f) => ({
           label: f.name,
           value: f.id,
@@ -214,7 +214,7 @@ function FormulaBuilder({
         <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-400 space-y-1.5">
           <p className="font-medium text-zinc-300">How formulas work:</p>
           <p>
-            <strong className="text-sky-300">Functions</strong> aggregate
+            <strong className="text-accent">Functions</strong> aggregate
             per-area fields: <code className="text-success">SUM(undried)</code>{" "}
             adds undried weight from all areas.
           </p>
@@ -228,7 +228,7 @@ function FormulaBuilder({
             avg_price can be used directly in math.
           </p>
           <p>
-            <strong className="text-violet-300">Previous calculations</strong>{" "}
+            <strong className="text-accent">Previous calculations</strong>{" "}
             can be referenced by later formulas (order matters!).
           </p>
           <p className="text-zinc-500">
@@ -255,7 +255,7 @@ function FormulaBuilder({
                       key={i}
                       type="button"
                       onClick={() => onFormulaChange(t.formula)}
-                      className="text-xs bg-sky-500/10 border border-sky-500/20 text-sky-300 px-2.5 py-1.5 rounded-lg hover:bg-sky-500/20 transition-colors"
+                      className="text-xs bg-accent/10 border border-accent/20 text-accent px-2.5 py-1.5 rounded-lg hover:bg-accent/20 transition-colors"
                       title={t.description}
                     >
                       {t.label}
@@ -329,7 +329,7 @@ function FormulaBuilder({
           {/* Functions to append */}
           {sourceFields.length > 0 && (
             <div>
-              <label className="text-[10px] text-sky-500 uppercase tracking-wider font-medium mb-1.5 block">
+              <label className="text-[10px] text-accent uppercase tracking-wider font-medium mb-1.5 block">
                 Functions
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -343,7 +343,7 @@ function FormulaBuilder({
                       key={i}
                       type="button"
                       onClick={() => insertAtCursor(t.formula)}
-                      className="text-xs bg-sky-500/10 border border-sky-500/20 text-sky-300 px-2 py-1 rounded-lg hover:bg-sky-500/20 transition-colors"
+                      className="text-xs bg-accent/10 border border-accent/20 text-accent px-2 py-1 rounded-lg hover:bg-accent/20 transition-colors"
                       title={t.description}
                     >
                       {t.label}
@@ -990,7 +990,7 @@ export function SettingsTab({
                     <FieldChip
                       key={i}
                       field={f}
-                      color="bg-sky-500/10 border-sky-500/20 text-sky-300"
+                      color="bg-accent/10 border-accent/20 text-accent"
                       onRemove={() =>
                         setCropForm({
                           ...cropForm,
@@ -1106,9 +1106,9 @@ export function SettingsTab({
                     (c: ConstantDef, i: number) => (
                       <span
                         key={i}
-                        className="text-xs bg-orange-500/10 border border-orange-500/20 text-orange-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"
+                        className="text-xs bg-warning/10 border border-warning/20 text-warning px-2.5 py-1.5 rounded-lg flex items-center gap-1.5"
                       >
-                        {c.name} <span className="text-orange-400/60">=</span>{" "}
+                        {c.name} <span className="text-warning/60">=</span>{" "}
                         <span className="font-mono">{c.value}</span>
                         <X
                           className="w-3 h-3 cursor-pointer hover:text-danger transition-colors"
@@ -1266,9 +1266,9 @@ export function SettingsTab({
                               className={cn(
                                 "text-[10px] px-1.5 py-0.5 rounded",
                                 f.format === "currency"
-                                  ? "bg-success-muted/50 text-success"
+                                  ? "bg-success/15 text-success"
                                   : f.format === "percentage"
-                                    ? "bg-warning-muted/50 text-warning"
+                                    ? "bg-warning/15 text-warning"
                                     : "bg-zinc-800 text-zinc-400",
                               )}
                             >
@@ -1498,12 +1498,12 @@ export function SettingsTab({
                     {(crop.sourceFields || []).map((f: FieldDef) => (
                       <div
                         key={f.id}
-                        className="flex justify-between items-center bg-sky-500/5 border border-sky-500/10 px-2.5 py-1.5 rounded-md"
+                        className="flex justify-between items-center bg-accent/5 border border-accent/10 px-2.5 py-1.5 rounded-md"
                       >
-                        <span className="text-xs text-sky-300">
+                        <span className="text-xs text-accent">
                           {f.name}{" "}
                           {f.unit && (
-                            <span className="text-sky-500/50">({f.unit})</span>
+                            <span className="text-accent/50">({f.unit})</span>
                           )}
                         </span>
                         <span className="text-[10px] text-zinc-500 font-mono">
@@ -1550,12 +1550,12 @@ export function SettingsTab({
                     {(crop.constants || []).map((c: ConstantDef) => (
                       <div
                         key={c.id}
-                        className="flex justify-between items-center bg-orange-500/5 border border-orange-500/10 px-2.5 py-1.5 rounded-md"
+                        className="flex justify-between items-center bg-warning/5 border border-warning/10 px-2.5 py-1.5 rounded-md"
                       >
-                        <span className="text-xs text-orange-300 font-mono">
+                        <span className="text-xs text-warning font-mono">
                           {c.name}
                         </span>
-                        <span className="text-xs text-orange-400/60 font-mono">
+                        <span className="text-xs text-warning/60 font-mono">
                           {c.value}
                         </span>
                       </div>
@@ -1586,9 +1586,9 @@ export function SettingsTab({
                             className={cn(
                               "text-[10px] px-1.5 py-0.5 rounded",
                               f.format === "currency"
-                                ? "bg-success-muted/50 text-success"
+                                ? "bg-success/15 text-success"
                                 : f.format === "percentage"
-                                  ? "bg-warning-muted/50 text-warning"
+                                  ? "bg-warning/15 text-warning"
                                   : "bg-zinc-800 text-zinc-400",
                             )}
                           >
