@@ -275,7 +275,7 @@ export default function PeopleAdminView() {
               counts={counts}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               <AnimatePresence mode="popLayout">
                 {filteredPeople.map((person) => (
                   <PersonCard
@@ -298,7 +298,7 @@ export default function PeopleAdminView() {
             </div>
 
             {filteredPeople.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-32 bg-zinc-900/40 rounded-[3rem] border border-zinc-800/50 mt-10">
+              <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/40 rounded-2xl border border-zinc-800/50 mt-4">
                 <Users className="w-12 h-12 text-zinc-700 mb-4" />
                 <h3 className="text-lg font-bold text-zinc-500">
                   No one here yet
