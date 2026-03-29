@@ -170,7 +170,7 @@ export default function SnippetCard({
             </div>
           )}
           <p className="text-[11px] text-zinc-500 mt-2">
-            Updated {formatDate(snippet.created_at)}
+            Added {formatDate(snippet.created_at)}
           </p>
         </div>
       )}

@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Plus, Settings, Code, RefreshCw } from "lucide-react";
+import { Plus, Settings, Code } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import type { Snippet, SnippetStats } from "./components/types";
 import { SNIPPET_DEFAULTS, LANGUAGES } from "./components/types";
@@ -264,10 +265,7 @@ export default function SnippetsAdminView() {
 
       {/* Snippet List */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 text-zinc-500">
-          <RefreshCw className="w-10 h-10 animate-spin text-accent mb-4" />
-          <p className="text-sm">Fetching and indexing snippets...</p>
-        </div>
+        <AdminModuleSkeleton />
       ) : filtered.length === 0 ? (
         <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
           <Code className="w-10 h-10 mx-auto mb-3 opacity-30" />

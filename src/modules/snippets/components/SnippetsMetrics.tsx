@@ -134,7 +134,7 @@ export default function SnippetsMetrics({
       label: "Recent (7d)",
       value: stats.recentCount,
       icon: Clock,
-      color: "text-blue-400",
+      color: "text-accent",
       detail: stats.recentCount > 0 ? "added this week" : "none this week",
     },
     {
