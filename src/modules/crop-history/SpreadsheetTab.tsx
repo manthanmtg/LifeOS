@@ -13,6 +13,8 @@ import {
   TrendingUp,
   TrendingDown,
   GripVertical,
+  Eye,
+  Pencil,
 } from "lucide-react";
 import { Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -151,6 +153,7 @@ export function SpreadsheetTab({
   onReorderPeriods,
   onRefresh,
 }: SpreadsheetTabProps) {
+  const [mode, setMode] = useState<"view" | "edit">("view");
   const [localData, setLocalData] = useState<LocalData>({});
   const [isSaving, setIsSaving] = useState(false);
   const [savingPeriod, setSavingPeriod] = useState<string | null>(null);
@@ -478,64 +481,98 @@ export function SpreadsheetTab({
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm overflow-hidden flex flex-col relative w-full">
         {/* Header */}
         <div className="p-3 md:p-5 flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-zinc-950/50 border-b border-zinc-800">
-          <div className="min-w-0">
-            <h3 className="font-semibold text-zinc-100 text-base md:text-lg flex items-center gap-2">
-              {activeCrop.name} Records
-              <span className="text-xs text-zinc-500 font-normal">
-                ({schedulePeriods.length} periods)
-              </span>
-            </h3>
-            <p className="text-xs text-zinc-500 mt-0.5 hidden sm:block">
-              Edit yields, view totals, and track period-over-period changes.
-            </p>
+          <div className="flex items-center gap-3 min-w-0">
+            <div>
+              <h3 className="font-semibold text-zinc-100 text-base md:text-lg flex items-center gap-2">
+                {activeCrop.name} Records
+                <span className="text-xs text-zinc-500 font-normal">
+                  ({schedulePeriods.length} periods)
+                </span>
+              </h3>
+              <p className="text-xs text-zinc-500 mt-0.5 hidden sm:block">
+                {mode === "view"
+                  ? "View totals and track period-over-period changes."
+                  : "Edit yields, then save when done."}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleSaveAll}
-              disabled={isSaving}
-              className="text-xs md:text-sm font-medium bg-success-muted hover:bg-success text-white px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
-            >
-              {isSaving && !savingPeriod ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Save className="w-3.5 h-3.5" />
-              )}
-              Save All
-            </button>
-            {showAddPeriod ? (
-              <div className="flex items-center gap-2 bg-zinc-800 rounded-xl px-3 py-1.5 border border-zinc-700">
-                <input
-                  autoFocus
-                  value={newPeriodValue}
-                  onChange={(e) => setNewPeriodValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleAddPeriod();
-                    if (e.key === "Escape") setShowAddPeriod(false);
-                  }}
-                  placeholder="e.g. 2026-27"
-                  className="w-24 md:w-28 bg-transparent text-sm text-zinc-100 outline-none placeholder-zinc-500 font-mono"
-                />
-                <button
-                  onClick={handleAddPeriod}
-                  className="text-success hover:text-success p-1"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setShowAddPeriod(false)}
-                  className="text-zinc-500 hover:text-zinc-300 p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
+            {/* View / Edit toggle */}
+            <div className="flex items-center bg-zinc-800 rounded-lg border border-zinc-700 p-0.5">
               <button
-                onClick={() => setShowAddPeriod(true)}
-                className="text-xs md:text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors border border-zinc-700"
+                onClick={() => setMode("view")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all",
+                  mode === "view"
+                    ? "bg-zinc-700 text-zinc-100 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
               >
-                <Plus className="w-3.5 h-3.5" />{" "}
-                <span className="hidden sm:inline">Add</span> Period
+                <Eye className="w-3.5 h-3.5" /> View
               </button>
+              <button
+                onClick={() => setMode("edit")}
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all",
+                  mode === "edit"
+                    ? "bg-zinc-700 text-zinc-100 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit
+              </button>
+            </div>
+
+            {mode === "edit" && (
+              <>
+                <button
+                  onClick={handleSaveAll}
+                  disabled={isSaving}
+                  className="text-xs md:text-sm font-medium bg-success-muted hover:bg-success text-white px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                >
+                  {isSaving && !savingPeriod ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  Save All
+                </button>
+                {showAddPeriod ? (
+                  <div className="flex items-center gap-2 bg-zinc-800 rounded-xl px-3 py-1.5 border border-zinc-700">
+                    <input
+                      autoFocus
+                      value={newPeriodValue}
+                      onChange={(e) => setNewPeriodValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleAddPeriod();
+                        if (e.key === "Escape") setShowAddPeriod(false);
+                      }}
+                      placeholder="e.g. 2026-27"
+                      className="w-24 md:w-28 bg-transparent text-sm text-zinc-100 outline-none placeholder-zinc-500 font-mono"
+                    />
+                    <button
+                      onClick={handleAddPeriod}
+                      className="text-success hover:text-success p-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setShowAddPeriod(false)}
+                      className="text-zinc-500 hover:text-zinc-300 p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowAddPeriod(true)}
+                    className="text-xs md:text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 md:px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors border border-zinc-700"
+                  >
+                    <Plus className="w-3.5 h-3.5" />{" "}
+                    <span className="hidden sm:inline">Add</span> Period
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -562,32 +599,36 @@ export function SpreadsheetTab({
                   >
                     <div className="flex justify-between items-center group/header">
                       <div className="flex items-center gap-1.5">
-                        <GripVertical className="w-3.5 h-3.5 text-zinc-600 cursor-grab active:cursor-grabbing opacity-0 group-hover/header:opacity-100 transition-opacity" />
+                        {mode === "edit" && (
+                          <GripVertical className="w-3.5 h-3.5 text-zinc-600 cursor-grab active:cursor-grabbing opacity-0 group-hover/header:opacity-100 transition-opacity" />
+                        )}
                         <span className="font-semibold text-zinc-200">
                           {period}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleSavePeriod(period)}
-                          disabled={isSaving}
-                          className="text-success hover:text-success p-1"
-                          title="Save this period"
-                        >
-                          {savingPeriod === period ? (
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Save className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDeletePeriod(period)}
-                          className="text-zinc-600 hover:text-danger p-1"
-                          title="Delete period"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      {mode === "edit" && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleSavePeriod(period)}
+                            disabled={isSaving}
+                            className="text-success hover:text-success p-1"
+                            title="Save this period"
+                          >
+                            {savingPeriod === period ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Save className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDeletePeriod(period)}
+                            className="text-zinc-600 hover:text-danger p-1"
+                            title="Delete period"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </Reorder.Item>
                 ))}
@@ -645,24 +686,32 @@ export function SpreadsheetTab({
                                 )}
                               </span>
                               <div className="flex items-center gap-1">
-                                <input
-                                  type="number"
-                                  value={
-                                    localData[period]?.source_data?.[area.id]?.[
-                                      f.id
-                                    ] ?? ""
-                                  }
-                                  onChange={(e) =>
-                                    handleSourceChange(
-                                      period,
-                                      area.id,
-                                      f.id,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-24 bg-transparent border-none text-right text-zinc-300 font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                  placeholder="-"
-                                />
+                                {mode === "edit" ? (
+                                  <input
+                                    type="number"
+                                    value={
+                                      localData[period]?.source_data?.[
+                                        area.id
+                                      ]?.[f.id] ?? ""
+                                    }
+                                    onChange={(e) =>
+                                      handleSourceChange(
+                                        period,
+                                        area.id,
+                                        f.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-24 bg-transparent border-none text-right text-zinc-300 font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="-"
+                                  />
+                                ) : (
+                                  <span className="w-24 text-right text-zinc-300 font-mono p-1">
+                                    {val
+                                      ? `${formatNum(val)}${f.unit ? ` ${f.unit}` : ""}`
+                                      : "–"}
+                                  </span>
+                                )}
                                 {pIdx > 0 && val > 0 && (
                                   <YoYBadge current={val} previous={prevVal} />
                                 )}
@@ -778,22 +827,31 @@ export function SpreadsheetTab({
                                 )}
                               </span>
                               <div className="flex items-center gap-1">
-                                <input
-                                  type="number"
-                                  value={
-                                    localData[period]?.summary_data?.[f.id] ??
-                                    ""
-                                  }
-                                  onChange={(e) =>
-                                    handleSummaryChange(
-                                      period,
-                                      f.id,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-24 bg-transparent border-none text-right text-success font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                  placeholder="-"
-                                />
+                                {mode === "edit" ? (
+                                  <input
+                                    type="number"
+                                    value={
+                                      localData[period]?.summary_data?.[
+                                        f.id
+                                      ] ?? ""
+                                    }
+                                    onChange={(e) =>
+                                      handleSummaryChange(
+                                        period,
+                                        f.id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-24 bg-transparent border-none text-right text-success font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="-"
+                                  />
+                                ) : (
+                                  <span className="w-24 text-right text-success font-mono p-1">
+                                    {val
+                                      ? `${formatNum(val)}${f.unit ? ` ${f.unit}` : ""}`
+                                      : "–"}
+                                  </span>
+                                )}
                                 {pIdx > 0 && val > 0 && (
                                   <YoYBadge current={val} previous={prevVal} />
                                 )}
@@ -884,15 +942,21 @@ export function SpreadsheetTab({
                     key={`notes-${period}`}
                     className="px-3 py-2 border-r border-zinc-800 align-top min-w-[150px] md:min-w-[180px]"
                   >
-                    <textarea
-                      value={localData[period]?.notes || ""}
-                      onChange={(e) =>
-                        handleNotesChange(period, e.target.value)
-                      }
-                      placeholder="Add notes..."
-                      rows={2}
-                      className="w-full bg-transparent text-xs text-zinc-400 resize-none outline-none focus:ring-1 focus:ring-zinc-700 rounded p-1.5 placeholder-zinc-600"
-                    />
+                    {mode === "edit" ? (
+                      <textarea
+                        value={localData[period]?.notes || ""}
+                        onChange={(e) =>
+                          handleNotesChange(period, e.target.value)
+                        }
+                        placeholder="Add notes..."
+                        rows={2}
+                        className="w-full bg-transparent text-xs text-zinc-400 resize-none outline-none focus:ring-1 focus:ring-zinc-700 rounded p-1.5 placeholder-zinc-600"
+                      />
+                    ) : (
+                      <p className="text-xs text-zinc-500 p-1.5 whitespace-pre-wrap">
+                        {localData[period]?.notes || "–"}
+                      </p>
+                    )}
                   </td>
                 ))}
               </tr>
