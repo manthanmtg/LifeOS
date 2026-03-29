@@ -34,12 +34,12 @@ export default function EmptyState({
       </div>
 
       <h3 className="text-xl font-black text-zinc-200 mb-2 italic">
-        {isFolder ? "This Vault is Empty" : "No Records Found"}
+        {isFolder ? "Folder is Empty" : "No Bills Yet"}
       </h3>
       <p className="text-sm text-zinc-500 mb-10 max-w-xs font-medium leading-relaxed">
         {isFolder
-          ? "Deep dive into organization by adding bills or creating subfolders right here."
-          : "Start your digital paper trail today. Organized, accessible, and enlightened."}
+          ? "Add bills or create subfolders to organise this folder."
+          : "Add your first bill to get started. Use folders to keep things organised."}
       </p>
 
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -55,7 +55,7 @@ export default function EmptyState({
           className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-3 bg-accent text-zinc-950 text-sm font-black rounded-2xl hover:bg-accent-hover shadow-xl shadow-accent/20 transition-all active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Enlighten First Bill</span>
+          <span>Add Bill</span>
         </button>
       </div>
     </motion.div>

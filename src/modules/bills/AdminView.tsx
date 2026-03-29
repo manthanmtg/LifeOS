@@ -69,7 +69,6 @@ export default function BillsAdminView() {
   } | null>(null);
 
   // Drag & drop
-  const [draggedBillId, setDraggedBillId] = useState<string | null>(null);
   const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
 
   const { toast, show: showToast } = useToast();
@@ -338,6 +337,10 @@ export default function BillsAdminView() {
         onAddFolder={() => setShowNewFolder(true)}
       />
 
+      {bills.length > 0 && !currentFolderId && !searchQuery && (
+        <BillsMetrics bills={bills} />
+      )}
+
       {!hasContent ? (
         <EmptyState
           isFolder={!!currentFolderId}
@@ -430,7 +433,7 @@ export default function BillsAdminView() {
                         )}
                         onClick={() => setDetailBill(bill)}
                         onEdit={(b) => setBillModal({ open: true, bill: b })}
-                        onDragStart={() => setDraggedBillId(bill._id)}
+                        onDragStart={() => {}}
                       />
                     ))}
                   </AnimatePresence>
@@ -447,7 +450,7 @@ export default function BillsAdminView() {
                         )}
                         onClick={() => setDetailBill(bill)}
                         onEdit={(b) => setBillModal({ open: true, bill: b })}
-                        onDragStart={() => setDraggedBillId(bill._id)}
+                        onDragStart={() => {}}
                       />
                     ))}
                   </AnimatePresence>

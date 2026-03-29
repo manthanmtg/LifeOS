@@ -81,6 +81,7 @@ export default function BillCard({
               e.stopPropagation();
               onEdit(bill);
             }}
+            title="Edit"
             className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-accent rounded-lg hover:bg-accent/10 transition-all shrink-0"
           >
             <Edit3 className="w-3.5 h-3.5" />
