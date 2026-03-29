@@ -32,7 +32,9 @@ describe("TodoAdminView", () => {
       { timeout: 2000 },
     );
 
-    // Check for common Todo UI elements
-    expect(screen.getByPlaceholderText(/What needs to be done/i)).toBeDefined();
+    // Check for "Enlightened" Todo UI elements
+    expect(screen.getByPlaceholderText(/What objective will you conquer/i)).toBeDefined();
+    expect(screen.getByText(/Focus Score/i)).toBeDefined();
+    expect(screen.getByText(/Clean Slate/i)).toBeDefined();
   });
 });

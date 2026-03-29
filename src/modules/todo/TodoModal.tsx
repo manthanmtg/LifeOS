@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X, Calendar, AlignLeft, CheckSquare, Save, Flag } from "lucide-react";
 import { TodoDocument, TodoPayload, TodoPriority } from "./types";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TodoModalProps {
   todo?: TodoDocument;
@@ -25,7 +25,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || isSaving) return;
 
     setIsSaving(true);
     const payload: TodoPayload = {
@@ -37,154 +37,152 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
       completed: todo?.payload.completed || false,
     };
 
-    await onSave(payload);
-    setIsSaving(false);
-    onClose();
+    try {
+      await onSave(payload);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const priorityColors: Record<TodoPriority, { text: string; bg: string; border: string }> = {
+    high: { text: "text-danger", bg: "bg-danger/10", border: "border-danger/20" },
+    medium: { text: "text-warning", bg: "bg-warning/10", border: "border-warning/20" },
+    low: { text: "text-success", bg: "bg-success/10", border: "border-success/20" },
   };
 
   return (
-    /* Overlay */
     <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center md:p-4">
-      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
       />
 
-      {/* Sheet / Modal panel */}
       <motion.div
-        initial={{ opacity: 0, y: "100%" }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: "100%" }}
-        transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className="relative w-full md:max-w-lg bg-zinc-950 border border-zinc-800 rounded-t-3xl md:rounded-3xl shadow-2xl max-h-[92vh] overflow-y-auto overscroll-contain"
+        initial={{ opacity: 0, y: 100, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 100, scale: 0.95 }}
+        className="relative w-full md:max-w-xl bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800/50 rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden"
       >
-        {/* Drag handle — mobile only */}
-        <div className="flex justify-center pt-3 pb-1 md:hidden">
-          <div className="w-10 h-1 rounded-full bg-zinc-700" />
+        <div className="flex justify-center pt-4 pb-2 md:hidden">
+          <div className="w-12 h-1.5 rounded-full bg-zinc-800" />
         </div>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-4 pb-4 md:pt-6 border-b border-zinc-900">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-              <CheckSquare className="w-5 h-5 text-accent" />
+        <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-800/40">
+          <div className="flex items-center gap-4">
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-all", priorityColors[priority].bg, priorityColors[priority].border)}>
+              <CheckSquare className={cn("w-6 h-6", priorityColors[priority].text)} />
             </div>
-            <h2 className="text-xl font-bold text-zinc-50">
-              {todo ? "Edit Task" : "New Task"}
-            </h2>
+            <div>
+              <h2 className="text-2xl font-black text-zinc-100 italic tracking-tight">
+                {todo ? "Edit Objective" : "New Objective"}
+              </h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-0.5">
+                Refining the Path
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2.5 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 rounded-xl transition-all touch-manipulation"
-            aria-label="Close"
+            className="p-3 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-2xl transition-all"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        {/* Form — pb includes safe-area-inset-bottom for iOS notch */}
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-5"
-        >
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">
-              Task Title
+        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">
+              Title of Conquest
             </label>
             <input
-              autoFocus={
-                typeof window !== "undefined" && window.innerWidth >= 768
-              }
+              autoFocus
               type="text"
-              inputMode="text"
-              enterKeyHint="next"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="What's on your mind?"
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all"
+              placeholder="What will you conquer next?"
+              className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-2xl px-5 py-4 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold text-lg"
               required
             />
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <AlignLeft className="w-3 h-3" /> Notes
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                <Flag className="w-3.5 h-3.5" /> Priority Level
+              </label>
+              <div className="flex gap-2 bg-zinc-900/40 p-1.5 rounded-[1.5rem] border border-zinc-800/50">
+                {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPriority(p)}
+                    className={cn(
+                      "flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                      priority === p
+                        ? p === "high"
+                          ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"
+                          : p === "medium"
+                          ? "bg-warning text-zinc-950 shadow-lg shadow-warning/20"
+                          : "bg-success text-zinc-950 shadow-lg shadow-success/20"
+                        : "text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800/40"
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5" /> Deadline
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full bg-zinc-900/40 border-2 border-zinc-800/50 rounded-2xl px-5 py-3 text-zinc-100 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold [color-scheme:dark]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+              <AlignLeft className="w-3.5 h-3.5" /> Intelligence Notes
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add some details..."
-              rows={3}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all resize-none"
+              placeholder="Strategic details for the operation..."
+              rows={4}
+              className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-[2rem] px-6 py-5 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all resize-none font-medium leading-relaxed"
             />
           </div>
 
-          {/* Priority */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Flag className="w-3 h-3" /> Priority
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPriority(p)}
-                  className={cn(
-                    "px-3 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border touch-manipulation",
-                    priority === p
-                      ? p === "high"
-                        ? "bg-danger/20 border-danger/40 text-danger"
-                        : p === "medium"
-                          ? "bg-warning/20 border-warning/40 text-warning"
-                          : "bg-success/20 border-success/40 text-success"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700",
-                  )}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-              <Calendar className="w-3 h-3" /> Due Date
-            </label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 text-zinc-50 focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all [color-scheme:dark]"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-4 pt-4 pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-4 rounded-2xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition-all touch-manipulation"
+              className="flex-1 px-8 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-900"
             >
-              Cancel
+              Abort
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-[2] bg-accent text-accent-foreground px-6 py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-accent/20 disabled:opacity-50 touch-manipulation active:scale-[0.98]"
+              className="flex-[2] bg-accent text-zinc-950 px-8 py-5 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-accent-hover transition-all shadow-2xl shadow-accent/20 disabled:opacity-50 group"
             >
-              <Save className="w-4 h-4" />
-              {isSaving ? "Saving..." : todo ? "Save Changes" : "Create Task"}
+              <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              {isSaving ? "Syncing..." : todo ? "Update flow" : "Manifest task"}
             </button>
           </div>
         </form>
+        
+        {/* Decorative corner accent */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[100px] pointer-events-none" />
       </motion.div>
     </div>
   );
