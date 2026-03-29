@@ -1,0 +1,100 @@
+"use client";
+
+import { Download, Printer } from "lucide-react";
+import { formatMoney } from "../lib/emi-utils";
+import { ScheduleResult } from "../types";
+
+interface ScheduleTableProps {
+  schedule: ScheduleResult;
+  currencySymbol: string;
+  decimals: number;
+  numberFormat: "western" | "indian";
+  onExportCSV: () => void;
+  onPrintPDF: () => void;
+}
+
+export default function ScheduleTable({
+  schedule,
+  currencySymbol,
+  decimals,
+  numberFormat,
+  onExportCSV,
+  onPrintPDF,
+}: ScheduleTableProps) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-bold text-zinc-300">Amortization Schedule</h3>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onExportCSV}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all text-xs font-bold"
+          >
+            <Download className="w-3.5 h-3.5" /> CSV
+          </button>
+          <button
+            onClick={onPrintPDF}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all text-xs font-bold"
+          >
+            <Printer className="w-3.5 h-3.5" /> PDF
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-zinc-800/50 bg-zinc-950/20 shadow-inner">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="bg-zinc-900/50 border-b border-zinc-800 text-zinc-500 font-black uppercase tracking-widest">
+              <th className="px-4 py-3 text-center">#</th>
+              <th className="px-4 py-3">Due Date</th>
+              <th className="px-4 py-3 text-right">Principal</th>
+              <th className="px-4 py-3 text-right">Interest</th>
+              <th className="px-4 py-3 text-right">Extra</th>
+              <th className="px-4 py-3 text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/50">
+            {schedule.rows.map((row) => (
+              <tr 
+                key={row.index} 
+                className="hover:bg-zinc-800/30 transition-colors group"
+              >
+                <td className="px-4 py-2.5 text-center text-zinc-600 font-mono group-hover:text-zinc-400">{row.index}</td>
+                <td className="px-4 py-2.5 text-zinc-300 font-medium">{row.due_date.slice(0, 10)}</td>
+                <td className="px-4 py-2.5 text-right text-zinc-300 tabular-nums">
+                  {formatMoney(row.principal, currencySymbol, decimals, numberFormat)}
+                </td>
+                <td className="px-4 py-2.5 text-right text-rose-400/80 tabular-nums font-medium">
+                  {formatMoney(row.interest, currencySymbol, decimals, numberFormat)}
+                </td>
+                <td className="px-4 py-2.5 text-right text-accent tabular-nums font-bold">
+                  {row.prepayment > 0 ? `+${formatMoney(row.prepayment, currencySymbol, decimals, numberFormat)}` : "—"}
+                </td>
+                <td className="px-4 py-2.5 text-right text-zinc-100 font-bold tabular-nums">
+                  {formatMoney(row.closing_balance, currencySymbol, decimals, numberFormat)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="bg-zinc-900/50 border-t border-zinc-800">
+            <tr className="font-black text-zinc-300 uppercase tracking-tighter">
+              <td colSpan={2} className="px-4 py-3">Totals</td>
+              <td className="px-4 py-3 text-right tabular-nums">
+                {formatMoney(schedule.totals.total_principal, currencySymbol, decimals, numberFormat)}
+              </td>
+              <td className="px-4 py-3 text-right text-rose-400 tabular-nums">
+                {formatMoney(schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
+              </td>
+              <td className="px-4 py-3 text-right text-accent tabular-nums">
+                {formatMoney(schedule.totals.total_prepayment, currencySymbol, decimals, numberFormat)}
+              </td>
+              <td className="px-4 py-3 text-right text-white tabular-nums">
+                {formatMoney(schedule.totals.total_principal + schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
+}
