@@ -87,13 +87,14 @@ describe("BillsAdminView", () => {
     await waitFor(() => {
       expect(screen.queryByText(/loading/i)).toBeNull();
     });
-    expect(screen.getAllByText("Bills").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("All Bills").length).toBeGreaterThan(0);
   });
 
   it("displays bill count summary", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
-      expect(screen.getByText(/2 bills/i)).toBeDefined();
+      expect(screen.getByText("Total Bills")).toBeDefined();
+      expect(screen.getByText("2")).toBeDefined();
     });
   });
 
@@ -105,7 +106,7 @@ describe("BillsAdminView", () => {
     expect(screen.getByText("Internet Bill February")).toBeDefined();
   });
 
-  it("renders folder names as cards in content area", async () => {
+  it("renders folder names in content area", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
       expect(screen.getAllByText("Utilities").length).toBeGreaterThan(0);
@@ -119,10 +120,11 @@ describe("BillsAdminView", () => {
     });
   });
 
-  it("shows attachment count on bill with attachments", async () => {
+  it("shows attachment count on bill", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
-      expect(screen.getAllByText("1").length).toBeGreaterThan(0);
+      // Internet Bill February has 1 attachment
+      expect(screen.getByText("1")).toBeDefined();
     });
   });
 
@@ -151,7 +153,7 @@ describe("BillsAdminView", () => {
       expect(screen.getByText("New Bill")).toBeDefined();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    fireEvent.click(screen.getAllByRole("button", { name: /cancel/i })[0]);
     await waitFor(() => {
       expect(screen.queryByText("New Bill")).toBeNull();
     });
@@ -176,7 +178,7 @@ describe("BillsAdminView", () => {
 
     render(<BillsAdminView />);
     await waitFor(() => {
-      expect(screen.getByText("No bills yet")).toBeDefined();
+      expect(screen.getByText(/No Records Found/i)).toBeDefined();
     });
   });
 
@@ -186,7 +188,7 @@ describe("BillsAdminView", () => {
       expect(screen.getByText("Electricity Bill January")).toBeDefined();
     });
 
-    const searchInput = screen.getByPlaceholderText("Search all bills\u2026");
+    const searchInput = screen.getByPlaceholderText(/Search bills by name/i);
     fireEvent.change(searchInput, { target: { value: "Electricity" } });
 
     await waitFor(() => {
@@ -204,7 +206,7 @@ describe("BillsAdminView", () => {
     const newFolderButton = screen.getByRole("button", { name: /new folder/i });
     fireEvent.click(newFolderButton);
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("Folder name\u2026")).toBeDefined();
+      expect(screen.getByPlaceholderText(/Folder name/i)).toBeDefined();
     });
   });
 });

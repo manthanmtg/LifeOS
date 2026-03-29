@@ -754,6 +754,8 @@ export const DeckSchema = z.object({
 export const BillSchema = z.object({
   name: z.string().min(1, "Bill name is required"),
   bill_date: z.string().datetime("Must be a valid ISO date-time"),
+  amount: z.number().optional(),
+  currency: z.string().length(3).default("INR"),
   description: z.string().optional(),
   notes: z.string().optional(),
   folder_id: z.string().optional(),

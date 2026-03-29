@@ -10,6 +10,8 @@ export interface BillAttachment {
 export interface BillPayload {
   name: string;
   bill_date: string; // ISO datetime
+  amount?: number;
+  currency: string;
   description?: string;
   notes?: string;
   folder_id?: string;

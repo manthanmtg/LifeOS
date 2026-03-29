@@ -14,6 +14,7 @@ import {
   Download,
   ImageIcon,
   FileText,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,22 +24,20 @@ import type { Bill, BillFolder } from "../types";
 
 interface BillDetailProps {
   bill: Bill;
-  folders: BillFolder[];
+  folder?: BillFolder;
   onClose: () => void;
   onEdit: (bill: Bill) => void;
-  onDeleted: (id: string) => void;
-  onUpdated: (bill: Bill) => void;
-  onMoveBill: (bill: Bill) => void;
+  onDelete: () => void;
+  onBillUpdated: (bill: Bill) => void;
 }
 
 export default function BillDetail({
   bill,
-  folders,
+  folder,
   onClose,
   onEdit,
-  onDeleted,
-  onUpdated,
-  onMoveBill,
+  onDelete,
+  onBillUpdated,
 }: BillDetailProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -71,13 +70,11 @@ export default function BillDetail({
     return () => window.removeEventListener("keydown", handleKey);
   }, [previewAttachment, onClose]);
 
-  const folder = folders.find((f) => f._id === bill.payload.folder_id);
-
   const handleDeleteBill = async () => {
     setDeleting(true);
     try {
       await fetch(`/api/bills/${bill._id}`, { method: "DELETE" });
-      onDeleted(bill._id);
+      onDelete();
     } catch {
       setDeleting(false);
       setConfirmDelete(false);
@@ -95,7 +92,7 @@ export default function BillDetail({
         const billRes = await fetch(`/api/bills/${bill._id}`);
         if (billRes.ok) {
           const data = await billRes.json();
-          onUpdated(data.data);
+          onBillUpdated(data.data);
         }
       }
     } finally {
@@ -172,6 +169,12 @@ export default function BillDetail({
                   {bill.payload.attachments?.length ?? 0} file
                   {(bill.payload.attachments?.length ?? 0) !== 1 ? "s" : ""}
                 </span>
+                {bill.payload.amount !== undefined && (
+                  <span className="text-xs font-bold text-success-muted bg-success/5 px-2 py-0.5 rounded-lg border border-success/10 flex items-center gap-1">
+                    <DollarSign className="w-3 h-3" />
+                    {bill.payload.currency} {bill.payload.amount.toLocaleString()}
+                  </span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -181,13 +184,6 @@ export default function BillDetail({
                 className="p-2 text-zinc-500 hover:text-accent rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 <Edit3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => onMoveBill(bill)}
-                title="Move to folder"
-                className="p-2 text-zinc-500 hover:text-accent rounded-lg hover:bg-zinc-800 transition-colors"
-              >
-                <FolderInput className="w-4 h-4" />
               </button>
               <button
                 onClick={onClose}
@@ -314,7 +310,7 @@ export default function BillDetail({
               </div>
 
               <div className="mt-3">
-                <AttachmentUpload billId={bill._id} onUploaded={onUpdated} />
+                <AttachmentUpload billId={bill._id} onUploaded={onBillUpdated} />
               </div>
             </div>
           </div>

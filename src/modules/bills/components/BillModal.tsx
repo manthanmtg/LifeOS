@@ -53,6 +53,12 @@ export default function BillModal({
   const [error, setError] = useState("");
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [amount, setAmount] = useState<string>(
+    bill?.payload.amount !== undefined ? bill.payload.amount.toString() : "",
+  );
+  const [currency, setCurrency] = useState<string>(
+    bill?.payload.currency ?? "INR",
+  );
   const [dragging, setDragging] = useState(false);
   const [compressing, setCompressing] = useState(false);
 
@@ -207,6 +213,8 @@ export default function BillModal({
     const payload: BillPayload = {
       name: name.trim(),
       bill_date: new Date(billDate).toISOString(),
+      amount: amount.trim() ? parseFloat(amount) : undefined,
+      currency: currency,
       description: description.trim() || undefined,
       notes: notes.trim() || undefined,
       folder_id: folderId || undefined,
@@ -384,6 +392,37 @@ export default function BillModal({
                 onChange={(e) => setBillDate(e.target.value)}
                 className={inputClass}
               />
+            </div>
+
+            <div className="flex gap-4">
+              {/* Currency */}
+              <div className="w-24 space-y-1.5 shrink-0">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Currency
+                </label>
+                <input
+                  type="text"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  placeholder="INR"
+                  className={cn(inputClass, "uppercase")}
+                />
+              </div>
+
+              {/* Amount */}
+              <div className="flex-1 space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className={inputClass}
+                />
+              </div>
             </div>
 
             {/* Folder */}
