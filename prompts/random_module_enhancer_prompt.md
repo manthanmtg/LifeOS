@@ -26,6 +26,7 @@ Select exactly one random module from the LifeOS codebase and perform a comprehe
 
 ### 4. Verification
 - **Build Quality**: Run `pnpm check` to ensure zero linting, type, or test regressions.
+- **Test Enhancement**: If tests are missing or have low coverage, add or enhance Vitest tests for the module. Ensure critical user flows and complex logic are properly covered.
 - **Refinement**: Verify that responsiveness is flawless across all breakpoints and that 'Zen Mode' visibility is respected.
 
 ### 5. Documentation & Submission
