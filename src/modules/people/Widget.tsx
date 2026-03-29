@@ -65,18 +65,18 @@ export default function PeopleWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat value={stats.total} label="contacts tracked" />
+        <WidgetStat value={stats.total} label="people you know" />
         {stats.staleCount > 0 ? (
           <WidgetHighlight
             icon={Clock}
-            text={`${stats.staleCount} need${stats.staleCount === 1 ? "s" : ""} outreach`}
-            subtext="Not contacted in 90+ days"
-            variant="danger"
+            text={`${stats.staleCount} to catch up with`}
+            subtext="Haven't talked in 90+ days"
+            variant="warning"
           />
         ) : (
           <WidgetHighlight
             icon={Users}
-            text="All contacts are fresh"
+            text="Everyone's in touch"
             variant="success"
           />
         )}

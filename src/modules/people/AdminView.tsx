@@ -299,12 +299,14 @@ export default function PeopleAdminView() {
 
             {filteredPeople.length === 0 && (
               <div className="flex flex-col items-center justify-center py-32 bg-zinc-900/40 rounded-[3rem] border border-zinc-800/50 mt-10">
-                <Users className="w-16 h-16 text-zinc-700 mb-4 opacity-50" />
-                <h3 className="text-xl font-black text-zinc-500 italic uppercase tracking-widest">
-                  Network Void
+                <Users className="w-12 h-12 text-zinc-700 mb-4" />
+                <h3 className="text-lg font-bold text-zinc-500">
+                  No one here yet
                 </h3>
                 <p className="text-zinc-600 text-sm mt-2">
-                  No entities found in this dimension.
+                  {people.length === 0
+                    ? "Add someone you care about to get started"
+                    : "No one matches your filters"}
                 </p>
               </div>
             )}

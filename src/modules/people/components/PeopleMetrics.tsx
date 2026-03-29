@@ -34,28 +34,28 @@ export default function PeopleMetrics({ people }: PeopleMetricsProps) {
 
   const cards = [
     {
-      label: "Network Health",
+      label: "In Touch",
       value: `${stats.healthScore}%`,
       icon: Activity,
       color: "text-accent",
       bgColor: "bg-accent/10",
-      description: "Non-stale connections",
+      description: "Talked to recently",
     },
     {
-      label: "Favorites",
+      label: "Inner Circle",
       value: stats.favorites,
       icon: Heart,
-      color: "text-pink-400",
-      bgColor: "bg-pink-500/10",
-      description: "Priority relationships",
+      color: "text-accent",
+      bgColor: "bg-accent/10",
+      description: "Close to your heart",
     },
     {
-      label: "Maintenance",
+      label: "Catch Up",
       value: stats.stale,
       icon: AlertCircle,
-      color: stats.stale > 0 ? "text-danger" : "text-zinc-500",
-      bgColor: stats.stale > 0 ? "bg-danger/10" : "bg-zinc-500/10",
-      description: "Contacts needing outreach",
+      color: stats.stale > 0 ? "text-warning" : "text-zinc-500",
+      bgColor: stats.stale > 0 ? "bg-warning/10" : "bg-zinc-500/10",
+      description: "Haven\u2019t heard from in a while",
     },
   ];
 

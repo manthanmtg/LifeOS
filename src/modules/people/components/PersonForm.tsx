@@ -135,11 +135,11 @@ export default function PersonForm({
               <User className="w-7 h-7 text-accent" />
             </div>
             <div>
-              <h2 className="text-3xl font-black text-zinc-100 italic tracking-tighter uppercase">
-                {person ? "Edit Contact" : "Add Contact"}
+              <h2 className="text-2xl font-bold text-zinc-100 tracking-tight">
+                {person ? "Edit Person" : "Add Someone"}
               </h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 mt-1">
-                Personal CRM
+              <p className="text-xs text-zinc-500 mt-1">
+                Someone worth remembering
               </p>
             </div>
           </div>
@@ -243,7 +243,7 @@ export default function PersonForm({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="comms@frequency.net"
+                  placeholder="email@example.com"
                   className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-3xl px-6 py-4 text-sm text-zinc-200 outline-none focus:border-accent/40"
                 />
               </div>
@@ -380,7 +380,7 @@ export default function PersonForm({
                 ? "Saving..."
                 : person
                   ? "Save Changes"
-                  : "Add Contact"}
+                  : "Add Person"}
             </button>
           </div>
         </form>

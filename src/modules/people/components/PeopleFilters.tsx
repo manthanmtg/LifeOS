@@ -8,7 +8,6 @@ import {
   Clock,
   Filter,
   LucideIcon,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RELATIONSHIPS } from "../types";
@@ -36,15 +35,15 @@ export default function PeopleFilters({
     icon: LucideIcon;
     color: string;
   }> = [
-    { id: "all", label: "All Contacts", icon: Users, color: "text-zinc-100" },
+    { id: "all", label: "Everyone", icon: Users, color: "text-zinc-100" },
     {
       id: "favorites",
-      label: "Favorites",
+      label: "Inner Circle",
       icon: Heart,
-      color: "text-pink-400",
+      color: "text-accent",
     },
     { id: "upcoming", label: "Birthdays", icon: Cake, color: "text-warning" },
-    { id: "stale", label: "Needs Attention", icon: Clock, color: "text-danger" },
+    { id: "stale", label: "Catch Up", icon: Clock, color: "text-warning" },
   ];
 
   return (
@@ -140,12 +139,7 @@ export default function PeopleFilters({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 self-end md:self-auto">
-          <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest italic">
-            Sorted by recent contact
-          </span>
-          <ChevronDown className="w-3 h-3 text-zinc-800" />
-        </div>
+        <div className="shrink-0 self-end md:self-auto" />
       </div>
     </div>
   );

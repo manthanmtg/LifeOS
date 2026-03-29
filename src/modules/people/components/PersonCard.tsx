@@ -18,12 +18,12 @@ import { cn } from "@/lib/utils";
 import { Person, InteractionType } from "../types";
 
 const RELATIONSHIP_STYLES: Record<string, string> = {
-  family: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  family: "bg-accent/10 text-accent border-accent/20",
   friend: "bg-success/10 text-success border-success/20",
-  colleague: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  colleague: "bg-warning/10 text-warning border-warning/20",
   acquaintance: "bg-zinc-800 text-zinc-500 border-zinc-700/50",
-  mentor: "bg-warning/10 text-warning border-warning/20",
-  client: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  mentor: "bg-success/10 text-success border-success/20",
+  client: "bg-accent/10 text-accent border-accent/20",
   other: "bg-zinc-800 text-zinc-500 border-zinc-700/50",
 };
 
@@ -119,7 +119,7 @@ export default function PersonCard({
 
         <div className="flex-1 min-w-0 pt-1">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <h3 className="text-lg font-black text-zinc-100 truncate tracking-tight italic uppercase group-hover:text-accent transition-colors">
+            <h3 className="text-lg font-bold text-zinc-100 truncate tracking-tight group-hover:text-accent transition-colors">
               {name}
             </h3>
             <button
@@ -222,10 +222,10 @@ export default function PersonCard({
                 )}
               >
                 {days === null
-                  ? "VOID"
+                  ? "New"
                   : days === 0
-                    ? "ENTRY TODAY"
-                    : `${days}D AGO`}
+                    ? "Today"
+                    : `${days}d ago`}
               </span>
             </div>
           </div>

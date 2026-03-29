@@ -108,7 +108,7 @@ export default function PersonProfile({
         onClick={onBack}
         className="flex items-center gap-2 text-[10px] font-black bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-zinc-200 px-4 py-2 rounded-xl transition-all uppercase tracking-[0.2em]"
       >
-        <ArrowLeft className="w-3 h-3" /> Back to Network
+        <ArrowLeft className="w-3 h-3" /> Back
       </button>
 
       {/* Profile Header Card */}
@@ -145,7 +145,7 @@ export default function PersonProfile({
           <div className="flex-1 min-w-0">
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-black text-zinc-50 tracking-tighter italic uppercase mb-2">
+                <h1 className="text-4xl font-bold text-zinc-50 tracking-tight mb-2">
                   {name}
                 </h1>
                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
@@ -194,7 +194,7 @@ export default function PersonProfile({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
               <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
-                  Operation Status
+                  Last Seen
                 </span>
                 <div className="flex items-center gap-3">
                   <div
@@ -207,17 +207,17 @@ export default function PersonProfile({
                   />
                   <span className="text-sm font-black text-zinc-300 tracking-tight italic">
                     {daysSinceContact === null
-                      ? "NEVER LOGGED"
+                      ? "Not yet"
                       : daysSinceContact === 0
-                        ? "CONTACTED TODAY"
-                        : `${daysSinceContact} DAYS SINCE`}
+                        ? "Today"
+                        : `${daysSinceContact} days ago`}
                   </span>
                 </div>
               </div>
 
               <div className="p-5 bg-zinc-950/20 rounded-3xl border border-zinc-800/30 backdrop-blur-sm group hover:border-accent/20 transition-all">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 block mb-2">
-                  Comms Channels
+                  Contact
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="flex gap-1.5 overflow-hidden">
@@ -225,7 +225,7 @@ export default function PersonProfile({
                     {email && <Mail className="w-4 h-4 text-zinc-500" />}
                   </div>
                   <span className="text-sm font-black text-zinc-400 truncate italic">
-                    {email || phone || "SILENCE"}
+                    {email || phone || "No info yet"}
                   </span>
                 </div>
               </div>
@@ -244,7 +244,7 @@ export default function PersonProfile({
                             day: "numeric",
                           })
                           .toUpperCase()
-                      : "SECRET"}
+                      : "Not set"}
                   </span>
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function PersonProfile({
               {(interests || []).length > 0 && (
                 <div>
                   <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-4 block opacity-60 flex items-center gap-2">
-                    <Zap className="w-3 h-3" /> Convergence Nodes
+                    <Zap className="w-3 h-3" /> Interests
                   </span>
                   <div className="flex flex-wrap gap-2.5">
                     {interests?.map((i) => (
@@ -318,17 +318,17 @@ export default function PersonProfile({
             <div className="flex items-center justify-between mb-10">
               <div className="flex flex-col">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">
-                  Interaction History
+                  Moments Together
                 </h3>
                 <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest">
-                  {sortedInteractions.length} Historical Records
+                  {sortedInteractions.length} logged
                 </span>
               </div>
               <button
                 onClick={() => setShowLogForm(!showLogForm)}
                 className="flex items-center gap-2 px-6 py-3 bg-accent text-zinc-950 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-accent-hover transition-all shadow-xl shadow-accent/10 active:scale-95"
               >
-                <Plus className="w-4 h-4" /> Log Entry
+                <Plus className="w-4 h-4" /> Add Moment
               </button>
             </div>
 
@@ -369,7 +369,7 @@ export default function PersonProfile({
                     </div>
                     <div className="space-y-2">
                       <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
-                        Timestamp
+                        Date
                       </label>
                       <input
                         type="date"
@@ -381,12 +381,12 @@ export default function PersonProfile({
                   </div>
                   <div className="space-y-2">
                     <label className="text-[9px] font-black uppercase tracking-widest text-zinc-600 ml-2">
-                      Situation Report
-                    </label>
-                    <textarea
-                      value={logNote}
-                      onChange={(e) => setLogNote(e.target.value)}
-                      placeholder="Detail the intelligence gathered..."
+                        Note
+                      </label>
+                      <textarea
+                        value={logNote}
+                        onChange={(e) => setLogNote(e.target.value)}
+                        placeholder="What happened? How did it go?"
                       rows={3}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-6 py-4 text-sm font-medium text-zinc-200 outline-none focus:border-accent/40 resize-none leading-relaxed"
                     />
@@ -397,14 +397,14 @@ export default function PersonProfile({
                       disabled={isSubmitting}
                       className="flex-[2] bg-accent text-zinc-950 py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-accent/20 disabled:opacity-50 transition-all hover:bg-accent-hover"
                     >
-                      {isSubmitting ? "Saving..." : "Log Interaction"}
+                      {isSubmitting ? "Saving..." : "Save"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowLogForm(false)}
                       className="flex-1 py-5 rounded-[1.5rem] bg-zinc-900 text-zinc-500 text-[10px] font-black uppercase tracking-widest border border-zinc-800 hover:text-zinc-200 transition-all"
                     >
-                      ABORT
+                      Cancel
                     </button>
                   </div>
                 </motion.form>
@@ -437,17 +437,20 @@ export default function PersonProfile({
                           </span>
                         </div>
                         <p className="text-[13px] text-zinc-400 leading-relaxed font-medium transition-colors group-hover:text-zinc-300">
-                          {it.note || "Operational silence maintained."}
+                          {it.note || "No notes added"}
                         </p>
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div className="py-24 flex flex-col items-center text-center opacity-20 grayscale">
-                  <Clock className="w-16 h-16 text-zinc-600 mb-6" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">
-                    Record Void
+                <div className="py-24 flex flex-col items-center text-center">
+                  <Clock className="w-12 h-12 text-zinc-700 mb-4" />
+                  <span className="text-sm text-zinc-600 font-medium">
+                    No moments yet
+                  </span>
+                  <span className="text-xs text-zinc-700 mt-1">
+                    Log a call, message, or meeting to get started
                   </span>
                 </div>
               )}

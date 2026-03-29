@@ -39,7 +39,7 @@ export default function PeopleHeader({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search network..."
+              placeholder="Search people..."
               className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl pl-9 pr-4 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 transition-all"
             />
           </div>
@@ -48,7 +48,7 @@ export default function PeopleHeader({
             className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-black rounded-xl hover:bg-accent-hover shadow-lg shadow-accent/20 transition-all active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Connection</span>
+            <span className="hidden sm:inline">Add Someone</span>
           </button>
         </div>
       </div>
