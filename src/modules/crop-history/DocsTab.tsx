@@ -139,8 +139,8 @@ export function DocsTab() {
             </p>
           </div>
 
-          <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3.5">
-            <p className="text-blue-300 font-medium mb-1">
+          <div className="bg-accent/5 border border-accent/10 rounded-lg p-3.5">
+            <p className="text-accent font-medium mb-1">
               3. Calculated Fields
             </p>
             <p>
@@ -307,7 +307,7 @@ export function DocsTab() {
                 <Code>UNDRIED_TO_BAG_CONVERT = 120</Code>
               </p>
               <p>
-                <strong className="text-blue-300">Calculated Fields:</strong>
+                <strong className="text-accent">Calculated Fields:</strong>
               </p>
               <ul className="ml-4 space-y-1">
                 <li>
@@ -343,7 +343,7 @@ export function DocsTab() {
                 Price (₹/kg)
               </p>
               <p>
-                <strong className="text-blue-300">Calculated Fields:</strong>
+                <strong className="text-accent">Calculated Fields:</strong>
               </p>
               <ul className="ml-4 space-y-1">
                 <li>

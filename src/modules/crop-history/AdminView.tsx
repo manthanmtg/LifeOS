@@ -8,7 +8,11 @@ import {
   Wheat,
   BookOpen,
   Settings,
+  Layers,
+  MapPin,
+  CalendarDays,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 
@@ -167,6 +171,11 @@ export default function CropHistoryAdminView() {
 
   const areas = settings.sources || [];
 
+  const totalPeriods = useMemo(
+    () => new Set(records.map((r) => r.payload.schedule_period)).size,
+    [records],
+  );
+
   if (!settingsLoaded) {
     return (
       <div className="animate-fade-in-up space-y-6">
@@ -191,6 +200,7 @@ export default function CropHistoryAdminView() {
       {/* Header */}
       <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-zinc-800 bg-zinc-900 p-4 md:p-6">
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-success/10 blur-3xl opacity-50" />
+        <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-accent/5 blur-2xl opacity-60" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="flex items-center gap-2 md:gap-3 text-2xl md:text-3xl font-bold tracking-tight text-zinc-50">
@@ -201,9 +211,29 @@ export default function CropHistoryAdminView() {
               Track yields, dynamic calculations, and year-over-year revenue.
             </p>
           </div>
+          {/* Quick Stats */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs bg-zinc-800/60 border border-zinc-700/50 rounded-lg px-2.5 py-1.5">
+              <Layers className="w-3.5 h-3.5 text-success" />
+              <span className="text-zinc-300 font-medium">
+                {settings.crops.length}
+              </span>
+              <span className="text-zinc-500">crops</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs bg-zinc-800/60 border border-zinc-700/50 rounded-lg px-2.5 py-1.5">
+              <MapPin className="w-3.5 h-3.5 text-accent" />
+              <span className="text-zinc-300 font-medium">{areas.length}</span>
+              <span className="text-zinc-500">areas</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs bg-zinc-800/60 border border-zinc-700/50 rounded-lg px-2.5 py-1.5">
+              <CalendarDays className="w-3.5 h-3.5 text-warning" />
+              <span className="text-zinc-300 font-medium">{totalPeriods}</span>
+              <span className="text-zinc-500">periods</span>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-8 flex items-center gap-2 border-b border-zinc-800 pb-px text-sm overflow-x-auto hide-scrollbar">
+        <div className="mt-6 flex items-center gap-2 border-b border-zinc-800 pb-px text-sm overflow-x-auto hide-scrollbar">
           <TabButton
             active={activeTab === "spreadsheet"}
             onClick={() => setActiveTab("spreadsheet")}
@@ -235,44 +265,82 @@ export default function CropHistoryAdminView() {
         </div>
       </div>
 
-      {activeTab === "spreadsheet" && (
-        <SpreadsheetTab
-          activeCrop={activeCrop}
-          crops={settings.crops}
-          areas={areas}
-          records={activeCropRecords}
-          schedulePeriods={schedulePeriods}
-          setActiveCropId={setActiveCropId}
-          onReorderPeriods={(newOrder) => {
-            if (!activeCrop) return;
-            const updatedCrops = [...settings.crops];
-            const idx = updatedCrops.findIndex((c) => c.id === activeCrop.id);
-            if (idx !== -1) {
-              updatedCrops[idx] = { ...activeCrop, periodOrder: newOrder };
-              updateSettings({ crops: updatedCrops });
-            }
-          }}
-          onRefresh={fetchRecords}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {activeTab === "spreadsheet" && (
+          <motion.div
+            key="spreadsheet"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+          >
+            <SpreadsheetTab
+              activeCrop={activeCrop}
+              crops={settings.crops}
+              areas={areas}
+              records={activeCropRecords}
+              schedulePeriods={schedulePeriods}
+              setActiveCropId={setActiveCropId}
+              onReorderPeriods={(newOrder) => {
+                if (!activeCrop) return;
+                const updatedCrops = [...settings.crops];
+                const idx = updatedCrops.findIndex(
+                  (c) => c.id === activeCrop.id,
+                );
+                if (idx !== -1) {
+                  updatedCrops[idx] = { ...activeCrop, periodOrder: newOrder };
+                  updateSettings({ crops: updatedCrops });
+                }
+              }}
+              onRefresh={fetchRecords}
+            />
+          </motion.div>
+        )}
 
-      {activeTab === "analytics" && (
-        <AnalyticsTab
-          crops={settings.crops}
-          allRecords={records}
-          sources={areas}
-        />
-      )}
+        {activeTab === "analytics" && (
+          <motion.div
+            key="analytics"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+          >
+            <AnalyticsTab
+              crops={settings.crops}
+              allRecords={records}
+              sources={areas}
+            />
+          </motion.div>
+        )}
 
-      {activeTab === "settings" && (
-        <SettingsTab
-          settings={settings}
-          updateSettings={updateSettings}
-          saving={settingsSaving}
-        />
-      )}
+        {activeTab === "settings" && (
+          <motion.div
+            key="settings"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+          >
+            <SettingsTab
+              settings={settings}
+              updateSettings={updateSettings}
+              saving={settingsSaving}
+            />
+          </motion.div>
+        )}
 
-      {activeTab === "docs" && <DocsTab />}
+        {activeTab === "docs" && (
+          <motion.div
+            key="docs"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+          >
+            <DocsTab />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

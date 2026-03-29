@@ -1250,7 +1250,7 @@ export function SettingsTab({
                           className="bg-zinc-800/50 border border-zinc-800 px-3 py-2.5 rounded-lg flex justify-between items-center group"
                         >
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="text-xs font-medium text-blue-400">
+                            <span className="text-xs font-medium text-accent">
                               {f.name}
                             </span>
                             {f.unit && (
@@ -1573,13 +1573,13 @@ export function SettingsTab({
                     {(crop.calculatedFields || []).map((f: CalcFieldDef) => (
                       <div
                         key={f.id}
-                        className="bg-blue-950/20 border border-blue-900/20 p-2.5 rounded-md"
+                        className="bg-accent/10 border border-accent/20 p-2.5 rounded-md"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-blue-400">
+                          <span className="text-xs font-medium text-accent">
                             {f.name}{" "}
                             {f.unit && (
-                              <span className="text-blue-500/40">
+                              <span className="text-accent/40">
                                 ({f.unit})
                               </span>
                             )}
@@ -1597,7 +1597,7 @@ export function SettingsTab({
                             {f.format}
                           </span>
                         </div>
-                        <code className="text-[10px] text-blue-200/40 mt-1.5 block font-mono bg-black/20 p-1.5 rounded">
+                        <code className="text-[10px] text-accent/40 mt-1.5 block font-mono bg-black/20 p-1.5 rounded">
                           {f.formula}
                         </code>
                       </div>
