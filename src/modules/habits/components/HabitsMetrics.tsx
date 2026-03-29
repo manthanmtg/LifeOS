@@ -55,7 +55,19 @@ interface HabitsMetricsProps {
   metrics: HabitMetricsData;
 }
 
+const GLOW_COLORS = [
+  "var(--color-accent)",
+  "var(--color-success)",
+  "var(--color-warning)",
+  "var(--color-success)",
+];
+
 export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
+  const completionPct =
+    metrics.totalHabits > 0
+      ? Math.round((metrics.completedToday / metrics.totalHabits) * 100)
+      : 0;
+
   const cards = [
     {
       label: "Active Habits",
@@ -70,10 +82,7 @@ export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
       icon: CheckCircle2,
       iconColor: "text-success",
       bgIcon: "text-success",
-      sub:
-        metrics.totalHabits > 0
-          ? `${Math.round((metrics.completedToday / metrics.totalHabits) * 100)}%`
-          : "0%",
+      sub: `${completionPct}%`,
     },
     {
       label: "Best Streak",
@@ -107,9 +116,17 @@ export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
           initial="hidden"
           animate="visible"
           whileHover={{ y: -2 }}
-          className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 relative overflow-hidden group"
+          className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 relative overflow-hidden group backdrop-blur-sm"
         >
-          <div className="absolute top-0 right-0 p-4 opacity-[0.07] group-hover:scale-110 transition-transform">
+          {/* Hover glow */}
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{
+              background: `radial-gradient(ellipse at top right, ${GLOW_COLORS[i]}10, transparent 70%)`,
+            }}
+          />
+
+          <div className="absolute top-0 right-0 p-4 opacity-[0.07] group-hover:scale-110 group-hover:opacity-[0.12] transition-all duration-300">
             <card.icon className={cn("w-12 h-12", card.bgIcon)} />
           </div>
 

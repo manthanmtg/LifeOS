@@ -4,12 +4,13 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Edit3, Trash2, Flame, Trophy, RefreshCw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Habit, getDateStr, getStreak } from "./types";
+import { Habit, getStreak } from "./types";
 import HabitHeatmap from "./HabitHeatmap";
 
 interface HabitCardProps {
   habit: Habit;
   days: string[];
+  todayStr: string;
   onEdit: (habit: Habit) => void;
   onDelete: (id: string) => void;
   onToggleDay: (habit: Habit, date: string) => void;
@@ -30,14 +31,13 @@ const cardVariants = {
 export default function HabitCard({
   habit,
   days,
+  todayStr,
   onEdit,
   onDelete,
   onToggleDay,
   isDeletingId,
   isLoggingId,
 }: HabitCardProps) {
-  const todayStr = useMemo(() => getDateStr(new Date()), []);
-
   const completionDates = useMemo(
     () =>
       new Set(
@@ -60,7 +60,7 @@ export default function HabitCard({
     for (let i = 0; i < 30; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      if (completionDates.has(getDateStr(d))) count++;
+      if (completionDates.has(d.toISOString().split("T")[0])) count++;
     }
     return Math.round((count / 30) * 100);
   }, [completionDates]);
@@ -74,8 +74,12 @@ export default function HabitCard({
       animate="visible"
       exit="exit"
       layout
-      className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group"
+      className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group relative"
     >
+      <div
+        className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-2xl"
+        style={{ backgroundColor: habit.payload.color }}
+      />
       {/* Header */}
       <div className="px-5 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
@@ -181,6 +185,7 @@ export default function HabitCard({
           completions={completionDates}
           color={habit.payload.color}
           days={days}
+          todayStr={todayStr}
           onToggleDay={(date) => onToggleDay(habit, date)}
           isLoggingDay={loggingKey}
         />

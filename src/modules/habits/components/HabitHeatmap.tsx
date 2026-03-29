@@ -3,12 +3,12 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { getDateStr } from "./types";
 
 interface HabitHeatmapProps {
   completions: Set<string>;
   color: string;
   days: string[];
+  todayStr: string;
   onToggleDay: (date: string) => void;
   isLoggingDay: string | null;
 }
@@ -17,10 +17,10 @@ export default function HabitHeatmap({
   completions,
   color,
   days,
+  todayStr,
   onToggleDay,
   isLoggingDay,
 }: HabitHeatmapProps) {
-  const todayStr = useMemo(() => getDateStr(new Date()), []);
 
   // Group days into weeks (columns of 7)
   const weeks = useMemo(() => {
