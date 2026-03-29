@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { Car, AlertTriangle, Fuel, Wrench } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 
 interface VehicleSummary {
   total: number;
@@ -49,35 +53,24 @@ export default function VehicleWidget() {
       }
     >
       {summary && (
-        <div className="py-2 space-y-4">
-          <div>
-            <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-              {summary.total}
-            </p>
-            <p className="text-xs text-zinc-500 mt-1 font-medium italic">
-              vehicle{summary.total !== 1 ? "s" : ""} tracked
-            </p>
-          </div>
-
+        <div className="space-y-3">
+          <WidgetStat
+            value={summary.total}
+            label={`vehicle${summary.total !== 1 ? "s" : ""} tracked`}
+          />
           {summary.alertCount > 0 ? (
-            <div className="p-3 rounded-xl border border-warning/20 bg-warning/5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-3.5 h-3.5 text-warning shrink-0" />
-                <p className="text-[13px] text-warning font-medium leading-relaxed">
-                  {summary.alertCount} expiry/service alert
-                  {summary.alertCount !== 1 ? "s" : ""}
-                </p>
-              </div>
-              <p className="text-[10px] text-zinc-600 mt-1 ml-5.5">
-                needs your attention
-              </p>
-            </div>
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text={`${summary.alertCount} expiry/service alert${summary.alertCount !== 1 ? "s" : ""}`}
+              subtext="needs attention"
+              variant="warning"
+            />
           ) : (
-            <div className="p-3 rounded-xl border border-dashed border-zinc-800 opacity-40">
-              <p className="text-[11px] text-zinc-500 text-center font-medium">
-                All clear, no alerts.
-              </p>
-            </div>
+            <WidgetHighlight
+              icon={Car}
+              text="All clear, no alerts"
+              variant="success"
+            />
           )}
         </div>
       )}

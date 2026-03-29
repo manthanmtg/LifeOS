@@ -3,6 +3,10 @@
 import { useMemo, useState, useEffect } from "react";
 import { PenLine, Shapes, Star, Globe } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 
 interface WhiteboardDoc {
   is_public: boolean;
@@ -41,12 +45,8 @@ export default function WhiteboardWidget() {
   const latestBoard = useMemo(() => {
     if (boards.length === 0) return null;
     const favs = boards.filter((b) => b.payload.is_favorite);
-    if (favs.length > 0)
-      return [...favs].sort(
-        (a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-      )[0];
-    return [...boards].sort(
+    const pool = favs.length > 0 ? favs : boards;
+    return [...pool].sort(
       (a, b) =>
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     )[0];
@@ -72,40 +72,25 @@ export default function WhiteboardWidget() {
                 <Globe className="w-3 h-3" /> {stats.publicCount}
               </span>
             )}
-            <span className="flex items-center gap-1">
-              <Shapes className="w-3 h-3" /> {stats.totalElements}
-            </span>
           </div>
-          <span>
-            {stats.total} Canvas{stats.total !== 1 ? "es" : ""}
+          <span className="flex items-center gap-1">
+            <Shapes className="w-3 h-3" /> {stats.totalElements} elements
           </span>
         </div>
       }
     >
-      <div className="py-2 space-y-4">
-        <div>
-          <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-            {stats.total}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium italic">
-            whiteboards
-          </p>
-        </div>
-
-        {latestBoard && (
-          <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/50">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              {latestBoard.payload.is_favorite && (
-                <Star className="w-3 h-3 text-warning" fill="currentColor" />
-              )}
-              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
-                {latestBoard.payload.is_favorite ? "Favorite" : "Last Edited"}
-              </p>
-            </div>
-            <p className="text-[13px] text-zinc-300 font-medium line-clamp-1 leading-relaxed">
-              {latestBoard.payload.name}
-            </p>
-          </div>
+      <div className="space-y-3">
+        <WidgetStat value={stats.total} label="whiteboards" />
+        {latestBoard ? (
+          <WidgetHighlight
+            icon={latestBoard.payload.is_favorite ? Star : PenLine}
+            text={latestBoard.payload.name}
+            subtext={
+              latestBoard.payload.is_favorite ? "favorite" : "last edited"
+            }
+          />
+        ) : (
+          <WidgetHighlight icon={PenLine} text="No boards yet" />
         )}
       </div>
     </WidgetCard>

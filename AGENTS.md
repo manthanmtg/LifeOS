@@ -45,12 +45,34 @@ The `src/registry.ts` maps module slugs to `ModuleConfig` (name, icon, defaultPu
 
 The dynamic admin route (`src/app/admin/[module]/page.tsx`) imports `@/modules/${moduleName}/AdminView` at runtime, falling back to `_template/AdminView` if not found.
 
+### Widget Contract
+
+Widgets are **constrained dashboard tiles**, not mini-apps. `WidgetCard` enforces a hard max-height of **280px** (`WIDGET_MAX_HEIGHT` from `src/components/dashboard/widget-primitives.tsx`). Any widget content that exceeds this height is **clipped**. In development mode, overflowing widgets show a red ring and a warning banner so violations are immediately visible.
+
+**Rules:**
+
+1. Show one hero metric + at most one detail. That's the entire widget.
+2. Use the pre-sized primitives from `src/components/dashboard/widget-primitives.tsx`: `WidgetStat`, `WidgetHighlight`, `WidgetMiniStats`, `WidgetList`.
+3. Fetch from `/api/widgets/summary` endpoints — never pull full collections into a widget.
+4. No interactive elements (buttons, forms, inputs) inside widgets. The whole card is clickable via `WidgetCard`'s `href` prop.
+5. No `window.location` navigation — use `href` on `WidgetCard` instead.
+6. Keep animations minimal; the card handles hover transitions.
+
+**Recommended layouts (pick ONE per widget):**
+
+- **A)** `WidgetStat` + `WidgetHighlight` — hero number + spotlight row
+- **B)** `WidgetStat` + `WidgetMiniStats` — hero number + up to 3 mini stat cells
+- **C)** `WidgetStat` + `WidgetList` — hero number + up to 2 list items
+- **D)** `WidgetStat` alone — just the hero metric
+
+Reference implementation: `src/modules/_template/Widget.tsx`
+
 ### Adding a New Module
 
 1. Register in `src/registry.ts` with slug, name, icon (Lucide React name), defaultPublic, contentType
 2. Add Zod schema to `src/lib/schemas.ts` and register in `SchemaRegistry`
 3. Create `src/modules/[name]/AdminView.tsx` — fetch data via `/api/content?module_type=<contentType>`
-4. Create `src/modules/[name]/Widget.tsx` and add dynamic import to `src/app/admin/page.tsx`
+4. Create `src/modules/[name]/Widget.tsx` following the Widget Contract (see above) and add dynamic import to `src/app/admin/page.tsx`
 5. Add icon to `IconMap` in `src/components/shell/AdminSidebar.tsx`
 6. For public modules: create `PublicView.tsx` and wire into `src/app/[module]/page.tsx`
 

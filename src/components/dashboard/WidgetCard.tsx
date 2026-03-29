@@ -2,10 +2,10 @@
 
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { ReactNode, useRef, useEffect, useState } from "react";
 import Link from "next/link";
+import { WIDGET_MAX_HEIGHT } from "./widget-primitives";
 
-/** Map friendly color names to CSS color values */
 const COLOR_MAP: Record<string, string> = {
   accent: "var(--accent)",
   success: "var(--success)",
@@ -41,16 +41,61 @@ export default function WidgetCard({
   accentColor = "accent",
 }: WidgetCardProps) {
   const resolved = resolveColor(accentColor);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    const el = cardRef.current;
+    if (!el || loading) return;
+
+    let observer: ResizeObserver | null = null;
+    const timer = setTimeout(() => {
+      const check = () => {
+        const overflow = el.scrollHeight - el.clientHeight;
+        if (overflow > 4) {
+          setIsOverflowing(true);
+          console.warn(
+            `[WidgetContract] "${title}" overflows by ${overflow}px ` +
+              `(${el.scrollHeight}px content > ${WIDGET_MAX_HEIGHT}px max). ` +
+              `Reduce content to honor the widget contract.`,
+          );
+        } else {
+          setIsOverflowing(false);
+        }
+      };
+      check();
+      observer = new ResizeObserver(check);
+      observer.observe(el);
+    }, 150);
+
+    return () => {
+      clearTimeout(timer);
+      observer?.disconnect();
+    };
+  }, [loading, title]);
+
+  const showOverflow = isOverflowing && !loading;
 
   const CardContent = (
     <div
+      ref={cardRef}
+      style={{ maxHeight: WIDGET_MAX_HEIGHT }}
       className={cn(
         "relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full transition-all group",
         href &&
           "hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 hover:scale-[1.01]",
+        showOverflow && "ring-2 ring-danger/60",
         className,
       )}
     >
+      {/* Dev-only overflow warning */}
+      {showOverflow && (
+        <div className="absolute inset-x-0 bottom-0 z-50 bg-danger/90 text-zinc-50 text-[9px] font-bold uppercase tracking-wider text-center py-1">
+          ⚠ Widget overflow — reduce content to fit contract
+        </div>
+      )}
+
       {/* Background Decoration */}
       <div
         className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-3xl opacity-20 transition-opacity group-hover:opacity-30"
@@ -77,7 +122,7 @@ export default function WidgetCard({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 relative z-10">
+      <div className="flex-1 relative z-10 min-h-0">
         {loading ? (
           <div className="space-y-3 animate-pulse">
             <div className="h-8 w-1/3 bg-zinc-800 rounded-lg" />

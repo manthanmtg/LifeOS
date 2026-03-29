@@ -3,6 +3,10 @@
 import { useMemo, useState, useEffect } from "react";
 import { Lightbulb, Sparkles } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 
 interface Idea {
   payload: {
@@ -19,7 +23,7 @@ export default function IdeasWidget() {
 
   useEffect(() => {
     fetch("/api/content?module_type=idea")
-      .then((response) => response.json())
+      .then((r) => r.json())
       .then((data) => setIdeas(data.data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -50,38 +54,29 @@ export default function IdeasWidget() {
 
   return (
     <WidgetCard
-      title="Nexus"
+      title="Ideas"
       icon={Lightbulb}
       loading={loading}
       href="/admin/ideas"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
           <span className="flex items-center gap-1.5 text-success">
-            <Sparkles className="w-3 h-3" /> {stats.promoted} Promoted
+            <Sparkles className="w-3 h-3" /> {stats.promoted} promoted
           </span>
-          <span>{stats.exploring} Exploring</span>
+          <span>{stats.exploring} exploring</span>
         </div>
       }
     >
-      <div className="py-2 space-y-4">
-        <div>
-          <p className="text-4xl font-bold text-zinc-50 tracking-tight">
-            {stats.total}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1 font-medium italic">
-            captured concepts
-          </p>
-        </div>
-
-        {topIdea && (
-          <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/50">
-            <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-1.5">
-              Top Focus
-            </p>
-            <p className="text-[13px] text-zinc-300 font-medium line-clamp-1 leading-relaxed">
-              {topIdea.payload.title}
-            </p>
-          </div>
+      <div className="space-y-3">
+        <WidgetStat value={stats.total} label="captured concepts" />
+        {topIdea ? (
+          <WidgetHighlight
+            icon={Lightbulb}
+            text={topIdea.payload.title}
+            subtext={topIdea.payload.status}
+          />
+        ) : (
+          <WidgetHighlight icon={Lightbulb} text="No ideas yet" />
         )}
       </div>
     </WidgetCard>

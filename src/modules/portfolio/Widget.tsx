@@ -36,7 +36,7 @@ export default function PortfolioWidget() {
       href="/admin/portfolio"
       footer={
         profile && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider relative z-10">
+          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
             <span className="text-zinc-500 inline-flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> {profile.payload.skills.length}{" "}
               skills
@@ -53,7 +53,7 @@ export default function PortfolioWidget() {
       }
     >
       {profile ? (
-        <div className="py-2">
+        <div>
           <p className="text-xs text-zinc-500 font-medium mb-1">
             {profile.payload.full_name || "Identity"}
           </p>
@@ -61,33 +61,13 @@ export default function PortfolioWidget() {
             {profile.payload.hero_title}
           </p>
           {profile.payload.sub_headline && (
-            <p className="text-[11px] text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
+            <p className="text-[11px] text-zinc-400 mt-2 line-clamp-1 leading-relaxed">
               {profile.payload.sub_headline}
             </p>
           )}
-
-          {profile.payload.skills.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-4">
-              {profile.payload.skills.slice(0, 3).map((skill) => (
-                <span
-                  key={skill}
-                  className="px-2 py-1 bg-zinc-800 border border-zinc-700 rounded-lg text-[9px] font-bold uppercase tracking-wider text-zinc-400"
-                >
-                  {skill}
-                </span>
-              ))}
-              {profile.payload.skills.length > 3 && (
-                <span className="px-2 py-1 bg-accent/10 border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-wider text-accent">
-                  +{profile.payload.skills.length - 3}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       ) : (
-        <p className="text-sm text-zinc-500 py-2">
-          No profile yet. Set one up!
-        </p>
+        <p className="text-sm text-zinc-500">No profile yet. Set one up!</p>
       )}
     </WidgetCard>
   );

@@ -30,10 +30,13 @@ export function SkeletonBlock({
   );
 }
 
-/** Skeleton for dashboard widget cards */
+/** Skeleton for dashboard widget cards — matches WIDGET_MAX_HEIGHT (280px) */
 export function WidgetSkeleton() {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between h-full animate-pulse">
+    <div
+      style={{ maxHeight: 280 }}
+      className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between h-full animate-pulse overflow-hidden"
+    >
       <div className="flex items-center justify-between mb-4">
         <SkeletonBlock className="h-3 w-16" />
         <SkeletonBlock className="h-4 w-4 rounded" />
