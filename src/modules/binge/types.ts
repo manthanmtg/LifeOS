@@ -37,7 +37,7 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_STYLES: Record<string, string> = {
-  to_watch: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  to_watch: "bg-accent/15 text-accent border-accent/25",
   watching: "bg-warning/15 text-warning border-warning/25",
   completed: "bg-success/15 text-success border-success/25",
   dropped: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
@@ -51,8 +51,8 @@ export const TYPE_LABELS: Record<string, string> = {
 };
 
 export const TYPE_STYLES: Record<string, string> = {
-  movie: "bg-purple-500/15 text-purple-300 border-purple-500/25",
-  series: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
-  documentary: "bg-orange-500/15 text-orange-300 border-orange-500/25",
-  anime: "bg-pink-500/15 text-pink-300 border-pink-500/25",
+  movie: "bg-accent/15 text-accent border-accent/25",
+  series: "bg-success/15 text-success border-success/25",
+  documentary: "bg-warning/15 text-warning border-warning/25",
+  anime: "bg-danger/15 text-danger border-danger/25",
 };
