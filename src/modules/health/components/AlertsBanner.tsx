@@ -56,8 +56,8 @@ export default function AlertsBanner({ alerts }: AlertsBannerProps) {
               )}
             >
               {a.status === "overdue"
-                ? `Overdue ${Math.abs(daysUntil(a.date)!)}d`
-                : `${daysUntil(a.date)}d left`}
+                ? `Overdue ${Math.abs(daysUntil(a.date) ?? 0)}d`
+                : `${daysUntil(a.date) ?? 0}d left`}
             </span>
           </div>
         ))}
