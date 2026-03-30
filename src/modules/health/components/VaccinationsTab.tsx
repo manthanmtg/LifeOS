@@ -2,7 +2,8 @@
 
 import { Plus, Syringe, Edit3, Trash2, Copy, CalendarX2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { formatDate } from "./helpers";
+import { cn } from "@/lib/utils";
+import { formatDate, getDueStatus } from "./helpers";
 import { dueBadge } from "./DueBadge";
 import type { HealthPayload, Vaccination } from "./types";
 
@@ -59,7 +60,21 @@ export default function VaccinationsTab({
                 new Date(b.date_administered).getTime() -
                 new Date(a.date_administered).getTime(),
             )
-            .map((vac) => (
+            .map((vac) => {
+              const dueStatus = vac.next_due ? getDueStatus(vac.next_due) : "none";
+              const iconBg =
+                dueStatus === "overdue"
+                  ? "bg-danger/10"
+                  : dueStatus === "warning"
+                    ? "bg-warning/10"
+                    : "bg-success/10";
+              const iconColor =
+                dueStatus === "overdue"
+                  ? "text-danger"
+                  : dueStatus === "warning"
+                    ? "text-warning"
+                    : "text-success";
+              return (
               <motion.div
                 key={vac.id}
                 layout
@@ -69,8 +84,8 @@ export default function VaccinationsTab({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
-                      <Syringe className="w-4 h-4 text-success" />
+                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
+                      <Syringe className={cn("w-4 h-4", iconColor)} />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-zinc-200 truncate">
@@ -127,7 +142,8 @@ export default function VaccinationsTab({
                   </div>
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
         </div>
       )}
 

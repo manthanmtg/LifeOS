@@ -148,7 +148,7 @@ export default function DocumentsTab({
                                   <PdfThumbnail base64Data={att.data} />
                                 </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
-                                  <FileText className="w-3.5 h-3.5 text-danger" />
+                                  <FileText className="w-3.5 h-3.5 text-zinc-400" />
                                 </div>
                               </div>
                             ) : (

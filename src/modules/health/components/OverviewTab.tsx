@@ -99,12 +99,7 @@ export default function OverviewTab({
         </div>
 
         {/* Latest BMI */}
-        <div
-          className={cn(
-            "bg-zinc-900 border rounded-2xl p-4 flex items-start gap-3",
-            latestBMI ? "border-zinc-800" : "border-zinc-800",
-          )}
-        >
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-start gap-3">
           <div className="w-8 h-8 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
             <TrendingUp
               className={cn(

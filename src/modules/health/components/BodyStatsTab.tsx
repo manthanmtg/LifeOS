@@ -97,21 +97,18 @@ export default function BodyStatsTab({
       )}
 
       {/* Weight trend chart */}
-      {sortedMeasurements.length > 1 && (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-          <p className={cn(labelCls, "mb-3")}>Weight Trend</p>
-          <div className="flex items-end gap-1 h-20">
-            {[...sortedMeasurements]
-              .reverse()
-              .filter((m) => m.weight_kg)
-              .map((m) => {
-                const weights = sortedMeasurements
-                  .filter((x) => x.weight_kg)
-                  .map((x) => x.weight_kg!);
-                const min = Math.min(...weights);
-                const max = Math.max(...weights);
-                const range = max - min || 1;
-                const height = ((m.weight_kg! - min) / range) * 80 + 20;
+      {sortedMeasurements.length > 1 && (() => {
+        const weightMeasurements = [...sortedMeasurements].reverse().filter((m) => m.weight_kg);
+        const weights = weightMeasurements.map((m) => m.weight_kg!);
+        const wMin = Math.min(...weights);
+        const wMax = Math.max(...weights);
+        const wRange = wMax - wMin || 1;
+        return (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+            <p className={cn(labelCls, "mb-3")}>Weight Trend</p>
+            <div className="flex items-end gap-1 h-20">
+              {weightMeasurements.map((m) => {
+                const height = ((m.weight_kg! - wMin) / wRange) * 80 + 20;
                 return (
                   <div
                     key={m.id}
@@ -121,9 +118,10 @@ export default function BodyStatsTab({
                   />
                 );
               })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {p.measurements.length === 0 ? (
         <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
