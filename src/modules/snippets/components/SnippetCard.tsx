@@ -10,7 +10,7 @@ interface SnippetCardProps {
   snippet: Snippet;
   index: number;
   copiedId: string | null;
-  isProcessingId: string | null;
+  processingAction: { id: string; action: "delete" | "favorite" } | null;
   showLineNumbers: boolean;
   onCopy: (id: string, code: string) => void;
   onToggleFavorite: (snippet: Snippet) => void;
@@ -38,14 +38,19 @@ export default function SnippetCard({
   snippet,
   index,
   copiedId,
-  isProcessingId,
+  processingAction,
   showLineNumbers,
   onCopy,
   onToggleFavorite,
   onEdit,
   onDelete,
 }: SnippetCardProps) {
-  const isProcessing = isProcessingId === snippet._id;
+  const isFavoriting =
+    processingAction?.id === snippet._id &&
+    processingAction.action === "favorite";
+  const isDeleting =
+    processingAction?.id === snippet._id &&
+    processingAction.action === "delete";
   const isCopied = copiedId === snippet._id;
   const lineCount = snippet.payload.code.split("\n").length;
 
@@ -80,7 +85,7 @@ export default function SnippetCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex items-center gap-1 transition-opacity shrink-0 max-sm:opacity-60 sm:opacity-0 sm:group-hover:opacity-100">
           <button
             onClick={() => onCopy(snippet._id, snippet.payload.code)}
             className={cn(
@@ -99,7 +104,7 @@ export default function SnippetCard({
           </button>
           <button
             onClick={() => onToggleFavorite(snippet)}
-            disabled={isProcessing}
+            disabled={isFavoriting || isDeleting}
             className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50"
             aria-label={
               snippet.payload.is_favorite
@@ -108,7 +113,7 @@ export default function SnippetCard({
             }
             aria-pressed={snippet.payload.is_favorite}
           >
-            {isProcessing ? (
+            {isFavoriting ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Star
@@ -119,7 +124,7 @@ export default function SnippetCard({
           </button>
           <button
             onClick={() => onEdit(snippet)}
-            disabled={isProcessing}
+            disabled={isFavoriting || isDeleting}
             className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-md hover:bg-zinc-800 disabled:opacity-50"
             aria-label="Edit snippet"
           >
@@ -127,11 +132,11 @@ export default function SnippetCard({
           </button>
           <button
             onClick={() => onDelete(snippet._id)}
-            disabled={isProcessing}
+            disabled={isFavoriting || isDeleting}
             className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50"
             aria-label="Delete snippet"
           >
-            {isProcessing ? (
+            {isDeleting ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Trash2 className="w-3.5 h-3.5" />
@@ -150,30 +155,28 @@ export default function SnippetCard({
       </pre>
 
       {/* Footer */}
-      {(snippet.payload.description || snippet.payload.tags.length > 0) && (
-        <div className="px-4 py-2 border-t border-zinc-800">
-          {snippet.payload.description && (
-            <p className="text-xs text-zinc-500 line-clamp-1">
-              {snippet.payload.description}
-            </p>
-          )}
-          {snippet.payload.tags.length > 0 && (
-            <div className="flex items-center gap-1.5 flex-wrap mt-1">
-              {snippet.payload.tags.slice(0, 5).map((tag) => (
-                <span
-                  key={tag}
-                  className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-          <p className="text-[11px] text-zinc-500 mt-2">
-            Added {formatDate(snippet.created_at)}
+      <div className="px-4 py-2 border-t border-zinc-800">
+        {snippet.payload.description && (
+          <p className="text-xs text-zinc-500 line-clamp-1 mb-1">
+            {snippet.payload.description}
           </p>
-        </div>
-      )}
+        )}
+        {snippet.payload.tags.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+            {snippet.payload.tags.slice(0, 5).map((tag) => (
+              <span
+                key={tag}
+                className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <p className="text-[11px] text-zinc-600">
+          Added {formatDate(snippet.created_at)}
+        </p>
+      </div>
     </motion.article>
   );
 }

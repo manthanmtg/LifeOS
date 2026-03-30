@@ -3,18 +3,7 @@
 import { useMemo, useState } from "react";
 import { Code, Copy, Check, Star, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Snippet {
-  _id: string;
-  payload: {
-    title: string;
-    code: string;
-    language: string;
-    description?: string;
-    tags: string[];
-    is_favorite: boolean;
-  };
-}
+import type { Snippet } from "./components/types";
 
 export default function SnippetsPublicView({
   items,

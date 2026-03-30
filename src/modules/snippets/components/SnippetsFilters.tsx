@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, Filter } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SnippetsFiltersProps {
@@ -55,7 +55,11 @@ export default function SnippetsFilters({
               : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
           )}
         >
-          <Filter className="w-3.5 h-3.5" /> Favorites
+          <Star
+            className="w-3.5 h-3.5"
+            fill={favoritesOnly ? "currentColor" : "none"}
+          />{" "}
+          Favorites
         </button>
 
         <div className="flex items-center gap-2 flex-wrap">

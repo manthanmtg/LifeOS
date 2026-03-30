@@ -30,7 +30,10 @@ export default function SnippetsAdminView() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isProcessingId, setIsProcessingId] = useState<string | null>(null);
+  const [processingAction, setProcessingAction] = useState<{
+    id: string;
+    action: "delete" | "favorite";
+  } | null>(null);
 
   const configuredLanguages = useMemo(() => {
     return Array.isArray(settings.languages) && settings.languages.length > 0
@@ -75,7 +78,7 @@ export default function SnippetsAdminView() {
   const handleDelete = useCallback(
     async (id: string) => {
       if (!confirm("Delete this snippet?")) return;
-      setIsProcessingId(id);
+      setProcessingAction({ id, action: "delete" });
       try {
         const res = await fetch(`/api/content/${id}`, { method: "DELETE" });
         const data = await res.json();
@@ -85,7 +88,7 @@ export default function SnippetsAdminView() {
         const message = err instanceof Error ? err.message : "Failed to delete";
         alert(message);
       } finally {
-        setIsProcessingId(null);
+        setProcessingAction(null);
       }
     },
     [fetchSnippets],
@@ -99,7 +102,7 @@ export default function SnippetsAdminView() {
 
   const toggleFavorite = useCallback(
     async (snippet: Snippet) => {
-      setIsProcessingId(snippet._id);
+      setProcessingAction({ id: snippet._id, action: "favorite" });
       try {
         const payload = {
           ...snippet.payload,
@@ -117,7 +120,7 @@ export default function SnippetsAdminView() {
         const message = err instanceof Error ? err.message : "Failed to update";
         alert(message);
       } finally {
-        setIsProcessingId(null);
+        setProcessingAction(null);
       }
     },
     [fetchSnippets],
@@ -198,8 +201,7 @@ export default function SnippetsAdminView() {
                 Snippet Box
               </h1>
               <p className="text-zinc-400 mt-1">
-                Build a clean, searchable, and reusable code system for your
-                everyday workflow.
+                Store and search reusable code, commands, and technical notes.
               </p>
             </div>
             <div className="flex items-center gap-2 md:pt-1">
@@ -280,7 +282,7 @@ export default function SnippetsAdminView() {
                 snippet={snippet}
                 index={index}
                 copiedId={copiedId}
-                isProcessingId={isProcessingId}
+                processingAction={processingAction}
                 showLineNumbers={settings.showLineNumbers}
                 onCopy={handleCopy}
                 onToggleFavorite={toggleFavorite}
