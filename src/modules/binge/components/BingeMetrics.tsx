@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Tv,
@@ -23,6 +23,11 @@ function Sparkline({
   color: string;
   height?: number;
 }) {
+  // useId gives each instance a stable, unique ID so co-rendered sparklines
+  // don't share the same SVG linearGradient id.
+  const uid = useId();
+  const gradientId = `spark-${uid.replace(/:/g, "")}`;
+
   if (data.length < 2) return null;
   const max = Math.max(...data, 1);
   const width = 80;
@@ -33,7 +38,6 @@ function Sparkline({
       return `${x},${y}`;
     })
     .join(" ");
-  const gradientId = `spark-${color.replace(/[^a-z0-9]/g, "")}`;
   const areaPoints = `0,${height} ${points} ${width},${height}`;
 
   return (
@@ -173,7 +177,7 @@ export default function BingeMetrics({ items }: BingeMetricsProps) {
       label: "To Watch",
       value: stats.toWatch,
       icon: TrendingUp,
-      color: "text-blue-400",
+      color: "text-accent",
     },
     {
       label: "Dropped",

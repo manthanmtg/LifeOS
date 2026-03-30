@@ -104,7 +104,7 @@ export default function BingeCard({
           item.payload.status === "completed" &&
             "bg-gradient-to-r from-success/60 to-success/0",
           item.payload.status === "to_watch" &&
-            "bg-gradient-to-r from-blue-400/60 to-blue-400/0",
+            "bg-gradient-to-r from-accent/60 to-accent/0",
           item.payload.status === "dropped" &&
             "bg-gradient-to-r from-zinc-500/60 to-zinc-500/0",
         )}

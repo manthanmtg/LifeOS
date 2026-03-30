@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Plus, Tv, RefreshCw } from "lucide-react";
+import { Plus, Tv } from "lucide-react";
 import type { BingeItem } from "./types";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import BingeMetrics from "./components/BingeMetrics";
 import BingeFilters from "./components/BingeFilters";
 import BingeCard from "./components/BingeCard";
@@ -150,11 +151,27 @@ export default function BingeAdminView() {
 
       {/* Item Grid */}
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-zinc-500">
-          <div className="flex flex-col items-center gap-3">
-            <RefreshCw className="w-8 h-8 animate-spin text-accent" />
-            <span>Loading your watchlist...</span>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 animate-pulse space-y-3"
+            >
+              <div className="flex items-start gap-3">
+                <SkeletonBlock className="w-14 h-20 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2 pt-1">
+                  <SkeletonBlock className="h-4 w-3/4" />
+                  <SkeletonBlock className="h-3 w-1/2" />
+                  <div className="flex gap-1.5 pt-1">
+                    <SkeletonBlock className="h-4 w-14 rounded-full" />
+                    <SkeletonBlock className="h-4 w-16 rounded-full" />
+                  </div>
+                </div>
+              </div>
+              <SkeletonBlock className="h-3 w-full" />
+              <SkeletonBlock className="h-3 w-2/3" />
+            </div>
+          ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
