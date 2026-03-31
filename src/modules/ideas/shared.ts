@@ -26,7 +26,7 @@ export const IDEA_STATUS_LABELS: Record<string, string> = {
 
 export const IDEA_STATUS_STYLES: Record<string, string> = {
   raw: "bg-zinc-500/15 text-zinc-300 border-zinc-500/25",
-  exploring: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  exploring: "bg-accent/15 text-accent border-accent/25",
   archived: "bg-zinc-500/15 text-zinc-500 border-zinc-500/25",
 };
 
