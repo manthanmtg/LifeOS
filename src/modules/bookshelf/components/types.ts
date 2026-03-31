@@ -48,7 +48,7 @@ export const STATUS_LABELS: Record<BookStatus, string> = {
 };
 
 export const STATUS_STYLES: Record<BookStatus, string> = {
-  want_to_read: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  want_to_read: "bg-accent/15 text-accent border-accent/25",
   reading: "bg-warning/15 text-warning border-warning/25",
   completed: "bg-success/15 text-success border-success/25",
   abandoned: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",

@@ -19,6 +19,8 @@ interface BookshelfMetricsProps {
   stats: BookshelfStats;
 }
 
+let sparklineIdCounter = 0;
+
 function MiniSparkline({
   data,
   color = "var(--accent)",
@@ -28,6 +30,7 @@ function MiniSparkline({
   color?: string;
   height?: number;
 }) {
+  const gradientId = useMemo(() => `spark-${++sparklineIdCounter}`, []);
   const max = Math.max(...data, 1);
   const width = 80;
   const points = data
@@ -47,12 +50,12 @@ function MiniSparkline({
       preserveAspectRatio="none"
     >
       <defs>
-        <linearGradient id={`spark-${color}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.3" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <polygon points={fillPoints} fill={`url(#spark-${color})`} />
+      <polygon points={fillPoints} fill={`url(#${gradientId})`} />
       <polyline
         points={points}
         fill="none"
@@ -126,7 +129,7 @@ export default function BookshelfMetrics({
       label: "Want to Read",
       value: stats.wantToRead,
       icon: BookMarked,
-      color: "text-blue-400",
+      color: "text-accent",
     },
     {
       label: "Avg Rating",

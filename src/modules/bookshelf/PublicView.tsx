@@ -3,26 +3,18 @@
 import { useMemo, useState } from "react";
 import { Library, Search, Star, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const STATUS_LABELS: Record<string, string> = {
-  want_to_read: "Want to Read",
-  reading: "Reading",
-  completed: "Completed",
-  abandoned: "Abandoned",
-};
-const STATUS_STYLES: Record<string, string> = {
-  want_to_read: "bg-blue-500/15 text-blue-300 border-blue-500/25",
-  reading: "bg-warning/15 text-warning border-warning/25",
-  completed: "bg-success/15 text-success border-success/25",
-  abandoned: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
-};
+import {
+  STATUS_LABELS,
+  STATUS_STYLES,
+  type BookStatus,
+} from "./components/types";
 
 interface Book {
   _id: string;
   payload: {
     title: string;
     author: string;
-    status: string;
+    status: BookStatus;
     total_pages?: number;
     current_page: number;
     rating?: number;
@@ -32,7 +24,12 @@ interface Book {
   };
 }
 
-const STATUS_ORDER = ["reading", "want_to_read", "completed", "abandoned"];
+const STATUS_ORDER: BookStatus[] = [
+  "reading",
+  "want_to_read",
+  "completed",
+  "abandoned",
+];
 
 export default function BookshelfPublicView({
   items,
@@ -98,7 +95,7 @@ export default function BookshelfPublicView({
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
 
         <div className="relative space-y-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">

@@ -133,7 +133,7 @@ export default function BookCard({
           payload.status === "completed" &&
             "bg-gradient-to-r from-transparent via-success/40 to-transparent",
           payload.status === "want_to_read" &&
-            "bg-gradient-to-r from-transparent via-blue-400/30 to-transparent",
+            "bg-gradient-to-r from-transparent via-accent/30 to-transparent",
         )}
       />
 

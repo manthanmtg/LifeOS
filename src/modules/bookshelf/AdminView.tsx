@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Settings, Library, RefreshCw } from "lucide-react";
+import { Plus, Settings, Library } from "lucide-react";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 
@@ -265,12 +266,7 @@ export default function BookshelfAdminView() {
 
       {/* Book Grid */}
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-zinc-500">
-          <div className="flex flex-col items-center gap-3">
-            <RefreshCw className="w-8 h-8 animate-spin text-accent" />
-            <span>Loading your shelf...</span>
-          </div>
-        </div>
+        <AdminModuleSkeleton />
       ) : filtered.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
