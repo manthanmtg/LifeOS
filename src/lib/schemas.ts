@@ -410,6 +410,12 @@ export const PersonSchema = z.object({
   role: z.string().optional(),
   birthday: z.string().optional(), // YYYY-MM-DD
   avatar_url: z.string().url().optional().or(z.literal("")),
+  profile_pic: z
+    .object({
+      data: z.string().min(1),
+      content_type: z.string().min(1),
+    })
+    .optional(),
   interests: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
   notes: z.string().optional(),

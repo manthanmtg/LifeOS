@@ -76,7 +76,16 @@ export default function PersonCard({
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <div className="relative shrink-0">
-          {avatar_url ? (
+          {person.payload.profile_pic ? (
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
+              <Image
+                src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
+                alt={name}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : avatar_url ? (
             <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
               <Image
                 src={avatar_url}

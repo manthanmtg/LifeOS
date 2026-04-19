@@ -149,7 +149,13 @@ export default function PersonProfile({
         <div className="flex flex-col md:flex-row gap-5 items-center md:items-start text-center md:text-left">
           {/* Avatar */}
           <div className="shrink-0 relative">
-            {avatar_url ? (
+            {person.payload.profile_pic ? (
+              <img
+                src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
+                alt={name}
+                className="w-20 h-20 rounded-2xl object-cover border border-zinc-700"
+              />
+            ) : avatar_url ? (
               <img
                 src={avatar_url}
                 alt={name}

@@ -51,6 +51,7 @@ export interface PersonPayload {
   role?: string;
   birthday?: string;
   avatar_url?: string;
+  profile_pic?: { data: string; content_type: string };
   interests: string[];
   tags: string[];
   notes?: string;

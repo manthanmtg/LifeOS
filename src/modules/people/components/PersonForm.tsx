@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   X,
   Save,
@@ -9,7 +9,8 @@ import {
   Cake,
   Phone,
   Mail,
-  Link as LinkIcon,
+  Camera,
+  Trash2,
   Heart,
   Star,
   Tag as TagIcon,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import ImageCropper from "@/components/ui/ImageCropper";
 import {
   Person,
   PersonPayload,
@@ -49,7 +51,12 @@ export default function PersonForm({
   const [company, setCompany] = useState(person?.payload.company || "");
   const [role, setRole] = useState(person?.payload.role || "");
   const [birthday, setBirthday] = useState(person?.payload.birthday || "");
-  const [avatarUrl, setAvatarUrl] = useState(person?.payload.avatar_url || "");
+  const [profilePic, setProfilePic] = useState<
+    { data: string; content_type: string } | undefined
+  >(person?.payload.profile_pic);
+  const [cropperSrc, setCropperSrc] = useState<string | null>(null);
+  const [cropperMime, setCropperMime] = useState("image/jpeg");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [interests, setInterests] = useState(
     (person?.payload.interests || []).join(", "),
   );
@@ -82,7 +89,8 @@ export default function PersonForm({
       company: company.trim() || undefined,
       role: role.trim() || undefined,
       birthday: birthday || undefined,
-      avatar_url: avatarUrl.trim() || undefined,
+      avatar_url: profilePic ? undefined : person?.payload.avatar_url,
+      profile_pic: profilePic,
       interests: interests
         .split(",")
         .map((i) => i.trim())
@@ -304,13 +312,62 @@ export default function PersonForm({
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <LinkIcon className="w-3 h-3" /> Photo URL
+                  <Camera className="w-3 h-3" /> Photo
                 </label>
+                {profilePic ? (
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-zinc-700 shrink-0">
+                      <img
+                        src={`data:${profilePic.content_type};base64,${profilePic.data}`}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-700 hover:bg-zinc-700 transition-colors"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProfilePic(undefined)}
+                        className="p-1.5 text-zinc-500 hover:text-danger rounded-lg hover:bg-danger/10 transition-colors"
+                        title="Remove photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      inputCls,
+                      "flex items-center gap-2 text-zinc-600 hover:text-zinc-400 hover:border-zinc-600 cursor-pointer transition-colors text-left",
+                    )}
+                  >
+                    <Camera className="w-4 h-4 shrink-0" />
+                    <span>Upload photo</span>
+                  </button>
+                )}
                 <input
-                  type="url"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  className={inputCls}
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setCropperMime(file.type || "image/jpeg");
+                      const url = URL.createObjectURL(file);
+                      setCropperSrc(url);
+                    }
+                    e.target.value = "";
+                  }}
                 />
               </div>
             </div>
@@ -376,6 +433,22 @@ export default function PersonForm({
           </div>
         </form>
       </motion.div>
+
+      {cropperSrc && (
+        <ImageCropper
+          imageSrc={cropperSrc}
+          mimeType={cropperMime}
+          onClose={() => {
+            if (cropperSrc) URL.revokeObjectURL(cropperSrc);
+            setCropperSrc(null);
+          }}
+          onCropComplete={(base64Data, mimeType) => {
+            setProfilePic({ data: base64Data, content_type: mimeType });
+            if (cropperSrc) URL.revokeObjectURL(cropperSrc);
+            setCropperSrc(null);
+          }}
+        />
+      )}
     </div>
   );
 }
