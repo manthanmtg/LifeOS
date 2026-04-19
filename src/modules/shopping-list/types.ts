@@ -22,3 +22,18 @@ export interface ShoppingListDocument {
   created_at: string;
   updated_at: string;
 }
+
+export interface ParsedShoppingEntry {
+  name: string;
+  quantity?: string;
+  unit?: string;
+}
+
+export interface ShoppingListSummary {
+  totalItems: number;
+  purchasedItems: number;
+  remainingItems: number;
+  completionPercent: number;
+}
+
+export type ShoppingListTab = "active" | "completed";
