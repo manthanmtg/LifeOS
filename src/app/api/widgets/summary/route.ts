@@ -462,20 +462,31 @@ export async function GET(request: Request) {
       case "rain_entry": {
         const sevenDaysAgo = new Date(nowRef - 7 * 24 * 60 * 60 * 1000);
         const thirtyDaysAgo = new Date(nowRef - 30 * 24 * 60 * 60 * 1000);
+        const rainyDays = new Set<string>();
         let last7Mm = 0,
           last30Mm = 0,
           totalMm = 0;
+        let latestEntryDate: string | null = null;
         for (const entry of docs) {
           const date = new Date(entry.payload.date);
           const amtMm = entry.payload.rainfall_amount;
           totalMm += amtMm;
           if (date >= sevenDaysAgo) last7Mm += amtMm;
           if (date >= thirtyDaysAgo) last30Mm += amtMm;
+          rainyDays.add(date.toISOString().slice(0, 10));
+          if (
+            !latestEntryDate ||
+            date.getTime() > new Date(latestEntryDate).getTime()
+          ) {
+            latestEntryDate = entry.payload.date;
+          }
         }
         summary = {
           last7Mm: roundTo(last7Mm, 2),
           last30Mm: roundTo(last30Mm, 2),
           totalMm: roundTo(totalMm, 2),
+          rainyDays: rainyDays.size,
+          latestEntryDate,
         };
         break;
       }

@@ -1,19 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { CloudRain, Calendar, Droplets } from "lucide-react";
+import { Calendar, CloudRain, Droplets } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
   WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
-
-interface RainSummary {
-  last7Mm: number;
-  last30Mm: number;
-  totalMm: number;
-}
+import type { RainSummary } from "./types";
 
 const CONVERSION_FROM_MM: Record<"mm" | "cm" | "in", number> = {
   mm: 1,
@@ -43,11 +38,25 @@ export default function RainTrackerWidget() {
 
   const stats = useMemo(() => {
     const rate = CONVERSION_FROM_MM[displayUnit];
-    if (!data) return { last7: "0.0", last30: "0.0", total: "0.0" };
+    if (!data)
+      return {
+        last7: "0.0",
+        last30: "0.0",
+        total: "0.0",
+        rainyDays: "0",
+        latestEntryLabel: "None",
+      };
     return {
       last7: (data.last7Mm * rate).toFixed(1),
       last30: (data.last30Mm * rate).toFixed(1),
       total: (data.totalMm * rate).toFixed(1),
+      rainyDays: String(data.rainyDays ?? 0),
+      latestEntryLabel: data.latestEntryDate
+        ? new Date(data.latestEntryDate).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+          })
+        : "None",
     };
   }, [data, displayUnit]);
 
@@ -72,10 +81,16 @@ export default function RainTrackerWidget() {
               color: "accent",
             },
             {
-              value: `${stats.total} ${displayUnit}`,
-              label: "All time",
+              value: stats.latestEntryLabel,
+              label: "Latest log",
               icon: Droplets,
               color: "success",
+            },
+            {
+              value: stats.rainyDays,
+              label: "Rainy days",
+              icon: CloudRain,
+              color: "warning",
             },
           ]}
         />
