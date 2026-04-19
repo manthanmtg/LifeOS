@@ -1,4 +1,6 @@
 export type PostStatus = "draft" | "published" | "archived";
+export type StatusFilter = "all" | PostStatus;
+export type ViewMode = "split" | "write" | "preview";
 
 export interface BlogPayload {
   title: string;
@@ -23,4 +25,33 @@ export interface BlogHeading {
   id: string;
   text: string;
   level: 2 | 3;
+}
+
+export interface EditorDraft {
+  title: string;
+  slug: string;
+  content: string;
+  status: PostStatus;
+  tagsInput: string;
+  seoDesc: string;
+  coverImageUrl: string;
+  publishedAt?: string;
+}
+
+export interface BlogAdminStats {
+  published: number;
+  drafts: number;
+  archived: number;
+}
+
+export interface BlogSummary {
+  total: number;
+  published: number;
+  drafts: number;
+  archived: number;
+  totalReadMinutes: number;
+  latestPublishedPost: {
+    title: string;
+    readingTime: number;
+  } | null;
 }

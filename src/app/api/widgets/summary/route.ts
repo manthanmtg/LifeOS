@@ -480,6 +480,52 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "blog_post": {
+        const publishedPosts = docs.filter(
+          (doc) => doc.payload.status === "published",
+        );
+        const latestPublishedPost =
+          publishedPosts
+            .slice()
+            .sort(
+              (a, b) =>
+                new Date(
+                  b.payload.published_at || b.created_at || 0,
+                ).getTime() -
+                new Date(a.payload.published_at || a.created_at || 0).getTime(),
+            )[0] || null;
+
+        const getReadTime = (content: string) => {
+          const words = content.trim().split(/\s+/).filter(Boolean).length;
+          if (words === 0) return 1;
+          return Math.max(1, Math.ceil(words / 200));
+        };
+
+        summary = {
+          total: docs.length,
+          published: publishedPosts.length,
+          drafts: docs.filter((doc) => doc.payload.status === "draft").length,
+          archived: docs.filter((doc) => doc.payload.status === "archived")
+            .length,
+          totalReadMinutes: publishedPosts.reduce(
+            (sum, doc) =>
+              sum +
+              (doc.payload.estimated_reading_time ||
+                getReadTime(doc.payload.content || "")),
+            0,
+          ),
+          latestPublishedPost: latestPublishedPost
+            ? {
+                title: latestPublishedPost.payload.title,
+                readingTime:
+                  latestPublishedPost.payload.estimated_reading_time ||
+                  getReadTime(latestPublishedPost.payload.content || ""),
+              }
+            : null,
+        };
+        break;
+      }
+
       default:
         summary = { total: docs.length };
         break;
