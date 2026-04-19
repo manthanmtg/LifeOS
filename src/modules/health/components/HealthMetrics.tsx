@@ -3,6 +3,7 @@
 import { HeartPulse, AlertTriangle, Pill, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { HealthProfile } from "./types";
+import { getProfileOverviewSnapshot } from "./selectors";
 
 interface HealthMetricsProps {
   profiles: HealthProfile[];
@@ -13,14 +14,13 @@ export default function HealthMetrics({
   profiles,
   alertCount,
 }: HealthMetricsProps) {
-  const totalActiveMeds = profiles.reduce(
-    (sum, p) =>
-      sum + p.payload.medications.filter((m) => m.status === "active").length,
+  const snapshots = profiles.map(getProfileOverviewSnapshot);
+  const totalActiveMeds = snapshots.reduce(
+    (sum, snapshot) => sum + snapshot.activeMedicationCount,
     0,
   );
-  const totalActiveConditions = profiles.reduce(
-    (sum, p) =>
-      sum + p.payload.conditions.filter((c) => c.status !== "resolved").length,
+  const totalActiveConditions = snapshots.reduce(
+    (sum, snapshot) => sum + snapshot.activeConditionCount,
     0,
   );
 

@@ -4,7 +4,12 @@ import { AlertTriangle, AlertCircle, Pill, Syringe } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PROFILE_TYPE_CONFIG } from "./constants";
-import { getDueStatus, getInitials, formatDate } from "./helpers";
+import { getInitials, formatDate } from "./helpers";
+import {
+  getLatestVisit,
+  getMedicationCounts,
+  getProfileAlerts,
+} from "./selectors";
 import type { HealthProfile } from "./types";
 
 interface ProfileCardProps {
@@ -21,33 +26,12 @@ export default function ProfileCard({
   const pl = profile.payload;
   const typeConfig = PROFILE_TYPE_CONFIG[pl.type];
   const TypeIcon = typeConfig.icon;
-
   const activeCondCount = pl.conditions.filter(
     (c) => c.status !== "resolved",
   ).length;
-  const activeMedCount = pl.medications.filter(
-    (m) => m.status === "active",
-  ).length;
-
-  // Count alerts for this profile
-  let alerts = 0;
-  for (const med of pl.medications || []) {
-    if (med.status === "active" && med.refill_date) {
-      const s = getDueStatus(med.refill_date);
-      if (s === "overdue" || s === "warning") alerts++;
-    }
-  }
-  for (const vac of pl.vaccinations || []) {
-    if (vac.next_due) {
-      const s = getDueStatus(vac.next_due);
-      if (s === "overdue" || s === "warning") alerts++;
-    }
-  }
-
-  // Latest visit date
-  const latestVisit = [...(pl.visits || [])].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  )[0];
+  const medicationCounts = getMedicationCounts(profile);
+  const alerts = getProfileAlerts(profile).length;
+  const latestVisit = getLatestVisit(profile);
 
   return (
     <motion.div
@@ -125,10 +109,11 @@ export default function ProfileCard({
             {activeCondCount} condition{activeCondCount !== 1 ? "s" : ""}
           </span>
         )}
-        {activeMedCount > 0 && (
+        {medicationCounts.active > 0 && (
           <span className="flex items-center gap-1">
             <Pill className="w-3 h-3 text-accent" />
-            {activeMedCount} med{activeMedCount !== 1 ? "s" : ""}
+            {medicationCounts.active} med
+            {medicationCounts.active !== 1 ? "s" : ""}
           </span>
         )}
         {pl.vaccinations.length > 0 && (

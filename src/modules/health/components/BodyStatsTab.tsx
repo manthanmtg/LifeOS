@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatDate, calculateBMI, bmiCategory } from "./helpers";
 import type { HealthPayload, Measurement } from "./types";
+import { getSortedMeasurements } from "./selectors";
 
 const labelCls =
   "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
@@ -25,10 +26,13 @@ export default function BodyStatsTab({
   renderModal,
 }: BodyStatsTabProps) {
   const p = payload;
-
-  const sortedMeasurements = [...p.measurements].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  const profile = {
+    _id: "inline-profile",
+    created_at: "",
+    updated_at: "",
+    payload,
+  };
+  const sortedMeasurements = getSortedMeasurements(profile);
   const latestMeasurement = sortedMeasurements[0];
   const latestBMI = latestMeasurement
     ? calculateBMI(latestMeasurement.height_cm, latestMeasurement.weight_kg)
