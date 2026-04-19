@@ -102,9 +102,7 @@ function formatUploadDate(iso: string) {
 function ResumeManager({
   setStatus,
 }: {
-  setStatus: (
-    s: { kind: "success" | "error"; text: string } | null,
-  ) => void;
+  setStatus: (s: { kind: "success" | "error"; text: string } | null) => void;
 }) {
   const [resumes, setResumes] = useState<ResumeData[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -242,7 +240,9 @@ function ResumeManager({
       {resumes.length === 0 ? (
         <div className="py-8 text-center border-2 border-dashed border-zinc-800 rounded-xl">
           <FileStack className="w-8 h-8 text-zinc-700 mx-auto mb-2" />
-          <p className="text-xs text-zinc-500">No resumes uploaded yet. (PDF only)</p>
+          <p className="text-xs text-zinc-500">
+            No resumes uploaded yet. (PDF only)
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -321,7 +321,8 @@ function ResumeManager({
         </div>
       )}
       <p className="text-[10px] text-zinc-500 italic">
-        Only one resume can be active. This will appear on your public portfolio.
+        Only one resume can be active. This will appear on your public
+        portfolio.
       </p>
     </div>
   );

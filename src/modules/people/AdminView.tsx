@@ -4,7 +4,12 @@ import { useState, useEffect, useMemo } from "react";
 import { Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import type { Person, PersonPayload, InteractionType } from "./types";
+import type {
+  Person,
+  PersonPayload,
+  PersonDocument,
+  InteractionType,
+} from "./types";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 import PeopleHeader from "./components/PeopleHeader";
@@ -179,6 +184,30 @@ export default function PeopleAdminView() {
     );
   };
 
+  const handleUpdateDocuments = async (
+    person: Person,
+    docs: PersonDocument[],
+  ) => {
+    try {
+      const res = await fetch(`/api/content/${person._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payload: { ...person.payload, documents: docs },
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update documents");
+      await fetchPeople();
+      if (selectedPerson?._id === person._id) {
+        const r = await fetch(`/api/content/${person._id}`);
+        const d = await r.json();
+        if (d.data) setSelectedPerson(d.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Processing Functions
   const filteredPeople = useMemo(() => {
     let result = [...people];
@@ -329,6 +358,7 @@ export default function PeopleAdminView() {
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
                 onLogInteraction={handleLogInteraction}
+                onUpdateDocuments={handleUpdateDocuments}
               />
             )}
           </motion.div>

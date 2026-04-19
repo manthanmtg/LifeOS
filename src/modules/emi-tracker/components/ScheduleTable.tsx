@@ -25,7 +25,9 @@ export default function ScheduleTable({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold text-zinc-300">Amortization Schedule</h3>
+        <h3 className="text-sm font-bold text-zinc-300">
+          Amortization Schedule
+        </h3>
         <div className="flex items-center gap-2">
           <button
             onClick={onExportCSV}
@@ -59,33 +61,58 @@ export default function ScheduleTable({
             {schedule.rows.map((row) => {
               const isPaid = new Date(row.due_date) < new Date();
               return (
-                <tr 
-                  key={row.index} 
+                <tr
+                  key={row.index}
                   className={cn(
                     "hover:bg-zinc-800/30 transition-colors group",
-                    isPaid ? "opacity-60" : "opacity-100"
+                    isPaid ? "opacity-60" : "opacity-100",
                   )}
                 >
-                  <td className="px-4 py-2.5 text-center text-zinc-600 font-mono group-hover:text-zinc-400">{row.index}</td>
+                  <td className="px-4 py-2.5 text-center text-zinc-600 font-mono group-hover:text-zinc-400">
+                    {row.index}
+                  </td>
                   <td className="px-4 py-2.5">
                     {isPaid ? (
-                      <span className="px-2 py-0.5 rounded-full bg-success/10 text-success text-[9px] font-black uppercase tracking-tighter">Paid</span>
+                      <span className="px-2 py-0.5 rounded-full bg-success/10 text-success text-[9px] font-black uppercase tracking-tighter">
+                        Paid
+                      </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-500 text-[9px] font-black uppercase tracking-tighter">Upcoming</span>
+                      <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-500 text-[9px] font-black uppercase tracking-tighter">
+                        Upcoming
+                      </span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-300 font-medium">{row.due_date.slice(0, 10)}</td>
+                  <td className="px-4 py-2.5 text-zinc-300 font-medium">
+                    {row.due_date.slice(0, 10)}
+                  </td>
                   <td className="px-4 py-2.5 text-right text-zinc-300 tabular-nums">
-                    {formatMoney(row.principal, currencySymbol, decimals, numberFormat)}
+                    {formatMoney(
+                      row.principal,
+                      currencySymbol,
+                      decimals,
+                      numberFormat,
+                    )}
                   </td>
                   <td className="px-4 py-2.5 text-right text-danger/80 tabular-nums font-medium">
-                    {formatMoney(row.interest, currencySymbol, decimals, numberFormat)}
+                    {formatMoney(
+                      row.interest,
+                      currencySymbol,
+                      decimals,
+                      numberFormat,
+                    )}
                   </td>
                   <td className="px-4 py-2.5 text-right text-accent tabular-nums font-bold">
-                    {row.prepayment > 0 ? `+${formatMoney(row.prepayment, currencySymbol, decimals, numberFormat)}` : "—"}
+                    {row.prepayment > 0
+                      ? `+${formatMoney(row.prepayment, currencySymbol, decimals, numberFormat)}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-2.5 text-right text-zinc-100 font-bold tabular-nums">
-                    {formatMoney(row.closing_balance, currencySymbol, decimals, numberFormat)}
+                    {formatMoney(
+                      row.closing_balance,
+                      currencySymbol,
+                      decimals,
+                      numberFormat,
+                    )}
                   </td>
                 </tr>
               );
@@ -93,18 +120,41 @@ export default function ScheduleTable({
           </tbody>
           <tfoot className="bg-zinc-900/50 border-t border-zinc-800">
             <tr className="font-black text-zinc-300 uppercase tracking-tighter">
-              <td colSpan={3} className="px-4 py-3">Totals</td>
+              <td colSpan={3} className="px-4 py-3">
+                Totals
+              </td>
               <td className="px-4 py-3 text-right tabular-nums">
-                {formatMoney(schedule.totals.total_principal, currencySymbol, decimals, numberFormat)}
+                {formatMoney(
+                  schedule.totals.total_principal,
+                  currencySymbol,
+                  decimals,
+                  numberFormat,
+                )}
               </td>
               <td className="px-4 py-3 text-right text-danger tabular-nums">
-                {formatMoney(schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
+                {formatMoney(
+                  schedule.totals.total_interest,
+                  currencySymbol,
+                  decimals,
+                  numberFormat,
+                )}
               </td>
               <td className="px-4 py-3 text-right text-accent tabular-nums">
-                {formatMoney(schedule.totals.total_prepayment, currencySymbol, decimals, numberFormat)}
+                {formatMoney(
+                  schedule.totals.total_prepayment,
+                  currencySymbol,
+                  decimals,
+                  numberFormat,
+                )}
               </td>
               <td className="px-4 py-3 text-right text-zinc-50 tabular-nums">
-                {formatMoney(schedule.totals.total_principal + schedule.totals.total_interest, currencySymbol, decimals, numberFormat)}
+                {formatMoney(
+                  schedule.totals.total_principal +
+                    schedule.totals.total_interest,
+                  currencySymbol,
+                  decimals,
+                  numberFormat,
+                )}
               </td>
             </tr>
           </tfoot>

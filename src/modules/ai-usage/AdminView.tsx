@@ -1404,10 +1404,8 @@ export default function AiUsageAdminView() {
                   LifeOS will automatically fetch usage and cost data. Currently
                   supported:{" "}
                   <span className="text-success font-semibold">OpenAI</span> and{" "}
-                  <span className="text-warning font-semibold">
-                    Anthropic
-                  </span>
-                  . Keys are stored securely and never exposed in public API
+                  <span className="text-warning font-semibold">Anthropic</span>.
+                  Keys are stored securely and never exposed in public API
                   responses.
                 </p>
               </div>

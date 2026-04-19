@@ -333,8 +333,8 @@ export function DocsTab() {
             <p className="text-zinc-200 font-medium mb-3">Areca Crop Setup</p>
             <div className="space-y-2 text-zinc-400">
               <p>
-                <strong className="text-accent">Per-Area Fields:</strong>{" "}
-                Weight (kg)
+                <strong className="text-accent">Per-Area Fields:</strong> Weight
+                (kg)
               </p>
               <p>
                 <strong className="text-success">Period Fields:</strong> Avg

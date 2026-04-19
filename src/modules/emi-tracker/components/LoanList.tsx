@@ -42,7 +42,9 @@ export default function LoanList({
   if (loanCards.length === 0) {
     return (
       <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 text-center shadow-lg">
-        <p className="text-zinc-500 text-sm font-medium">No loans yet. Add your first loan to get started.</p>
+        <p className="text-zinc-500 text-sm font-medium">
+          No loans yet. Add your first loan to get started.
+        </p>
       </div>
     );
   }

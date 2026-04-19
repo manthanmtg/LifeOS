@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { Person, InteractionType } from "../types";
+import type { Person, PersonDocument, InteractionType } from "../types";
+import PersonDocuments from "./PersonDocuments";
 
 interface PersonProfileProps {
   person: Person;
@@ -35,6 +36,31 @@ interface PersonProfileProps {
     date: string,
     note?: string,
   ) => Promise<void>;
+  onUpdateDocuments: (person: Person, docs: PersonDocument[]) => Promise<void>;
+}
+
+function getBirthdayDisplay(birthday: string): {
+  formatted: string;
+  age: number | null;
+} {
+  const date = new Date(birthday + "T00:00:00");
+  if (isNaN(date.getTime())) return { formatted: birthday, age: null };
+
+  const month = date.toLocaleDateString(undefined, { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const monthDiff = today.getMonth() - date.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
+    age--;
+  }
+
+  return {
+    formatted: `${day} ${month}`,
+    age: age >= 0 ? age : null,
+  };
 }
 
 const inputCls =
@@ -47,6 +73,7 @@ export default function PersonProfile({
   onDelete,
   onToggleFavorite,
   onLogInteraction,
+  onUpdateDocuments,
 }: PersonProfileProps) {
   const [showLogForm, setShowLogForm] = useState(false);
   const [logType, setLogType] = useState<InteractionType>("message");
@@ -240,14 +267,28 @@ export default function PersonProfile({
                 </span>
                 <div className="flex items-center gap-2">
                   <Cake className="w-3 h-3 text-zinc-500" />
-                  <span className="text-xs font-semibold text-zinc-300">
-                    {birthday
-                      ? new Date(birthday).toLocaleDateString(undefined, {
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "Not set"}
-                  </span>
+                  {birthday ? (
+                    (() => {
+                      const { formatted, age } = getBirthdayDisplay(birthday);
+                      return (
+                        <span className="text-xs font-semibold text-zinc-300">
+                          {formatted}
+                          <span className="text-zinc-500 font-normal ml-1">
+                            ({new Date(birthday + "T00:00:00").getFullYear()})
+                          </span>
+                          {age !== null && (
+                            <span className="ml-1.5 px-1.5 py-0.5 rounded-md bg-zinc-800 text-[10px] font-bold text-zinc-400 border border-zinc-700/50">
+                              {age} yr{age !== 1 ? "s" : ""}
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })()
+                  ) : (
+                    <span className="text-xs font-semibold text-zinc-300">
+                      Not set
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -312,15 +353,16 @@ export default function PersonProfile({
                 </div>
               )}
 
-              {!notes &&
-                !(interests || []).length &&
-                !(tags || []).length && (
-                  <p className="text-xs text-zinc-600 py-6 text-center">
-                    No details added yet
-                  </p>
-                )}
+              {!notes && !(interests || []).length && !(tags || []).length && (
+                <p className="text-xs text-zinc-600 py-6 text-center">
+                  No details added yet
+                </p>
+              )}
             </div>
           </div>
+
+          {/* Documents */}
+          <PersonDocuments person={person} onUpdate={onUpdateDocuments} />
         </div>
 
         {/* Moments */}

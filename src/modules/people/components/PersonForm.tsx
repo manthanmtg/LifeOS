@@ -98,14 +98,14 @@ export default function PersonForm({
       is_favorite: isFavorite,
       interactions: person?.payload.interactions || [],
       last_contacted: person?.payload.last_contacted,
+      documents: person?.payload.documents || [],
     };
 
     try {
       await onSave(payload);
       onClose();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to save";
+      const message = err instanceof Error ? err.message : "Failed to save";
       setError(message);
     } finally {
       setIsSaving(false);
@@ -371,11 +371,7 @@ export default function PersonForm({
               className="flex-[2] bg-accent text-zinc-950 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-accent-hover transition-all shadow-lg shadow-accent/15 disabled:opacity-50 active:scale-[0.98]"
             >
               <Save className="w-4 h-4" />
-              {isSaving
-                ? "Saving..."
-                : person
-                  ? "Save Changes"
-                  : "Add Person"}
+              {isSaving ? "Saving..." : person ? "Save Changes" : "Add Person"}
             </button>
           </div>
         </form>

@@ -42,7 +42,8 @@ export default function SnippetsWidget() {
       href="/admin/snippets"
       footer={
         <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-          {summary.languageCount} language{summary.languageCount !== 1 ? "s" : ""}
+          {summary.languageCount} language
+          {summary.languageCount !== 1 ? "s" : ""}
         </div>
       }
     >

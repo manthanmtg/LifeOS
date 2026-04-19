@@ -51,10 +51,17 @@ export default function PaymentList({
   return (
     <div className="space-y-6">
       <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4">Log New Repayment</h3>
-        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h3 className="text-sm font-bold text-zinc-300 mb-4">
+          Log New Repayment
+        </h3>
+        <form
+          onSubmit={handleAdd}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Date</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Date
+            </label>
             <input
               type="date"
               value={payDate}
@@ -63,7 +70,9 @@ export default function PaymentList({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Amount</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Amount
+            </label>
             <input
               placeholder="0.00"
               value={payAmount}
@@ -72,7 +81,9 @@ export default function PaymentList({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Type</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Type
+            </label>
             <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-xl">
               {(["emi", "prepayment"] as PaymentKind[]).map((k) => (
                 <button
@@ -80,7 +91,9 @@ export default function PaymentList({
                   type="button"
                   onClick={() => setPayKind(k)}
                   className={`py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${
-                    payKind === k ? "bg-accent text-zinc-50" : "text-zinc-500 hover:text-zinc-300"
+                    payKind === k
+                      ? "bg-accent text-zinc-50"
+                      : "text-zinc-500 hover:text-zinc-300"
                   }`}
                 >
                   {k}
@@ -89,7 +102,9 @@ export default function PaymentList({
             </div>
           </div>
           <div className="lg:col-span-2">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Note (Optional)</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Note (Optional)
+            </label>
             <input
               placeholder="Add a reference note..."
               value={payNote}
@@ -110,30 +125,45 @@ export default function PaymentList({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-zinc-300 px-1">Repayment History</h3>
+        <h3 className="text-sm font-bold text-zinc-300 px-1">
+          Repayment History
+        </h3>
         {payments.length === 0 ? (
           <div className="bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center">
-            <p className="text-zinc-500 text-sm italic font-medium">No payments logged yet.</p>
+            <p className="text-zinc-500 text-sm italic font-medium">
+              No payments logged yet.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3">
             {payments.map((p, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`p-2.5 rounded-xl ${p.kind === 'prepayment' ? 'bg-accent/10 text-accent' : 'bg-zinc-800 text-zinc-400'}`}>
+                  <div
+                    className={`p-2.5 rounded-xl ${p.kind === "prepayment" ? "bg-accent/10 text-accent" : "bg-zinc-800 text-zinc-400"}`}
+                  >
                     <CreditCard className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-bold text-zinc-100">
-                        {formatMoney(p.amount, currencySymbol, decimals, numberFormat)}
+                        {formatMoney(
+                          p.amount,
+                          currencySymbol,
+                          decimals,
+                          numberFormat,
+                        )}
                       </p>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest ${
-                        p.kind === 'prepayment' ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'
-                      }`}>
+                      <span
+                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest ${
+                          p.kind === "prepayment"
+                            ? "bg-accent/10 text-accent border border-accent/20"
+                            : "bg-zinc-800 text-zinc-500 border border-zinc-700"
+                        }`}
+                      >
                         {p.kind}
                       </span>
                     </div>
@@ -144,9 +174,9 @@ export default function PaymentList({
                 </div>
                 <div className="flex items-center gap-2">
                   {p.receipt_url && (
-                    <a 
-                      href={p.receipt_url} 
-                      target="_blank" 
+                    <a
+                      href={p.receipt_url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all shadow-md"
                     >
@@ -172,16 +202,16 @@ export default function PaymentList({
 // Inline Icon placeholder for and credit card
 function CreditCard({ className }: { className?: string }) {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={className}
     >
       <rect width="20" height="14" x="2" y="5" rx="2" />

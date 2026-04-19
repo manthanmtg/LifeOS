@@ -56,16 +56,14 @@ export default function ExpensesWidget() {
     const thisMonth = expenses.filter((e) => {
       const d = new Date(e.payload.date);
       return (
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
+        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
       );
     });
     const lastMonth = expenses.filter((e) => {
       const d = new Date(e.payload.date);
       const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       return (
-        d.getMonth() === lm.getMonth() &&
-        d.getFullYear() === lm.getFullYear()
+        d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
       );
     });
 

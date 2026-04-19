@@ -37,14 +37,12 @@ export default function BillsWidget() {
       .finally(() => setLoading(false));
   }, []);
 
-  const daysAgo =
-    stats?.recentBill
-      ? Math.floor(
-          (NOW_MS -
-            new Date(stats.recentBill.payload.bill_date).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
-      : null;
+  const daysAgo = stats?.recentBill
+    ? Math.floor(
+        (NOW_MS - new Date(stats.recentBill.payload.bill_date).getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
+    : null;
 
   return (
     <WidgetCard

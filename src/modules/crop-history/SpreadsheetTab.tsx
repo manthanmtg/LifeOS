@@ -831,9 +831,8 @@ export function SpreadsheetTab({
                                   <input
                                     type="number"
                                     value={
-                                      localData[period]?.summary_data?.[
-                                        f.id
-                                      ] ?? ""
+                                      localData[period]?.summary_data?.[f.id] ??
+                                      ""
                                     }
                                     onChange={(e) =>
                                       handleSummaryChange(

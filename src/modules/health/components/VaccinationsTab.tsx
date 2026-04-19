@@ -61,7 +61,9 @@ export default function VaccinationsTab({
                 new Date(a.date_administered).getTime(),
             )
             .map((vac) => {
-              const dueStatus = vac.next_due ? getDueStatus(vac.next_due) : "none";
+              const dueStatus = vac.next_due
+                ? getDueStatus(vac.next_due)
+                : "none";
               const iconBg =
                 dueStatus === "overdue"
                   ? "bg-danger/10"
@@ -75,73 +77,78 @@ export default function VaccinationsTab({
                     ? "text-warning"
                     : "text-success";
               return (
-              <motion.div
-                key={vac.id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
-                      <Syringe className={cn("w-4 h-4", iconColor)} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-zinc-200 truncate">
-                        {vac.name}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="text-[11px] text-zinc-500">
-                          {formatDate(vac.date_administered)}
-                        </span>
-                        {vac.provider && (
-                          <span className="text-[11px] text-zinc-600">
-                            by {vac.provider}
+                <motion.div
+                  key={vac.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition-colors group"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+                          iconBg,
+                        )}
+                      >
+                        <Syringe className={cn("w-4 h-4", iconColor)} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-zinc-200 truncate">
+                          {vac.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-[11px] text-zinc-500">
+                            {formatDate(vac.date_administered)}
                           </span>
+                          {vac.provider && (
+                            <span className="text-[11px] text-zinc-600">
+                              by {vac.provider}
+                            </span>
+                          )}
+                        </div>
+                        {vac.next_due && (
+                          <div className="mt-1.5">
+                            {dueBadge(vac.next_due, "Next due")}
+                          </div>
                         )}
                       </div>
+                    </div>
+                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+                      <button
+                        onClick={() => onEdit(vac)}
+                        className="p-1.5 rounded-lg hover:bg-zinc-800"
+                        title="Edit"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
+                      </button>
+                      <button
+                        onClick={() => onDuplicate(vac)}
+                        className="p-1.5 rounded-lg hover:bg-zinc-800"
+                        title="Duplicate"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-zinc-500" />
+                      </button>
                       {vac.next_due && (
-                        <div className="mt-1.5">
-                          {dueBadge(vac.next_due, "Next due")}
-                        </div>
+                        <button
+                          onClick={() => onRemoveDueDate(vac)}
+                          className="p-1.5 rounded-lg hover:bg-warning/20"
+                          title="Remove due date"
+                        >
+                          <CalendarX2 className="w-3.5 h-3.5 text-warning" />
+                        </button>
                       )}
+                      <button
+                        onClick={() => onDelete(vac.id)}
+                        className="p-1.5 rounded-lg hover:bg-danger/50"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-danger" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
-                    <button
-                      onClick={() => onEdit(vac)}
-                      className="p-1.5 rounded-lg hover:bg-zinc-800"
-                      title="Edit"
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-zinc-500" />
-                    </button>
-                    <button
-                      onClick={() => onDuplicate(vac)}
-                      className="p-1.5 rounded-lg hover:bg-zinc-800"
-                      title="Duplicate"
-                    >
-                      <Copy className="w-3.5 h-3.5 text-zinc-500" />
-                    </button>
-                    {vac.next_due && (
-                      <button
-                        onClick={() => onRemoveDueDate(vac)}
-                        className="p-1.5 rounded-lg hover:bg-warning/20"
-                        title="Remove due date"
-                      >
-                        <CalendarX2 className="w-3.5 h-3.5 text-warning" />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => onDelete(vac.id)}
-                      className="p-1.5 rounded-lg hover:bg-danger/50"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-danger" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
               );
             })}
         </div>

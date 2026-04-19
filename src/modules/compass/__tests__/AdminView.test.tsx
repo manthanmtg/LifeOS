@@ -205,7 +205,9 @@ describe("CompassAdminView", () => {
       ).toBeDefined();
     });
 
-    const input = screen.getByPlaceholderText("Type an idea and press Enter...");
+    const input = screen.getByPlaceholderText(
+      "Type an idea and press Enter...",
+    );
     fireEvent.change(input, { target: { value: "New task" } });
     fireEvent.submit(input.closest("form")!);
 

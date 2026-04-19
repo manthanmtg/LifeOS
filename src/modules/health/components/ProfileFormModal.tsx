@@ -4,11 +4,15 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  BLOOD_GROUPS,
-} from "./constants";
+import { BLOOD_GROUPS } from "./constants";
 import { formatDateInput, toISODate } from "./helpers";
-import type { HealthProfile, HealthPayload, ProfileType, BloodGroup, Gender } from "./types";
+import type {
+  HealthProfile,
+  HealthPayload,
+  ProfileType,
+  BloodGroup,
+  Gender,
+} from "./types";
 
 const inputCls =
   "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600";

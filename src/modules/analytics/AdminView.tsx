@@ -734,7 +734,9 @@ export default function AnalyticsAdminView() {
 
       {/* ─── Hourly Activity Heatmap ─── */}
       <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-8 shadow-2xl">
-        <h3 className="text-xl font-bold text-zinc-50 mb-2">Activity Heatmap</h3>
+        <h3 className="text-xl font-bold text-zinc-50 mb-2">
+          Activity Heatmap
+        </h3>
         <p className="text-xs text-zinc-500 font-medium mb-6 italic">
           When users interact most — darker cells mean more activity.
         </p>

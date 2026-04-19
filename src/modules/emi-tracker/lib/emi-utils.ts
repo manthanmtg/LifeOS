@@ -1,11 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { 
-  EmiLoan, 
-  ScheduleRow, 
-  ScheduleResult, 
-  RecastStrategy 
-} from "../types";
+import { EmiLoan, ScheduleRow, ScheduleResult, RecastStrategy } from "../types";
 
 export const CURR_SYM: Record<string, string> = {
   USD: "$",
@@ -94,13 +89,40 @@ export function numberToWordsIndian(num: number): string {
   if (num === 0) return "Zero";
 
   const ones = [
-    "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
   ];
   const teens = [
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
   ];
   const tens = [
-    "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
   ];
 
   function convertLessThanOneThousand(n: number): string {
@@ -444,7 +466,11 @@ export function toCSV(rows: Record<string, unknown>[]) {
   return lines.join("\n");
 }
 
-export function downloadTextFile(filename: string, text: string, mime = "text/plain") {
+export function downloadTextFile(
+  filename: string,
+  text: string,
+  mime = "text/plain",
+) {
   const blob = new Blob([text], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -454,8 +480,14 @@ export function downloadTextFile(filename: string, text: string, mime = "text/pl
   URL.revokeObjectURL(url);
 }
 
-export function calculateInterestSaved(schedule: ScheduleRow[], originalInterest: number) {
-  const currentTotalInterest = schedule.reduce((sum, row) => sum + row.interest, 0);
+export function calculateInterestSaved(
+  schedule: ScheduleRow[],
+  originalInterest: number,
+) {
+  const currentTotalInterest = schedule.reduce(
+    (sum, row) => sum + row.interest,
+    0,
+  );
   return Math.max(0, originalInterest - currentTotalInterest);
 }
 
@@ -464,7 +496,7 @@ export function exportSchedulePDF(
   schedule: ScheduleResult,
   currencySym: string,
   decimals: number,
-  numberFormat: "western" | "indian"
+  numberFormat: "western" | "indian",
 ) {
   const doc = new jsPDF();
   doc.setFontSize(18);
@@ -472,13 +504,17 @@ export function exportSchedulePDF(
   doc.setFontSize(11);
   doc.setTextColor(100);
 
-  const headers = [["#", "Due Date", "Principal", "Interest", "Extra", "Balance"]];
+  const headers = [
+    ["#", "Due Date", "Principal", "Interest", "Extra", "Balance"],
+  ];
   const body = schedule.rows.map((r: ScheduleRow) => [
     r.index,
     r.due_date.slice(0, 10),
     formatMoney(r.principal, currencySym, decimals, numberFormat),
     formatMoney(r.interest, currencySym, decimals, numberFormat),
-    r.prepayment > 0 ? formatMoney(r.prepayment, currencySym, decimals, numberFormat) : "—",
+    r.prepayment > 0
+      ? formatMoney(r.prepayment, currencySym, decimals, numberFormat)
+      : "—",
     formatMoney(r.closing_balance, currencySym, decimals, numberFormat),
   ]);
 
@@ -488,15 +524,41 @@ export function exportSchedulePDF(
     startY: 30,
     theme: "striped",
     headStyles: { fillColor: [63, 63, 70] },
-    foot: [[
-      "TOTAL",
-      "",
-      formatMoney(schedule.totals.total_principal, currencySym, decimals, numberFormat),
-      formatMoney(schedule.totals.total_interest, currencySym, decimals, numberFormat),
-      formatMoney(schedule.totals.total_prepayment, currencySym, decimals, numberFormat),
-      formatMoney(schedule.totals.total_principal + schedule.totals.total_interest, currencySym, decimals, numberFormat),
-    ]],
-    footStyles: { fillColor: [39, 39, 42], textColor: [255, 255, 255], fontStyle: "bold" },
+    foot: [
+      [
+        "TOTAL",
+        "",
+        formatMoney(
+          schedule.totals.total_principal,
+          currencySym,
+          decimals,
+          numberFormat,
+        ),
+        formatMoney(
+          schedule.totals.total_interest,
+          currencySym,
+          decimals,
+          numberFormat,
+        ),
+        formatMoney(
+          schedule.totals.total_prepayment,
+          currencySym,
+          decimals,
+          numberFormat,
+        ),
+        formatMoney(
+          schedule.totals.total_principal + schedule.totals.total_interest,
+          currencySym,
+          decimals,
+          numberFormat,
+        ),
+      ],
+    ],
+    footStyles: {
+      fillColor: [39, 39, 42],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+    },
   });
 
   doc.save(`${loanTitle.replace(/\s+/g, "_")}_schedule.pdf`);

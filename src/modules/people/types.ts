@@ -26,6 +26,16 @@ export interface SocialLink {
   url: string;
 }
 
+export interface PersonDocument {
+  id: string;
+  name: string;
+  filename: string;
+  content_type: string;
+  data: string; // base64
+  size: number;
+  added_at: string;
+}
+
 export interface Interaction {
   date: string;
   type: InteractionType;
@@ -48,6 +58,7 @@ export interface PersonPayload {
   interactions: Interaction[];
   last_contacted?: string;
   is_favorite: boolean;
+  documents: PersonDocument[];
 }
 
 export interface Person {

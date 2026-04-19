@@ -11,12 +11,12 @@ vi.mock("@/hooks/useModuleSettings", () => ({
       numberFormat: "indian",
       roundingDecimals: 2,
       categories: ["Home", "Car"],
-      defaultRecastStrategy: "keep_tenure_adjust_emi"
+      defaultRecastStrategy: "keep_tenure_adjust_emi",
     },
     updateSettings: vi.fn(),
     saving: false,
-    loaded: true
-  }))
+    loaded: true,
+  })),
 }));
 
 // Mock lucide-react
@@ -40,12 +40,34 @@ vi.mock("lucide-react", () => ({
 // Mock framer-motion to avoid animation issues in tests
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: { children: React.ReactNode } & Record<string, unknown>) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: { children: React.ReactNode } & Record<string, unknown>) => <button {...props}>{children}</button>,
-    h3: ({ children, ...props }: { children: React.ReactNode } & Record<string, unknown>) => <h3 {...props}>{children}</h3>,
-    h4: ({ children, ...props }: { children: React.ReactNode } & Record<string, unknown>) => <h4 {...props}>{children}</h4>,
+    div: ({
+      children,
+      ...props
+    }: { children: React.ReactNode } & Record<string, unknown>) => (
+      <div {...props}>{children}</div>
+    ),
+    button: ({
+      children,
+      ...props
+    }: { children: React.ReactNode } & Record<string, unknown>) => (
+      <button {...props}>{children}</button>
+    ),
+    h3: ({
+      children,
+      ...props
+    }: { children: React.ReactNode } & Record<string, unknown>) => (
+      <h3 {...props}>{children}</h3>
+    ),
+    h4: ({
+      children,
+      ...props
+    }: { children: React.ReactNode } & Record<string, unknown>) => (
+      <h4 {...props}>{children}</h4>
+    ),
   },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 describe("EmiTrackerAdminView", () => {
@@ -56,49 +78,51 @@ describe("EmiTrackerAdminView", () => {
   it("loads a loan into the list", async () => {
     const mockData = {
       success: true,
-      data: [{
-        _id: "loan-1",
-        module_type: "emi_loan",
-        is_public: false,
-        created_at: "2024-01-01T00:00:00.000Z",
-        updated_at: "2024-01-01T00:00:00.000Z",
-        payload: {
-          title: "Home Loan",
-          lender_name: "HDFC",
-          category: "Home",
-          principal: 5000000,
-          currency: "INR",
-          tenure_months: 240,
-          annual_interest_rate: 8.5,
-          interest_type: "floating",
-          monthly_emi: 43391,
-          start_date: "2024-01-01",
-          due_day_of_month: 5,
-          processing_fee_financed: false,
-          status: "active",
-          payments: [],
-          documents: [],
-          rate_adjustments: [],
-          recast_strategy: "keep_tenure_adjust_emi",
-        }
-      }]
+      data: [
+        {
+          _id: "loan-1",
+          module_type: "emi_loan",
+          is_public: false,
+          created_at: "2024-01-01T00:00:00.000Z",
+          updated_at: "2024-01-01T00:00:00.000Z",
+          payload: {
+            title: "Home Loan",
+            lender_name: "HDFC",
+            category: "Home",
+            principal: 5000000,
+            currency: "INR",
+            tenure_months: 240,
+            annual_interest_rate: 8.5,
+            interest_type: "floating",
+            monthly_emi: 43391,
+            start_date: "2024-01-01",
+            due_day_of_month: 5,
+            processing_fee_financed: false,
+            status: "active",
+            payments: [],
+            documents: [],
+            rate_adjustments: [],
+            recast_strategy: "keep_tenure_adjust_emi",
+          },
+        },
+      ],
     };
 
-    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation((url) => {
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((url) => {
       if (url.toString().includes("/api/content")) {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(mockData)
+          json: () => Promise.resolve(mockData),
         } as Response);
       }
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ success: true, data: {} })
+        json: () => Promise.resolve({ success: true, data: {} }),
       } as Response);
     });
 
     render(<EmiTrackerAdminView />);
-    
+
     // Wait for the data to be rendered (e.g. check for lender name)
     const el = await screen.findByText(/HDFC/i, {}, { timeout: 10000 });
     expect(el).toBeTruthy();

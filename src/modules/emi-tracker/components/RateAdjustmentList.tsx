@@ -40,10 +40,17 @@ export default function RateAdjustmentList({
   return (
     <div className="space-y-6">
       <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5 shadow-inner">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4">Log Rate Change (Floating)</h3>
-        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h3 className="text-sm font-bold text-zinc-300 mb-4">
+          Log Rate Change (Floating)
+        </h3>
+        <form
+          onSubmit={handleAdd}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Effective Date</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Effective Date
+            </label>
             <input
               type="date"
               value={adjDate}
@@ -52,7 +59,9 @@ export default function RateAdjustmentList({
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">New Rate (% p.a.)</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              New Rate (% p.a.)
+            </label>
             <input
               placeholder="0.00"
               value={adjRate}
@@ -61,7 +70,9 @@ export default function RateAdjustmentList({
             />
           </div>
           <div className="">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">Note</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+              Note
+            </label>
             <input
               placeholder="e.g. RBI Repo Rate Update"
               value={adjNote}
@@ -84,12 +95,14 @@ export default function RateAdjustmentList({
       <div className="space-y-3">
         {adjustments.length === 0 ? (
           <div className="bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center shadow-lg">
-            <p className="text-zinc-500 text-sm italic font-medium">No rate adjustments logged yet.</p>
+            <p className="text-zinc-500 text-sm italic font-medium">
+              No rate adjustments logged yet.
+            </p>
           </div>
         ) : (
           adjustments.map((adj, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group shadow-md"
             >
               <div className="flex items-center gap-4">
@@ -98,11 +111,16 @@ export default function RateAdjustmentList({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-zinc-100">{adj.annual_interest_rate}%</p>
-                    <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest font-mono">p.a.</span>
+                    <p className="text-sm font-bold text-zinc-100">
+                      {adj.annual_interest_rate}%
+                    </p>
+                    <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest font-mono">
+                      p.a.
+                    </span>
                   </div>
                   <p className="text-[10px] text-zinc-500 mt-1 font-medium">
-                    Effective: {adj.effective_date.slice(0, 10)} {adj.note ? `· ${adj.note}` : ""}
+                    Effective: {adj.effective_date.slice(0, 10)}{" "}
+                    {adj.note ? `· ${adj.note}` : ""}
                   </p>
                 </div>
               </div>

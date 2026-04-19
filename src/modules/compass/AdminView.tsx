@@ -35,7 +35,11 @@ function KanbanSkeleton() {
             <SkeletonBlock className="h-4 w-24 rounded" />
             <SkeletonBlock className="h-4 w-6 rounded-full" />
           </div>
-          {[...Array(col.id === "backlog" ? 3 : col.id === "in_progress" ? 2 : 1)].map((_, i) => (
+          {[
+            ...Array(
+              col.id === "backlog" ? 3 : col.id === "in_progress" ? 2 : 1,
+            ),
+          ].map((_, i) => (
             <SkeletonBlock key={i} className="h-24 w-full rounded-xl" />
           ))}
         </div>
@@ -368,9 +372,7 @@ export default function CompassAdminView() {
                               isDeleting={isDeletingId === task._id}
                               isInProgress={col.id === "in_progress"}
                               onClick={() => setSelectedTask(task)}
-                              onDragStart={(e) =>
-                                handleDragStart(e, task._id)
-                              }
+                              onDragStart={(e) => handleDragStart(e, task._id)}
                               onDragEnd={handleDragEnd}
                             />
                           </motion.div>

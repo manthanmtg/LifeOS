@@ -1,6 +1,12 @@
 export type InterestType = "fixed" | "floating";
-export type RecastStrategy = "keep_tenure_adjust_emi" | "keep_emi_adjust_tenure";
-export type DocType = "sanction_letter" | "noc" | "interest_certificate" | "other";
+export type RecastStrategy =
+  | "keep_tenure_adjust_emi"
+  | "keep_emi_adjust_tenure";
+export type DocType =
+  | "sanction_letter"
+  | "noc"
+  | "interest_certificate"
+  | "other";
 export type PaymentKind = "emi" | "prepayment";
 export type LoanStatus = "active" | "closed" | "archived";
 

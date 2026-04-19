@@ -45,3 +45,5 @@ next-env.d.ts
 .netlify
 .playwright-mcp/
 deno.lock
+# Added by code-review-graph
+.code-review-graph/

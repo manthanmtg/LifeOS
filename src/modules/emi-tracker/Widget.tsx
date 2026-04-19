@@ -116,7 +116,9 @@ export default function EMITrackerWidget() {
           />
           {summary.nearest ? (
             <WidgetHighlight
-              icon={nearestDays !== null && nearestDays < 0 ? AlertTriangle : Clock}
+              icon={
+                nearestDays !== null && nearestDays < 0 ? AlertTriangle : Clock
+              }
               text={summary.nearest.title}
               subtext={daysLabel}
               variant={

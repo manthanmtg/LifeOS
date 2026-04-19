@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import {
-  Check,
-  Lightbulb,
-  Plus,
-  Settings,
-  X,
-} from "lucide-react";
+import { Check, Lightbulb, Plus, Settings, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import {
@@ -17,16 +11,19 @@ import {
   KeyboardSensor,
   DragOverlay,
   closestCenter,
+  getFirstCollision,
+  pointerWithin,
+  rectIntersection,
   useSensor,
   useSensors,
   defaultDropAnimationSideEffects,
+  type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   verticalListSortingStrategy,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
@@ -34,10 +31,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
 import IdeaDetailsModal from "./IdeaDetailsModal";
-import {
-  IDEA_STATUS_LABELS,
-  type IdeaRecord,
-} from "./shared";
+import { IDEA_STATUS_LABELS, type IdeaRecord } from "./shared";
 import {
   SortableIdeaCard,
   DroppableColumn,
@@ -46,8 +40,15 @@ import {
 } from "./components/IdeaKanban";
 import IdeaFormPanel from "./components/IdeaFormPanel";
 import IdeaFilters from "./components/IdeaFilters";
+import {
+  getIdeaBoardStatus,
+  IDEA_BOARD_STATUSES,
+  isIdeaBoardStatus,
+  normalizeIdeaBoardOrder,
+  projectIdeaBoardMove,
+} from "./dnd";
 
-const STATUSES = ["raw", "exploring", "archived"] as const;
+const STATUSES = IDEA_BOARD_STATUSES;
 
 const IDEAS_DEFAULTS = {
   defaultStatus: "raw",
@@ -124,6 +125,8 @@ export default function IdeasAdminView() {
   const [isPromotingId, setIsPromotingId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
+  const dragSnapshotRef = useRef<Idea[] | null>(null);
+  const lastOverId = useRef<string | null>(null);
 
   // Undo & delayed delete
   const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -163,17 +166,14 @@ export default function IdeasAdminView() {
       if (!response.ok) throw new Error(data.error || "Failed to fetch ideas");
       const unsorted = data.data || [];
       const sorted = [...unsorted].sort((a: Idea, b: Idea) => {
-        if (
-          a.payload.order !== undefined &&
-          b.payload.order !== undefined
-        ) {
+        if (a.payload.order !== undefined && b.payload.order !== undefined) {
           return a.payload.order - b.payload.order;
         }
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
-      setIdeas(sorted);
+      setIdeas(normalizeIdeaBoardOrder(sorted));
     } catch (err: unknown) {
       console.error("fetchIdeas failed:", err);
     } finally {
@@ -266,9 +266,15 @@ export default function IdeasAdminView() {
 
   const handleReorder = async (newIdeas: Idea[]) => {
     try {
+      const normalizedIdeas = normalizeIdeaBoardOrder(newIdeas);
+
+      // Update orders in database
       await Promise.all(
-        newIdeas.map((idea, index) => {
-          const payload = { ...idea.payload, order: index };
+        normalizedIdeas.map((idea) => {
+          const payload = {
+            ...idea.payload,
+            order: idea.payload.order ?? 0,
+          };
           return fetch(`/api/content/${idea._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -286,19 +292,18 @@ export default function IdeasAdminView() {
       clearTimeout(deleteTimeoutRef.current);
       deleteTimeoutRef.current = null;
     }
+
     const lastDeleted = lastDeletedIdeaRef.current;
     if (lastDeleted) {
       setIdeas((prev) => {
         const updated = [...prev];
         updated.splice(lastDeleted.index, 0, lastDeleted.idea);
-        const reSynced = updated.map((item, idx) => ({
-          ...item,
-          payload: { ...item.payload, order: idx },
-        }));
+        const reSynced = normalizeIdeaBoardOrder(updated);
         void handleReorder(reSynced);
         return reSynced;
       });
       lastDeletedIdeaRef.current = null;
+      // Delay the success toast slightly to ensure it shows after the delete toast closes
       setTimeout(() => showToast("Deletion undone", "success"), 50);
     }
   };
@@ -389,6 +394,8 @@ export default function IdeasAdminView() {
   }, [filtered]);
 
   const handleDragStart = (event: DragStartEvent) => {
+    dragSnapshotRef.current = ideas;
+    lastOverId.current = null;
     setActiveId(String(event.active.id));
   };
 
@@ -398,71 +405,155 @@ export default function IdeasAdminView() {
 
     const activeIdStr = String(active.id);
     const overIdStr = String(over.id);
+    const translatedTop = active.rect.current.translated?.top;
+    const overRect = over.rect;
+    const insertAfter =
+      translatedTop !== undefined
+        ? translatedTop > overRect.top + overRect.height / 2
+        : false;
 
-    const overCol = (STATUSES as readonly string[]).includes(overIdStr)
-      ? overIdStr
-      : ideas.find((i) => i._id === overIdStr)?.payload.status;
+    setIdeas((prev) => {
+      const nextIdeas = projectIdeaBoardMove({
+        ideas: prev,
+        activeId: activeIdStr,
+        overId: overIdStr,
+        insertAfter,
+      });
 
-    if (!overCol) return;
+      const didChange =
+        nextIdeas.length !== prev.length ||
+        nextIdeas.some(
+          (idea, index) =>
+            idea._id !== prev[index]?._id ||
+            idea.payload.status !== prev[index]?.payload.status ||
+            idea.payload.order !== prev[index]?.payload.order,
+        );
 
-    const activeIdeaObj = ideas.find((i) => i._id === activeIdStr);
-    if (!activeIdeaObj) return;
+      return didChange ? nextIdeas : prev;
+    });
+  };
 
-    if (activeIdeaObj.payload.status !== overCol) {
-      setIdeas((prev) =>
-        prev.map((i) =>
-          i._id === activeIdStr
-            ? { ...i, payload: { ...i.payload, status: overCol } }
-            : i,
-        ),
-      );
+  const handleDragCancel = () => {
+    setActiveId(null);
+    lastOverId.current = null;
+
+    if (dragSnapshotRef.current) {
+      setIdeas(dragSnapshotRef.current);
     }
+
+    dragSnapshotRef.current = null;
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
-    if (!over) return;
+    lastOverId.current = null;
+
+    if (!over) {
+      if (dragSnapshotRef.current) {
+        setIdeas(dragSnapshotRef.current);
+      }
+      dragSnapshotRef.current = null;
+      return;
+    }
 
     const activeIdStr = String(active.id);
     const overIdStr = String(over.id);
 
     if (overIdStr === "delete") {
+      if (dragSnapshotRef.current) {
+        setIdeas(dragSnapshotRef.current);
+      }
+      dragSnapshotRef.current = null;
       setConfirmDeleteId(activeIdStr);
       return;
     }
 
     setIdeas((prev) => {
-      const oldIndex = prev.findIndex((i) => i._id === activeIdStr);
-      const newIndex = prev.findIndex((i) => i._id === overIdStr);
+      const translatedTop = active.rect.current.translated?.top;
+      const insertAfter =
+        translatedTop !== undefined
+          ? translatedTop > over.rect.top + over.rect.height / 2
+          : false;
+      const nextIdeas = projectIdeaBoardMove({
+        ideas: prev,
+        activeId: activeIdStr,
+        overId: overIdStr,
+        insertAfter,
+      });
 
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        const reordered = arrayMove(prev, oldIndex, newIndex);
-        const withNewOrders = reordered.map((idea, index) => ({
-          ...idea,
-          payload: { ...idea.payload, order: index },
-        }));
-        void handleReorder(withNewOrders);
-        return withNewOrders;
+      void handleReorder(nextIdeas);
+      return nextIdeas;
+    });
+
+    dragSnapshotRef.current = null;
+  };
+
+  const collisionDetectionStrategy = useCallback<CollisionDetection>(
+    (args) => {
+      if (statusFilter !== "all") {
+        return closestCenter(args);
       }
 
-      void handleReorder(prev);
-      return prev;
-    });
-  };
+      const pointerIntersections = pointerWithin(args);
+      const intersections =
+        pointerIntersections.length > 0
+          ? pointerIntersections
+          : rectIntersection(args);
+      let overId = getFirstCollision(intersections, "id");
+
+      if (!overId) {
+        return lastOverId.current ? [{ id: lastOverId.current }] : [];
+      }
+
+      if (String(overId) === "delete") {
+        lastOverId.current = String(overId);
+        return [{ id: overId }];
+      }
+
+      const overStatus = getIdeaBoardStatus(String(overId), ideas);
+      if (
+        overStatus &&
+        isIdeaBoardStatus(String(overId)) &&
+        grouped[overStatus]?.length
+      ) {
+        const columnItemIds = new Set(
+          grouped[overStatus].map((idea) => idea._id),
+        );
+        const closestIdea = closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((container) =>
+            columnItemIds.has(String(container.id)),
+          ),
+        });
+        const closestIdeaId = getFirstCollision(closestIdea, "id");
+
+        if (closestIdeaId) {
+          overId = closestIdeaId;
+        }
+      }
+
+      lastOverId.current = String(overId);
+      return [{ id: overId }];
+    },
+    [grouped, ideas, statusFilter],
+  );
 
   const activeIdea = activeId ? ideas.find((i) => i._id === activeId) : null;
 
   const stats = useMemo(() => {
     const total = ideas.length;
-    const promoted = ideas.filter((i) => i.payload.promoted_to_portfolio).length;
+    const promoted = ideas.filter(
+      (i) => i.payload.promoted_to_portfolio,
+    ).length;
     const active = ideas.filter((i) =>
       ["raw", "exploring"].includes(i.payload.status),
     ).length;
-    const archived = ideas.filter((i) => i.payload.status === "archived").length;
+    const archived = ideas.filter(
+      (i) => i.payload.status === "archived",
+    ).length;
     const highPriority = ideas.filter(
-      (i) =>
-        i.payload.priority === "high" && i.payload.status !== "archived",
+      (i) => i.payload.priority === "high" && i.payload.status !== "archived",
     ).length;
     return { total, promoted, active, archived, highPriority };
   }, [ideas]);
@@ -470,9 +561,10 @@ export default function IdeasAdminView() {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
+      onDragCancel={handleDragCancel}
       onDragEnd={handleDragEnd}
     >
       <div className="space-y-6 relative">
@@ -649,10 +741,7 @@ export default function IdeasAdminView() {
                       e.preventDefault();
                       if (newCat.trim()) {
                         updateSettings({
-                          categories: [
-                            ...settings.categories,
-                            newCat.trim(),
-                          ],
+                          categories: [...settings.categories, newCat.trim()],
                         });
                         setNewCat("");
                       }

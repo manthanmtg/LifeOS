@@ -2,10 +2,7 @@
 
 import { Calendar, TrendingDown, Landmark, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
-import { 
-  formatMoney, 
-  CURR_SYM 
-} from "../lib/emi-utils";
+import { formatMoney, CURR_SYM } from "../lib/emi-utils";
 import { EmiLoan, ScheduleRow } from "../types";
 
 interface EMIMetricsProps {
@@ -40,17 +37,18 @@ export default function EMIMetrics({
     },
     {
       label: "Outstanding Total",
-      value: quickStats.outstandingByCurrency.length <= 1
-        ? quickStats.outstandingByCurrency[0]
-          ? formatMoney(
-              quickStats.outstandingByCurrency[0].amount,
-              CURR_SYM[quickStats.outstandingByCurrency[0].currency] ||
-                quickStats.outstandingByCurrency[0].currency,
-              decimals,
-              numberFormat,
-            )
-          : formatMoney(0, sym, decimals)
-        : `Mixed (${quickStats.outstandingByCurrency.length})`,
+      value:
+        quickStats.outstandingByCurrency.length <= 1
+          ? quickStats.outstandingByCurrency[0]
+            ? formatMoney(
+                quickStats.outstandingByCurrency[0].amount,
+                CURR_SYM[quickStats.outstandingByCurrency[0].currency] ||
+                  quickStats.outstandingByCurrency[0].currency,
+                decimals,
+                numberFormat,
+              )
+            : formatMoney(0, sym, decimals)
+          : `Mixed (${quickStats.outstandingByCurrency.length})`,
       sub: "Total Principal left",
       icon: Landmark,
       color: "text-blue-400",
@@ -66,11 +64,11 @@ export default function EMIMetrics({
     },
     {
       label: "Nearest Due",
-      value: quickStats.nearestDue 
+      value: quickStats.nearestDue
         ? quickStats.nearestDue.row.due_date.slice(0, 10)
         : "—",
-      sub: quickStats.nearestDue 
-        ? quickStats.nearestDue.loan.payload.title 
+      sub: quickStats.nearestDue
+        ? quickStats.nearestDue.loan.payload.title
         : "No upcoming dues",
       icon: Calendar,
       color: "text-warning",
@@ -88,10 +86,12 @@ export default function EMIMetrics({
           transition={{ delay: i * 0.1 }}
           className="relative overflow-hidden group bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-5 shadow-lg hover:border-zinc-700/80 transition-all"
         >
-          <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity`}>
+          <div
+            className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity`}
+          >
             <card.icon className="w-16 h-16" />
           </div>
-          
+
           <div className="flex items-center gap-3 mb-3">
             <div className={`p-2 rounded-xl ${card.bg} ${card.color}`}>
               <card.icon className="w-4 h-4" />
@@ -109,8 +109,10 @@ export default function EMIMetrics({
               {card.sub}
             </p>
           </div>
-          
-          <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-${card.color.split('-')[1]}-500/20 to-transparent w-full`} />
+
+          <div
+            className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-${card.color.split("-")[1]}-500/20 to-transparent w-full`}
+          />
         </motion.div>
       ))}
     </div>

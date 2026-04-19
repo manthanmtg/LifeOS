@@ -19,11 +19,25 @@ interface PayoffChartProps {
   numberFormat: "western" | "indian";
 }
 
-const CustomTooltip = ({ active, payload, label, currencySymbol, numberFormat }: { active?: boolean; payload?: { value: number }[]; label?: string; currencySymbol: string; numberFormat: "western" | "indian" }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  currencySymbol,
+  numberFormat,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+  currencySymbol: string;
+  numberFormat: "western" | "indian";
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 p-3 rounded-xl shadow-2xl">
-        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Month {label}</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">
+          Month {label}
+        </p>
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-zinc-400">Balance:</span>
@@ -70,28 +84,57 @@ export default function PayoffChart({
         <AreaChart data={data}>
           <defs>
             <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-accent)" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="var(--color-accent)" stopOpacity={0}/>
+              <stop
+                offset="5%"
+                stopColor="var(--color-accent)"
+                stopOpacity={0.3}
+              />
+              <stop
+                offset="95%"
+                stopColor="var(--color-accent)"
+                stopOpacity={0}
+              />
             </linearGradient>
             <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-danger)" stopOpacity={0.2}/>
-              <stop offset="95%" stopColor="var(--color-danger)" stopOpacity={0}/>
+              <stop
+                offset="5%"
+                stopColor="var(--color-danger)"
+                stopOpacity={0.2}
+              />
+              <stop
+                offset="95%"
+                stopColor="var(--color-danger)"
+                stopOpacity={0}
+              />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-          <XAxis 
-            dataKey="month" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }} 
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            stroke="rgba(255,255,255,0.05)"
           />
-          <YAxis 
-            hide 
-            domain={['auto', 'auto']}
+          <XAxis
+            dataKey="month"
             axisLine={false}
-            tickFormatter={(value) => `${currencySymbol}${value > 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
+            tickLine={false}
+            tick={{ fill: "#71717a", fontSize: 10, fontWeight: 800 }}
           />
-          <Tooltip content={<CustomTooltip currencySymbol={currencySymbol} numberFormat={numberFormat} />} />
+          <YAxis
+            hide
+            domain={["auto", "auto"]}
+            axisLine={false}
+            tickFormatter={(value) =>
+              `${currencySymbol}${value > 1000 ? (value / 1000).toFixed(0) + "k" : value}`
+            }
+          />
+          <Tooltip
+            content={
+              <CustomTooltip
+                currencySymbol={currencySymbol}
+                numberFormat={numberFormat}
+              />
+            }
+          />
           <Area
             type="monotone"
             dataKey="balance"

@@ -19,8 +19,7 @@ export default function CompassMetrics({ tasks }: CompassMetricsProps) {
     ).length;
     const review = tasks.filter((t) => t.payload.status === "review").length;
     const done = tasks.filter((t) => t.payload.status === "done").length;
-    const completionRate =
-      total > 0 ? Math.round((done / total) * 100) : 0;
+    const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
     const p1Count = tasks.filter((t) => t.payload.priority === "p1").length;
     const stuck = tasks.filter((t) => {
       if (t.payload.status !== "in_progress") return false;

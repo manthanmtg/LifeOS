@@ -66,10 +66,7 @@ export default function BingeWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat
-          value={summary.watchingCount}
-          label="currently watching"
-        />
+        <WidgetStat value={summary.watchingCount} label="currently watching" />
         {summary.latest ? (
           <WidgetHighlight
             icon={Play}

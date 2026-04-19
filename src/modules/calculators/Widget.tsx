@@ -78,9 +78,7 @@ export default function CalculatorsWidget() {
               ? "Quick access to all tools"
               : "Enable calculators in settings"
           }
-          variant={
-            summary.enabledCalculators.length > 0 ? "accent" : "warning"
-          }
+          variant={summary.enabledCalculators.length > 0 ? "accent" : "warning"}
         />
       </div>
     </WidgetCard>

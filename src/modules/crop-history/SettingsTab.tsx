@@ -228,8 +228,8 @@ function FormulaBuilder({
             avg_price can be used directly in math.
           </p>
           <p>
-            <strong className="text-accent">Previous calculations</strong>{" "}
-            can be referenced by later formulas (order matters!).
+            <strong className="text-accent">Previous calculations</strong> can
+            be referenced by later formulas (order matters!).
           </p>
           <p className="text-zinc-500">
             See the <strong>Docs</strong> tab for full reference and examples.

@@ -21,7 +21,6 @@ export default function HabitHeatmap({
   onToggleDay,
   isLoggingDay,
 }: HabitHeatmapProps) {
-
   // Group days into weeks (columns of 7)
   const weeks = useMemo(() => {
     const result: string[][] = [];

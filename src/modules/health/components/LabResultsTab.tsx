@@ -66,8 +66,11 @@ export default function LabResultsTab({
             const latest = results[0];
             const lsConfig = LAB_STATUS_CONFIG[latest.status];
             const hasTrend = results.length > 1;
-            const numericVals = results.map((x) => parseFloat(x.value)).filter((x) => !isNaN(x));
-            const trendMax = numericVals.length > 0 ? Math.max(...numericVals) : 0;
+            const numericVals = results
+              .map((x) => parseFloat(x.value))
+              .filter((x) => !isNaN(x));
+            const trendMax =
+              numericVals.length > 0 ? Math.max(...numericVals) : 0;
             return (
               <div
                 key={testName}
@@ -123,7 +126,9 @@ export default function LabResultsTab({
                     {[...results].reverse().map((r) => {
                       const numVal = parseFloat(r.value);
                       const height =
-                        !isNaN(numVal) && trendMax > 0 ? (numVal / trendMax) * 100 : 50;
+                        !isNaN(numVal) && trendMax > 0
+                          ? (numVal / trendMax) * 100
+                          : 50;
                       const statusColor = LAB_STATUS_CONFIG[r.status];
                       return (
                         <div

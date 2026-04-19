@@ -85,9 +85,7 @@ describe("getStreak", () => {
 
   it("counts today in current streak", () => {
     const today = getDateStr(new Date());
-    const yesterday = getDateStr(
-      new Date(Date.now() - 86400000),
-    );
+    const yesterday = getDateStr(new Date(Date.now() - 86400000));
     const result = getStreak([
       { date: yesterday, count: 1 },
       { date: today, count: 1 },
@@ -228,9 +226,7 @@ describe("HabitsAdminView", () => {
 
   it("shows New Habit button", async () => {
     render(<HabitsAdminView />);
-    await waitFor(() =>
-      expect(screen.getByText(/New Habit/i)).toBeDefined(),
-    );
+    await waitFor(() => expect(screen.getByText(/New Habit/i)).toBeDefined());
   });
 
   it("opens form when New Habit is clicked", async () => {
@@ -256,9 +252,8 @@ describe("HabitsWidget", () => {
 
   it("renders the widget", async () => {
     render(<HabitsWidget />);
-    await waitFor(
-      () => expect(screen.queryByText(/Loading/i)).toBeNull(),
-      { timeout: 2000 },
-    );
+    await waitFor(() => expect(screen.queryByText(/Loading/i)).toBeNull(), {
+      timeout: 2000,
+    });
   });
 });

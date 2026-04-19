@@ -4,12 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Target, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Habit,
-  getDateStr,
-  getStreak,
-  getDaysArray,
-} from "./components/types";
+import { Habit, getDateStr, getStreak, getDaysArray } from "./components/types";
 
 function getLast30Days(): string[] {
   return getDaysArray(30);
@@ -79,7 +74,9 @@ export default function HabitsPublicView({ items }: { items: Habit[] }) {
                 {streakInfo.current > 0 && (
                   <div className="flex items-center gap-1 text-warning">
                     <Flame className="w-4 h-4" />
-                    <span className="text-sm font-bold">{streakInfo.current}d</span>
+                    <span className="text-sm font-bold">
+                      {streakInfo.current}d
+                    </span>
                   </div>
                 )}
               </div>

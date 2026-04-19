@@ -87,9 +87,7 @@ export default function PersonCard({
             </div>
           ) : (
             <div className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center">
-              <span className="text-sm font-bold text-zinc-500">
-                {name[0]}
-              </span>
+              <span className="text-sm font-bold text-zinc-500">{name[0]}</span>
             </div>
           )}
           {isHot && (
@@ -109,9 +107,7 @@ export default function PersonCard({
               }}
               className={cn(
                 "p-1 rounded-lg transition-all shrink-0",
-                is_favorite
-                  ? "text-accent"
-                  : "text-zinc-700 hover:text-accent",
+                is_favorite ? "text-accent" : "text-zinc-700 hover:text-accent",
               )}
             >
               <Heart
@@ -188,11 +184,7 @@ export default function PersonCard({
                     : "text-zinc-600",
             )}
           >
-            {days === null
-              ? "New"
-              : days === 0
-                ? "Today"
-                : `${days}d ago`}
+            {days === null ? "New" : days === 0 ? "Today" : `${days}d ago`}
           </span>
         </div>
       </div>

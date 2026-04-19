@@ -434,6 +434,22 @@ export const PersonSchema = z.object({
     .default([]),
   last_contacted: z.string().optional(), // ISO date
   is_favorite: z.boolean().default(false),
+  documents: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+        filename: z.string().min(1),
+        content_type: z.string().min(1),
+        data: z.string().min(1), // base64
+        size: z.number().int().min(0),
+        added_at: z
+          .string()
+          .datetime()
+          .default(() => new Date().toISOString()),
+      }),
+    )
+    .default([]),
 });
 
 // --- 18. VEHICLE MANAGER ---
