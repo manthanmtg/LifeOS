@@ -8,6 +8,7 @@ import type {
   Person,
   PersonPayload,
   PersonDocument,
+  Interaction,
   InteractionType,
 } from "./types";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
@@ -130,6 +131,51 @@ export default function PeopleAdminView() {
     }
   };
 
+  const handleUpdateInteractions = async (
+    id: string,
+    interactions: Interaction[],
+  ) => {
+    const person = people.find((p) => p._id === id);
+    if (!person) return;
+
+    // Calculate last_contacted as the max date from all interactions
+    const last_contacted =
+      interactions.length > 0
+        ? [...interactions].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          )[0].date
+        : undefined;
+
+    const res = await fetch(`/api/content/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payload: {
+          ...person.payload,
+          interactions,
+          last_contacted,
+        },
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update interactions");
+    await fetchPeople();
+    if (selectedPerson?._id === id) {
+      setSelectedPerson((p) =>
+        p
+          ? {
+              ...p,
+              payload: {
+                ...p.payload,
+                interactions,
+                last_contacted,
+              },
+            }
+          : null,
+      );
+    }
+  };
+
   const handleLogInteraction = async (
     id: string,
     type: InteractionType,
@@ -145,34 +191,7 @@ export default function PeopleAdminView() {
       newInteraction,
     ];
 
-    const res = await fetch(`/api/content/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        payload: {
-          ...person.payload,
-          interactions: updatedInteractions,
-          last_contacted: date,
-        },
-      }),
-    });
-
-    if (!res.ok) throw new Error("Failed to log interaction");
-    await fetchPeople();
-    if (selectedPerson?._id === id) {
-      setSelectedPerson((p) =>
-        p
-          ? {
-              ...p,
-              payload: {
-                ...p.payload,
-                interactions: updatedInteractions,
-                last_contacted: date,
-              },
-            }
-          : null,
-      );
-    }
+    await handleUpdateInteractions(id, updatedInteractions);
   };
 
   const handleQuickLog = (person: Person, type: InteractionType) => {
@@ -358,6 +377,9 @@ export default function PeopleAdminView() {
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
                 onLogInteraction={handleLogInteraction}
+                onUpdateInteractions={(interactions) =>
+                  handleUpdateInteractions(selectedPerson._id, interactions)
+                }
                 onUpdateDocuments={handleUpdateDocuments}
               />
             )}

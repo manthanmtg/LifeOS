@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { Person, PersonDocument, InteractionType } from "../types";
+import type { Person, PersonDocument, Interaction, InteractionType } from "../types";
 import PersonDocuments from "./PersonDocuments";
 
 interface PersonProfileProps {
@@ -36,6 +36,7 @@ interface PersonProfileProps {
     date: string,
     note?: string,
   ) => Promise<void>;
+  onUpdateInteractions: (interactions: Interaction[]) => Promise<void>;
   onUpdateDocuments: (person: Person, docs: PersonDocument[]) => Promise<void>;
 }
 
@@ -73,9 +74,11 @@ export default function PersonProfile({
   onDelete,
   onToggleFavorite,
   onLogInteraction,
+  onUpdateInteractions,
   onUpdateDocuments,
 }: PersonProfileProps) {
   const [showLogForm, setShowLogForm] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [logType, setLogType] = useState<InteractionType>("message");
   const [logNote, setLogNote] = useState("");
   const [logDate, setLogDate] = useState(new Date().toISOString().slice(0, 10));
@@ -113,7 +116,18 @@ export default function PersonProfile({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await onLogInteraction(person._id, logType, logDate, logNote);
+      if (editingIndex !== null) {
+        const updated = [...(interactions || [])];
+        updated[editingIndex] = {
+          date: logDate,
+          type: logType,
+          note: logNote.trim() || undefined,
+        };
+        await onUpdateInteractions(updated);
+        setEditingIndex(null);
+      } else {
+        await onLogInteraction(person._id, logType, logDate, logNote);
+      }
       setLogNote("");
       setShowLogForm(false);
     } catch (err) {
@@ -121,6 +135,26 @@ export default function PersonProfile({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteInteraction = async (index: number) => {
+    if (!confirm("Are you sure you want to delete this moment?")) return;
+    try {
+      const updated = [...(interactions || [])];
+      updated.splice(index, 1);
+      await onUpdateInteractions(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const startEditing = (index: number) => {
+    const it = interactions[index];
+    setLogType(it.type);
+    setLogDate(it.date);
+    setLogNote(it.note || "");
+    setEditingIndex(index);
+    setShowLogForm(true);
   };
 
   const interactionIcons: Record<
@@ -383,12 +417,14 @@ export default function PersonProfile({
                   {sortedInteractions.length} logged
                 </span>
               </div>
-              <button
-                onClick={() => setShowLogForm(!showLogForm)}
-                className="flex items-center gap-1.5 px-3 py-2 bg-accent text-zinc-950 text-xs font-semibold rounded-xl hover:bg-accent-hover transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Moment
-              </button>
+              {!showLogForm && (
+                <button
+                  onClick={() => setShowLogForm(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-accent text-zinc-950 text-xs font-semibold rounded-xl hover:bg-accent-hover transition-all active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Moment
+                </button>
+              )}
             </div>
 
             <AnimatePresence>
@@ -400,6 +436,19 @@ export default function PersonProfile({
                   onSubmit={handleLog}
                   className="bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-4 mb-5 space-y-3"
                 >
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-accent flex items-center gap-2">
+                      {editingIndex !== null ? (
+                        <>
+                          <Edit3 className="w-3 h-3" /> Edit Moment
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3 h-3" /> Log Moment
+                        </>
+                      )}
+                    </h4>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
@@ -456,11 +505,17 @@ export default function PersonProfile({
                       disabled={isSubmitting}
                       className="flex-[2] bg-accent text-zinc-950 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50 transition-all hover:bg-accent-hover"
                     >
-                      {isSubmitting ? "Saving..." : "Save"}
+                      {isSubmitting ? "Saving..." : "Save Changes"}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setShowLogForm(false)}
+                      onClick={() => {
+                        setShowLogForm(false);
+                        setEditingIndex(null);
+                        setLogNote("");
+                        setLogDate(new Date().toISOString().slice(0, 10));
+                        setLogType("message");
+                      }}
                       className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-zinc-500 text-xs font-medium border border-zinc-800 hover:text-zinc-200 transition-all"
                     >
                       Cancel
@@ -472,11 +527,19 @@ export default function PersonProfile({
 
             <div className="space-y-2.5">
               {sortedInteractions.length > 0 ? (
-                sortedInteractions.map((it, i) => {
+                sortedInteractions.map((it) => {
                   const Icon = interactionIcons[it.type] || Clock;
+                  // Use finding by reference/content similarity since we don't have IDs
+                  const originalIndex = interactions.findIndex(
+                    (i) =>
+                      i.date === it.date &&
+                      i.type === it.type &&
+                      i.note === it.note,
+                  );
+
                   return (
                     <div
-                      key={i}
+                      key={`${it.date}-${it.type}-${originalIndex}`}
                       className="group flex items-start gap-3 p-3 bg-zinc-950/20 border border-zinc-900/40 rounded-xl transition-all hover:bg-zinc-900/40 hover:border-accent/10"
                     >
                       <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-accent/40 transition-all">
@@ -484,9 +547,29 @@ export default function PersonProfile({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-xs font-semibold text-zinc-200 capitalize group-hover:text-accent transition-colors">
-                            {it.type}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-zinc-200 capitalize group-hover:text-accent transition-colors">
+                              {it.type}
+                            </span>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => startEditing(originalIndex)}
+                                className="p-1 text-zinc-600 hover:text-accent transition-colors"
+                                title="Edit moment"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteInteraction(originalIndex)
+                                }
+                                className="p-1 text-zinc-600 hover:text-danger transition-colors"
+                                title="Delete moment"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
                           <span className="text-[10px] font-medium text-zinc-600">
                             {new Date(it.date).toLocaleDateString(undefined, {
                               month: "short",
