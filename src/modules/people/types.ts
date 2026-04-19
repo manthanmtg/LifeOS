@@ -13,6 +13,7 @@ export type Relationship = (typeof RELATIONSHIPS)[number];
 export const INTERACTION_TYPES = [
   "call",
   "meeting",
+  "in_person",
   "message",
   "email",
   "gift",

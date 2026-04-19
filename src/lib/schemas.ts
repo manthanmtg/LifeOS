@@ -432,7 +432,15 @@ export const PersonSchema = z.object({
       z.object({
         date: z.string(), // ISO date
         type: z
-          .enum(["call", "meeting", "message", "email", "gift", "other"])
+          .enum([
+            "call",
+            "meeting",
+            "in_person",
+            "message",
+            "email",
+            "gift",
+            "other",
+          ])
           .default("other"),
         note: z.string().optional(),
       }),

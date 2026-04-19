@@ -15,13 +15,20 @@ import {
   Plus,
   Video,
   Gift,
+  MapPin,
   Tag as TagIcon,
   AlignLeft,
   Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { Person, PersonDocument, Interaction, InteractionType } from "../types";
+import {
+  INTERACTION_TYPES,
+  type Person,
+  type PersonDocument,
+  type Interaction,
+  type InteractionType,
+} from "../types";
 import PersonDocuments from "./PersonDocuments";
 
 interface PersonProfileProps {
@@ -163,10 +170,21 @@ export default function PersonProfile({
   > = {
     call: Phone,
     meeting: Video,
+    in_person: MapPin,
     message: MessageSquare,
     email: Mail,
     gift: Gift,
     other: Clock,
+  };
+
+  const interactionLabels: Record<InteractionType, string> = {
+    call: "Call",
+    meeting: "Meeting",
+    in_person: "In Person",
+    message: "Message",
+    email: "Email",
+    gift: "Gift",
+    other: "Other",
   };
 
   return (
@@ -461,16 +479,9 @@ export default function PersonProfile({
                         }
                         className={inputCls}
                       >
-                        {[
-                          "call",
-                          "meeting",
-                          "message",
-                          "email",
-                          "gift",
-                          "other",
-                        ].map((t) => (
+                        {INTERACTION_TYPES.map((t) => (
                           <option key={t} value={t}>
-                            {t.charAt(0).toUpperCase() + t.slice(1)}
+                            {interactionLabels[t]}
                           </option>
                         ))}
                       </select>
@@ -548,8 +559,8 @@ export default function PersonProfile({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-zinc-200 capitalize group-hover:text-accent transition-colors">
-                              {it.type}
+                            <span className="text-xs font-semibold text-zinc-200 group-hover:text-accent transition-colors">
+                              {interactionLabels[it.type]}
                             </span>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
