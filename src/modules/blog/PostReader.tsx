@@ -3,11 +3,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Clock3, Copy, LinkIcon } from "lucide-react";
-import MarkdownPreview from "@/modules/blog/MarkdownPreview";
-import { BlogHeading, BlogPost } from "@/modules/blog/types";
-import { formatPostDate, getExcerpt, headingToId } from "@/modules/blog/utils";
+import {
+  ArrowLeft,
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  Copy,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import MarkdownPreview from "@/modules/blog/MarkdownPreview";
+import BlogReaderOutline from "@/modules/blog/components/BlogReaderOutline";
+import { BlogHeading, BlogPost } from "@/modules/blog/types";
+import {
+  estimateReadingTime,
+  formatPostDate,
+  getExcerpt,
+  headingToId,
+} from "@/modules/blog/utils";
 
 interface Props {
   post: BlogPost;
@@ -43,8 +56,9 @@ function outlinesEqual(a: BlogHeading[], b: BlogHeading[]) {
       a[i].id !== b[i].id ||
       a[i].text !== b[i].text ||
       a[i].level !== b[i].level
-    )
+    ) {
       return false;
+    }
   }
   return true;
 }
@@ -54,8 +68,9 @@ export default function PostReader({ post, relatedPosts }: Props) {
   const scrollContainerRef = useRef<Window | HTMLElement | null>(null);
   const [headings, setHeadings] = useState<BlogHeading[]>([]);
   const [progress, setProgress] = useState(0);
-  const [activeHeading, setActiveHeading] = useState<string>("");
+  const [activeHeading, setActiveHeading] = useState("");
   const [copied, setCopied] = useState(false);
+  const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
 
   const publishedDate = formatPostDate(
     post.payload.published_at || post.created_at,
@@ -69,6 +84,7 @@ export default function PostReader({ post, relatedPosts }: Props) {
         setActiveHeading("");
         return;
       }
+
       scrollContainerRef.current = getScrollContainer(article);
 
       const nodes = Array.from(article.querySelectorAll("h2, h3"));
@@ -92,9 +108,13 @@ export default function PostReader({ post, relatedPosts }: Props) {
         })
         .filter((item): item is BlogHeading => item !== null);
 
-      setHeadings((prev) => (outlinesEqual(prev, outline) ? prev : outline));
-      setActiveHeading((prev) => {
-        if (prev && outline.some((item) => item.id === prev)) return prev;
+      setHeadings((previous) =>
+        outlinesEqual(previous, outline) ? previous : outline,
+      );
+      setActiveHeading((previous) => {
+        if (previous && outline.some((item) => item.id === previous)) {
+          return previous;
+        }
         return outline[0]?.id || "";
       });
     };
@@ -103,9 +123,7 @@ export default function PostReader({ post, relatedPosts }: Props) {
     if (!article) return;
 
     const raf1 = window.requestAnimationFrame(collectHeadings);
-    const raf2 = window.requestAnimationFrame(() => {
-      collectHeadings();
-    });
+    const raf2 = window.requestAnimationFrame(collectHeadings);
 
     return () => {
       window.cancelAnimationFrame(raf1);
@@ -119,6 +137,7 @@ export default function PostReader({ post, relatedPosts }: Props) {
       if (!isElementScrollContainer(container)) {
         return { top: 0, height: window.innerHeight };
       }
+
       const rect = container.getBoundingClientRect();
       return { top: rect.top, height: container.clientHeight };
     };
@@ -139,12 +158,14 @@ export default function PostReader({ post, relatedPosts }: Props) {
 
       let current = headings[0]?.id ?? "";
       for (const heading of headings) {
-        const el = document.getElementById(heading.id);
-        if (!el) continue;
-        const headingTop = el.getBoundingClientRect().top - metrics.top;
+        const element = document.getElementById(heading.id);
+        if (!element) continue;
+        const headingTop = element.getBoundingClientRect().top - metrics.top;
         if (headingTop <= 120) current = heading.id;
       }
-      setActiveHeading((prev) => (prev === current ? prev : current));
+      setActiveHeading((previous) =>
+        previous === current ? previous : current,
+      );
     };
 
     onScroll();
@@ -178,13 +199,14 @@ export default function PostReader({ post, relatedPosts }: Props) {
 
     window.history.replaceState(null, "", `#${id}`);
     setActiveHeading(id);
+    setMobileOutlineOpen(false);
   };
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1400);
+      window.setTimeout(() => setCopied(false), 1400);
     } catch {
       setCopied(false);
     }
@@ -200,23 +222,24 @@ export default function PostReader({ post, relatedPosts }: Props) {
       </div>
 
       <div className="px-6 pt-10 md:pt-14">
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-300 transition-colors mb-8"
+            className="mb-8 inline-flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-zinc-300"
           >
-            <ArrowLeft className="w-4 h-4" /> All posts
+            <ArrowLeft className="h-4 w-4" />
+            All posts
           </Link>
 
-          <header className="relative overflow-hidden border border-zinc-800 rounded-3xl bg-zinc-900/70 p-6 md:p-10 mb-8">
-            <div className="absolute -top-12 right-0 w-60 h-60 rounded-full bg-accent/15 blur-3xl" />
+          <header className="relative mb-8 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 md:p-10">
+            <div className="absolute -top-12 right-0 h-60 w-60 rounded-full bg-accent/15 blur-3xl" />
             <div className="relative">
               {post.payload.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="mb-4 flex flex-wrap gap-2">
                   {post.payload.tags.slice(0, 5).map((tag) => (
                     <span
                       key={tag}
-                      className="px-2.5 py-1 rounded-full bg-zinc-800/80 border border-zinc-700 text-xs text-zinc-300"
+                      className="rounded-full border border-zinc-700 bg-zinc-800/80 px-2.5 py-1 text-xs text-zinc-300"
                     >
                       {tag}
                     </span>
@@ -224,94 +247,128 @@ export default function PostReader({ post, relatedPosts }: Props) {
                 </div>
               )}
 
-              <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-zinc-100 leading-tight">
+              <h1 className="text-3xl font-semibold leading-tight tracking-tight text-zinc-100 md:text-5xl">
                 {post.payload.title}
               </h1>
               {post.payload.seo_description && (
-                <p className="mt-4 text-zinc-300 max-w-3xl">
+                <p className="mt-4 max-w-3xl text-zinc-300">
                   {post.payload.seo_description}
                 </p>
               )}
 
               <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-zinc-400">
                 <span className="inline-flex items-center gap-1.5">
-                  <CalendarDays className="w-4 h-4" />
+                  <CalendarDays className="h-4 w-4" />
                   {publishedDate}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Clock3 className="w-4 h-4" />
-                  {post.payload.estimated_reading_time || 1} min read
+                  <Clock3 className="h-4 w-4" />
+                  {post.payload.estimated_reading_time ||
+                    estimateReadingTime(post.payload.content)}{" "}
+                  min read
                 </span>
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-300"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="h-4 w-4" />
                   {copied ? "Copied" : "Copy link"}
                 </button>
               </div>
             </div>
           </header>
 
+          {headings.length > 0 && (
+            <div className="mb-6 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileOutlineOpen((value) => !value)}
+                className="flex w-full items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-left"
+              >
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-zinc-500">
+                    On this page
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-300">
+                    {activeHeading
+                      ? headings.find((item) => item.id === activeHeading)?.text
+                      : `${headings.length} sections`}
+                  </p>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 text-zinc-500 transition-transform",
+                    mobileOutlineOpen && "rotate-180",
+                  )}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {mobileOutlineOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3">
+                      <BlogReaderOutline
+                        activeHeading={activeHeading}
+                        headings={headings}
+                        onSelect={scrollToHeading}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
           {post.payload.cover_image_url && (
-            <div className="mb-8 rounded-3xl overflow-hidden border border-zinc-800">
+            <div className="mb-8 overflow-hidden rounded-3xl border border-zinc-800">
               <img
                 src={post.payload.cover_image_url}
                 alt={post.payload.title}
-                className="w-full h-64 md:h-96 object-cover"
+                className="h-64 w-full object-cover md:h-96"
               />
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_250px] gap-10">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
             <article
               ref={articleRef}
-              className="bg-zinc-900/35 border border-zinc-800 rounded-3xl p-6 md:p-10"
+              className="rounded-3xl border border-zinc-800 bg-zinc-900/35 p-6 md:p-10"
             >
               <MarkdownPreview content={post.payload.content} />
             </article>
 
             <aside className="hidden lg:block">
               <div className="sticky top-24 space-y-4">
-                <div className="border border-zinc-800 rounded-2xl bg-zinc-900/50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-zinc-500 mb-2">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
+                  <p className="mb-2 text-xs uppercase tracking-wider text-zinc-500">
                     Reading progress
                   </p>
-                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
                     <div
                       className="h-full bg-accent transition-all duration-150"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <p className="text-xs text-zinc-400 mt-2">
+                  <p className="mt-2 text-xs text-zinc-400">
                     {progress}% complete
                   </p>
                 </div>
 
                 {headings.length > 0 && (
-                  <div className="border border-zinc-800 rounded-2xl bg-zinc-900/50 p-4">
-                    <p className="text-xs uppercase tracking-wider text-zinc-500 mb-3">
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
+                    <p className="mb-3 text-xs uppercase tracking-wider text-zinc-500">
                       On this page
                     </p>
-                    <nav className="space-y-1">
-                      {headings.map((heading) => (
-                        <button
-                          key={heading.id}
-                          type="button"
-                          onClick={() => scrollToHeading(heading.id)}
-                          className={cn(
-                            "w-full text-left flex items-start gap-2 text-sm rounded-lg px-2 py-1.5 transition-colors",
-                            heading.level === 3 && "ml-3",
-                            activeHeading === heading.id
-                              ? "bg-accent/10 text-accent"
-                              : "text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800/70",
-                          )}
-                        >
-                          <LinkIcon className="w-3 h-3 mt-1 shrink-0" />
-                          <span>{heading.text}</span>
-                        </button>
-                      ))}
-                    </nav>
+                    <BlogReaderOutline
+                      activeHeading={activeHeading}
+                      headings={headings}
+                      onSelect={scrollToHeading}
+                    />
                   </div>
                 )}
               </div>
@@ -320,33 +377,38 @@ export default function PostReader({ post, relatedPosts }: Props) {
 
           {relatedPosts.length > 0 && (
             <section className="mt-10">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-zinc-100">
-                  Continue Reading
-                </h2>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold text-zinc-100">
+                    Continue Reading
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    More recent posts from the same journal.
+                  </p>
+                </div>
                 <Link
                   href="/blog"
-                  className="text-sm text-accent hover:text-accent-hover transition-colors"
+                  className="text-sm text-accent transition-colors hover:text-accent-hover"
                 >
                   View all
                 </Link>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {relatedPosts.map((item) => (
                   <Link
                     key={item._id}
                     href={`/blog/${item.payload.slug}`}
-                    className="group border border-zinc-800 rounded-2xl bg-zinc-900/40 p-4 hover:border-zinc-700 transition-colors"
+                    className="group rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 transition-colors hover:border-zinc-700"
                   >
-                    <p className="text-xs text-zinc-500 mb-2">
+                    <p className="mb-2 text-xs text-zinc-500">
                       {formatPostDate(
                         item.payload.published_at || item.created_at,
                       )}
                     </p>
-                    <h3 className="text-sm font-medium text-zinc-100 group-hover:text-accent transition-colors line-clamp-2">
+                    <h3 className="line-clamp-2 text-sm font-medium text-zinc-100 transition-colors group-hover:text-accent">
                       {item.payload.title}
                     </h3>
-                    <p className="text-xs text-zinc-400 mt-2 line-clamp-3">
+                    <p className="mt-2 line-clamp-3 text-xs text-zinc-400">
                       {item.payload.seo_description ||
                         getExcerpt(item.payload.content, 120)}
                     </p>

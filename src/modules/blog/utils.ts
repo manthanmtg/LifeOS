@@ -1,4 +1,4 @@
-import { BlogHeading } from "@/modules/blog/types";
+import { BlogHeading, BlogPost, BlogSummary } from "@/modules/blog/types";
 
 export function slugify(value: string): string {
   return value
@@ -12,6 +12,13 @@ export function estimateReadingTime(content: string): number {
   const words = wordCount(content);
   if (words === 0) return 1;
   return Math.max(1, Math.ceil(words / 200));
+}
+
+export function parseTagInput(tagsInput: string): string[] {
+  return tagsInput
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 export function wordCount(content: string): number {
@@ -91,4 +98,52 @@ export function parseHeadingOutline(content: string): BlogHeading[] {
   }
 
   return headings;
+}
+
+export function getPostTimestamp(post: BlogPost): number {
+  return new Date(post.payload.published_at || post.created_at).getTime();
+}
+
+export function sortPostsByNewest<T extends BlogPost>(posts: T[]): T[] {
+  return [...posts].sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a));
+}
+
+export function getUniqueBlogTags(posts: BlogPost[]): string[] {
+  const tags = new Set<string>();
+  for (const post of posts) {
+    for (const tag of post.payload.tags || []) {
+      if (tag.trim()) tags.add(tag.trim());
+    }
+  }
+
+  return Array.from(tags).sort((a, b) => a.localeCompare(b));
+}
+
+export function buildBlogSummary(posts: BlogPost[]): BlogSummary {
+  const publishedPosts = posts.filter(
+    (post) => post.payload.status === "published",
+  );
+  const latestPublished = sortPostsByNewest(publishedPosts)[0];
+
+  return {
+    total: posts.length,
+    published: publishedPosts.length,
+    drafts: posts.filter((post) => post.payload.status === "draft").length,
+    archived: posts.filter((post) => post.payload.status === "archived").length,
+    totalReadMinutes: publishedPosts.reduce(
+      (sum, post) =>
+        sum +
+        (post.payload.estimated_reading_time ||
+          estimateReadingTime(post.payload.content)),
+      0,
+    ),
+    latestPublishedPost: latestPublished
+      ? {
+          title: latestPublished.payload.title,
+          readingTime:
+            latestPublished.payload.estimated_reading_time ||
+            estimateReadingTime(latestPublished.payload.content),
+        }
+      : null,
+  };
 }
