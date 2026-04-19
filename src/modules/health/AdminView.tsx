@@ -63,6 +63,7 @@ import type {
   HealthDocument,
   DocType,
   BillAttachment,
+  ProfileType,
 } from "./components/types";
 import {
   PROFILE_TYPE_CONFIG,
@@ -75,11 +76,11 @@ import {
 import {
   formatDateInput,
   toISODate,
-  getDueStatus,
   getInitials,
   uuid,
   emptyPayload,
 } from "./components/helpers";
+import { getHealthAlerts, getProfileAlerts } from "./components/selectors";
 
 // ─── Shared form styling ─────────────────────────────────────────────────────
 
@@ -129,6 +130,9 @@ export default function HealthAdminView() {
     null,
   );
   const [activeTab, setActiveTab] = useState<DetailTab>("overview");
+  const [listFilter, setListFilter] = useState<
+    "all" | "attention" | ProfileType
+  >("all");
 
   // Sub-form states
   const [showSubForm, setShowSubForm] = useState<string | null>(null);
@@ -664,48 +668,16 @@ export default function HealthAdminView() {
   }, [profiles]);
 
   const profileAlerts = useMemo(() => {
-    const alerts: Array<{
-      profileName: string;
-      label: string;
-      date: string;
-      status: "overdue" | "warning";
-    }> = [];
-    for (const p of profiles) {
-      const payload = p.payload;
-      for (const med of payload.medications || []) {
-        if (med.status === "active" && med.refill_date) {
-          const s = getDueStatus(med.refill_date);
-          if (s === "overdue" || s === "warning") {
-            alerts.push({
-              profileName: payload.name,
-              label: `Refill: ${med.name}`,
-              date: med.refill_date,
-              status: s,
-            });
-          }
-        }
-      }
-      for (const vac of payload.vaccinations || []) {
-        if (vac.next_due) {
-          const s = getDueStatus(vac.next_due);
-          if (s === "overdue" || s === "warning") {
-            alerts.push({
-              profileName: payload.name,
-              label: `Vaccine: ${vac.name}`,
-              date: vac.next_due,
-              status: s,
-            });
-          }
-        }
-      }
-    }
-    alerts.sort((a, b) => {
-      if (a.status === "overdue" && b.status !== "overdue") return -1;
-      if (a.status !== "overdue" && b.status === "overdue") return 1;
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-    return alerts;
+    return getHealthAlerts(profiles);
   }, [profiles]);
+
+  const visibleProfiles = useMemo(() => {
+    if (listFilter === "all") return profiles;
+    if (listFilter === "attention") {
+      return profiles.filter((profile) => getProfileAlerts(profile).length > 0);
+    }
+    return profiles.filter((profile) => profile.payload.type === listFilter);
+  }, [listFilter, profiles]);
 
   // ─── Form helpers ────────────────────────────────────────────────────────
 
@@ -1864,6 +1836,55 @@ export default function HealthAdminView() {
       {/* Alerts banner */}
       <AlertsBanner alerts={profileAlerts} />
 
+      {profiles.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "all" as const, label: "All", count: profiles.length },
+            {
+              key: "attention" as const,
+              label: "Needs Attention",
+              count: profiles.filter(
+                (profile) => getProfileAlerts(profile).length > 0,
+              ).length,
+            },
+            {
+              key: "self" as const,
+              label: "Self",
+              count: profiles.filter(
+                (profile) => profile.payload.type === "self",
+              ).length,
+            },
+            {
+              key: "family" as const,
+              label: "Family",
+              count: profiles.filter(
+                (profile) => profile.payload.type === "family",
+              ).length,
+            },
+            {
+              key: "pet" as const,
+              label: "Pets",
+              count: profiles.filter(
+                (profile) => profile.payload.type === "pet",
+              ).length,
+            },
+          ].map((filter) => (
+            <button
+              key={filter.key}
+              onClick={() => setListFilter(filter.key)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors",
+                listFilter === filter.key
+                  ? "border-accent/30 bg-accent/10 text-accent"
+                  : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-200",
+              )}
+            >
+              {filter.label} · {filter.count}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Profile Cards */}
       {profiles.length === 0 ? (
         <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-16 text-center">
@@ -1877,7 +1898,7 @@ export default function HealthAdminView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {profiles.map((profile) => (
+          {visibleProfiles.map((profile) => (
             <ProfileCard
               key={profile._id}
               profile={profile}
@@ -1888,6 +1909,17 @@ export default function HealthAdminView() {
               onPreviewImage={(src, name) => setPreviewImage({ src, name })}
             />
           ))}
+        </div>
+      )}
+
+      {profiles.length > 0 && visibleProfiles.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900 p-10 text-center">
+          <p className="text-sm font-semibold text-zinc-200">
+            No profiles match this filter
+          </p>
+          <p className="mt-2 text-xs text-zinc-500">
+            Try switching back to all profiles or another group.
+          </p>
         </div>
       )}
 

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { LAB_STATUS_CONFIG } from "./constants";
 import { formatDate } from "./helpers";
 import type { HealthPayload, LabResult } from "./types";
+import { getSortedLabGroups } from "./selectors";
 
 interface LabResultsTabProps {
   payload: HealthPayload;
@@ -23,18 +24,13 @@ export default function LabResultsTab({
   renderModal,
 }: LabResultsTabProps) {
   const p = payload;
-
-  // Group by test_name
-  const grouped: Record<string, LabResult[]> = {};
-  for (const r of p.lab_results) {
-    if (!grouped[r.test_name]) grouped[r.test_name] = [];
-    grouped[r.test_name].push(r);
-  }
-  for (const key of Object.keys(grouped)) {
-    grouped[key].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  }
+  const profile = {
+    _id: "inline-profile",
+    created_at: "",
+    updated_at: "",
+    payload,
+  };
+  const grouped = getSortedLabGroups(profile);
 
   return (
     <motion.div
@@ -62,7 +58,7 @@ export default function LabResultsTab({
         </div>
       ) : (
         <div className="space-y-4">
-          {Object.entries(grouped).map(([testName, results]) => {
+          {grouped.map(([testName, results]) => {
             const latest = results[0];
             const lsConfig = LAB_STATUS_CONFIG[latest.status];
             const hasTrend = results.length > 1;
