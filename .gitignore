@@ -47,3 +47,8 @@ next-env.d.ts
 deno.lock
 # Added by code-review-graph
 .code-review-graph/
+
+# local agent and graphify artifacts
+.codex/
+.graphify_*.json
+graphify-out/
