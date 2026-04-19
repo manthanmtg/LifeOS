@@ -31,6 +31,7 @@ Pick exactly one random module from `src/modules/` (excluding `_template`) and m
 
 ### 4. Verify
 
+- **Playwright MCP**: If possible, use the Playwright MCP to verify visually that nothing is messed up by taking screenshots or performing other programmatic visual verification.
 - **Build check**: Run `pnpm check` — zero lint, type, or test regressions.
 - **Add tests if missing**: Cover critical user flows and complex logic with Vitest.
 - **Responsive check**: Verify all breakpoints look right.
