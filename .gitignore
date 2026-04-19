@@ -48,7 +48,5 @@ deno.lock
 # Added by code-review-graph
 .code-review-graph/
 
-# local agent and graphify artifacts
+# local agent artifacts
 .codex/
-.graphify_*.json
-graphify-out/
