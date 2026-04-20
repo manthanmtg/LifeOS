@@ -138,6 +138,61 @@ The TypeScript compiler can hit Node's default heap limit (~1.5–2 GB) during t
 - **Narrow `include`**: Ensure `tsconfig.json` only includes `src/` — not the entire repo
 - **Add swap space**: On low-RAM servers, adding swap prevents hard OOM kills
 
+## Visual Verification with Playwright MCP
+
+After making UI changes, use the **Playwright MCP** to visually verify that nothing is broken. This is the preferred way to catch layout regressions, styling issues, and broken interactions.
+
+### Prerequisites
+
+- The app must be running locally on `http://localhost:3512`
+- A valid `.env.local` with `MONGODB_URI`, `ADMIN_PASSWORD`, and `JWT_SECRET`
+
+### Step-by-Step
+
+1. **Start the dev server** (if not already running):
+   ```bash
+   pnpm dev -p 3512
+   ```
+   Wait until you see `✓ Ready` in the output.
+
+2. **Navigate to the page under test** using Playwright MCP's `browser_navigate`:
+   - Public home: `http://localhost:3512`
+   - Admin dashboard: `http://localhost:3512/admin`
+   - Specific module: `http://localhost:3512/admin/<module-slug>`
+   - Public blog: `http://localhost:3512/blog`
+
+3. **Log in** (for admin pages):
+   - Navigate to `http://localhost:3512/admin` — it will redirect to the login page.
+   - Use `browser_type` to fill in the admin password from `.env.local` and submit.
+   - Alternatively, navigate to the login page and complete the auth flow.
+
+4. **Take screenshots** using `browser_screenshot` to capture the current state of the page. Do this:
+   - After login, on the admin dashboard
+   - On the specific module page you modified
+   - At different viewport sizes (use `browser_resize` if available) to verify responsiveness
+
+5. **Interact and verify**:
+   - Use `browser_click` to open modals, toggle states, or trigger actions
+   - Take a screenshot after each interaction to confirm the UI responds correctly
+   - Check for: broken layouts, overlapping elements, missing data, console errors
+
+6. **Stop the dev server** when done.
+
+### Key Pages to Check
+
+| Page | URL | What to verify |
+|---|---|---|
+| Dashboard | `/admin` | Widget grid renders, no overflow, all widgets load |
+| Modified module | `/admin/<slug>` | CRUD works, forms render, data displays |
+| Public home | `/` | Portfolio renders, no auth required |
+| Blog (if changed) | `/blog` | Post list loads, post detail renders |
+
+### Tips
+
+- Always screenshot **before and after** your changes if possible — compare visually.
+- Check both **desktop** and **mobile** viewports (resize to ~375px width for mobile).
+- If a page shows a loading skeleton that never resolves, there's likely a data-fetching or API error.
+
 ## Environment Variables
 
 Required in `.env.local`: `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`
