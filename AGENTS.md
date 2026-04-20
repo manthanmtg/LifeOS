@@ -125,6 +125,19 @@ When adding a new module, ensure both its `Widget.tsx` and `AdminView.tsx` follo
 - Components are self-contained with local state management
 - Concise, lowercase commit messages
 
+## Known Issues
+
+### `tsc` OOM (Out of Memory)
+
+The TypeScript compiler can hit Node's default heap limit (~1.5–2 GB) during type-checking, especially on memory-constrained servers. Common causes: large codebase, deeply inferred types (e.g., Zod's `.infer`), or `skipLibCheck: false` forcing type-checking of all `node_modules` `.d.ts` files.
+
+**Fixes (apply as needed):**
+
+- **Increase Node heap**: `NODE_OPTIONS="--max-old-space-size=4096" pnpm build`
+- **Enable `skipLibCheck`**: Set `"skipLibCheck": true` in `tsconfig.json` `compilerOptions`
+- **Narrow `include`**: Ensure `tsconfig.json` only includes `src/` — not the entire repo
+- **Add swap space**: On low-RAM servers, adding swap prevents hard OOM kills
+
 ## Environment Variables
 
 Required in `.env.local`: `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`
