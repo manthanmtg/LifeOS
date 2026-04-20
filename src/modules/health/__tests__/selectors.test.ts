@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  filterHealthProfiles,
+  getHealthFilterOptions,
   getHealthAlerts,
   getNextTimelineItem,
   getProfileOverviewSnapshot,
+  getWeightTrendPoints,
 } from "../components/selectors";
 import type { HealthProfile } from "../components/types";
 
@@ -176,5 +179,130 @@ describe("health selectors", () => {
     expect(snapshot.latestLabResult?.id).toBe("lab-2");
     expect(snapshot.latestMeasurement?.id).toBe("m-2");
     expect(snapshot.latestDocument?.id).toBe("doc-2");
+  });
+
+  it("filters profiles by attention and free-text search", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));
+
+    const profiles = [
+      makeProfile({
+        _id: "profile-1",
+        payload: {
+          ...makeProfile().payload,
+          name: "Aarav",
+          medications: [
+            {
+              id: "med-1",
+              name: "Metformin",
+              status: "active",
+              refill_date: "2026-04-18T00:00:00.000Z",
+            },
+          ],
+        },
+      }),
+      makeProfile({
+        _id: "profile-2",
+        payload: {
+          ...makeProfile().payload,
+          name: "Milo",
+          type: "pet",
+          tags: ["dog"],
+          vaccinations: [
+            {
+              id: "vac-1",
+              name: "Rabies",
+              date_administered: "2025-05-01T00:00:00.000Z",
+              next_due: "2026-07-01T00:00:00.000Z",
+            },
+          ],
+        },
+      }),
+    ];
+
+    expect(filterHealthProfiles(profiles, "attention", "")).toHaveLength(1);
+    expect(filterHealthProfiles(profiles, "all", "rabies")[0]?._id).toBe(
+      "profile-2",
+    );
+    expect(filterHealthProfiles(profiles, "pet", "dog")[0]?._id).toBe(
+      "profile-2",
+    );
+
+    vi.useRealTimers();
+  });
+
+  it("builds filter counts for the list toolbar", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));
+
+    const profiles = [
+      makeProfile(),
+      makeProfile({
+        _id: "profile-2",
+        payload: {
+          ...makeProfile().payload,
+          type: "family",
+          medications: [
+            {
+              id: "med-1",
+              name: "Vitamin D",
+              status: "active",
+              refill_date: "2026-04-15T00:00:00.000Z",
+            },
+          ],
+        },
+      }),
+      makeProfile({
+        _id: "profile-3",
+        payload: {
+          ...makeProfile().payload,
+          type: "pet",
+        },
+      }),
+    ];
+
+    expect(getHealthFilterOptions(profiles)).toEqual([
+      { key: "all", label: "All", count: 3 },
+      { key: "attention", label: "Needs Attention", count: 1 },
+      { key: "self", label: "Self", count: 1 },
+      { key: "family", label: "Family", count: 1 },
+      { key: "pet", label: "Pets", count: 1 },
+    ]);
+
+    vi.useRealTimers();
+  });
+
+  it("calculates normalized weight trend points", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        measurements: [
+          { id: "m-1", date: "2026-01-01T00:00:00.000Z", weight_kg: 82 },
+          { id: "m-2", date: "2026-02-01T00:00:00.000Z", weight_kg: 79 },
+          { id: "m-3", date: "2026-03-01T00:00:00.000Z", weight_kg: 80.5 },
+        ],
+      },
+    });
+
+    expect(getWeightTrendPoints(profile)).toEqual([
+      {
+        id: "m-1",
+        date: "2026-01-01T00:00:00.000Z",
+        weightKg: 82,
+        heightPercent: 100,
+      },
+      {
+        id: "m-2",
+        date: "2026-02-01T00:00:00.000Z",
+        weightKg: 79,
+        heightPercent: 20,
+      },
+      {
+        id: "m-3",
+        date: "2026-03-01T00:00:00.000Z",
+        weightKg: 80.5,
+        heightPercent: 60,
+      },
+    ]);
   });
 });

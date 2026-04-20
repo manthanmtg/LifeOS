@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useState,
@@ -37,6 +38,7 @@ import HealthMetrics from "./components/HealthMetrics";
 import AlertsBanner from "./components/AlertsBanner";
 import ProfileCard from "./components/ProfileCard";
 import ProfileFormModal from "./components/ProfileFormModal";
+import HealthProfileToolbar from "./components/HealthProfileToolbar";
 import OverviewTab from "./components/OverviewTab";
 import MedicationsTab from "./components/MedicationsTab";
 import VaccinationsTab from "./components/VaccinationsTab";
@@ -63,7 +65,6 @@ import type {
   HealthDocument,
   DocType,
   BillAttachment,
-  ProfileType,
 } from "./components/types";
 import {
   PROFILE_TYPE_CONFIG,
@@ -80,7 +81,12 @@ import {
   uuid,
   emptyPayload,
 } from "./components/helpers";
-import { getHealthAlerts, getProfileAlerts } from "./components/selectors";
+import {
+  filterHealthProfiles,
+  getHealthAlerts,
+  getHealthFilterOptions,
+  type HealthListFilter,
+} from "./components/selectors";
 
 // ─── Shared form styling ─────────────────────────────────────────────────────
 
@@ -130,9 +136,9 @@ export default function HealthAdminView() {
     null,
   );
   const [activeTab, setActiveTab] = useState<DetailTab>("overview");
-  const [listFilter, setListFilter] = useState<
-    "all" | "attention" | ProfileType
-  >("all");
+  const [listFilter, setListFilter] = useState<HealthListFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   // Sub-form states
   const [showSubForm, setShowSubForm] = useState<string | null>(null);
@@ -671,13 +677,15 @@ export default function HealthAdminView() {
     return getHealthAlerts(profiles);
   }, [profiles]);
 
-  const visibleProfiles = useMemo(() => {
-    if (listFilter === "all") return profiles;
-    if (listFilter === "attention") {
-      return profiles.filter((profile) => getProfileAlerts(profile).length > 0);
-    }
-    return profiles.filter((profile) => profile.payload.type === listFilter);
-  }, [listFilter, profiles]);
+  const filterOptions = useMemo(
+    () => getHealthFilterOptions(profiles),
+    [profiles],
+  );
+
+  const visibleProfiles = useMemo(
+    () => filterHealthProfiles(profiles, listFilter, deferredSearchQuery),
+    [deferredSearchQuery, listFilter, profiles],
+  );
 
   // ─── Form helpers ────────────────────────────────────────────────────────
 
@@ -685,6 +693,7 @@ export default function HealthAdminView() {
     setEditingProfile(null);
     setFormData(emptyPayload());
     setAllergyInput("");
+    setSearchQuery("");
     setShowProfileForm(true);
   };
 
@@ -1837,52 +1846,15 @@ export default function HealthAdminView() {
       <AlertsBanner alerts={profileAlerts} />
 
       {profiles.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {[
-            { key: "all" as const, label: "All", count: profiles.length },
-            {
-              key: "attention" as const,
-              label: "Needs Attention",
-              count: profiles.filter(
-                (profile) => getProfileAlerts(profile).length > 0,
-              ).length,
-            },
-            {
-              key: "self" as const,
-              label: "Self",
-              count: profiles.filter(
-                (profile) => profile.payload.type === "self",
-              ).length,
-            },
-            {
-              key: "family" as const,
-              label: "Family",
-              count: profiles.filter(
-                (profile) => profile.payload.type === "family",
-              ).length,
-            },
-            {
-              key: "pet" as const,
-              label: "Pets",
-              count: profiles.filter(
-                (profile) => profile.payload.type === "pet",
-              ).length,
-            },
-          ].map((filter) => (
-            <button
-              key={filter.key}
-              onClick={() => setListFilter(filter.key)}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors",
-                listFilter === filter.key
-                  ? "border-accent/30 bg-accent/10 text-accent"
-                  : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-200",
-              )}
-            >
-              {filter.label} · {filter.count}
-            </button>
-          ))}
-        </div>
+        <HealthProfileToolbar
+          filterOptions={filterOptions}
+          listFilter={listFilter}
+          onFilterChange={setListFilter}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          visibleCount={visibleProfiles.length}
+          totalCount={profiles.length}
+        />
       )}
 
       {/* Profile Cards */}
@@ -1915,10 +1887,12 @@ export default function HealthAdminView() {
       {profiles.length > 0 && visibleProfiles.length === 0 && (
         <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900 p-10 text-center">
           <p className="text-sm font-semibold text-zinc-200">
-            No profiles match this filter
+            No profiles match the current view
           </p>
           <p className="mt-2 text-xs text-zinc-500">
-            Try switching back to all profiles or another group.
+            {searchQuery.trim()
+              ? "Try a different search term or switch filters."
+              : "Try switching back to all profiles or another group."}
           </p>
         </div>
       )}
