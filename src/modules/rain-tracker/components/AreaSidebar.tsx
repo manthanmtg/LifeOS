@@ -4,10 +4,18 @@ import type { FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, Droplets, Edit3, MapPin, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RainArea, RainAreaListItem } from "../types";
+import type {
+  RainArea,
+  RainAreaListItem,
+  RainAreaPortfolioSummary,
+  RainUnit,
+} from "../types";
+import { RainAreaSummary } from "./RainAreaSummary";
 
 interface AreaSidebarProps {
   areas: RainAreaListItem[];
+  summary: RainAreaPortfolioSummary;
+  displayUnit: RainUnit;
   selectedAreaId: string | null;
   showAreaForm: boolean;
   areaFormError: string;
@@ -31,6 +39,8 @@ interface AreaSidebarProps {
 
 export function AreaSidebar({
   areas,
+  summary,
+  displayUnit,
   selectedAreaId,
   showAreaForm,
   areaFormError,
@@ -77,6 +87,8 @@ export function AreaSidebar({
           </button>
         </div>
       </div>
+
+      <RainAreaSummary summary={summary} displayUnit={displayUnit} />
 
       <AnimatePresence initial={false}>
         {showAreaForm ? (

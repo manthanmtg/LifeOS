@@ -5,6 +5,7 @@ import { Calendar, CloudRain, Droplets } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
+  WidgetHighlight,
   WidgetStat,
   WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
@@ -66,12 +67,34 @@ export default function RainTrackerWidget() {
       icon={CloudRain}
       loading={loading}
       href="/admin/rain-tracker"
+      footer={
+        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <span>
+            {stats.total} {displayUnit} total
+          </span>
+          <span>{stats.rainyDays} rainy days</span>
+        </div>
+      }
     >
       <div className="space-y-3">
         <WidgetStat
           value={stats.last7}
           label={`Last 7 days (${displayUnit})`}
         />
+        {data?.latestEntryDate ? (
+          <WidgetHighlight
+            icon={Droplets}
+            text={`Latest log ${stats.latestEntryLabel}`}
+            subtext={`${stats.last30} ${displayUnit} over the last 30 days`}
+            variant="accent"
+          />
+        ) : (
+          <WidgetHighlight
+            icon={CloudRain}
+            text="No rainfall logged yet"
+            subtext="Add an entry to start tracking trends."
+          />
+        )}
         <WidgetMiniStats
           stats={[
             {
@@ -79,12 +102,6 @@ export default function RainTrackerWidget() {
               label: "30-day total",
               icon: Calendar,
               color: "accent",
-            },
-            {
-              value: stats.latestEntryLabel,
-              label: "Latest log",
-              icon: Droplets,
-              color: "success",
             },
             {
               value: stats.rainyDays,

@@ -1,18 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { CloudRain, RefreshCcw, Settings2, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { CloudRain, RefreshCcw, Settings2 } from "lucide-react";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { cn } from "@/lib/utils";
 import { AreaSidebar } from "./components/AreaSidebar";
 import { RainEntriesPanel } from "./components/RainEntriesPanel";
 import { RainOverview } from "./components/RainOverview";
+import { RainTrackerPreferences } from "./components/RainTrackerPreferences";
 import type { RainArea, RainEntry, RainFilters, RainSettings } from "./types";
 import {
+  buildRainAreaPortfolioSummary,
   buildRainAnalytics,
-  CHART_OPTIONS,
   CONVERSION_FROM_MM,
   CONVERSION_TO_MM,
   DEFAULT_RAIN_SETTINGS,
@@ -21,13 +22,13 @@ import {
   getLast30Trend,
   getVisibleRainEntries,
   parseDateInputToISO,
-  UNIT_OPTIONS,
 } from "./utils";
 
 const EMPTY_FILTERS: RainFilters = {
   amountMin: "",
   amountMax: "",
   notes: "",
+  preset: "all",
 };
 
 async function readResponseJson(response: Response) {
@@ -161,6 +162,11 @@ export default function RainTrackerAdminView() {
         searchQuery,
       ),
     [displayUnit, entries, filters, searchQuery, selectedAreaId],
+  );
+
+  const portfolioSummary = useMemo(
+    () => buildRainAreaPortfolioSummary(areas, entries, displayUnit),
+    [areas, displayUnit, entries],
   );
 
   const analytics = useMemo(
@@ -422,6 +428,8 @@ export default function RainTrackerAdminView() {
     <div className="-mx-6 -mb-6 flex flex-col gap-4 overflow-hidden px-4 pb-4 lg:-mx-8 lg:-mb-8 lg:h-[calc(100vh-7rem)] lg:flex-row lg:px-6 lg:pb-6">
       <AreaSidebar
         areas={areaListItems}
+        summary={portfolioSummary}
+        displayUnit={displayUnit}
         selectedAreaId={selectedAreaId}
         showAreaForm={showAreaForm}
         areaFormError={areaFormError}
@@ -506,87 +514,18 @@ export default function RainTrackerAdminView() {
             </div>
           ) : null}
 
-          <AnimatePresence initial={false}>
-            {showSettings ? (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                      Preferences
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => setShowSettings(false)}
-                      className="text-zinc-600 transition-colors hover:text-zinc-400"
-                      aria-label="Close preferences"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <label className="block text-xs font-semibold text-zinc-400">
-                        Display unit
-                      </label>
-                      <div className="flex w-fit rounded-xl border border-zinc-800 bg-zinc-900 p-1">
-                        {UNIT_OPTIONS.map((unit) => (
-                          <button
-                            key={unit}
-                            type="button"
-                            onClick={() =>
-                              void updateSettings({ defaultUnit: unit })
-                            }
-                            className={cn(
-                              "rounded-lg px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all",
-                              displayUnit === unit
-                                ? "bg-zinc-800 text-accent shadow-sm"
-                                : "text-zinc-500 hover:text-zinc-300",
-                            )}
-                          >
-                            {unit}
-                          </button>
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-zinc-600">
-                        Entries are stored in millimeters. This only changes how
-                        values are shown.
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="block text-xs font-semibold text-zinc-400">
-                        Chart type
-                      </label>
-                      <div className="flex w-fit rounded-xl border border-zinc-800 bg-zinc-900 p-1">
-                        {CHART_OPTIONS.map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() =>
-                              void updateSettings({ chartType: option })
-                            }
-                            className={cn(
-                              "rounded-lg px-4 py-1.5 text-xs font-bold capitalize tracking-wider transition-all",
-                              chartType === option
-                                ? "bg-zinc-800 text-accent shadow-sm"
-                                : "text-zinc-500 hover:text-zinc-300",
-                            )}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
+          <RainTrackerPreferences
+            open={showSettings}
+            displayUnit={displayUnit}
+            chartType={chartType}
+            onClose={() => setShowSettings(false)}
+            onDisplayUnitChange={(unit) =>
+              void updateSettings({ defaultUnit: unit })
+            }
+            onChartTypeChange={(option) =>
+              void updateSettings({ chartType: option })
+            }
+          />
 
           <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)]">
             <div className="min-h-0 space-y-4 overflow-y-auto pr-0 xl:pr-1 no-scrollbar">
@@ -601,6 +540,7 @@ export default function RainTrackerAdminView() {
               entries={selectedAreaEntries}
               displayUnit={displayUnit}
               showFilters={showFilters}
+              activePreset={filters.preset}
               searchQuery={searchQuery}
               filterAmountMin={filters.amountMin}
               filterAmountMax={filters.amountMax}
@@ -615,6 +555,9 @@ export default function RainTrackerAdminView() {
               entryFormError={entryFormError}
               isSavingEntry={isSavingEntry}
               onToggleFilters={() => setShowFilters((current) => !current)}
+              onPresetChange={(preset) =>
+                setFilters((current) => ({ ...current, preset }))
+              }
               onSearchQueryChange={setSearchQuery}
               onFilterAmountMinChange={(value) =>
                 setFilters((current) => ({ ...current, amountMin: value }))
@@ -625,7 +568,7 @@ export default function RainTrackerAdminView() {
               onFilterNotesChange={(value) =>
                 setFilters((current) => ({ ...current, notes: value }))
               }
-              onClearFilters={() => setFilters(EMPTY_FILTERS)}
+              onClearFilters={() => setFilters({ ...EMPTY_FILTERS })}
               onOpenNewEntry={openNewEntry}
               onCloseEntryForm={closeEntryForm}
               onSaveEntry={handleSaveEntry}

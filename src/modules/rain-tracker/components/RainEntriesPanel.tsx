@@ -2,24 +2,22 @@
 
 import type { FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Clock,
-  CloudRain,
-  Edit3,
-  Filter,
-  Plus,
-  Search,
-  Trash2,
-  X,
-} from "lucide-react";
+import { CloudRain, Filter, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getRainIntensity } from "../utils";
-import type { RainEntry, RainEntryListItem, RainUnit } from "../types";
+import type {
+  RainEntry,
+  RainEntryListItem,
+  RainFilterPreset,
+  RainUnit,
+} from "../types";
+import { RainEntryList } from "./RainEntryList";
+import { RainEntryQuickFilters } from "./RainEntryQuickFilters";
 
 interface RainEntriesPanelProps {
   entries: RainEntryListItem[];
   displayUnit: RainUnit;
   showFilters: boolean;
+  activePreset: RainFilterPreset;
   searchQuery: string;
   filterAmountMin: string;
   filterAmountMax: string;
@@ -34,6 +32,7 @@ interface RainEntriesPanelProps {
   entryFormError: string;
   isSavingEntry: boolean;
   onToggleFilters: () => void;
+  onPresetChange: (preset: RainFilterPreset) => void;
   onSearchQueryChange: (value: string) => void;
   onFilterAmountMinChange: (value: string) => void;
   onFilterAmountMaxChange: (value: string) => void;
@@ -55,6 +54,7 @@ export function RainEntriesPanel({
   entries,
   displayUnit,
   showFilters,
+  activePreset,
   searchQuery,
   filterAmountMin,
   filterAmountMax,
@@ -69,6 +69,7 @@ export function RainEntriesPanel({
   entryFormError,
   isSavingEntry,
   onToggleFilters,
+  onPresetChange,
   onSearchQueryChange,
   onFilterAmountMinChange,
   onFilterAmountMaxChange,
@@ -87,11 +88,17 @@ export function RainEntriesPanel({
 }: RainEntriesPanelProps) {
   const hasActiveFilters = Boolean(
     showFilters ||
+    activePreset !== "all" ||
     filterAmountMin ||
     filterAmountMax ||
     filterNotes ||
     searchQuery.trim(),
   );
+
+  const entryLabel =
+    entries.length === 1
+      ? "1 visible entry"
+      : `${entries.length} visible entries`;
 
   return (
     <motion.section
@@ -102,13 +109,13 @@ export function RainEntriesPanel({
     >
       <div className="border-b border-zinc-800/80 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
-            <CloudRain className="h-4 w-4 text-accent" />
-            Entries
-            <span className="rounded-md bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">
-              {entries.length}
-            </span>
-          </h3>
+          <div>
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
+              <CloudRain className="h-4 w-4 text-accent" />
+              Entries
+            </h3>
+            <p className="mt-1 text-[11px] text-zinc-500">{entryLabel}</p>
+          </div>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
@@ -143,6 +150,11 @@ export function RainEntriesPanel({
             className="w-full rounded-lg border border-zinc-800 bg-zinc-900/80 py-2 pl-8 pr-3 text-xs text-zinc-300 placeholder:text-zinc-600 focus:border-zinc-700 focus:outline-none"
           />
         </div>
+
+        <RainEntryQuickFilters
+          activePreset={activePreset}
+          onChange={onPresetChange}
+        />
       </div>
 
       <AnimatePresence initial={false}>
@@ -328,114 +340,21 @@ export function RainEntriesPanel({
           ) : null}
         </AnimatePresence>
 
-        {entries.length === 0 && !showEntryForm ? (
-          <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
-              <CloudRain className="h-8 w-8 text-zinc-700" />
-            </div>
-            <p className="text-sm text-zinc-500">
-              No entries match the current view.
-            </p>
-            <p className="text-xs text-zinc-600">
-              Log a new reading or clear the filters to broaden the list.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-1.5 p-2">
-            <AnimatePresence initial={false}>
-              {entries.map((item, index) => {
-                const intensity = getRainIntensity(
-                  item.entry.payload.rainfall_amount,
-                );
-                const IntensityIcon = intensity.icon;
-
-                return (
-                  <motion.div
-                    key={item.entry._id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2, delay: index * 0.02 }}
-                    className="group flex items-center gap-3 rounded-xl border border-zinc-800/60 bg-zinc-900/40 p-3 transition-all hover:border-zinc-700/60 hover:bg-zinc-900/70"
-                  >
-                    <div className="hidden min-w-[54px] flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 py-1.5 sm:flex">
-                      <span className="text-[10px] font-medium leading-none text-zinc-500">
-                        {item.monthLabel}
-                      </span>
-                      <span className="text-sm font-bold leading-tight text-zinc-200">
-                        {item.dayLabel}
-                      </span>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "shrink-0 rounded-lg border p-1.5",
-                        intensity.bgColor,
-                      )}
-                    >
-                      <IntensityIcon
-                        className={cn("h-3.5 w-3.5", intensity.color)}
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-baseline gap-2">
-                        <span className="text-base font-bold tabular-nums text-zinc-100">
-                          {item.displayAmount}
-                        </span>
-                        <span className="text-[11px] font-medium text-zinc-500">
-                          {displayUnit}
-                        </span>
-                        <span
-                          className={cn(
-                            "rounded border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                            intensity.bgColor,
-                            intensity.color,
-                          )}
-                        >
-                          {intensity.label}
-                        </span>
-                      </div>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-zinc-600">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-2.5 w-2.5" />
-                          {item.dateLabel} at {item.timeLabel}
-                        </span>
-                        <span className="capitalize">
-                          {item.entry.payload.source}
-                        </span>
-                        {item.entry.payload.notes ? (
-                          <span className="truncate">
-                            {item.entry.payload.notes}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={() => onEditEntry(item.entry)}
-                        className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-accent"
-                        aria-label={`Edit ${item.dateLabel} entry`}
-                      >
-                        <Edit3 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDeleteEntry(item.entry._id)}
-                        className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-danger"
-                        aria-label={`Delete ${item.dateLabel} entry`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        )}
+        {!showEntryForm ? (
+          <RainEntryList
+            entries={entries}
+            displayUnit={displayUnit}
+            onEditEntry={onEditEntry}
+            onDeleteEntry={onDeleteEntry}
+          />
+        ) : entries.length > 0 ? (
+          <RainEntryList
+            entries={entries}
+            displayUnit={displayUnit}
+            onEditEntry={onEditEntry}
+            onDeleteEntry={onDeleteEntry}
+          />
+        ) : null}
       </div>
     </motion.section>
   );
