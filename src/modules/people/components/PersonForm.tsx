@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef } from "react";
 import {
   X,
@@ -317,10 +318,11 @@ export default function PersonForm({
                 {profilePic ? (
                   <div className="flex items-center gap-3">
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-zinc-700 shrink-0">
-                      <img
+                      <Image
                         src={`data:${profilePic.content_type};base64,${profilePic.data}`}
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <div className="flex gap-2">

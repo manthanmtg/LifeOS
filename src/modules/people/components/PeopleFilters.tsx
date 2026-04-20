@@ -3,8 +3,7 @@
 import { Users, Heart, Cake, Clock, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RELATIONSHIPS } from "../types";
-
-export type PeopleFilterType = "all" | "favorites" | "upcoming" | "stale";
+import type { PeopleFilterType } from "../insights";
 
 interface PeopleFiltersProps {
   activeFilter: PeopleFilterType;

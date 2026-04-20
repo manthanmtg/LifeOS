@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import { getIdeaMetrics, getIdeaSpotlight } from "@/modules/ideas/insights";
 import type { IdeaRecord } from "@/modules/ideas/shared";
+import { getPeopleSummary, toPersonDocument } from "@/modules/people/insights";
+import type { PersonPayload } from "@/modules/people/types";
 
 // --- EMI Utility Functions ---
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
@@ -552,6 +554,17 @@ export async function GET(request: Request) {
               }
             : null,
         };
+        break;
+      }
+
+      case "person": {
+        summary = getPeopleSummary(
+          docs.map((doc) =>
+            toPersonDocument(
+              doc as ContentDocument<PersonPayload> & { _id: string },
+            ),
+          ),
+        );
         break;
       }
 
