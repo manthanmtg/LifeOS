@@ -2,10 +2,12 @@ import { Cloud, CloudDrizzle, CloudLightning, CloudRain } from "lucide-react";
 import type {
   RainAnalytics,
   RainArea,
+  RainAreaPortfolioSummary,
   RainAreaListItem,
   RainEntry,
   RainEntryListItem,
   RainFilters,
+  RainFilterPreset,
   RainSettings,
   RainUnit,
 } from "./types";
@@ -17,6 +19,16 @@ export const DEFAULT_RAIN_SETTINGS: RainSettings = {
 
 export const UNIT_OPTIONS: RainUnit[] = ["mm", "cm", "in"];
 export const CHART_OPTIONS: RainSettings["chartType"][] = ["bar", "area"];
+export const QUICK_FILTER_PRESETS: Array<{
+  id: RainFilterPreset;
+  label: string;
+}> = [
+  { id: "all", label: "All" },
+  { id: "last7", label: "Last 7d" },
+  { id: "last30", label: "Last 30d" },
+  { id: "heavy", label: "Heavy rain" },
+  { id: "sensor", label: "Sensor" },
+];
 
 export const CONVERSION_TO_MM: Record<RainUnit, number> = {
   mm: 1,
@@ -90,10 +102,30 @@ export function matchesRainFilters(
   entry: RainEntry,
   filters: RainFilters,
   displayUnit: RainUnit,
+  now = new Date(),
 ) {
   let match = true;
   const entryValue =
     entry.payload.rainfall_amount * CONVERSION_FROM_MM[displayUnit];
+  const entryDate = new Date(entry.payload.date);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  if (filters.preset === "last7" && entryDate < sevenDaysAgo) {
+    match = false;
+  }
+
+  if (filters.preset === "last30" && entryDate < thirtyDaysAgo) {
+    match = false;
+  }
+
+  if (filters.preset === "heavy" && entry.payload.rainfall_amount <= 7.5) {
+    match = false;
+  }
+
+  if (filters.preset === "sensor" && entry.payload.source !== "sensor") {
+    match = false;
+  }
 
   if (filters.amountMin) {
     const minimum = Number.parseFloat(filters.amountMin);
@@ -154,12 +186,13 @@ export function getVisibleRainEntries(
   filters: RainFilters,
   displayUnit: RainUnit,
   searchQuery: string,
+  now = new Date(),
 ) {
   const query = searchQuery.trim().toLowerCase();
 
   return entries
     .filter((entry) => entry.payload.area_id === selectedAreaId)
-    .filter((entry) => matchesRainFilters(entry, filters, displayUnit))
+    .filter((entry) => matchesRainFilters(entry, filters, displayUnit, now))
     .filter((entry) => {
       if (!query) {
         return true;
@@ -202,6 +235,66 @@ export function getVisibleRainEntries(
         }),
       };
     });
+}
+
+export function buildRainAreaPortfolioSummary(
+  areas: RainArea[],
+  entries: RainEntry[],
+  displayUnit: RainUnit,
+  now = new Date(),
+): RainAreaPortfolioSummary {
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const areaTotals = new Map<string, number>();
+  const latestDates = new Map<string, string>();
+  let last7TotalMm = 0;
+
+  for (const entry of entries) {
+    const areaId = entry.payload.area_id;
+    const entryDate = new Date(entry.payload.date);
+    const nextTotal =
+      (areaTotals.get(areaId) ?? 0) + entry.payload.rainfall_amount;
+    areaTotals.set(areaId, nextTotal);
+
+    const latestDate = latestDates.get(areaId);
+    if (!latestDate || entryDate.getTime() > new Date(latestDate).getTime()) {
+      latestDates.set(areaId, entry.payload.date);
+    }
+
+    if (entryDate >= sevenDaysAgo) {
+      last7TotalMm += entry.payload.rainfall_amount;
+    }
+  }
+
+  const wettestAreaEntry = areas
+    .map((area) => ({
+      area,
+      totalMm: areaTotals.get(area._id) ?? 0,
+    }))
+    .sort((left, right) => right.totalMm - left.totalMm)[0];
+
+  const staleAreaCount = areas.filter((area) => {
+    const latestDate = latestDates.get(area._id);
+    if (!latestDate) {
+      return true;
+    }
+
+    return new Date(latestDate) < sevenDaysAgo;
+  }).length;
+
+  return {
+    totalAreas: areas.length,
+    activeAreas: areas.filter((area) => area.payload.is_active).length,
+    last7Total: formatRainValue(last7TotalMm, displayUnit),
+    wettestArea:
+      wettestAreaEntry && wettestAreaEntry.totalMm > 0
+        ? {
+            label: "Wettest area",
+            value: wettestAreaEntry.area.payload.name,
+            sublabel: `${formatRainAmount(wettestAreaEntry.totalMm, displayUnit)} ${displayUnit} total`,
+          }
+        : undefined,
+    staleAreaCount,
+  };
 }
 
 export function buildRainAnalytics(
@@ -277,6 +370,20 @@ export function buildRainAnalytics(
   const wettestMonthEntry = Object.entries(monthlyAggregate).sort(
     (left, right) => right[1] - left[1],
   )[0];
+  const wettestDayEntry = Object.entries(dailyAggregate).sort(
+    (left, right) => right[1] - left[1],
+  )[0];
+  const latestEntryDate = latestEntry
+    ? new Date(latestEntry.payload.date)
+    : null;
+  const daysSinceLastEntry = latestEntryDate
+    ? Math.max(
+        0,
+        Math.floor(
+          (now.getTime() - latestEntryDate.getTime()) / (24 * 60 * 60 * 1000),
+        ),
+      )
+    : 0;
 
   return {
     total: formatRainValue(totalMm, displayUnit),
@@ -323,6 +430,44 @@ export function buildRainAnalytics(
               year: "numeric",
             },
           ),
+        }
+      : undefined,
+    wettestDay: wettestDayEntry
+      ? {
+          label: "Wettest day",
+          value: `${formatRainAmount(wettestDayEntry[1], displayUnit)} ${displayUnit}`,
+          sublabel: new Date(
+            `${wettestDayEntry[0]}T00:00:00`,
+          ).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        }
+      : undefined,
+    averageRainyDay:
+      rainyDays.size > 0
+        ? {
+            label: "Average rainy day",
+            value: `${formatRainAmount(totalMm / rainyDays.size, displayUnit)} ${displayUnit}`,
+            sublabel: `${rainyDays.size} ${rainyDays.size === 1 ? "day" : "days"} with rain`,
+          }
+        : undefined,
+    drySpell: latestEntryDate
+      ? {
+          label: daysSinceLastEntry === 0 ? "Updated today" : "Dry spell",
+          value:
+            daysSinceLastEntry === 0
+              ? "Fresh reading"
+              : `${daysSinceLastEntry} ${daysSinceLastEntry === 1 ? "day" : "days"}`,
+          sublabel: `Last reading ${latestEntryDate.toLocaleDateString(
+            undefined,
+            {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            },
+          )}`,
         }
       : undefined,
     wettestMonth: wettestMonthEntry

@@ -36,7 +36,10 @@ export interface RainFilters {
   amountMin: string;
   amountMax: string;
   notes: string;
+  preset: RainFilterPreset;
 }
+
+export type RainFilterPreset = "all" | "last7" | "last30" | "heavy" | "sensor";
 
 export interface RainAreaListItem {
   area: RainArea;
@@ -69,6 +72,14 @@ export interface RainInsight {
   sublabel: string;
 }
 
+export interface RainAreaPortfolioSummary {
+  totalAreas: number;
+  activeAreas: number;
+  last7Total: number;
+  wettestArea?: RainInsight;
+  staleAreaCount: number;
+}
+
 export interface RainAnalytics {
   total: number;
   last7: number;
@@ -81,6 +92,9 @@ export interface RainAnalytics {
   dailyData: RainDailyPoint[];
   latestEntry?: RainInsight;
   wettestMonth?: RainInsight;
+  wettestDay?: RainInsight;
+  averageRainyDay?: RainInsight;
+  drySpell?: RainInsight;
 }
 
 export interface RainSummary {

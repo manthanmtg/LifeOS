@@ -1,16 +1,37 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildRainAreaPortfolioSummary,
   buildRainAnalytics,
   getVisibleRainEntries,
   matchesRainFilters,
 } from "../utils";
-import type { RainEntry, RainFilters } from "../types";
+import type { RainArea, RainEntry, RainFilters } from "../types";
 
 const filters: RainFilters = {
   amountMin: "",
   amountMax: "",
   notes: "",
+  preset: "all",
 };
+
+const areas: RainArea[] = [
+  {
+    _id: "area-1",
+    created_at: "2026-01-01T00:00:00.000Z",
+    payload: {
+      name: "North Field",
+      is_active: true,
+    },
+  },
+  {
+    _id: "area-2",
+    created_at: "2026-01-01T00:00:00.000Z",
+    payload: {
+      name: "South Plot",
+      is_active: false,
+    },
+  },
+];
 
 const entries: RainEntry[] = [
   {
@@ -56,7 +77,7 @@ describe("rain tracker utils", () => {
     expect(
       matchesRainFilters(
         entries[0],
-        { amountMin: "1", amountMax: "2", notes: "steady" },
+        { amountMin: "1", amountMax: "2", notes: "steady", preset: "all" },
         "cm",
       ),
     ).toBe(true);
@@ -64,8 +85,35 @@ describe("rain tracker utils", () => {
     expect(
       matchesRainFilters(
         entries[1],
-        { amountMin: "1", amountMax: "2", notes: "steady" },
+        { amountMin: "1", amountMax: "2", notes: "steady", preset: "all" },
         "cm",
+      ),
+    ).toBe(false);
+  });
+
+  it("supports quick presets for recent and heavy rainfall", () => {
+    expect(
+      matchesRainFilters(
+        entries[0],
+        { amountMin: "", amountMax: "", notes: "", preset: "last30" },
+        "mm",
+        new Date("2026-04-19T12:00:00.000Z"),
+      ),
+    ).toBe(true);
+
+    expect(
+      matchesRainFilters(
+        entries[1],
+        { amountMin: "", amountMax: "", notes: "", preset: "heavy" },
+        "mm",
+      ),
+    ).toBe(true);
+
+    expect(
+      matchesRainFilters(
+        entries[0],
+        { amountMin: "", amountMax: "", notes: "", preset: "sensor" },
+        "mm",
       ),
     ).toBe(false);
   });
@@ -100,5 +148,23 @@ describe("rain tracker utils", () => {
     expect(analytics.rainyDays).toBe(3);
     expect(analytics.latestEntry?.value).toBe("12.00 mm");
     expect(analytics.wettestMonth?.value).toBe("20.00 mm");
+    expect(analytics.wettestDay?.value).toBe("20.00 mm");
+    expect(analytics.averageRainyDay?.value).toBe("13.33 mm");
+    expect(analytics.drySpell?.value).toBe("9 days");
+  });
+
+  it("builds an area portfolio summary for the sidebar", () => {
+    const summary = buildRainAreaPortfolioSummary(
+      areas,
+      entries,
+      "mm",
+      new Date("2026-04-19T12:00:00.000Z"),
+    );
+
+    expect(summary.totalAreas).toBe(2);
+    expect(summary.activeAreas).toBe(1);
+    expect(summary.last7Total).toBe(0);
+    expect(summary.wettestArea?.value).toBe("North Field");
+    expect(summary.staleAreaCount).toBe(2);
   });
 });
