@@ -4,6 +4,7 @@ import {
   RainEntrySchema,
   ExpenseSchema,
   EmiLoanSchema,
+  IdeaSchema,
   PersonSchema,
 } from "../schemas";
 
@@ -52,6 +53,24 @@ describe("schemas", () => {
       };
       const result = ExpenseSchema.safeParse(expense);
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe("IdeaSchema", () => {
+    it("preserves optional notes on ideas", () => {
+      const idea = {
+        title: "Capture notes correctly",
+        description: "The notes field should survive validation.",
+        notes: "This detail used to be dropped during writes.",
+        status: "raw",
+        priority: "medium",
+        tags: ["notes"],
+      };
+      const result = IdeaSchema.safeParse(idea);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.notes).toBe(idea.notes);
+      }
     });
   });
 

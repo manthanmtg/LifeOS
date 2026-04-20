@@ -4,6 +4,8 @@ import { ContentDocument } from "@/lib/types";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { getIdeaMetrics, getIdeaSpotlight } from "@/modules/ideas/insights";
+import type { IdeaRecord } from "@/modules/ideas/shared";
 
 // --- EMI Utility Functions ---
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
@@ -267,6 +269,22 @@ export async function GET(request: Request) {
           activeConditionCount,
           upcomingVacCount,
           profiles,
+        };
+        break;
+      }
+
+      case "idea": {
+        const typedIdeas = docs as unknown as IdeaRecord[];
+        const metrics = getIdeaMetrics(typedIdeas);
+        const spotlight = getIdeaSpotlight(typedIdeas);
+
+        summary = {
+          total: metrics.total,
+          promoted: metrics.promoted,
+          exploring: metrics.exploring,
+          reviewCount: metrics.reviewCount,
+          spotlightTitle: spotlight?.payload.title,
+          spotlightStatus: spotlight?.payload.status,
         };
         break;
       }

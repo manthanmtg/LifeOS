@@ -86,10 +86,11 @@ export function SortableIdeaCard({
           </button>
         </div>
 
-        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+        <div className="flex gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
           {!idea.payload.promoted_to_portfolio &&
             idea.payload.status !== "archived" && (
               <button
+                type="button"
                 onClick={() => onPromote(idea)}
                 disabled={isPromotingId === idea._id}
                 className="p-0.5 text-zinc-500 hover:text-success disabled:opacity-50"
@@ -104,6 +105,7 @@ export function SortableIdeaCard({
               </button>
             )}
           <button
+            type="button"
             onClick={() => onEdit(idea)}
             disabled={isPromotingId === idea._id}
             className="p-0.5 text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
@@ -113,6 +115,7 @@ export function SortableIdeaCard({
             <Edit3 className="w-3 h-3" />
           </button>
           <button
+            type="button"
             onClick={() => onDelete(idea._id)}
             disabled={isPromotingId === idea._id}
             className="p-0.5 text-zinc-500 hover:text-danger disabled:opacity-50"
@@ -141,13 +144,21 @@ export function SortableIdeaCard({
         )}
       </div>
 
+      {idea.payload.description ? (
+        <p className="ml-4 mt-2 line-clamp-2 text-[11px] leading-5 text-zinc-400">
+          {idea.payload.description}
+        </p>
+      ) : null}
+
       <button
         type="button"
         onClick={() => onOpen(idea)}
-        className="ml-4 mt-1.5 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/40 rounded"
+        className="ml-4 mt-2 rounded text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/40"
         aria-label={`View full details for ${idea.payload.title}`}
       >
-        View details
+        {idea.payload.promoted_to_portfolio
+          ? "View promoted idea"
+          : "View details"}
       </button>
     </article>
   );
@@ -231,7 +242,7 @@ export function DeleteZone({ isDragging }: { isDragging: boolean }) {
       >
         <Trash2 className={cn("w-8 h-8", isOver && "animate-bounce")} />
         <span className="font-extrabold text-xl tracking-tighter uppercase italic">
-          Drop anywhere to delete
+          Drop here to delete
         </span>
       </div>
     </div>,
