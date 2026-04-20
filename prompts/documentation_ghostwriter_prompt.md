@@ -2,13 +2,19 @@
 
 ## Objective
 
-Automatically generate, update, and refine documentation for LifeOS modules, core components, and API architectures to ensure they are always in sync with the implementation.
+Pick **one random module or core directory** and ensure its documentation is accurate and complete. One module per run — documentation improves incrementally over time.
+
+## No-Op Protocol
+
+- If the target already has an accurate, up-to-date `README.md` that matches the current code, **stop** — no-op.
+- If updating docs would require understanding a complex feature you're unsure about, log it to `issues_to_look/` with a note on what's unclear.
 
 ## Workflow
 
 ### 1. Context Collection
 
-- **File Analysis**: Scan the target module or component directory for `README.md`, `AdminView.tsx`, `Widget.tsx`, and `PublicView.tsx`.
+- Pick a random module from `src/modules/` or a core directory (`src/lib/`, `src/components/`).
+- **File Analysis**: Scan the directory for `README.md`, `AdminView.tsx`, `Widget.tsx`, and `PublicView.tsx`.
 - **API Inspection**: Check `src/lib/schemas.ts` and `src/registry.ts` for data structures and registration details.
 - **Deltas**: Identify recent code changes that are not yet reflected in the documentation.
 

@@ -40,6 +40,20 @@ Pick exactly one random module from `src/modules/` (excluding `_template`) and m
 
 - **Descriptive message**: Summarize what changed and why. List specific refactors, UI fixes, and any new capabilities.
 
+## Scope Guardrail
+
+**One small slice per run.** Do NOT rewrite an entire module in a single pass. Pick the **one weakest aspect** (e.g., one messy component, one missing loading state, one bad mobile layout) and fix that. The module gets better over many runs, not one.
+
+## No-Op Protocol
+
+Before making changes, ask:
+
+1. Is this module already in good shape? (Clean types, good UI, responsive, tested)
+2. Would my change touch more than ~100 lines of diff?
+3. Am I unsure whether this change is safe?
+
+If yes to any of these, **do NOT change code.** Instead, log what you found and what you'd recommend in `issues_to_look/YYYY-MM-DD_<module-slug>.md` and stop.
+
 ## Principles
 
 - **Keep it simple**: Don't add complexity for its own sake. Every change should have a clear reason.
@@ -47,3 +61,4 @@ Pick exactly one random module from `src/modules/` (excluding `_template`) and m
 - **Useful data**: If the module tracks data, surface it meaningfully. Don't add metrics or charts just to fill space.
 - **Smart where it counts**: Trends, sparklines, quick actions, and automations are great — when they solve a real problem. Don't add them just to look clever.
 - **Frictionless actions**: Common tasks should be fast and obvious. Feedback should be immediate.
+

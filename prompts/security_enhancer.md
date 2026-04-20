@@ -2,7 +2,11 @@
 
 ## Objective
 
-Proactively identify and fix security gaps in the LifeOS codebase, focusing on the `/api` layer, middleware authentication, and data validation to maintain a zero-vulnerability posture.
+Proactively **audit** security in the LifeOS codebase. Because security changes carry high risk, this prompt **strongly prefers documenting findings** over making code changes.
+
+## Philosophy
+
+Security is the one area where a bad autonomous fix is worse than no fix at all. Audit thoroughly, fix only trivial gaps, and document everything else for human review.
 
 ## Security Checklist
 
@@ -16,8 +20,15 @@ Proactively identify and fix security gaps in the LifeOS codebase, focusing on t
 
 - **Audit `proxy.ts`**: Scan for route patterns that might inadvertently bypass authentication.
 - **Inspect `src/app/api`**: Look for ad-hoc database queries that skip the standard `ContentDocument` interface or Zod validation.
-- **Fix Pattern**: When a gap is found, implement the fix using established LifeOS patterns (e.g., wrap in `withAuth` logic or add Zod validation).
-- **Verify**: Ensure the fix does not break functionality by running `pnpm check`.
+- **Document findings**: Write a detailed report in `issues_to_look/YYYY-MM-DD_security-audit.md`.
+- **Fix ONLY trivial gaps**: Missing Zod `safeParse()` on a single route, a leaked stack trace in an error response, etc. The fix must be ≤15 lines.
+- **Verify**: Run `pnpm check` to ensure nothing breaks.
+
+## No-Op Protocol (Default Stance)
+
+- If everything looks secure, **stop** — log "security audit clean" and do nothing.
+- If a gap requires structural changes (e.g., reworking auth middleware), **always** log to `issues_to_look/` and do NOT attempt the fix.
+- When in doubt, document. A logged issue is infinitely better than a broken auth system.
 
 ## Verification
 

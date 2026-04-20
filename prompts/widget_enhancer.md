@@ -19,19 +19,21 @@ Select a random module and ensure its dashboard widget (`Widget.tsx`) is a high-
 - **Empty States**: Does it handle "no data" or "loading" states gracefully with shimmer/skeletons?
 - **Quick Actions**: Does it offer "one-tap" actions if appropriate (e.g., "Log Expense", "Check Habit")?
 
-### 3. Enhancement Pass
+### 3. Enhancement Pass (One Small Improvement)
 
-- If the widget is "out of sync" or lacks "wow" factor, enhance it.
+- Make **one targeted improvement** per run. Don't redesign the whole widget.
+- Examples of single improvements: add a loading skeleton, fix a missing semantic color, add one meaningful metric, improve empty state copy.
 - Use `framer-motion` for subtle animations.
 - Use semantic colors (`success`, `warning`, `danger`, `accent`).
-- **CRITICAL**: If the widget is already "perfect", **pick another random module** and repeat.
+- If the widget is already polished, check up to 2 more modules. If all are good, **no-op** — log "all widgets look great" and stop.
 
-### 4. Reporting & Submission
+### 4. No-Op Protocol
 
-- If all modules checked are already optimal, report that everything seems fine.
-- Otherwise, submit the enhanced widget with a clear explanation of what was improved.
+- If the widget already follows the Widget Contract, has proper loading states, uses semantic colors, and shows useful data — **stop**.
+- If improving the widget would require changing the API or backend data, log it to `issues_to_look/` instead of making the change.
 
-### 5. Commit & Push
+### 5. Verify & Commit
 
-- Create a descriptive, lowercase commit message following the `AGENTS.md` guidelines (e.g., `feat(binge): enhance dashboard widget with quick progress actions`).
-- Commit the changes and push to the remote branch. or create PR as clarified by user.
+- Run `pnpm check` — zero regressions.
+- Create a descriptive, lowercase commit message (e.g., `feat(binge): add loading skeleton to dashboard widget`).
+- Commit and push or create PR as clarified by user.
