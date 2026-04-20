@@ -1,6 +1,7 @@
 import { getDueStatus } from "./helpers";
 import type {
   HealthProfile,
+  ProfileType,
   Visit,
   LabResult,
   Measurement,
@@ -33,6 +34,21 @@ export interface ProfileOverviewSnapshot {
   nextTimelineItem: HealthTimelineItem | null;
 }
 
+export type HealthListFilter = "all" | "attention" | ProfileType;
+
+export interface HealthFilterOption {
+  key: HealthListFilter;
+  label: string;
+  count: number;
+}
+
+export interface WeightTrendPoint {
+  id: string;
+  date: string;
+  weightKg: number;
+  heightPercent: number;
+}
+
 function byNewestDate<T extends { date: string }>(items: T[]): T[] {
   return [...items].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
@@ -58,6 +74,34 @@ function byNewestDocument(items: HealthDocument[]): HealthDocument[] {
     if (!b.date) return -1;
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
+}
+
+function normalizeSearchValue(value: string | undefined): string {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function getProfileSearchText(profile: HealthProfile): string {
+  const payload = profile.payload;
+  return [
+    payload.name,
+    payload.relation,
+    payload.emergency_contact,
+    payload.insurance_info,
+    payload.notes,
+    payload.tags.join(" "),
+    payload.allergies.join(" "),
+    payload.conditions.map((condition) => condition.name).join(" "),
+    payload.medications.map((medication) => medication.name).join(" "),
+    payload.vaccinations.map((vaccination) => vaccination.name).join(" "),
+    payload.visits
+      .map((visit) => [visit.doctor, visit.facility, visit.diagnosis].join(" "))
+      .join(" "),
+    payload.lab_results.map((result) => result.test_name).join(" "),
+    payload.documents.map((document) => document.title).join(" "),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 }
 
 export function getProfileAlerts(profile: HealthProfile): HealthAlert[] {
@@ -103,6 +147,60 @@ export function getProfileAlerts(profile: HealthProfile): HealthAlert[] {
 
 export function getHealthAlerts(profiles: HealthProfile[]): HealthAlert[] {
   return profiles.flatMap(getProfileAlerts);
+}
+
+export function getHealthFilterOptions(
+  profiles: HealthProfile[],
+): HealthFilterOption[] {
+  return [
+    { key: "all", label: "All", count: profiles.length },
+    {
+      key: "attention",
+      label: "Needs Attention",
+      count: profiles.filter((profile) => getProfileAlerts(profile).length > 0)
+        .length,
+    },
+    {
+      key: "self",
+      label: "Self",
+      count: profiles.filter((profile) => profile.payload.type === "self")
+        .length,
+    },
+    {
+      key: "family",
+      label: "Family",
+      count: profiles.filter((profile) => profile.payload.type === "family")
+        .length,
+    },
+    {
+      key: "pet",
+      label: "Pets",
+      count: profiles.filter((profile) => profile.payload.type === "pet")
+        .length,
+    },
+  ];
+}
+
+export function filterHealthProfiles(
+  profiles: HealthProfile[],
+  listFilter: HealthListFilter,
+  query: string,
+): HealthProfile[] {
+  const normalizedQuery = normalizeSearchValue(query);
+
+  return profiles.filter((profile) => {
+    if (listFilter === "attention" && getProfileAlerts(profile).length === 0) {
+      return false;
+    }
+
+    if (listFilter !== "all" && listFilter !== "attention") {
+      if (profile.payload.type !== listFilter) return false;
+    }
+
+    if (!normalizedQuery) return true;
+
+    return getProfileSearchText(profile).includes(normalizedQuery);
+  });
 }
 
 export function getNextTimelineItem(
@@ -201,12 +299,10 @@ export function getSortedLabGroups(
   }
 
   return Object.entries(grouped)
-    .map(
-      ([testName, results]): [string, LabResult[]] => [
-        testName,
-        byNewestDate(results),
-      ],
-    )
+    .map(([testName, results]): [string, LabResult[]] => [
+      testName,
+      byNewestDate(results),
+    ])
     .sort(
       (a, b) =>
         new Date(b[1][0]?.date ?? 0).getTime() -
@@ -216,6 +312,30 @@ export function getSortedLabGroups(
 
 export function getSortedMeasurements(profile: HealthProfile): Measurement[] {
   return byNewestMeasurement(profile.payload.measurements);
+}
+
+export function getWeightTrendPoints(
+  profile: HealthProfile,
+): WeightTrendPoint[] {
+  const weightMeasurements = getSortedMeasurements(profile)
+    .reverse()
+    .filter((measurement) => measurement.weight_kg != null);
+
+  if (weightMeasurements.length === 0) return [];
+
+  const weights = weightMeasurements.map(
+    (measurement) => measurement.weight_kg!,
+  );
+  const minWeight = Math.min(...weights);
+  const maxWeight = Math.max(...weights);
+  const range = maxWeight - minWeight || 1;
+
+  return weightMeasurements.map((measurement) => ({
+    id: measurement.id,
+    date: measurement.date,
+    weightKg: measurement.weight_kg!,
+    heightPercent: ((measurement.weight_kg! - minWeight) / range) * 80 + 20,
+  }));
 }
 
 export function getSortedDocuments(profile: HealthProfile): HealthDocument[] {

@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatDate, calculateBMI, bmiCategory } from "./helpers";
 import type { HealthPayload, Measurement } from "./types";
-import { getSortedMeasurements } from "./selectors";
+import { getSortedMeasurements, getWeightTrendPoints } from "./selectors";
+import WeightTrendCard from "./WeightTrendCard";
 
 const labelCls =
   "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
@@ -33,6 +34,7 @@ export default function BodyStatsTab({
     payload,
   };
   const sortedMeasurements = getSortedMeasurements(profile);
+  const trendPoints = getWeightTrendPoints(profile);
   const latestMeasurement = sortedMeasurements[0];
   const latestBMI = latestMeasurement
     ? calculateBMI(latestMeasurement.height_cm, latestMeasurement.weight_kg)
@@ -100,35 +102,7 @@ export default function BodyStatsTab({
         </div>
       )}
 
-      {/* Weight trend chart */}
-      {sortedMeasurements.length > 1 &&
-        (() => {
-          const weightMeasurements = [...sortedMeasurements]
-            .reverse()
-            .filter((m) => m.weight_kg);
-          const weights = weightMeasurements.map((m) => m.weight_kg!);
-          const wMin = Math.min(...weights);
-          const wMax = Math.max(...weights);
-          const wRange = wMax - wMin || 1;
-          return (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-              <p className={cn(labelCls, "mb-3")}>Weight Trend</p>
-              <div className="flex items-end gap-1 h-20">
-                {weightMeasurements.map((m) => {
-                  const height = ((m.weight_kg! - wMin) / wRange) * 80 + 20;
-                  return (
-                    <div
-                      key={m.id}
-                      className="flex-1 bg-accent/20 rounded-t-sm hover:bg-accent/40 transition-colors"
-                      style={{ height: `${height}%` }}
-                      title={`${m.weight_kg} kg (${formatDate(m.date)})`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
+      <WeightTrendCard trendPoints={trendPoints} />
 
       {p.measurements.length === 0 ? (
         <div className="bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl p-12 text-center">
