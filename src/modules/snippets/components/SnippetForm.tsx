@@ -9,7 +9,7 @@ interface SnippetFormProps {
   visible: boolean;
   editingSnippet: Snippet | null;
   settings: SnippetSettings;
-  configuredLanguages: string[];
+  configuredLanguages: readonly string[];
   onSave: () => void;
   onClose: () => void;
 }

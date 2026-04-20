@@ -9,7 +9,7 @@ interface SnippetsSettingsProps {
   visible: boolean;
   settings: SnippetSettings;
   saving: boolean;
-  configuredLanguages: string[];
+  configuredLanguages: readonly string[];
   onUpdate: (patch: Partial<SnippetSettings>) => void;
 }
 
