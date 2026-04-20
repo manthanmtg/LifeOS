@@ -79,6 +79,7 @@ export default function HabitForm({
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close form"
             className="text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -110,10 +111,14 @@ export default function HabitForm({
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-zinc-500 mb-1.5">
+              <label
+                htmlFor="habit-frequency"
+                className="block text-xs text-zinc-500 mb-1.5"
+              >
                 Frequency
               </label>
               <select
+                id="habit-frequency"
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
@@ -123,10 +128,14 @@ export default function HabitForm({
               </select>
             </div>
             <div className="w-24">
-              <label className="block text-xs text-zinc-500 mb-1.5">
+              <label
+                htmlFor="habit-target"
+                className="block text-xs text-zinc-500 mb-1.5"
+              >
                 Target
               </label>
               <input
+                id="habit-target"
                 type="number"
                 value={targetCount}
                 onChange={(e) => setTargetCount(e.target.value)}
@@ -162,6 +171,7 @@ export default function HabitForm({
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
+                  aria-label={`Select color ${c}`}
                   className={cn(
                     "w-7 h-7 rounded-full transition-all",
                     color === c

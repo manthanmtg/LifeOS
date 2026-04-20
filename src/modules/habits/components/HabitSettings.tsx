@@ -35,10 +35,14 @@ export default function HabitSettingsPanel({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-xs text-zinc-500 mb-1.5">
+            <label
+              htmlFor="habit-default-frequency"
+              className="block text-xs text-zinc-500 mb-1.5"
+            >
               Default Frequency
             </label>
             <select
+              id="habit-default-frequency"
               value={settings.defaultFrequency}
               onChange={(e) =>
                 onUpdateSettings({ defaultFrequency: e.target.value })
@@ -72,10 +76,14 @@ export default function HabitSettingsPanel({
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-500 mb-1.5">
+            <label
+              htmlFor="habit-heatmap-range"
+              className="block text-xs text-zinc-500 mb-1.5"
+            >
               Heatmap Range
             </label>
             <select
+              id="habit-heatmap-range"
               value={settings.heatmapMonths}
               onChange={(e) =>
                 onUpdateSettings({ heatmapMonths: parseInt(e.target.value) })
@@ -89,8 +97,12 @@ export default function HabitSettingsPanel({
           </div>
 
           <div className="flex items-end">
-            <label className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer pb-1">
+            <label
+              htmlFor="habit-week-start"
+              className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer pb-1"
+            >
               <input
+                id="habit-week-start"
                 type="checkbox"
                 checked={settings.weekStartMon}
                 onChange={(e) =>
