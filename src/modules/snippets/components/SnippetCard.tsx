@@ -1,10 +1,17 @@
-"use client";
-
+import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Star, Copy, Check, Edit3, Trash2, RefreshCw } from "lucide-react";
+import {
+  Star,
+  Copy,
+  Check,
+  Edit3,
+  Trash2,
+  RefreshCw,
+  Hash,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Snippet } from "./types";
-import { formatDate, withLineNumbers } from "./types";
+import { formatDate, withLineNumbers, highlightCode } from "./types";
 
 interface SnippetCardProps {
   snippet: Snippet;
@@ -52,7 +59,24 @@ export default function SnippetCard({
     processingAction?.id === snippet._id &&
     processingAction.action === "delete";
   const isCopied = copiedId === snippet._id;
-  const lineCount = snippet.payload.code.split("\n").length;
+
+  const lineCount = useMemo(
+    () => snippet.payload.code.split("\n").length,
+    [snippet.payload.code],
+  );
+
+  const formattedDate = useMemo(
+    () => formatDate(snippet.created_at),
+    [snippet.created_at],
+  );
+
+  const displayCode = useMemo(() => {
+    let code = highlightCode(snippet.payload.code);
+    if (showLineNumbers) {
+      code = withLineNumbers(code);
+    }
+    return code;
+  }, [snippet.payload.code, showLineNumbers]);
 
   return (
     <motion.article
@@ -62,39 +86,39 @@ export default function SnippetCard({
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-colors"
+      className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
         <div className="flex items-center gap-2 min-w-0">
-          {snippet.payload.is_favorite && (
-            <Star
-              className="w-3.5 h-3.5 text-warning shrink-0"
-              fill="currentColor"
-            />
-          )}
-          <p className="text-sm font-medium text-zinc-50 truncate">
+          <div className="relative">
+            <Hash className="w-3.5 h-3.5 text-zinc-500" />
+            {snippet.payload.is_favorite && (
+              <Star
+                className="absolute -top-1 -right-1 w-2.5 h-2.5 text-warning"
+                fill="currentColor"
+              />
+            )}
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-100 truncate">
             {snippet.payload.title}
-          </p>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0">
+          </h3>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 font-medium uppercase tracking-wider">
             {snippet.payload.language}
-          </span>
-          <span className="text-[10px] text-zinc-600 shrink-0">
-            {lineCount}L
           </span>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 transition-opacity shrink-0 max-sm:opacity-60 sm:opacity-0 sm:group-hover:opacity-100">
+        <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onCopy(snippet._id, snippet.payload.code)}
             className={cn(
-              "p-1.5 rounded-md transition-colors",
+              "p-1.5 rounded-md transition-all",
               isCopied
-                ? "text-success bg-success/10"
+                ? "text-success bg-success/10 scale-110"
                 : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
             )}
-            aria-label="Copy code"
+            title="Copy code"
           >
             {isCopied ? (
               <Check className="w-3.5 h-3.5" />
@@ -105,13 +129,8 @@ export default function SnippetCard({
           <button
             onClick={() => onToggleFavorite(snippet)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50"
-            aria-label={
-              snippet.payload.is_favorite
-                ? "Remove from favorites"
-                : "Add to favorites"
-            }
-            aria-pressed={snippet.payload.is_favorite}
+            className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            title={snippet.payload.is_favorite ? "Unstar" : "Star"}
           >
             {isFavoriting ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -125,16 +144,16 @@ export default function SnippetCard({
           <button
             onClick={() => onEdit(snippet)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-zinc-300 rounded-md hover:bg-zinc-800 disabled:opacity-50"
-            aria-label="Edit snippet"
+            className="p-1.5 text-zinc-500 hover:text-accent rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            title="Edit"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(snippet._id)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50"
-            aria-label="Delete snippet"
+            className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            title="Delete"
           >
             {isDeleting ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -146,36 +165,53 @@ export default function SnippetCard({
       </div>
 
       {/* Code block */}
-      <pre className="px-4 py-3 text-xs text-zinc-300 font-mono overflow-x-auto max-h-[220px] overflow-y-auto">
-        <code>
-          {showLineNumbers
-            ? withLineNumbers(snippet.payload.code)
-            : snippet.payload.code}
-        </code>
-      </pre>
+      <div className="relative group/code">
+        <pre className="px-4 py-3 text-[12px] leading-relaxed text-zinc-300 font-mono overflow-x-auto max-h-[240px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
+          <code
+            dangerouslySetInnerHTML={{ __html: displayCode }}
+            className="block whitespace-pre"
+          />
+        </pre>
+        <div className="absolute top-2 right-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
+          <span className="text-[10px] bg-zinc-950/80 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-800 backdrop-blur-sm">
+            {lineCount} lines
+          </span>
+        </div>
+      </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 border-t border-zinc-800">
-        {snippet.payload.description && (
-          <p className="text-xs text-zinc-500 line-clamp-1 mb-1">
-            {snippet.payload.description}
-          </p>
-        )}
-        {snippet.payload.tags.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap mb-1">
-            {snippet.payload.tags.slice(0, 5).map((tag) => (
-              <span
-                key={tag}
-                className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-        <p className="text-[11px] text-zinc-600">
-          Added {formatDate(snippet.created_at)}
+      {(snippet.payload.description || snippet.payload.tags.length > 0) && (
+        <div className="px-4 py-2.5 border-t border-zinc-800 bg-zinc-900/30">
+          {snippet.payload.description && (
+            <p className="text-xs text-zinc-400 line-clamp-2 mb-2 italic">
+              {snippet.payload.description}
+            </p>
+          )}
+          {snippet.payload.tags.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {snippet.payload.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-1.5 py-0.5 bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 text-[10px] rounded-md hover:text-zinc-400 hover:border-zinc-600 transition-colors"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="px-4 py-1.5 border-t border-zinc-800/50 flex items-center justify-between">
+        <p className="text-[10px] text-zinc-600 font-medium">
+          Added {formattedDate}
         </p>
+        <button
+          onClick={() => onCopy(snippet._id, snippet.payload.code)}
+          className="text-[10px] text-accent hover:text-accent-hover font-medium transition-colors"
+        >
+          {isCopied ? "Copied!" : "Quick Copy"}
+        </button>
       </div>
     </motion.article>
   );

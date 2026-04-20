@@ -2,7 +2,15 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Code, Star, Hash, TrendingUp, Clock, Tag } from "lucide-react";
+import {
+  Code,
+  Star,
+  Hash,
+  TrendingUp,
+  Clock,
+  Tag,
+  Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Snippet, SnippetStats } from "./types";
 
@@ -36,7 +44,7 @@ function MiniSparkline({
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="w-20 h-7"
+      className="w-20 h-7 overflow-visible"
       preserveAspectRatio="none"
     >
       <defs>
@@ -50,7 +58,7 @@ function MiniSparkline({
         points={points}
         fill="none"
         stroke={color}
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -83,6 +91,18 @@ export default function SnippetsMetrics({
       .slice(0, 5);
   }, [snippets]);
 
+  const topTags = useMemo(() => {
+    const tagCounts: Record<string, number> = {};
+    for (const s of snippets) {
+      for (const tag of s.payload.tags) {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      }
+    }
+    return Object.entries(tagCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 8);
+  }, [snippets]);
+
   const recentActivity = useMemo(() => {
     const now = new Date();
     const weeks: number[] = [0, 0, 0, 0, 0, 0];
@@ -100,10 +120,11 @@ export default function SnippetsMetrics({
 
   const metrics = [
     {
-      label: "Total Snippets",
+      label: "Total Library",
       value: stats.total,
       icon: Code,
       color: "text-zinc-50",
+      accentColor: "bg-zinc-50/10",
       sparkData: recentActivity,
       sparkColor: "var(--accent)",
     },
@@ -112,42 +133,49 @@ export default function SnippetsMetrics({
       value: stats.favorites,
       icon: Star,
       color: "text-warning",
+      accentColor: "bg-warning/10",
       detail:
         stats.total > 0
-          ? `${Math.round((stats.favorites / stats.total) * 100)}% starred`
+          ? `${Math.round((stats.favorites / stats.total) * 100)}% reach`
           : undefined,
     },
     {
-      label: "Languages",
+      label: "Tech Stack",
       value: stats.languages,
       icon: Hash,
       color: "text-accent",
+      accentColor: "bg-accent/10",
+      detail: "languages used",
     },
     {
-      label: "Avg Lines",
+      label: "Avg Density",
       value: stats.averageLength,
       icon: TrendingUp,
       color: "text-success",
-      detail: stats.averageLength > 0 ? "lines per snippet" : undefined,
+      accentColor: "bg-success/10",
+      detail: "lines / snippet",
     },
     {
-      label: "Recent (7d)",
+      label: "Velocity (7d)",
       value: stats.recentCount,
       icon: Clock,
       color: "text-accent",
-      detail: stats.recentCount > 0 ? "added this week" : "none this week",
+      accentColor: "bg-accent/10",
+      detail: "new arrivals",
     },
     {
-      label: "Unique Tags",
+      label: "Categorization",
       value: stats.tagCount,
       icon: Tag,
       color: "text-accent",
+      accentColor: "bg-accent/10",
+      detail: "unique tags",
     },
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         {metrics.map((m, i) => (
           <motion.div
             key={m.label}
@@ -155,68 +183,122 @@ export default function SnippetsMetrics({
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-3 flex flex-col gap-1.5 hover:border-zinc-700 transition-colors"
+            className="group relative rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 flex flex-col gap-2 hover:border-zinc-700 hover:bg-zinc-900/40 transition-all duration-300 overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <m.icon className={cn("w-3.5 h-3.5", m.color)} />
+            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+              <m.icon className="w-12 h-12" />
+            </div>
+
+            <div className="flex items-center justify-between relative z-10">
+              <div className={cn("p-1.5 rounded-lg", m.accentColor)}>
+                <m.icon className={cn("w-4 h-4", m.color)} />
+              </div>
               {m.sparkData && m.sparkData.some((v) => v > 0) && (
-                <MiniSparkline data={m.sparkData} color={m.sparkColor} />
+                <div className="pr-1">
+                  <MiniSparkline data={m.sparkData} color={m.sparkColor} />
+                </div>
               )}
             </div>
-            <p className={cn("text-xl font-bold tracking-tight", m.color)}>
-              {m.value}
-            </p>
-            <p className="text-[10px] text-zinc-500 leading-tight">{m.label}</p>
-            {m.detail && (
-              <p className="text-[10px] text-zinc-600">{m.detail}</p>
-            )}
+            <div className="relative z-10">
+              <p className={cn("text-2xl font-black tracking-tight", m.color)}>
+                {m.value}
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mt-1">
+                {m.label}
+              </p>
+              {m.detail && (
+                <p className="text-[10px] text-zinc-600 mt-0.5 font-medium">
+                  {m.detail}
+                </p>
+              )}
+            </div>
           </motion.div>
         ))}
       </div>
 
-      {languageDistribution.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.3 }}
-          className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <Code className="w-4 h-4 text-accent" />
-            <span className="text-xs font-medium text-zinc-400">
-              Top Languages
-            </span>
-          </div>
-          <div className="space-y-2">
-            {languageDistribution.map(([lang, count]) => {
-              const pct =
-                stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
-              return (
-                <div key={lang} className="flex items-center gap-3">
-                  <span className="text-xs text-zinc-300 font-medium w-20 truncate">
-                    {lang}
-                  </span>
-                  <div className="flex-1 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-accent/70 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{
-                        delay: 0.5,
-                        duration: 0.6,
-                        ease: "easeOut",
-                      }}
-                    />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {languageDistribution.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+            className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
+                <Code className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-zinc-300">
+                Top Languages
+              </span>
+            </div>
+            <div className="space-y-3">
+              {languageDistribution.map(([lang, count]) => {
+                const pct =
+                  stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+                return (
+                  <div key={lang} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+                      <span className="text-zinc-400">{lang}</span>
+                      <span className="text-zinc-500">
+                        {count} snippets ({pct}%)
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-zinc-900 border border-zinc-800/50 overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-accent/40 to-accent rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{
+                          delay: 0.6,
+                          duration: 0.8,
+                          ease: [0.34, 1.56, 0.64, 1],
+                        }}
+                      />
+                    </div>
                   </div>
-                  <span className="text-[10px] text-zinc-500 min-w-[32px] text-right">
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {topTags.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-1.5 rounded-lg bg-warning/10 text-warning">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-zinc-300">
+                Trending Tags
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {topTags.map(([tag, count], i) => (
+                <motion.div
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 + i * 0.05 }}
+                  className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-accent/40 hover:bg-accent/5 transition-all cursor-default"
+                >
+                  <span className="text-xs font-semibold text-zinc-400 group-hover:text-accent transition-colors">
+                    #{tag}
+                  </span>
+                  <span className="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded-md text-zinc-500 group-hover:text-accent/60 transition-colors">
                     {count}
                   </span>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
