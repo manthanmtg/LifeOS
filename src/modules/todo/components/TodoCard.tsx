@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Edit3, Trash2, Calendar, Flag, Clock } from "lucide-react";
+import { Check, Edit3, Trash2, Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoDocument, TodoPriority } from "../types";
 import { motion } from "framer-motion";
@@ -20,27 +20,29 @@ export default function TodoCard({
   onDelete,
   viewMode = "list",
 }: TodoCardProps) {
-  const { title, notes, due_date, priority, completed, completed_at } =
-    todo.payload;
+  const { title, due_date, priority, completed, completed_at } = todo.payload;
 
   const priorityColors: Record<
     TodoPriority,
-    { text: string; bg: string; border: string }
+    { text: string; bg: string; border: string; shadow: string }
   > = {
     high: {
       text: "text-danger",
       bg: "bg-danger/10",
       border: "border-danger/20",
+      shadow: "shadow-danger/20",
     },
     medium: {
       text: "text-warning",
       bg: "bg-warning/10",
       border: "border-warning/20",
+      shadow: "shadow-warning/20",
     },
     low: {
       text: "text-success",
       bg: "bg-success/10",
       border: "border-success/20",
+      shadow: "shadow-success/20",
     },
   };
 
@@ -53,37 +55,50 @@ export default function TodoCard({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
+        whileHover={{ y: -4, scale: 1.01 }}
         className={cn(
-          "group relative flex flex-col p-5 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-3xl transition-all hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5",
+          "group relative flex flex-col p-5 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-3xl transition-all hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/10",
           completed && "opacity-60",
         )}
       >
         <div className="flex items-start justify-between mb-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => onToggle(todo)}
             className={cn(
               "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
               completed
-                ? "bg-accent border-accent text-zinc-950"
+                ? "bg-accent border-accent text-zinc-950 shadow-lg shadow-accent/20"
                 : "border-zinc-700 hover:border-accent group-hover:bg-accent/5",
             )}
           >
             {completed && <Check className="w-4 h-4 stroke-[3]" />}
-          </button>
+          </motion.button>
 
           <div className="flex items-center gap-1.5">
-            <button
+            <motion.button
+              whileHover={{
+                scale: 1.1,
+                backgroundColor: "rgba(var(--accent-rgb), 0.1)",
+              }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => onEdit(todo)}
-              className="p-2 rounded-xl text-zinc-500 hover:text-accent hover:bg-accent/10 opacity-0 group-hover:opacity-100 transition-all"
+              className="p-2 rounded-xl text-zinc-500 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
             >
               <Edit3 className="w-4 h-4" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{
+                scale: 1.1,
+                backgroundColor: "rgba(var(--danger-rgb), 0.1)",
+              }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => onDelete(todo._id)}
-              className="p-2 rounded-xl text-zinc-500 hover:text-danger hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all"
+              className="p-2 rounded-xl text-zinc-500 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
             >
               <Trash2 className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -101,10 +116,11 @@ export default function TodoCard({
         <div className="mt-auto pt-4 flex flex-wrap gap-2">
           <span
             className={cn(
-              "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border",
+              "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border shadow-sm transition-all",
               colors.text,
               colors.bg,
               colors.border,
+              colors.shadow,
             )}
           >
             {priority}
@@ -129,12 +145,15 @@ export default function TodoCard({
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ x: 2 }}
       className={cn(
         "group relative flex items-center gap-4 p-4 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl transition-all hover:border-accent/40 hover:shadow-xl hover:shadow-accent/5",
         completed && "opacity-60",
       )}
     >
-      <button
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => onToggle(todo)}
         className={cn(
           "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0",
@@ -144,7 +163,7 @@ export default function TodoCard({
         )}
       >
         {completed && <Check className="w-4 h-4 stroke-[3]" />}
-      </button>
+      </motion.button>
 
       <div className="flex-1 min-w-0">
         <h3
@@ -160,8 +179,10 @@ export default function TodoCard({
         <div className="flex items-center gap-3 mt-1">
           <span
             className={cn(
-              "text-[9px] font-black uppercase tracking-widest",
+              "text-[9px] font-black uppercase tracking-widest transition-all",
               colors.text,
+              !completed && colors.shadow,
+              !completed && "shadow-[0_0_8px_-2px_currentColor]",
             )}
           >
             {priority}
@@ -182,18 +203,28 @@ export default function TodoCard({
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
-        <button
+        <motion.button
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "rgba(var(--accent-rgb), 0.1)",
+          }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => onEdit(todo)}
-          className="p-2 rounded-xl text-zinc-600 hover:text-accent hover:bg-accent/10 opacity-0 group-hover:opacity-100 transition-all"
+          className="p-2 rounded-xl text-zinc-600 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
         >
           <Edit3 className="w-4 h-4" />
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "rgba(var(--danger-rgb), 0.1)",
+          }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(todo._id)}
-          className="p-2 rounded-xl text-zinc-600 hover:text-danger hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all"
+          className="p-2 rounded-xl text-zinc-600 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
         >
           <Trash2 className="w-4 h-4" />
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
