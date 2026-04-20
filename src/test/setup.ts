@@ -5,6 +5,7 @@ import React, { act } from "react";
 
 // Polyfill React.act if it's missing (needed for React 19 in some test environments)
 if (!React.act && act) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (React as any).act = act;
 }
 
