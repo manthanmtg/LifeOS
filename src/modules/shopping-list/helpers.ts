@@ -9,6 +9,17 @@ import {
 
 const SMART_ENTRY_PATTERN = /^(.*?)\s+(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?$/;
 
+export function createItemId() {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+
+  return `item-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function parseSmartEntry(text: string): ParsedShoppingEntry {
   const match = text.trim().match(SMART_ENTRY_PATTERN);
 

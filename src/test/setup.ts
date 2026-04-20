@@ -1,7 +1,13 @@
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
-import React from "react";
+import React, { act } from "react";
+
+// Polyfill React.act if it's missing (needed for React 19 in some test environments)
+if (!React.act && act) {
+  (React as any).act = act;
+}
+
 import {
   routerMocks,
   navigationState,
