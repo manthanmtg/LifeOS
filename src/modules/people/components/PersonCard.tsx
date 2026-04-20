@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Person, InteractionType } from "../types";
+import { getDaysSinceDate, getDerivedLastContacted } from "../insights";
 
 const RELATIONSHIP_STYLES: Record<string, string> = {
   family: "bg-accent/10 text-accent border-accent/20",
@@ -23,13 +24,6 @@ const RELATIONSHIP_STYLES: Record<string, string> = {
   client: "bg-accent/10 text-accent border-accent/20",
   other: "bg-zinc-800 text-zinc-500 border-zinc-700/50",
 };
-
-function calculateDaysSince(dateStr?: string): number | null {
-  if (!dateStr) return null;
-  const last = new Date(dateStr).getTime();
-  const now = Date.now();
-  return Math.floor((now - last) / (1000 * 60 * 60 * 24));
-}
 
 interface PersonCardProps {
   person: Person;
@@ -46,9 +40,8 @@ export default function PersonCard({
   onToggleFavorite,
   onQuickLog,
 }: PersonCardProps) {
-  const days = useMemo(() => {
-    return calculateDaysSince(person.payload.last_contacted);
-  }, [person.payload.last_contacted]);
+  const lastContacted = getDerivedLastContacted(person);
+  const days = useMemo(() => getDaysSinceDate(lastContacted), [lastContacted]);
 
   const isStale = days !== null && days > 90;
   const isHot = days !== null && days < 14;

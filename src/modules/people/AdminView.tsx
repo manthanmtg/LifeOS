@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Users } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import type {
@@ -15,10 +15,18 @@ import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 import PeopleHeader from "./components/PeopleHeader";
 import PeopleMetrics from "./components/PeopleMetrics";
-import PeopleFilters, { PeopleFilterType } from "./components/PeopleFilters";
+import PeopleFilters from "./components/PeopleFilters";
+import PeopleFocusStrip from "./components/PeopleFocusStrip";
 import PersonCard from "./components/PersonCard";
 import PersonProfile from "./components/PersonProfile";
 import PersonForm from "./components/PersonForm";
+import {
+  filterPeople,
+  getPeopleCounts,
+  getPeopleSummary,
+  toPersonDocument,
+  type PeopleFilterType,
+} from "./insights";
 
 export default function PeopleAdminView() {
   const [people, setPeople] = useState<Person[]>([]);
@@ -40,12 +48,32 @@ export default function PeopleAdminView() {
       const res = await fetch("/api/content?module_type=person");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch contacts");
-      setPeople(data.data || []);
+      setPeople((data.data || []).map(toPersonDocument));
     } catch (err) {
       console.error("fetchPeople failed:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const upsertPersonInState = (updatedPerson: Person) => {
+    setPeople((current) => {
+      const exists = current.some((person) => person._id === updatedPerson._id);
+      const next = exists
+        ? current.map((person) =>
+            person._id === updatedPerson._id ? updatedPerson : person,
+          )
+        : [updatedPerson, ...current];
+      return next;
+    });
+    setSelectedPerson((current) =>
+      current?._id === updatedPerson._id ? updatedPerson : current,
+    );
+  };
+
+  const removePersonFromState = (id: string) => {
+    setPeople((current) => current.filter((person) => person._id !== id));
+    setSelectedPerson((current) => (current?._id === id ? null : current));
   };
 
   useEffect(() => {
@@ -75,12 +103,15 @@ export default function PeopleAdminView() {
       throw new Error(data.error || "Failed to save contact");
     }
 
-    await fetchPeople();
-    if (selectedPerson && selectedPerson._id === editingPerson?._id) {
-      const updated = (
-        await (await fetch("/api/content?module_type=person")).json()
-      ).data.find((p: Person) => p._id === editingPerson?._id);
-      if (updated) setSelectedPerson(updated);
+    if (isEditing && editingPerson) {
+      upsertPersonInState({
+        ...editingPerson,
+        updated_at: new Date().toISOString(),
+        payload,
+      });
+    } else {
+      const data = await res.json();
+      upsertPersonInState(toPersonDocument(data.data));
     }
   };
 
@@ -92,10 +123,9 @@ export default function PeopleAdminView() {
       if (!res.ok) throw new Error("Delete failed");
 
       if (selectedPerson?._id === id) {
-        setSelectedPerson(null);
         setView("list");
       }
-      await fetchPeople();
+      removePersonFromState(id);
     } catch (err) {
       console.error(err);
       alert("Failed to delete contact");
@@ -115,17 +145,14 @@ export default function PeopleAdminView() {
         }),
       });
       if (!res.ok) throw new Error("Toggle failed");
-      await fetchPeople();
-      if (selectedPerson?._id === person._id) {
-        setSelectedPerson((p) =>
-          p
-            ? {
-                ...p,
-                payload: { ...p.payload, is_favorite: !p.payload.is_favorite },
-              }
-            : null,
-        );
-      }
+      upsertPersonInState({
+        ...person,
+        updated_at: new Date().toISOString(),
+        payload: {
+          ...person.payload,
+          is_favorite: !person.payload.is_favorite,
+        },
+      });
     } catch (err) {
       console.error(err);
     }
@@ -159,21 +186,15 @@ export default function PeopleAdminView() {
     });
 
     if (!res.ok) throw new Error("Failed to update interactions");
-    await fetchPeople();
-    if (selectedPerson?._id === id) {
-      setSelectedPerson((p) =>
-        p
-          ? {
-              ...p,
-              payload: {
-                ...p.payload,
-                interactions,
-                last_contacted,
-              },
-            }
-          : null,
-      );
-    }
+    upsertPersonInState({
+      ...person,
+      updated_at: new Date().toISOString(),
+      payload: {
+        ...person.payload,
+        interactions,
+        last_contacted,
+      },
+    });
   };
 
   const handleLogInteraction = async (
@@ -216,12 +237,11 @@ export default function PeopleAdminView() {
         }),
       });
       if (!res.ok) throw new Error("Failed to update documents");
-      await fetchPeople();
-      if (selectedPerson?._id === person._id) {
-        const r = await fetch(`/api/content/${person._id}`);
-        const d = await r.json();
-        if (d.data) setSelectedPerson(d.data);
-      }
+      upsertPersonInState({
+        ...person,
+        updated_at: new Date().toISOString(),
+        payload: { ...person.payload, documents: docs },
+      });
     } catch (err) {
       console.error(err);
     }
@@ -229,69 +249,20 @@ export default function PeopleAdminView() {
 
   // Processing Functions
   const filteredPeople = useMemo(() => {
-    let result = [...people];
-
-    // Search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.payload.name.toLowerCase().includes(query) ||
-          p.payload.company?.toLowerCase().includes(query) ||
-          p.payload.interests?.some((i) => i.toLowerCase().includes(query)) ||
-          p.payload.tags?.some((t) => t.toLowerCase().includes(query)),
-      );
-    }
-
-    // Bucket Filters
-    if (activeBucket === "favorites") {
-      result = result.filter((p) => p.payload.is_favorite);
-    } else if (activeBucket === "stale") {
-      result = result.filter((p) => {
-        if (!p.payload.last_contacted) return true;
-        const last = new Date(p.payload.last_contacted);
-        const diff = (Date.now() - last.getTime()) / (1000 * 60 * 60 * 24);
-        return diff > 90;
-      });
-    } else if (activeBucket === "upcoming") {
-      // Simplified birthday check for filtering
-      const now = new Date();
-      result = result.filter((p) => {
-        if (!p.payload.birthday) return false;
-        const b = new Date(p.payload.birthday);
-        return b.getMonth() === now.getMonth();
-      });
-    }
-
-    // Relationship Filter
-    if (relationshipFilter !== "all") {
-      result = result.filter(
-        (p) => p.payload.relationship === relationshipFilter,
-      );
-    }
-
-    // Sort: Favorites first, then alphabetical
-    return result.sort((a, b) => {
-      if (a.payload.is_favorite !== b.payload.is_favorite)
-        return a.payload.is_favorite ? -1 : 1;
-      return a.payload.name.localeCompare(b.payload.name);
+    return filterPeople(people, {
+      searchQuery,
+      activeBucket,
+      relationshipFilter: relationshipFilter as
+        | Person["payload"]["relationship"]
+        | "all",
     });
   }, [people, searchQuery, activeBucket, relationshipFilter]);
 
-  const counts: Record<PeopleFilterType, number> = {
-    all: people.length,
-    favorites: people.filter((p) => p.payload.is_favorite).length,
-    stale: people.filter((p) => {
-      if (!p.payload.last_contacted) return true;
-      const last = new Date(p.payload.last_contacted);
-      return (Date.now() - last.getTime()) / (1000 * 60 * 60 * 24) > 90;
-    }).length,
-    upcoming: people.filter(
-      (p) =>
-        p.payload.birthday &&
-        new Date(p.payload.birthday).getMonth() === new Date().getMonth(),
-    ).length,
-  };
+  const counts = useMemo<Record<PeopleFilterType, number>>(
+    () => getPeopleCounts(people),
+    [people],
+  );
+  const summary = useMemo(() => getPeopleSummary(people), [people]);
 
   if (loading) return <AdminModuleSkeleton />;
 
@@ -315,6 +286,7 @@ export default function PeopleAdminView() {
             exit={{ opacity: 0, x: -20 }}
           >
             <PeopleMetrics people={people} />
+            {people.length > 0 && <PeopleFocusStrip summary={summary} />}
             <PeopleFilters
               activeFilter={activeBucket}
               onFilterChange={setActiveBucket}
@@ -322,6 +294,24 @@ export default function PeopleAdminView() {
               onRelationshipChange={setRelationshipFilter}
               counts={counts}
             />
+
+            <div className="mb-4 flex flex-col gap-1 rounded-2xl border border-zinc-800/50 bg-zinc-900/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-zinc-100">
+                  {filteredPeople.length} match
+                  {filteredPeople.length === 1 ? "" : "es"}
+                </p>
+                <p className="text-xs text-zinc-500">
+                  Favorites stay pinned, then people who need attention rise up.
+                </p>
+              </div>
+              <p className="text-xs text-zinc-500">
+                {summary.stalestPerson?.daysSince !== null &&
+                summary.stalestPerson?.daysSince !== undefined
+                  ? `${summary.stalestPerson.name} has been quiet for ${summary.stalestPerson.daysSince} days.`
+                  : "Fresh list, no overdue follow-ups."}
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               <AnimatePresence mode="popLayout">
@@ -346,15 +336,19 @@ export default function PeopleAdminView() {
             </div>
 
             {filteredPeople.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/40 rounded-2xl border border-zinc-800/50 mt-4">
-                <Users className="w-12 h-12 text-zinc-700 mb-4" />
+              <div className="mt-4 flex flex-col items-center justify-center rounded-2xl border border-zinc-800/50 bg-zinc-900/40 py-20">
+                {people.length === 0 ? (
+                  <Users className="mb-4 h-12 w-12 text-zinc-700" />
+                ) : (
+                  <Search className="mb-4 h-12 w-12 text-zinc-700" />
+                )}
                 <h3 className="text-lg font-bold text-zinc-500">
-                  No one here yet
+                  {people.length === 0 ? "No one here yet" : "Nothing matches"}
                 </h3>
-                <p className="text-zinc-600 text-sm mt-2">
+                <p className="mt-2 text-sm text-zinc-600">
                   {people.length === 0
                     ? "Add someone you care about to get started"
-                    : "No one matches your filters"}
+                    : "Try a different search, relationship, or focus bucket."}
                 </p>
               </div>
             )}

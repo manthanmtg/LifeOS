@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   Heart,
@@ -30,6 +31,11 @@ import {
   type InteractionType,
 } from "../types";
 import PersonDocuments from "./PersonDocuments";
+import {
+  getBirthdayDetails,
+  getDaysSinceDate,
+  getDerivedLastContacted,
+} from "../insights";
 
 interface PersonProfileProps {
   person: Person;
@@ -103,21 +109,45 @@ export default function PersonProfile({
     company,
     role,
     interactions,
-    last_contacted,
     is_favorite,
     avatar_url,
   } = person.payload;
 
-  const sortedInteractions = [...(interactions || [])].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  const sortedInteractions = useMemo(
+    () =>
+      [...(interactions || [])].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      ),
+    [interactions],
   );
+  const lastContacted = getDerivedLastContacted(person);
+  const daysSinceContact = useMemo(
+    () => getDaysSinceDate(lastContacted),
+    [lastContacted],
+  );
+  const birthdayDetails = useMemo(
+    () => getBirthdayDetails(birthday),
+    [birthday],
+  );
+  const interactionRows = useMemo(
+    () =>
+      sortedInteractions.map((it) => {
+        const originalIndex = interactions.findIndex(
+          (i) => i.date === it.date && i.type === it.type && i.note === it.note,
+        );
 
-  const daysSinceContact = last_contacted
-    ? Math.floor(
-        (Date.now() - new Date(last_contacted).getTime()) /
-          (1000 * 60 * 60 * 24),
-      )
-    : null;
+        return {
+          ...it,
+          originalIndex,
+          formattedDate: new Date(it.date).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        };
+      }),
+    [interactions, sortedInteractions],
+  );
 
   const handleLog = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,17 +232,23 @@ export default function PersonProfile({
           {/* Avatar */}
           <div className="shrink-0 relative">
             {person.payload.profile_pic ? (
-              <img
-                src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
-                alt={name}
-                className="w-20 h-20 rounded-2xl object-cover border border-zinc-700"
-              />
+              <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-zinc-700">
+                <Image
+                  src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
+                  alt={name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : avatar_url ? (
-              <img
-                src={avatar_url}
-                alt={name}
-                className="w-20 h-20 rounded-2xl object-cover border border-zinc-700"
-              />
+              <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-zinc-700">
+                <Image
+                  src={avatar_url}
+                  alt={name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center">
                 <span className="text-2xl font-bold text-zinc-600">
@@ -326,22 +362,15 @@ export default function PersonProfile({
                 <div className="flex items-center gap-2">
                   <Cake className="w-3 h-3 text-zinc-500" />
                   {birthday ? (
-                    (() => {
-                      const { formatted, age } = getBirthdayDisplay(birthday);
-                      return (
-                        <span className="text-xs font-semibold text-zinc-300">
-                          {formatted}
-                          <span className="text-zinc-500 font-normal ml-1">
-                            ({new Date(birthday + "T00:00:00").getFullYear()})
+                    <span className="text-xs font-semibold text-zinc-300">
+                      {getBirthdayDisplay(birthday).formatted}
+                      {birthdayDetails?.ageTurning !== null &&
+                        birthdayDetails?.ageTurning !== undefined && (
+                          <span className="ml-1.5 rounded-md border border-zinc-700/50 bg-zinc-800 px-1.5 py-0.5 text-[10px] font-bold text-zinc-400">
+                            turns {birthdayDetails.ageTurning}
                           </span>
-                          {age !== null && (
-                            <span className="ml-1.5 px-1.5 py-0.5 rounded-md bg-zinc-800 text-[10px] font-bold text-zinc-400 border border-zinc-700/50">
-                              {age} yr{age !== 1 ? "s" : ""}
-                            </span>
-                          )}
-                        </span>
-                      );
-                    })()
+                        )}
+                    </span>
                   ) : (
                     <span className="text-xs font-semibold text-zinc-300">
                       Not set
@@ -538,19 +567,12 @@ export default function PersonProfile({
 
             <div className="space-y-2.5">
               {sortedInteractions.length > 0 ? (
-                sortedInteractions.map((it) => {
+                interactionRows.map((it) => {
                   const Icon = interactionIcons[it.type] || Clock;
-                  // Use finding by reference/content similarity since we don't have IDs
-                  const originalIndex = interactions.findIndex(
-                    (i) =>
-                      i.date === it.date &&
-                      i.type === it.type &&
-                      i.note === it.note,
-                  );
 
                   return (
                     <div
-                      key={`${it.date}-${it.type}-${originalIndex}`}
+                      key={`${it.date}-${it.type}-${it.originalIndex}`}
                       className="group flex items-start gap-3 p-3 bg-zinc-950/20 border border-zinc-900/40 rounded-xl transition-all hover:bg-zinc-900/40 hover:border-accent/10"
                     >
                       <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 group-hover:border-accent/40 transition-all">
@@ -564,7 +586,7 @@ export default function PersonProfile({
                             </span>
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
-                                onClick={() => startEditing(originalIndex)}
+                                onClick={() => startEditing(it.originalIndex)}
                                 className="p-1 text-zinc-600 hover:text-accent transition-colors"
                                 title="Edit moment"
                               >
@@ -572,7 +594,7 @@ export default function PersonProfile({
                               </button>
                               <button
                                 onClick={() =>
-                                  handleDeleteInteraction(originalIndex)
+                                  handleDeleteInteraction(it.originalIndex)
                                 }
                                 className="p-1 text-zinc-600 hover:text-danger transition-colors"
                                 title="Delete moment"
@@ -582,11 +604,7 @@ export default function PersonProfile({
                             </div>
                           </div>
                           <span className="text-[10px] font-medium text-zinc-600">
-                            {new Date(it.date).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
+                            {it.formattedDate}
                           </span>
                         </div>
                         <p className="text-xs text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Home, ChevronRight, Plus, Search } from "lucide-react";
 
 interface PeopleHeaderProps {
@@ -18,13 +19,13 @@ export default function PeopleHeader({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1">
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => (window.location.href = "/admin")}
+            <Link
+              href="/admin"
               className="text-sm font-bold text-zinc-500 hover:text-accent px-2 py-1 rounded-lg hover:bg-accent/5 transition-all flex items-center gap-1.5"
             >
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Portal</span>
-            </button>
+            </Link>
             <ChevronRight className="w-4 h-4 text-zinc-700 shrink-0" />
             <span className="text-lg font-black text-zinc-100 bg-zinc-800/50 px-3 py-1 rounded-xl">
               People
@@ -39,7 +40,7 @@ export default function PeopleHeader({
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search people..."
+              placeholder="Search names, notes, tags..."
               className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl pl-9 pr-4 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 transition-all"
             />
           </div>
