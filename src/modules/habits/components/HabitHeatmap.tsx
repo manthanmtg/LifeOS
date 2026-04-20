@@ -98,6 +98,7 @@ export default function HabitHeatmap({
                       onClick={() => onToggleDay(date)}
                       disabled={isLogging}
                       title={`${date}${isCompleted ? " ✓" : ""}`}
+                      aria-label={`${date}${isCompleted ? ", Completed" : ", Not completed"}${isToday ? ", Today" : ""}`}
                       className={cn(
                         "w-3 h-3 rounded-[2px] transition-colors disabled:opacity-50",
                         isToday && "ring-1 ring-zinc-500",
