@@ -140,6 +140,20 @@ export default function IdeaFormPanel({
               <option key={cat} value={cat} />
             ))}
           </datalist>
+          {categories.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className="rounded-full border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-accent/40 hover:text-zinc-50"
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex gap-3">
@@ -194,6 +208,9 @@ export default function IdeaFormPanel({
             disabled={isSubmitting}
             className={inputClass}
           />
+          <p className="mt-1 text-xs text-zinc-500">
+            Separate tags with commas to keep related concepts easy to find.
+          </p>
         </div>
 
         <div className="md:col-span-2 flex justify-end gap-3 items-center">

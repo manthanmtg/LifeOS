@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Check, Lightbulb, Plus, Settings, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  type FormEvent,
+} from "react";
+import { Lightbulb } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import {
   DndContext,
@@ -24,22 +30,33 @@ import {
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  verticalListSortingStrategy,
   sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
-import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { AdminModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
 import IdeaDetailsModal from "./IdeaDetailsModal";
 import { IDEA_STATUS_LABELS, type IdeaRecord } from "./shared";
 import {
-  SortableIdeaCard,
-  DroppableColumn,
   DeleteZone,
   DragPreviewCard,
+  DroppableColumn,
+  SortableIdeaCard,
 } from "./components/IdeaKanban";
 import IdeaFormPanel from "./components/IdeaFormPanel";
 import IdeaFilters from "./components/IdeaFilters";
+import IdeaDashboardHeader from "./components/IdeaDashboardHeader";
+import IdeaSettingsPanel from "./components/IdeaSettingsPanel";
+import {
+  filterIdeas,
+  getIdeaCategoryOptions,
+  getIdeaMetrics,
+  getIdeaReviewQueue,
+  getIdeaSpotlight,
+  normalizeIdeaCategories,
+  sortIdeasForReview,
+} from "./insights";
 import {
   getIdeaBoardStatus,
   IDEA_BOARD_STATUSES,
@@ -60,21 +77,21 @@ type Idea = IdeaRecord;
 
 function KanbanSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
+    <div className="grid grid-cols-1 gap-6 animate-pulse md:grid-cols-2 xl:grid-cols-3">
       {[3, 2, 1].map((cardCount, col) => (
         <div
           key={col}
-          className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 min-h-[300px]"
+          className="min-h-[300px] rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4"
         >
-          <div className="flex items-center justify-between mb-4 px-1">
+          <div className="mb-4 flex items-center justify-between px-1">
             <SkeletonBlock className="h-2.5 w-20" />
             <SkeletonBlock className="h-5 w-5 rounded-full" />
           </div>
           <div className="space-y-2.5">
-            {Array.from({ length: cardCount }).map((_, i) => (
+            {Array.from({ length: cardCount }).map((_, index) => (
               <div
-                key={i}
-                className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 space-y-2"
+                key={index}
+                className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3"
               >
                 <SkeletonBlock className="h-3 w-full" />
                 <SkeletonBlock className="h-3 w-2/3" />
@@ -93,46 +110,36 @@ export default function IdeasAdminView() {
     settings,
     updateSettings,
     saving: settingsSaving,
+    loaded: settingsLoaded,
   } = useModuleSettings("ideasSettings", IDEAS_DEFAULTS);
 
-  // UI state
   const [showSettings, setShowSettings] = useState(false);
-  const [newCat, setNewCat] = useState("");
-
-  // Data state
+  const [newCategory, setNewCategory] = useState("");
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form state
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
   const [category, setCategory] = useState("");
-  const [status, setStatus] = useState<string>(settings.defaultStatus);
-  const [priority, setPriority] = useState<string>(settings.defaultPriority);
+  const [status, setStatus] = useState<string>(IDEAS_DEFAULTS.defaultStatus);
+  const [priority, setPriority] = useState<string>(
+    IDEAS_DEFAULTS.defaultPriority,
+  );
   const [tagsInput, setTagsInput] = useState("");
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
-  // Actions
   const [isPromotingId, setIsPromotingId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
-  const dragSnapshotRef = useRef<Idea[] | null>(null);
-  const lastOverId = useRef<string | null>(null);
-
-  // Undo & delayed delete
-  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastDeletedIdeaRef = useRef<{ idea: Idea; index: number } | null>(null);
-
-  // Dialogs & toasts
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [toast, setToast] = useState<{
     message: string;
@@ -141,13 +148,21 @@ export default function IdeasAdminView() {
     action?: { label: string; onClick: () => void };
   }>({ message: "", type: "success", isVisible: false });
 
-  const showToast = (
-    message: string,
-    type: ToastType = "success",
-    action?: { label: string; onClick: () => void },
-  ) => {
-    setToast({ message, type, isVisible: true, action });
-  };
+  const dragSnapshotRef = useRef<Idea[] | null>(null);
+  const lastOverId = useRef<string | null>(null);
+  const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastDeletedIdeaRef = useRef<{ idea: Idea; index: number } | null>(null);
+
+  const showToast = useCallback(
+    (
+      message: string,
+      type: ToastType = "success",
+      action?: { label: string; onClick: () => void },
+    ) => {
+      setToast({ message, type, isVisible: true, action });
+    },
+    [],
+  );
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
@@ -160,32 +175,42 @@ export default function IdeasAdminView() {
   );
 
   const fetchIdeas = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/content?module_type=idea");
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to fetch ideas");
-      const unsorted = data.data || [];
-      const sorted = [...unsorted].sort((a: Idea, b: Idea) => {
+
+      const unsorted = (data.data || []) as Idea[];
+      const sorted = [...unsorted].sort((a, b) => {
         if (a.payload.order !== undefined && b.payload.order !== undefined) {
           return a.payload.order - b.payload.order;
         }
+
         return (
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
+
       setIdeas(normalizeIdeaBoardOrder(sorted));
-    } catch (err: unknown) {
-      console.error("fetchIdeas failed:", err);
+    } catch (error: unknown) {
+      console.error("fetchIdeas failed:", error);
+      showToast("Could not load ideas", "error");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
-    fetchIdeas();
+    void fetchIdeas();
   }, [fetchIdeas]);
 
-  const resetForm = () => {
+  useEffect(() => {
+    setStatus(settings.defaultStatus);
+    setPriority(settings.defaultPriority);
+  }, [settings.defaultPriority, settings.defaultStatus]);
+
+  const resetForm = useCallback(() => {
     setTitle("");
     setDescription("");
     setNotes("");
@@ -196,9 +221,16 @@ export default function IdeasAdminView() {
     setEditingId(null);
     setFormError("");
     setShowForm(false);
+  }, [settings.defaultPriority, settings.defaultStatus]);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    setCategoryFilter("all");
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!title.trim()) {
       setFormError("Title required");
@@ -214,17 +246,19 @@ export default function IdeasAdminView() {
       priority,
       tags: tagsInput
         .split(",")
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean),
       promoted_to_portfolio: editingId
-        ? ideas.find((i) => i._id === editingId)?.payload.promoted_to_portfolio
+        ? ideas.find((idea) => idea._id === editingId)?.payload
+            .promoted_to_portfolio
         : false,
     };
 
     setIsSubmitting(true);
     setFormError("");
+
     try {
-      const res = editingId
+      const response = editingId
         ? await fetch(`/api/content/${editingId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -240,12 +274,14 @@ export default function IdeasAdminView() {
             }),
           });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to save idea");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to save idea");
+
       resetForm();
       await fetchIdeas();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to save";
+      showToast(editingId ? "Idea updated" : "Idea added", "success");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to save";
       setFormError(message);
     } finally {
       setIsSubmitting(false);
@@ -264,26 +300,31 @@ export default function IdeasAdminView() {
     setShowForm(true);
   };
 
-  const handleReorder = async (newIdeas: Idea[]) => {
+  const handleReorder = async (nextIdeas: Idea[]) => {
     try {
-      const normalizedIdeas = normalizeIdeaBoardOrder(newIdeas);
+      const normalizedIdeas = normalizeIdeaBoardOrder(nextIdeas);
 
-      // Update orders in database
       await Promise.all(
-        normalizedIdeas.map((idea) => {
+        normalizedIdeas.map(async (idea) => {
           const payload = {
             ...idea.payload,
             order: idea.payload.order ?? 0,
           };
-          return fetch(`/api/content/${idea._id}`, {
+
+          const response = await fetch(`/api/content/${idea._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ payload }),
           });
+
+          if (!response.ok) {
+            throw new Error(`Failed to persist order for ${idea._id}`);
+          }
         }),
       );
-    } catch (err) {
-      console.error("Failed to persist reorder:", err);
+    } catch (error) {
+      console.error("Failed to persist reorder:", error);
+      showToast("Could not save board order", "error");
     }
   };
 
@@ -294,44 +335,56 @@ export default function IdeasAdminView() {
     }
 
     const lastDeleted = lastDeletedIdeaRef.current;
-    if (lastDeleted) {
-      setIdeas((prev) => {
-        const updated = [...prev];
-        updated.splice(lastDeleted.index, 0, lastDeleted.idea);
-        const reSynced = normalizeIdeaBoardOrder(updated);
-        void handleReorder(reSynced);
-        return reSynced;
-      });
-      lastDeletedIdeaRef.current = null;
-      // Delay the success toast slightly to ensure it shows after the delete toast closes
-      setTimeout(() => showToast("Deletion undone", "success"), 50);
-    }
+    if (!lastDeleted) return;
+
+    setIdeas((prev) => {
+      const updated = [...prev];
+      updated.splice(lastDeleted.index, 0, lastDeleted.idea);
+      const nextIdeas = normalizeIdeaBoardOrder(updated);
+      void handleReorder(nextIdeas);
+      return nextIdeas;
+    });
+
+    lastDeletedIdeaRef.current = null;
+    setTimeout(() => showToast("Deletion undone", "success"), 50);
   };
 
   const handleDelete = async (id: string) => {
-    const ideaToDelete = ideas.find((i) => i._id === id);
+    const ideaToDelete = ideas.find((idea) => idea._id === id);
     if (!ideaToDelete) return;
 
-    const index = ideas.findIndex((i) => i._id === id);
-    setIdeas((prev) => prev.filter((i) => i._id !== id));
+    const index = ideas.findIndex((idea) => idea._id === id);
+    setIdeas((prev) => {
+      const nextIdeas = normalizeIdeaBoardOrder(
+        prev.filter((idea) => idea._id !== id),
+      );
+      void handleReorder(nextIdeas);
+      return nextIdeas;
+    });
+
     lastDeletedIdeaRef.current = { idea: ideaToDelete, index };
     setConfirmDeleteId(null);
 
-    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+    if (deleteTimeoutRef.current) {
+      clearTimeout(deleteTimeoutRef.current);
+    }
 
     deleteTimeoutRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/content/${id}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("Delete failed");
+        const response = await fetch(`/api/content/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Delete failed");
         lastDeletedIdeaRef.current = null;
-      } catch (err) {
-        console.error("Delayed delete failed:", err);
+      } catch (error) {
+        console.error("Delayed delete failed:", error);
+        showToast("Could not delete idea", "error");
       }
     }, 5000);
 
     showToast("Idea deleted", "success", {
       label: "Undo",
-      onClick: () => handleUndoDelete(),
+      onClick: handleUndoDelete,
     });
   };
 
@@ -342,152 +395,55 @@ export default function IdeasAdminView() {
       promoted_to_portfolio: true,
       promoted_at: new Date().toISOString(),
     };
+
     setIsPromotingId(idea._id);
     try {
-      const res = await fetch(`/api/content/${idea._id}`, {
+      const response = await fetch(`/api/content/${idea._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ payload }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Promotion failed");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Promotion failed");
+
       await fetchIdeas();
-      showToast("Idea promoted to portfolio!", "success");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to promote";
+      showToast("Idea promoted to portfolio", "success");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to promote";
       showToast(message, "error");
     } finally {
       setIsPromotingId(null);
     }
   };
 
-  const filtered = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    return [...ideas].filter((idea) => {
-      if (statusFilter !== "all" && idea.payload.status !== statusFilter)
-        return false;
-      if (priorityFilter !== "all" && idea.payload.priority !== priorityFilter)
-        return false;
-      if (!query) return true;
-      const haystack =
-        `${idea.payload.title} ${idea.payload.description || ""} ${idea.payload.category || ""} ${idea.payload.tags.join(" ")}`.toLowerCase();
-      return haystack.includes(query);
-    });
-  }, [ideas, statusFilter, priorityFilter, searchQuery]);
+  const filtered = useMemo(
+    () =>
+      filterIdeas(ideas, {
+        searchQuery,
+        statusFilter,
+        priorityFilter,
+        categoryFilter,
+      }),
+    [categoryFilter, ideas, priorityFilter, searchQuery, statusFilter],
+  );
 
   const grouped = useMemo(() => {
-    const res = STATUSES.reduce<Record<string, Idea[]>>(
-      (acc, statusKey) => {
-        acc[statusKey] = filtered.filter(
-          (idea) => idea.payload.status === statusKey,
-        );
-        return acc;
-      },
-      {} as Record<string, Idea[]>,
-    );
-    Object.keys(res).forEach((key) => {
-      res[key] = [...res[key]].sort(
+    const result = STATUSES.reduce<Record<string, Idea[]>>((acc, statusKey) => {
+      acc[statusKey] = filtered.filter(
+        (idea) => idea.payload.status === statusKey,
+      );
+      return acc;
+    }, {});
+
+    Object.keys(result).forEach((key) => {
+      result[key] = [...result[key]].sort(
         (a, b) => (a.payload.order || 0) - (b.payload.order || 0),
       );
     });
-    return res;
+
+    return result;
   }, [filtered]);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    dragSnapshotRef.current = ideas;
-    lastOverId.current = null;
-    setActiveId(String(event.active.id));
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeIdStr = String(active.id);
-    const overIdStr = String(over.id);
-    const translatedTop = active.rect.current.translated?.top;
-    const overRect = over.rect;
-    const insertAfter =
-      translatedTop !== undefined
-        ? translatedTop > overRect.top + overRect.height / 2
-        : false;
-
-    setIdeas((prev) => {
-      const nextIdeas = projectIdeaBoardMove({
-        ideas: prev,
-        activeId: activeIdStr,
-        overId: overIdStr,
-        insertAfter,
-      });
-
-      const didChange =
-        nextIdeas.length !== prev.length ||
-        nextIdeas.some(
-          (idea, index) =>
-            idea._id !== prev[index]?._id ||
-            idea.payload.status !== prev[index]?.payload.status ||
-            idea.payload.order !== prev[index]?.payload.order,
-        );
-
-      return didChange ? nextIdeas : prev;
-    });
-  };
-
-  const handleDragCancel = () => {
-    setActiveId(null);
-    lastOverId.current = null;
-
-    if (dragSnapshotRef.current) {
-      setIdeas(dragSnapshotRef.current);
-    }
-
-    dragSnapshotRef.current = null;
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    lastOverId.current = null;
-
-    if (!over) {
-      if (dragSnapshotRef.current) {
-        setIdeas(dragSnapshotRef.current);
-      }
-      dragSnapshotRef.current = null;
-      return;
-    }
-
-    const activeIdStr = String(active.id);
-    const overIdStr = String(over.id);
-
-    if (overIdStr === "delete") {
-      if (dragSnapshotRef.current) {
-        setIdeas(dragSnapshotRef.current);
-      }
-      dragSnapshotRef.current = null;
-      setConfirmDeleteId(activeIdStr);
-      return;
-    }
-
-    setIdeas((prev) => {
-      const translatedTop = active.rect.current.translated?.top;
-      const insertAfter =
-        translatedTop !== undefined
-          ? translatedTop > over.rect.top + over.rect.height / 2
-          : false;
-      const nextIdeas = projectIdeaBoardMove({
-        ideas: prev,
-        activeId: activeIdStr,
-        overId: overIdStr,
-        insertAfter,
-      });
-
-      void handleReorder(nextIdeas);
-      return nextIdeas;
-    });
-
-    dragSnapshotRef.current = null;
-  };
 
   const collisionDetectionStrategy = useCallback<CollisionDetection>(
     (args) => {
@@ -539,24 +495,123 @@ export default function IdeasAdminView() {
     [grouped, ideas, statusFilter],
   );
 
-  const activeIdea = activeId ? ideas.find((i) => i._id === activeId) : null;
+  const handleDragStart = (event: DragStartEvent) => {
+    dragSnapshotRef.current = ideas;
+    lastOverId.current = null;
+    setActiveId(String(event.active.id));
+  };
 
-  const stats = useMemo(() => {
-    const total = ideas.length;
-    const promoted = ideas.filter(
-      (i) => i.payload.promoted_to_portfolio,
-    ).length;
-    const active = ideas.filter((i) =>
-      ["raw", "exploring"].includes(i.payload.status),
-    ).length;
-    const archived = ideas.filter(
-      (i) => i.payload.status === "archived",
-    ).length;
-    const highPriority = ideas.filter(
-      (i) => i.payload.priority === "high" && i.payload.status !== "archived",
-    ).length;
-    return { total, promoted, active, archived, highPriority };
-  }, [ideas]);
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const translatedTop = active.rect.current.translated?.top;
+    const insertAfter =
+      translatedTop !== undefined
+        ? translatedTop > over.rect.top + over.rect.height / 2
+        : false;
+
+    setIdeas((prev) => {
+      const nextIdeas = projectIdeaBoardMove({
+        ideas: prev,
+        activeId: String(active.id),
+        overId: String(over.id),
+        insertAfter,
+      });
+
+      const didChange =
+        nextIdeas.length !== prev.length ||
+        nextIdeas.some(
+          (idea, index) =>
+            idea._id !== prev[index]?._id ||
+            idea.payload.status !== prev[index]?.payload.status ||
+            idea.payload.order !== prev[index]?.payload.order,
+        );
+
+      return didChange ? nextIdeas : prev;
+    });
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+    lastOverId.current = null;
+
+    if (dragSnapshotRef.current) {
+      setIdeas(dragSnapshotRef.current);
+    }
+
+    dragSnapshotRef.current = null;
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+    lastOverId.current = null;
+
+    if (!over) {
+      if (dragSnapshotRef.current) {
+        setIdeas(dragSnapshotRef.current);
+      }
+      dragSnapshotRef.current = null;
+      return;
+    }
+
+    const activeIdStr = String(active.id);
+    const overIdStr = String(over.id);
+
+    if (overIdStr === "delete") {
+      if (dragSnapshotRef.current) {
+        setIdeas(dragSnapshotRef.current);
+      }
+      dragSnapshotRef.current = null;
+      setConfirmDeleteId(activeIdStr);
+      return;
+    }
+
+    setIdeas((prev) => {
+      const translatedTop = active.rect.current.translated?.top;
+      const insertAfter =
+        translatedTop !== undefined
+          ? translatedTop > over.rect.top + over.rect.height / 2
+          : false;
+      const nextIdeas = projectIdeaBoardMove({
+        ideas: prev,
+        activeId: activeIdStr,
+        overId: overIdStr,
+        insertAfter,
+      });
+
+      void handleReorder(nextIdeas);
+      return nextIdeas;
+    });
+
+    dragSnapshotRef.current = null;
+  };
+
+  const stats = useMemo(() => getIdeaMetrics(ideas), [ideas]);
+  const spotlight = useMemo(() => getIdeaSpotlight(ideas), [ideas]);
+  const reviewQueue = useMemo(() => getIdeaReviewQueue(ideas), [ideas]);
+  const categoryOptions = useMemo(
+    () => getIdeaCategoryOptions(ideas, settings.categories),
+    [ideas, settings.categories],
+  );
+  const activeIdea = activeId
+    ? ideas.find((idea) => idea._id === activeId)
+    : null;
+  const sortedFiltered = useMemo(
+    () => sortIdeasForReview(filtered),
+    [filtered],
+  );
+
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    statusFilter !== "all" ||
+    priorityFilter !== "all" ||
+    categoryFilter !== "all";
+
+  if (!settingsLoaded) {
+    return <AdminModuleSkeleton />;
+  }
 
   return (
     <DndContext
@@ -567,212 +622,41 @@ export default function IdeasAdminView() {
       onDragCancel={handleDragCancel}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-6 relative">
-        {/* Header */}
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-          <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl animate-pulse" />
-          <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-success/10 blur-3xl" />
+      <div className="relative space-y-6">
+        <IdeaDashboardHeader
+          showSettings={showSettings}
+          stats={stats}
+          spotlight={spotlight}
+          onToggleSettings={() => setShowSettings((prev) => !prev)}
+          onCreateIdea={() => {
+            resetForm();
+            setShowForm(true);
+          }}
+        />
 
-          <div className="relative space-y-4">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
-                  Idea Dump
-                </h1>
-                <p className="text-zinc-400 mt-1">
-                  Capture raw thoughts, evolve them in pipeline, and promote
-                  winners to execution.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 md:pt-1">
-                <button
-                  onClick={() => setShowSettings((prev) => !prev)}
-                  className={cn(
-                    "px-3 py-2.5 rounded-xl text-sm transition-colors",
-                    showSettings
-                      ? "bg-accent/15 text-accent"
-                      : "bg-zinc-800 text-zinc-400 hover:text-zinc-300",
-                  )}
-                  aria-label="Toggle settings"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => {
-                    resetForm();
-                    setShowForm(true);
-                  }}
-                  className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
-                >
-                  <Plus className="w-4 h-4" /> New Idea
-                </button>
-              </div>
-            </div>
+        {showSettings ? (
+          <IdeaSettingsPanel
+            categories={settings.categories}
+            defaultPriority={settings.defaultPriority}
+            defaultStatus={settings.defaultStatus}
+            newCategory={newCategory}
+            saving={settingsSaving}
+            onDefaultPriorityChange={(value) =>
+              updateSettings({ defaultPriority: value })
+            }
+            onDefaultStatusChange={(value) =>
+              updateSettings({ defaultStatus: value })
+            }
+            onNewCategoryChange={setNewCategory}
+            onCategoriesChange={(categories) =>
+              updateSettings({
+                categories: normalizeIdeaCategories(categories),
+              })
+            }
+          />
+        ) : null}
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
-                <p className="text-xs text-zinc-500">Total</p>
-                <p className="text-lg font-semibold text-zinc-50">
-                  {stats.total}
-                </p>
-              </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
-                <p className="text-xs text-zinc-500">Active Pipeline</p>
-                <p className="text-lg font-semibold text-zinc-50">
-                  {stats.active}
-                </p>
-              </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
-                <p className="text-xs text-zinc-500">High Priority</p>
-                <p className="text-lg font-semibold text-danger">
-                  {stats.highPriority}
-                </p>
-              </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
-                <p className="text-xs text-zinc-500">Promoted</p>
-                <p className="text-lg font-semibold text-success">
-                  {stats.promoted}
-                </p>
-              </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
-                <p className="text-xs text-zinc-500">Archived</p>
-                <p className="text-lg font-semibold text-zinc-300">
-                  {stats.archived}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Settings panel */}
-        {showSettings && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 animate-fade-in-up space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-50">
-                Ideas Settings
-              </h2>
-              {settingsSaving && (
-                <span className="text-xs text-accent flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Saved
-                </span>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="idea-default-status"
-                  className="block text-xs text-zinc-500 mb-1.5"
-                >
-                  Default Status
-                </label>
-                <select
-                  id="idea-default-status"
-                  value={settings.defaultStatus}
-                  onChange={(e) =>
-                    updateSettings({ defaultStatus: e.target.value })
-                  }
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {IDEA_STATUS_LABELS[s]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="idea-default-priority"
-                  className="block text-xs text-zinc-500 mb-1.5"
-                >
-                  Default Priority
-                </label>
-                <select
-                  id="idea-default-priority"
-                  value={settings.defaultPriority}
-                  onChange={(e) =>
-                    updateSettings({ defaultPriority: e.target.value })
-                  }
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs text-zinc-500 mb-2">
-                Quick Categories
-              </label>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {settings.categories.map((cat: string) => (
-                  <span
-                    key={cat}
-                    className="flex items-center gap-1 px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-300"
-                  >
-                    {cat}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateSettings({
-                          categories: settings.categories.filter(
-                            (item: string) => item !== cat,
-                          ),
-                        })
-                      }
-                      className="text-zinc-500 hover:text-danger ml-0.5"
-                      aria-label={`Remove ${cat} category`}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  id="new-category-input"
-                  type="text"
-                  value={newCat}
-                  onChange={(e) => setNewCat(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      if (newCat.trim()) {
-                        updateSettings({
-                          categories: [...settings.categories, newCat.trim()],
-                        });
-                        setNewCat("");
-                      }
-                    }
-                  }}
-                  placeholder="New category"
-                  aria-label="New category name"
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (newCat.trim()) {
-                      updateSettings({
-                        categories: [...settings.categories, newCat.trim()],
-                      });
-                      setNewCat("");
-                    }
-                  }}
-                  disabled={!newCat.trim()}
-                  className="px-4 py-2 bg-accent hover:bg-accent-hover disabled:opacity-40 text-zinc-50 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Form panel */}
-        {showForm && (
+        {showForm ? (
           <IdeaFormPanel
             editingId={editingId}
             title={title}
@@ -791,13 +675,54 @@ export default function IdeasAdminView() {
             setTagsInput={setTagsInput}
             isSubmitting={isSubmitting}
             formError={formError}
-            categories={settings.categories}
+            categories={categoryOptions}
             onSubmit={handleSubmit}
             onCancel={resetForm}
           />
-        )}
+        ) : null}
 
-        {/* Filters */}
+        {reviewQueue.length > 0 ? (
+          <section className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-zinc-50">
+                  Review Queue
+                </h2>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Highest-signal ideas surfaced so they do not get buried.
+                </p>
+              </div>
+              {stats.reviewCount > reviewQueue.length ? (
+                <span className="text-xs text-zinc-500">
+                  {stats.reviewCount - reviewQueue.length} more high-priority
+                  idea{stats.reviewCount - reviewQueue.length === 1 ? "" : "s"}
+                </span>
+              ) : null}
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {reviewQueue.map((idea) => (
+                <button
+                  key={idea._id}
+                  type="button"
+                  onClick={() => setSelectedIdea(idea)}
+                  className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 text-left transition-colors hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-accent/35"
+                >
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                    {IDEA_STATUS_LABELS[idea.payload.status]} ·{" "}
+                    {idea.payload.priority}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-zinc-50">
+                    {idea.payload.title}
+                  </p>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">
+                    {idea.payload.description || "No description yet."}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <IdeaFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -805,18 +730,31 @@ export default function IdeasAdminView() {
           onStatusChange={setStatusFilter}
           priorityFilter={priorityFilter}
           onPriorityChange={setPriorityFilter}
+          categoryFilter={categoryFilter}
+          onCategoryChange={setCategoryFilter}
+          categoryOptions={categoryOptions}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
         />
 
-        {/* Content */}
         {loading ? (
           <KanbanSkeleton />
         ) : filtered.length === 0 ? (
-          <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <Lightbulb className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>No ideas match current filters.</p>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 py-14 text-center text-zinc-500">
+            <Lightbulb className="mx-auto mb-3 h-10 w-10 opacity-30" />
+            <p>No ideas match the current filters.</p>
+            {hasActiveFilters ? (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-50"
+              >
+                Reset filters
+              </button>
+            ) : null}
           </div>
         ) : statusFilter === "all" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
             {STATUSES.map((statusItem) => (
               <DroppableColumn
                 key={statusItem}
@@ -827,7 +765,7 @@ export default function IdeasAdminView() {
               >
                 <SortableContext
                   id={statusItem}
-                  items={(grouped[statusItem] || []).map((i) => i._id)}
+                  items={(grouped[statusItem] || []).map((idea) => idea._id)}
                   strategy={verticalListSortingStrategy}
                 >
                   {(grouped[statusItem] || []).map((idea) => (
@@ -847,8 +785,8 @@ export default function IdeasAdminView() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((idea) => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {sortedFiltered.map((idea) => (
               <SortableIdeaCard
                 key={idea._id}
                 idea={idea}

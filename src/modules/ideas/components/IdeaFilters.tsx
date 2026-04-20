@@ -18,6 +18,11 @@ interface IdeaFiltersProps {
   onStatusChange: (v: string) => void;
   priorityFilter: string;
   onPriorityChange: (v: string) => void;
+  categoryFilter: string;
+  onCategoryChange: (v: string) => void;
+  categoryOptions: string[];
+  onClearFilters: () => void;
+  hasActiveFilters: boolean;
 }
 
 export default function IdeaFilters({
@@ -27,6 +32,11 @@ export default function IdeaFilters({
   onStatusChange,
   priorityFilter,
   onPriorityChange,
+  categoryFilter,
+  onCategoryChange,
+  categoryOptions,
+  onClearFilters,
+  hasActiveFilters,
 }: IdeaFiltersProps) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3">
@@ -74,6 +84,7 @@ export default function IdeaFilters({
         <div className="flex items-center gap-2 flex-wrap">
           {PRIORITIES.map((p) => (
             <button
+              type="button"
               key={p}
               onClick={() => onPriorityChange(p)}
               className={cn(
@@ -89,6 +100,30 @@ export default function IdeaFilters({
             </button>
           ))}
         </div>
+
+        <select
+          value={categoryFilter}
+          onChange={(event) => onCategoryChange(event.target.value)}
+          aria-label="Filter by category"
+          className="min-w-[180px] rounded-xl border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-accent/35"
+        >
+          <option value="all">All Categories</option>
+          {categoryOptions.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+
+        {hasActiveFilters ? (
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:text-zinc-200"
+          >
+            Clear filters
+          </button>
+        ) : null}
       </div>
     </div>
   );

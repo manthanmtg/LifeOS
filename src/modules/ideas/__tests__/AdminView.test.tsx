@@ -57,7 +57,9 @@ describe("IdeasAdminView", () => {
   it("opens modal details from an admin idea card and closes on backdrop click", async () => {
     render(<IdeasAdminView />);
 
-    await screen.findByText(/portfolio teaser video/i);
+    await screen.findByRole("button", {
+      name: /open details for portfolio teaser video/i,
+    });
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -80,5 +82,27 @@ describe("IdeasAdminView", () => {
         screen.queryByRole("dialog", { name: /portfolio teaser video/i }),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it("filters ideas by category and clears filters", async () => {
+    render(<IdeasAdminView />);
+
+    await screen.findByRole("button", {
+      name: /open details for portfolio teaser video/i,
+    });
+
+    fireEvent.change(screen.getByLabelText(/filter by category/i), {
+      target: { value: "Creative" },
+    });
+
+    expect(
+      screen.getByRole("button", {
+        name: /open details for portfolio teaser video/i,
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /clear filters/i }));
+
+    expect(screen.getByLabelText(/filter by category/i)).toHaveValue("all");
   });
 });

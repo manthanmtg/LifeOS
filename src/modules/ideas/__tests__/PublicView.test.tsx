@@ -45,4 +45,31 @@ describe("IdeasPublicView", () => {
       screen.queryByRole("dialog", { name: /arabic-first onboarding/i }),
     ).not.toBeInTheDocument();
   });
+
+  it("filters by category and clears the filters", () => {
+    render(<IdeasPublicView items={publicIdeas} />);
+
+    fireEvent.change(
+      screen.getByRole("combobox", {
+        name: /filter public ideas by category/i,
+      }),
+      {
+        target: { value: "Product" },
+      },
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: /open details for arabic-first onboarding/i,
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /clear filters/i }));
+
+    expect(
+      screen.getByRole("combobox", {
+        name: /filter public ideas by category/i,
+      }),
+    ).toHaveValue("all");
+  });
 });

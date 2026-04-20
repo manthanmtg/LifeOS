@@ -114,6 +114,7 @@ export const BookSchema = z.object({
 export const IdeaSchema = z.object({
   title: z.string().min(1, "Idea title is required"),
   description: z.string().optional(),
+  notes: z.string().optional(),
   category: z.string().optional(),
   status: z.enum(["raw", "exploring", "archived"]).default("raw"),
   tags: z.array(z.string()).default([]),

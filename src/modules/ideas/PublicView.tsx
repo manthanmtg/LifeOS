@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Lightbulb, Search } from "lucide-react";
+import { Lightbulb, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import IdeaDetailsModal from "./IdeaDetailsModal";
 import {
@@ -10,6 +10,13 @@ import {
   IDEA_STATUS_STYLES,
   type IdeaRecord,
 } from "./shared";
+import {
+  filterIdeas,
+  getIdeaCategoryOptions,
+  getIdeaMetrics,
+  getIdeaSpotlight,
+  sortIdeasForReview,
+} from "./insights";
 
 export default function IdeasPublicView({
   items,
@@ -18,36 +25,32 @@ export default function IdeasPublicView({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedIdea, setSelectedIdea] = useState<IdeaRecord | null>(null);
 
   const ideas = (items as unknown as IdeaRecord[]).filter(
     (idea) => idea.payload.status !== "archived",
   );
 
-  const stats = useMemo(() => {
-    const total = ideas.length;
-    const promoted = ideas.filter(
-      (idea) => idea.payload.promoted_to_portfolio,
-    ).length;
-    const exploring = ideas.filter(
-      (idea) => idea.payload.status === "exploring",
-    ).length;
-    return { total, promoted, exploring };
-  }, [ideas]);
+  const stats = useMemo(() => getIdeaMetrics(ideas), [ideas]);
+  const spotlight = useMemo(() => getIdeaSpotlight(ideas), [ideas]);
+  const categoryOptions = useMemo(() => getIdeaCategoryOptions(ideas), [ideas]);
 
   const filtered = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    return sortIdeasForReview(
+      filterIdeas(ideas, {
+        searchQuery,
+        statusFilter,
+        priorityFilter: "all",
+        categoryFilter,
+      }),
+    );
+  }, [categoryFilter, ideas, searchQuery, statusFilter]);
 
-    return ideas.filter((idea) => {
-      if (statusFilter !== "all" && idea.payload.status !== statusFilter)
-        return false;
-      if (!query) return true;
-
-      const haystack =
-        `${idea.payload.title} ${idea.payload.description || ""} ${idea.payload.category || ""} ${idea.payload.tags.join(" ")}`.toLowerCase();
-      return haystack.includes(query);
-    });
-  }, [ideas, statusFilter, searchQuery]);
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    statusFilter !== "all" ||
+    categoryFilter !== "all";
 
   if (ideas.length === 0) {
     return (
@@ -64,31 +67,85 @@ export default function IdeasPublicView({
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
         <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-success/10 blur-3xl" />
 
-        <div className="relative space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">
-            Explorations, concepts, and projects in motion.
-          </h2>
+        <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">
+              Explorations, concepts, and projects in motion.
+            </h2>
+            <p className="max-w-2xl text-sm leading-6 text-zinc-400">
+              Browse public ideas by status, search for specific concepts, and
+              jump into the details that have enough momentum to matter.
+            </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Visible Ideas</p>
-              <p className="text-lg font-semibold text-zinc-50">
-                {stats.total}
-              </p>
-            </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Promoted</p>
-              <p className="text-lg font-semibold text-success">
-                {stats.promoted}
-              </p>
-            </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Exploring</p>
-              <p className="text-lg font-semibold text-accent">
-                {stats.exploring}
-              </p>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
+                <p className="text-xs text-zinc-500">Visible Ideas</p>
+                <p className="text-lg font-semibold text-zinc-50">
+                  {stats.total}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
+                <p className="text-xs text-zinc-500">Promoted</p>
+                <p className="text-lg font-semibold text-success">
+                  {stats.promoted}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
+                <p className="text-xs text-zinc-500">Exploring</p>
+                <p className="text-lg font-semibold text-accent">
+                  {stats.exploring}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
+                <p className="text-xs text-zinc-500">Top Category</p>
+                <p className="text-lg font-semibold text-zinc-50">
+                  {stats.topCategory ?? "Open"}
+                </p>
+              </div>
             </div>
           </div>
+
+          {spotlight ? (
+            <div className="rounded-2xl border border-accent/20 bg-zinc-950/70 p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-accent/10 p-2 text-accent">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                    Featured Idea
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-zinc-50">
+                    {spotlight.payload.title}
+                  </p>
+                  {spotlight.payload.description ? (
+                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-400">
+                      {spotlight.payload.description}
+                    </p>
+                  ) : null}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span
+                      className={cn(
+                        "rounded-full border px-2 py-1 text-[11px] font-medium",
+                        IDEA_STATUS_STYLES[spotlight.payload.status],
+                      )}
+                    >
+                      {IDEA_STATUS_LABELS[spotlight.payload.status]}
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-full border px-2 py-1 text-[11px] font-medium capitalize",
+                        IDEA_PRIORITY_STYLES[spotlight.payload.priority] ??
+                          IDEA_PRIORITY_STYLES.medium,
+                      )}
+                    >
+                      {spotlight.payload.priority}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -106,6 +163,7 @@ export default function IdeasPublicView({
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <button
+              type="button"
               onClick={() => setStatusFilter("all")}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs border transition-colors",
@@ -118,6 +176,7 @@ export default function IdeasPublicView({
             </button>
             {["raw", "exploring"].map((status) => (
               <button
+                type="button"
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={cn(
@@ -131,6 +190,32 @@ export default function IdeasPublicView({
               </button>
             ))}
           </div>
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            aria-label="Filter public ideas by category"
+            className="min-w-[180px] rounded-xl border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-accent/35"
+          >
+            <option value="all">All categories</option>
+            {categoryOptions.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+                setCategoryFilter("all");
+              }}
+              className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:text-zinc-200"
+            >
+              Clear filters
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -138,6 +223,19 @@ export default function IdeasPublicView({
         <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
           <Lightbulb className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>No ideas found for current filters.</p>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+                setCategoryFilter("all");
+              }}
+              className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-50"
+            >
+              Reset filters
+            </button>
+          ) : null}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
