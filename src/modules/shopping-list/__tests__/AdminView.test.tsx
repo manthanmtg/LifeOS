@@ -24,7 +24,7 @@ describe("ShoppingListAdminView", () => {
   });
 
   it("renders the Shopping List view", async () => {
-    render(<ShoppingListAdminView />);
+    render(React.createElement(ShoppingListAdminView));
     await waitFor(
       () => {
         expect(screen.queryByText(/Loading/i)).toBeNull();
