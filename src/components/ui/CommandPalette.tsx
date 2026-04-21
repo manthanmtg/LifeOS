@@ -182,6 +182,7 @@ export default function CommandPalette() {
             exit={{ opacity: 0 }}
             onClick={() => setOpen(false)}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+            aria-hidden="true"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -189,6 +190,9 @@ export default function CommandPalette() {
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.15 }}
             className="fixed top-[20%] left-1/2 -translate-x-1/2 w-full max-w-lg z-[101]"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command palette"
           >
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
               {/* Search input */}
@@ -205,6 +209,10 @@ export default function CommandPalette() {
                   }}
                   onKeyDown={handleKeyDown}
                   className="flex-1 bg-transparent py-4 text-sm text-zinc-100 placeholder-zinc-500 outline-none"
+                  aria-label="Search commands"
+                  aria-autocomplete="list"
+                  aria-controls="command-results"
+                  aria-activedescendant={filtered[selectedIndex]?.id}
                 />
                 <kbd className="text-[10px] text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700 font-mono">
                   ESC
@@ -212,7 +220,12 @@ export default function CommandPalette() {
               </div>
 
               {/* Results */}
-              <div className="max-h-[320px] overflow-y-auto p-2">
+              <div
+                id="command-results"
+                role="listbox"
+                aria-label="Command results"
+                className="max-h-[320px] overflow-y-auto p-2"
+              >
                 {filtered.length === 0 && (
                   <div className="py-8 text-center text-zinc-500 text-sm">
                     No results found
@@ -223,6 +236,9 @@ export default function CommandPalette() {
                   return (
                     <button
                       key={cmd.id}
+                      id={cmd.id}
+                      role="option"
+                      aria-selected={i === selectedIndex}
                       onClick={() => {
                         cmd.action();
                         setOpen(false);
