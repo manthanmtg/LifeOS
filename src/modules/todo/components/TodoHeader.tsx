@@ -4,7 +4,6 @@ import {
   Home,
   ChevronRight,
   Plus,
-  ListFilter,
   LayoutGrid,
   List,
 } from "lucide-react";

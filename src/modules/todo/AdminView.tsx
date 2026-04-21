@@ -17,13 +17,14 @@ import QuickAddTodo from "./components/QuickAddTodo";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import {
-  ListFilter,
   Search,
   Clock,
   Calendar,
   Flag,
   CheckSquare,
 } from "lucide-react";
+
+const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
 export default function TodoAdminView() {
   const [todos, setTodos] = useState<TodoDocument[]>([]);
@@ -61,8 +62,6 @@ export default function TodoAdminView() {
     type: "success",
     isVisible: false,
   });
-
-  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
   const showToast = useCallback(
     (

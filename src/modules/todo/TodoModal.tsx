@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X, Calendar, AlignLeft, CheckSquare, Save, Flag } from "lucide-react";
 import { TodoDocument, TodoPayload, TodoPriority } from "./types";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface TodoModalProps {
   todo?: TodoDocument;
