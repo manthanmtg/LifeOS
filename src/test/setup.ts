@@ -89,11 +89,48 @@ vi.mock("framer-motion", () => {
           children,
           ...props
         }: { children?: React.ReactNode } & Record<string, unknown>) => {
-          const { initial, animate, exit, transition, ...rest } = props;
+          // Destructure all motion-specific props so they don't leak to the DOM
+          const {
+            initial,
+            animate,
+            exit,
+            transition,
+            layout,
+            layoutId,
+            whileHover,
+            whileTap,
+            whileFocus,
+            drag,
+            dragConstraints,
+            dragElastic,
+            dragMomentum,
+            onDragStart,
+            onDragEnd,
+            onDrag,
+            viewport,
+            variants,
+            ...rest
+          } = props;
+          // Silence unused var warnings
           void initial;
           void animate;
           void exit;
           void transition;
+          void layout;
+          void layoutId;
+          void whileHover;
+          void whileTap;
+          void whileFocus;
+          void drag;
+          void dragConstraints;
+          void dragElastic;
+          void dragMomentum;
+          void onDragStart;
+          void onDragEnd;
+          void onDrag;
+          void viewport;
+          void variants;
+
           return React.createElement(key as string, { ...rest }, children);
         };
       },
@@ -103,13 +140,19 @@ vi.mock("framer-motion", () => {
   return {
     motion: motionProxy,
     AnimatePresence: ({ children }: { children?: React.ReactNode }) => children,
+    useAnimation: () => ({ start: vi.fn(), stop: vi.fn() }),
+    useInView: () => [null, false],
+    useScroll: () => ({
+      scrollY: { get: () => 0 },
+      scrollYProgress: { get: () => 0 },
+    }),
   };
 });
 
 // Mock recharts
 vi.mock("recharts", () => ({
   BarChart: ({ children }: { children?: React.ReactNode }) =>
-    React.createElement("div", {}, children),
+    React.createElement("svg", {}, children),
   Bar: () => null,
   XAxis: () => null,
   YAxis: () => null,
@@ -119,11 +162,11 @@ vi.mock("recharts", () => ({
     React.createElement("div", {}, children),
   Area: () => null,
   AreaChart: ({ children }: { children?: React.ReactNode }) =>
-    React.createElement("div", {}, children),
+    React.createElement("svg", {}, children),
   Cell: () => null,
   Pie: () => null,
   PieChart: ({ children }: { children?: React.ReactNode }) =>
-    React.createElement("div", {}, children),
+    React.createElement("svg", {}, children),
 }));
 
 // Mock ResizeObserver
