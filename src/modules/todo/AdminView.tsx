@@ -16,13 +16,7 @@ import QuickAddTodo from "./components/QuickAddTodo";
 // UI Components
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
-import {
-  Search,
-  Clock,
-  Calendar,
-  Flag,
-  CheckSquare,
-} from "lucide-react";
+import { Search, Clock, Calendar, Flag, CheckSquare } from "lucide-react";
 
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 

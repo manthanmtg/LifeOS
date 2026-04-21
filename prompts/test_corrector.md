@@ -40,4 +40,5 @@ For each failing test, determine the root cause:
 - List which tests were fixed and why in the commit body.
 
 ## Issue Cleanup
+
 If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

@@ -245,7 +245,9 @@ export function useShoppingLists() {
 
     await updateListPayload(listId, {
       ...list.payload,
-      items: list.payload.items.filter((item: ShoppingItem) => item.id !== itemId),
+      items: list.payload.items.filter(
+        (item: ShoppingItem) => item.id !== itemId,
+      ),
     });
   };
 

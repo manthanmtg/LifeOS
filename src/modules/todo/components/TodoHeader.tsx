@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Home,
-  ChevronRight,
-  Plus,
-  LayoutGrid,
-  List,
-} from "lucide-react";
+import { Home, ChevronRight, Plus, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TodoHeaderProps {

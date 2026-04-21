@@ -42,4 +42,5 @@ Pick **one untested or undertested file** and add **5–15 focused Vitest tests*
 - **Maintainable Code**: Keep test code clean and descriptive.
 
 ## Issue Cleanup
+
 If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

@@ -117,10 +117,7 @@ export default function ShoppingListAdminView() {
         onClose={() => setConfirmDeleteId(null)}
       />
 
-      <Toast
-        {...toast}
-        onClose={hideToast}
-      />
+      <Toast {...toast} onClose={hideToast} />
     </div>
   );
 }

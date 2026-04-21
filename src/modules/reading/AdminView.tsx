@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Plus,
-  BookOpen,
-  Settings,
-  RefreshCw,
-  Sparkles,
-} from "lucide-react";
+import { Plus, BookOpen, Settings, RefreshCw, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
-import { ReadingItem, READING_DEFAULTS, ReadingPayload, ReadingSettings } from "./types";
+import {
+  ReadingItem,
+  READING_DEFAULTS,
+  ReadingPayload,
+  ReadingSettings,
+} from "./types";
 import { ReadingMetrics } from "./components/ReadingMetrics";
 import { ReadingSettingsView } from "./components/ReadingSettingsView";
 import { ReadingForm } from "./components/ReadingForm";
@@ -177,16 +176,21 @@ export default function ReadingAdminView() {
   }, [items, statusFilter, typeFilter, searchQuery, tagFilter]);
 
   const readNext = () => {
-    const unreadHigh = items.filter(i => !i.payload.is_read && i.payload.priority === 'high');
-    const source = unreadHigh.length > 0 ? unreadHigh : items.filter(i => !i.payload.is_read);
-    
+    const unreadHigh = items.filter(
+      (i) => !i.payload.is_read && i.payload.priority === "high",
+    );
+    const source =
+      unreadHigh.length > 0
+        ? unreadHigh
+        : items.filter((i) => !i.payload.is_read);
+
     if (source.length === 0) {
       alert("No unread items in your queue!");
       return;
     }
-    
+
     const random = source[Math.floor(Math.random() * source.length)];
-    window.open(random.payload.url, '_blank');
+    window.open(random.payload.url, "_blank");
   };
 
   return (
@@ -305,7 +309,7 @@ export default function ReadingAdminView() {
           <span>Loading queue...</span>
         </div>
       ) : filtered.length === 0 ? (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"

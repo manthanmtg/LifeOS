@@ -51,7 +51,9 @@ export function ReadingSettingsView({
             id="reading-default-priority"
             value={settings.defaultPriority}
             onChange={(event) =>
-              updateSettings({ defaultPriority: event.target.value as Priority })
+              updateSettings({
+                defaultPriority: event.target.value as Priority,
+              })
             }
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
           >
@@ -86,7 +88,9 @@ export function ReadingSettingsView({
         </div>
       </div>
       <div>
-        <label className="block text-xs text-zinc-500 mb-2">Content Types</label>
+        <label className="block text-xs text-zinc-500 mb-2">
+          Content Types
+        </label>
         <div className="flex flex-wrap gap-2 mb-3">
           {allTypes.map((item) => (
             <span

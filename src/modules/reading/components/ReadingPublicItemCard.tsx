@@ -31,7 +31,9 @@ export function ReadingPublicItemCard({ item }: ReadingPublicItemCardProps) {
           <p
             className={cn(
               "text-sm font-medium truncate",
-              item.payload.is_read ? "text-zinc-500 line-through" : "text-zinc-50",
+              item.payload.is_read
+                ? "text-zinc-500 line-through"
+                : "text-zinc-50",
             )}
           >
             {item.payload.title}
@@ -59,7 +61,9 @@ export function ReadingPublicItemCard({ item }: ReadingPublicItemCardProps) {
 
         <div className="flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
           {item.payload.source_domain && (
-            <span className="font-medium text-zinc-400">{item.payload.source_domain}</span>
+            <span className="font-medium text-zinc-400">
+              {item.payload.source_domain}
+            </span>
           )}
           {item.payload.notes && (
             <span className="line-clamp-1 italic text-zinc-500">

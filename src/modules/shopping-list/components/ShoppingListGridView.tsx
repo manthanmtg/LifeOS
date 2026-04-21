@@ -45,7 +45,10 @@ export default function ShoppingListGridView({
   return (
     <>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <form onSubmit={handleCreateSubmit} className="group relative lg:col-span-2">
+        <form
+          onSubmit={handleCreateSubmit}
+          className="group relative lg:col-span-2"
+        >
           <Plus
             className={cn(
               "pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 transition-colors",

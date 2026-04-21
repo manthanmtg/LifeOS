@@ -1,6 +1,13 @@
 "use client";
 
-import { Check, ExternalLink, Pencil, RefreshCw, Trash2, Copy } from "lucide-react";
+import {
+  Check,
+  ExternalLink,
+  Pencil,
+  RefreshCw,
+  Trash2,
+  Copy,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ReadingItem } from "../types";
 import { PRIORITY_ICONS, PRIORITY_STYLES, formatDate } from "../utils";
@@ -69,7 +76,9 @@ export function ReadingItemCard({
           <p
             className={cn(
               "text-sm font-medium truncate max-w-[200px] sm:max-w-md",
-              item.payload.is_read ? "text-zinc-500 line-through" : "text-zinc-50",
+              item.payload.is_read
+                ? "text-zinc-500 line-through"
+                : "text-zinc-50",
             )}
           >
             {item.payload.title}
@@ -97,7 +106,9 @@ export function ReadingItemCard({
 
         <div className="flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
           {item.payload.source_domain && (
-            <span className="font-medium text-zinc-400">{item.payload.source_domain}</span>
+            <span className="font-medium text-zinc-400">
+              {item.payload.source_domain}
+            </span>
           )}
           <span className="hidden sm:inline">•</span>
           <span>Added {formatDate(item.created_at)}</span>
@@ -122,7 +133,11 @@ export function ReadingItemCard({
           className="p-1.5 text-zinc-500 hover:text-accent rounded-md hover:bg-zinc-800 transition-colors"
           title={copied ? "Copied!" : "Copy URL"}
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? (
+            <Check className="w-3.5 h-3.5 text-success" />
+          ) : (
+            <Copy className="w-3.5 h-3.5" />
+          )}
         </button>
         <button
           onClick={() => onEdit(item)}

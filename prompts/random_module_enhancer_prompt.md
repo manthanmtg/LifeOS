@@ -62,6 +62,6 @@ If yes to any of these, **do NOT change code.** Instead, log what you found and 
 - **Smart where it counts**: Trends, sparklines, quick actions, and automations are great — when they solve a real problem. Don't add them just to look clever.
 - **Frictionless actions**: Common tasks should be fast and obvious. Feedback should be immediate.
 
-
 ## Issue Cleanup
+
 If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

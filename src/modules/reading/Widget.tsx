@@ -54,13 +54,15 @@ export default function ReadingWidget() {
         <div className="flex items-end justify-between gap-4">
           <WidgetStat value={stats.unreadCount} label="in queue" />
           <div className="flex flex-col items-end pb-1">
-             <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
               High Priority
             </span>
-            <span className={cn(
-              "text-lg font-semibold",
-              stats.highPriority.length > 0 ? "text-danger" : "text-zinc-500"
-            )}>
+            <span
+              className={cn(
+                "text-lg font-semibold",
+                stats.highPriority.length > 0 ? "text-danger" : "text-zinc-500",
+              )}
+            >
               {stats.highPriority.length}
             </span>
           </div>
@@ -73,9 +75,9 @@ export default function ReadingWidget() {
             subtext="Up next"
           />
         ) : (
-          <WidgetHighlight 
-            icon={Inbox} 
-            text={stats.unreadCount > 0 ? "No high priority" : "Queue empty"} 
+          <WidgetHighlight
+            icon={Inbox}
+            text={stats.unreadCount > 0 ? "No high priority" : "Queue empty"}
             variant="default"
           />
         )}

@@ -32,6 +32,8 @@ describe("SnippetsAdminView", () => {
       { timeout: 2000 },
     );
 
-    expect(screen.getByRole("heading", { name: /Snippet/i, level: 1 })).toBeDefined();
+    expect(
+      screen.getByRole("heading", { name: /Snippet/i, level: 1 }),
+    ).toBeDefined();
   });
 });
