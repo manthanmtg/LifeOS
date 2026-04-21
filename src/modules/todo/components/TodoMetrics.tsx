@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Target, Zap, AlertCircle, TrendingUp } from "lucide-react";
+import { Target, Zap, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { TodoDocument } from "../types";
 

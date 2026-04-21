@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Command, Flag } from "lucide-react";
+import { Plus, Command } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoPriority } from "../types";
 
