@@ -48,3 +48,6 @@ If `pnpm check` fails, identify the stage:
 
 - Commit with a message like: `fix(build): resolve type error in content api route`
 - Keep it factual and specific.
+
+## Issue Cleanup
+If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

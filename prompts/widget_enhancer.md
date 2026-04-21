@@ -37,3 +37,6 @@ Select a random module and ensure its dashboard widget (`Widget.tsx`) is a high-
 - Run `pnpm check` — zero regressions.
 - Create a descriptive, lowercase commit message (e.g., `feat(binge): add loading skeleton to dashboard widget`).
 - Commit and push or create PR as clarified by user.
+
+## Issue Cleanup
+If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

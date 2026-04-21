@@ -23,3 +23,6 @@ Generate a complete, standard-compliant LifeOS module based on a user-provided n
 - Use `SkeletonBlock` and `WidgetSkeleton` for loading states.
 - Ensure all interactive components have `"use client"`.
 - Use the semantic color system (`accent`, `success`, etc.).
+
+## Issue Cleanup
+If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

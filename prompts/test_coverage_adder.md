@@ -44,3 +44,6 @@ Coverage grows like a garden. Each run plants a few seeds. Over many runs, the e
 
 - Commit with a message like: `test(lib/auth): add jwt verification edge case tests`
 - List what was covered in the commit body.
+
+## Issue Cleanup
+If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

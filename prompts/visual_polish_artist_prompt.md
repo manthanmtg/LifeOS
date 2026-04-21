@@ -29,3 +29,6 @@ Pick one random component or module and make **one targeted visual improvement**
 - Make one focused improvement.
 - Run `pnpm check` — zero regressions.
 - Commit with a message like: `style(habits): add glassmorphic card depth to habit list`
+
+## Issue Cleanup
+If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.
