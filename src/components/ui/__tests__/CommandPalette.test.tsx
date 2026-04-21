@@ -55,7 +55,7 @@ describe("CommandPalette", () => {
 
     const input = screen.getByPlaceholderText(/Type a command/i);
     fireEvent.change(input, { target: { value: "settings" } });
-    fireEvent.click(screen.getByRole("button", { name: /Go to Settings/i }));
+    fireEvent.click(screen.getByText(/Go to Settings/i));
 
     expect(routerMocks.push).toHaveBeenCalledWith("/admin/settings");
   });
