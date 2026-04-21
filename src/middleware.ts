@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-export default async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // If logged in and visiting /, redirect to /admin dashboard
@@ -41,6 +41,9 @@ export default async function proxy(request: NextRequest) {
     path.startsWith("/api/export") ||
     path.startsWith("/api/import") ||
     path.startsWith("/api/db-stats") ||
+    path.startsWith("/api/widgets") ||
+    path.startsWith("/api/maintenance") ||
+    path.startsWith("/api/module-info") ||
     (path.startsWith("/api/metrics") && request.method === "GET") ||
     (path.startsWith("/api/content") && request.method !== "GET") ||
     (path.startsWith("/api/bills") && request.method !== "GET");

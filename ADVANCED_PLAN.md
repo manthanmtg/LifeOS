@@ -143,7 +143,7 @@ These were deferred from PLAN.md and should be completed first.
 
 > Current analytics manually logs events. Needs automatic tracking + richer views.
 
-- [ ] **Auto-tracking middleware** in `proxy.ts`:
+- [ ] **Auto-tracking middleware** in `middleware.ts`:
   - On every public page request, auto-POST to `/api/metrics`
   - Parse `User-Agent` for device type (regex or `ua-parser-js`)
   - Debounce: skip same IP + path within 30s (use in-memory Map with TTL)
