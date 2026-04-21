@@ -10,10 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ItemSection from "./ItemSection";
-import {
-  parseSmartEntry,
-  partitionItems,
-} from "../helpers";
+import { parseSmartEntry, partitionItems } from "../helpers";
 import { ShoppingListDocument } from "../types";
 
 interface ShoppingListDetailViewProps {
@@ -146,9 +143,7 @@ export default function ShoppingListDetailView({
                     </span>
                   ) : null}
                   {parsedQuickAdd.unit ? (
-                    <span className="text-zinc-400">
-                      {parsedQuickAdd.unit}
-                    </span>
+                    <span className="text-zinc-400">{parsedQuickAdd.unit}</span>
                   ) : null}
                 </p>
               </div>
@@ -165,9 +160,7 @@ export default function ShoppingListDetailView({
           emptyMessage="Nothing left to buy."
           listId={list._id}
           purchased={false}
-          suggestions={
-            !list.payload.is_completed ? suggestions : []
-          }
+          suggestions={!list.payload.is_completed ? suggestions : []}
           onSuggestionSelect={(suggestion) => onAddItem(list._id, suggestion)}
           onToggleItem={onToggleItem}
           onDeleteItem={onDeleteItem}

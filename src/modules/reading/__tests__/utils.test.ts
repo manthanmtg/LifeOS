@@ -4,8 +4,12 @@ import { extractDomain, formatDate } from "../utils";
 describe("reading utils", () => {
   describe("extractDomain", () => {
     it("extracts domain from url", () => {
-      expect(extractDomain("https://www.google.com/search?q=test")).toBe("google.com");
-      expect(extractDomain("https://github.com/manthanmtg/LifeOS")).toBe("github.com");
+      expect(extractDomain("https://www.google.com/search?q=test")).toBe(
+        "google.com",
+      );
+      expect(extractDomain("https://github.com/manthanmtg/LifeOS")).toBe(
+        "github.com",
+      );
     });
 
     it("returns empty string for invalid url", () => {

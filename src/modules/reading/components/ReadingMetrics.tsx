@@ -27,7 +27,11 @@ export function ReadingMetrics({ items }: ReadingMetricsProps) {
         color: "text-danger",
       },
       { label: "Completed", value: read, color: "text-success" },
-      { label: "Read Rate", value: `${readRate.toFixed(0)}%`, color: "text-zinc-50" },
+      {
+        label: "Read Rate",
+        value: `${readRate.toFixed(0)}%`,
+        color: "text-zinc-50",
+      },
     ];
   }, [items]);
 
@@ -42,9 +46,7 @@ export function ReadingMetrics({ items }: ReadingMetricsProps) {
           className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5"
         >
           <p className="text-xs text-zinc-500">{stat.label}</p>
-          <p className={`text-lg font-semibold ${stat.color}`}>
-            {stat.value}
-          </p>
+          <p className={`text-lg font-semibold ${stat.color}`}>{stat.value}</p>
         </motion.div>
       ))}
     </div>

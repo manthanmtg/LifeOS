@@ -150,9 +150,11 @@ After making UI changes, use the **Playwright MCP** to visually verify that noth
 ### Step-by-Step
 
 1. **Start the dev server** (if not already running):
+
    ```bash
    pnpm dev -p 3512
    ```
+
    Wait until you see `✓ Ready` in the output.
 
 2. **Navigate to the page under test** using Playwright MCP's `browser_navigate`:
@@ -180,12 +182,12 @@ After making UI changes, use the **Playwright MCP** to visually verify that noth
 
 ### Key Pages to Check
 
-| Page | URL | What to verify |
-|---|---|---|
-| Dashboard | `/admin` | Widget grid renders, no overflow, all widgets load |
-| Modified module | `/admin/<slug>` | CRUD works, forms render, data displays |
-| Public home | `/` | Portfolio renders, no auth required |
-| Blog (if changed) | `/blog` | Post list loads, post detail renders |
+| Page              | URL             | What to verify                                     |
+| ----------------- | --------------- | -------------------------------------------------- |
+| Dashboard         | `/admin`        | Widget grid renders, no overflow, all widgets load |
+| Modified module   | `/admin/<slug>` | CRUD works, forms render, data displays            |
+| Public home       | `/`             | Portfolio renders, no auth required                |
+| Blog (if changed) | `/blog`         | Post list loads, post detail renders               |
 
 ### Tips
 

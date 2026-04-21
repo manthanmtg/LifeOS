@@ -39,4 +39,5 @@ Pick **one random module or core directory** and ensure its documentation is acc
 - **Accuracy**: Double-check that types and descriptions match the actual code.
 
 ## Issue Cleanup
+
 If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.

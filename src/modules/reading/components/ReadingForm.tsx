@@ -78,9 +78,15 @@ export function ReadingForm({
           <X className="w-5 h-5" />
         </button>
       </div>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         <div className="md:col-span-2">
-          <label htmlFor="reading-url" className="block text-xs text-zinc-500 mb-1.5">
+          <label
+            htmlFor="reading-url"
+            className="block text-xs text-zinc-500 mb-1.5"
+          >
             URL
           </label>
           <input
@@ -96,7 +102,10 @@ export function ReadingForm({
           />
         </div>
         <div>
-          <label htmlFor="reading-title" className="block text-xs text-zinc-500 mb-1.5">
+          <label
+            htmlFor="reading-title"
+            className="block text-xs text-zinc-500 mb-1.5"
+          >
             Title
           </label>
           <input
@@ -112,7 +121,10 @@ export function ReadingForm({
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <label htmlFor="reading-priority" className="block text-xs text-zinc-500 mb-1.5">
+            <label
+              htmlFor="reading-priority"
+              className="block text-xs text-zinc-500 mb-1.5"
+            >
               Priority
             </label>
             <select
@@ -130,7 +142,10 @@ export function ReadingForm({
             </select>
           </div>
           <div className="flex-1">
-            <label htmlFor="reading-type" className="block text-xs text-zinc-500 mb-1.5">
+            <label
+              htmlFor="reading-type"
+              className="block text-xs text-zinc-500 mb-1.5"
+            >
               Type
             </label>
             <select
@@ -149,7 +164,10 @@ export function ReadingForm({
           </div>
         </div>
         <div className="md:col-span-2">
-          <label htmlFor="reading-notes" className="block text-xs text-zinc-500 mb-1.5">
+          <label
+            htmlFor="reading-notes"
+            className="block text-xs text-zinc-500 mb-1.5"
+          >
             Notes (optional)
           </label>
           <textarea
@@ -163,7 +181,10 @@ export function ReadingForm({
           />
         </div>
         <div className="md:col-span-2">
-          <label htmlFor="reading-tags" className="block text-xs text-zinc-500 mb-1.5">
+          <label
+            htmlFor="reading-tags"
+            className="block text-xs text-zinc-500 mb-1.5"
+          >
             Tags (optional, comma separated)
           </label>
           <input
@@ -178,9 +199,7 @@ export function ReadingForm({
         </div>
         <div className="md:col-span-2 flex justify-end gap-3">
           {formError && (
-            <span className="text-danger text-xs self-center">
-              {formError}
-            </span>
+            <span className="text-danger text-xs self-center">{formError}</span>
           )}
           <button
             type="submit"
