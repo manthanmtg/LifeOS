@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
@@ -127,11 +127,11 @@ export default function GlobalModuleSearch({
       .catch(() => setConfig(null));
   }, []);
 
-  const modules = getOrderedAdminModules(config);
+  const modules = useMemo(() => getOrderedAdminModules(config), [config]);
   const hasQuery = query.trim().length > 0;
-  const results = getModuleSearchResults(modules, query).slice(
-    0,
-    hasQuery ? 8 : 6,
+  const results = useMemo(
+    () => getModuleSearchResults(modules, query).slice(0, hasQuery ? 8 : 6),
+    [modules, query, hasQuery],
   );
   const showResults = focused || hasQuery;
   const activeIndex =

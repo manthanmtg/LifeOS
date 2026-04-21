@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
 import {
   LayoutDashboard,
@@ -150,17 +150,24 @@ export default function AdminSidebar() {
     if (apple) apple.href = config.site_icon;
   }, [config?.site_icon]);
 
-  const sortedModules = getOrderedAdminModules(config).map((module) => ({
-    href: module.href,
-    name: module.name,
-    icon: IconMap[module.icon] || User,
-  }));
+  const sortedModules = useMemo(
+    () =>
+      getOrderedAdminModules(config).map((module) => ({
+        href: module.href,
+        name: module.name,
+        icon: IconMap[module.icon] || User,
+      })),
+    [config],
+  );
 
-  const links = [
-    { href: "/admin", name: "Dashboard", icon: LayoutDashboard },
-    ...sortedModules,
-    { href: "/admin/settings", name: "System Settings", icon: Settings },
-  ];
+  const links = useMemo(
+    () => [
+      { href: "/admin", name: "Dashboard", icon: LayoutDashboard },
+      ...sortedModules,
+      { href: "/admin/settings", name: "System Settings", icon: Settings },
+    ],
+    [sortedModules],
+  );
 
   useEffect(() => {
     const handler = () => setMobileOpen(true);
