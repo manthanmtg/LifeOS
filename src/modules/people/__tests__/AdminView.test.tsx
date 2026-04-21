@@ -54,10 +54,10 @@ describe("PeopleAdminView", () => {
       { timeout: 2000 },
     );
 
-    expect(getByText(/People/i)).toBeTruthy();
+    expect(screen.getByText("People")).toBeTruthy();
 
     // Find person card
-    const card = await findByText(/John Doe/i);
+    const card = await screen.findByRole("heading", { name: /John Doe/i });
     fireEvent.click(card);
 
     // Verify detail view content
