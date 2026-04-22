@@ -43,7 +43,7 @@ describe("POST /api/auth/login", () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({ success: true });
-    
+
     // Check if signToken was called
     expect(signToken).toHaveBeenCalledWith({ role: "admin" });
 
@@ -117,14 +117,16 @@ describe("POST /api/auth/login", () => {
   it("resets rate limit after lockout period", async () => {
     const ip = "ip-rate-limit-reset";
     vi.useFakeTimers();
-    
+
     // 5 failed attempts
     for (let i = 0; i < 5; i++) {
       await POST(createRequest({ password: "wrong" }, ip));
     }
 
     // Should be rate limited
-    const resLimited = await POST(createRequest({ password: "test-password" }, ip));
+    const resLimited = await POST(
+      createRequest({ password: "test-password" }, ip),
+    );
     expect(resLimited.status).toBe(429);
 
     // Advance time by 16 minutes (LOCKOUT_TIME is 15 mins)
@@ -140,7 +142,7 @@ describe("POST /api/auth/login", () => {
 
   it("clears failed attempts on successful login", async () => {
     const ip = "ip-clear-attempts";
-    
+
     // 3 failed attempts
     for (let i = 0; i < 3; i++) {
       await POST(createRequest({ password: "wrong" }, ip));
@@ -155,12 +157,12 @@ describe("POST /api/auth/login", () => {
       const res = await POST(createRequest({ password: "wrong" }, ip));
       expect(res.status).toBe(401);
     }
-    
+
     // Total failed since last success is now 3.
     // 2 more failed should reach limit.
     await POST(createRequest({ password: "wrong" }, ip));
     await POST(createRequest({ password: "wrong" }, ip));
-    
+
     const resLimited = await POST(createRequest({ password: "wrong" }, ip));
     expect(resLimited.status).toBe(429);
   });

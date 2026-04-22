@@ -34,7 +34,11 @@ export default function TodoHeader({
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/50" role="group" aria-label="View mode">
+          <div
+            className="hidden sm:flex items-center gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/50"
+            role="group"
+            aria-label="View mode"
+          >
             <button
               onClick={() => onViewModeChange("list")}
               aria-label="List view"

@@ -50,7 +50,11 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
           />
         </div>
 
-        <div className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40" role="group" aria-label="Set task priority">
+        <div
+          className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40"
+          role="group"
+          aria-label="Set task priority"
+        >
           {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
             <button
               key={p}
