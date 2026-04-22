@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Edit3, Paperclip, Receipt, ImageIcon } from "lucide-react";
+import { Calendar, Edit3, Paperclip, Receipt } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDate } from "../helpers";
 import PdfThumbnail from "./PdfThumbnail";

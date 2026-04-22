@@ -68,23 +68,6 @@ export function toDateInputValue(iso: string) {
   }
 }
 
-export function formatIndianRupee(amount: string): string {
-  const cleanAmount = amount.replace(/[^\d.]/g, "");
-  if (!cleanAmount) return "";
-
-  const parts = cleanAmount.split(".");
-  const integerPart = parts[0];
-  const decimalPart = parts[1] ? "." + parts[1].slice(0, 2) : "";
-
-  if (integerPart.length <= 3) return integerPart + decimalPart;
-
-  const lastThree = integerPart.slice(-3);
-  const remaining = integerPart.slice(0, -3);
-  const formattedRemaining = remaining.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
-
-  return formattedRemaining + "," + lastThree + decimalPart;
-}
-
 export function numberToWordsIndian(num: number): string {
   if (num === 0) return "Zero";
 

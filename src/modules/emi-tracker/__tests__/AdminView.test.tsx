@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import EmiTrackerAdminView from "../AdminView";
 import React from "react";
@@ -108,7 +108,7 @@ describe("EmiTrackerAdminView", () => {
       ],
     };
 
-    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((url) => {
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
       if (url.toString().includes("/api/content")) {
         return Promise.resolve({
           ok: true,

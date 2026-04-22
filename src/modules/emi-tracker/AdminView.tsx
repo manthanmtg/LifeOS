@@ -52,16 +52,13 @@ export default function EmiTrackerAdminView() {
       const data = await res.json();
       if (data.success) {
         setLoans(data.data);
-        if (data.data.length > 0 && !selectedId) {
-          // setSelectedId(data.data[0]._id); // Don't auto-select to avoid heavy compute on load
-        }
       }
     } catch (err) {
       console.error("Failed to fetch loans", err);
     } finally {
       setLoading(false);
     }
-  }, [selectedId]);
+  }, []);
 
   useEffect(() => {
     fetchLoans();
