@@ -20,18 +20,15 @@ function createRequest(body: unknown, ip: string = "127.0.0.1") {
 }
 
 describe("POST /api/auth/login", () => {
-  const originalEnv = process.env;
-
   beforeEach(() => {
     vi.resetModules();
-    process.env = { ...originalEnv };
     vi.clearAllMocks();
-    process.env.ADMIN_PASSWORD = "test-password";
-    process.env.NODE_ENV = "test";
+    vi.stubEnv("ADMIN_PASSWORD", "test-password");
+    vi.stubEnv("NODE_ENV", "test");
   });
 
   afterEach(() => {
-    process.env = originalEnv;
+    vi.unstubAllEnvs();
   });
 
   it("returns 200 and sets cookie on successful login", async () => {
