@@ -46,7 +46,7 @@ export default async function middleware(request: NextRequest) {
     path.startsWith("/api/module-info") ||
     (path.startsWith("/api/metrics") && request.method === "GET") ||
     (path.startsWith("/api/content") && request.method !== "GET") ||
-    (path.startsWith("/api/bills") && request.method !== "GET");
+    path.startsWith("/api/bills");
 
   if (isProtectedPath) {
     const token = request.cookies.get("lifeos_token")?.value;

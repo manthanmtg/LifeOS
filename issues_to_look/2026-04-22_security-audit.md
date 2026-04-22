@@ -8,7 +8,7 @@ Date: 2026-04-22
 
 Audited `src/middleware.ts`, `src/lib/auth.ts`, and the routes under `src/app/api`.
 
-No autonomous code change was made. The findings below are real enough to track, but each one needs a deliberate follow-up rather than a <=15-line low-risk patch.
+A trivial gap was fixed in `src/middleware.ts`: `GET /api/bills*` now requires admin auth like the rest of the Bills module. The remaining findings below still need deliberate follow-up rather than a <=15-line low-risk patch.
 
 ## What looks good
 
@@ -18,6 +18,28 @@ No autonomous code change was made. The findings below are real enough to track,
 - Core content and bills write routes use Zod validation before persistence.
 
 ## Findings
+
+### Resolved in this run: public `GET /api/bills*` exposure
+
+Files:
+
+- `src/middleware.ts`
+- `src/app/api/bills/route.ts`
+- `src/app/api/bills/[id]/route.ts`
+- `src/app/api/bills/folders/route.ts`
+
+Problem:
+
+The Bills module is registered as `defaultPublic: false`, but middleware only protected non-`GET` bill routes. That meant unauthenticated users could read bill listings, bill details, and folder structure.
+
+Fix:
+
+- Changed middleware protection from "non-GET bills routes only" to "all `/api/bills*` routes".
+
+Why this was safe:
+
+- The admin UI already fetches these routes with the auth cookie.
+- Bills have no public views in the registry or module structure.
 
 ### 1. Missing explicit security headers
 
