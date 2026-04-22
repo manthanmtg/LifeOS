@@ -50,9 +50,11 @@ export default function Toast({
           initial={{ opacity: 0, y: 50, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
+          role={type === "error" ? "alert" : "status"}
+          aria-live="polite"
           className={`fixed bottom-8 right-8 z-[10000] flex items-center gap-3 px-4 py-3 border rounded-2xl shadow-2xl backdrop-blur-md min-w-[300px] max-w-md ${colors}`}
         >
-          <Icon className="w-5 h-5 shrink-0" />
+          <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-semibold flex-1 leading-tight">
             {message}
           </p>
@@ -71,6 +73,7 @@ export default function Toast({
 
           <button
             onClick={onClose}
+            aria-label="Close notification"
             className="p-1 hover:bg-white/5 rounded-lg transition-colors shrink-0"
           >
             <X className="w-4 h-4 opacity-50 hover:opacity-100" />

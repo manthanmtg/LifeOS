@@ -125,16 +125,20 @@ export default function AdminHeader() {
             onClick={() =>
               window.dispatchEvent(new Event("open-mobile-sidebar"))
             }
+            aria-label="Open navigation menu"
             className="flex items-center justify-center w-12 h-12 text-zinc-400 hover:text-zinc-200 active:bg-zinc-800/60 transition-colors shrink-0"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           {/* Divider */}
-          <div className="w-px h-5 bg-zinc-800 shrink-0" />
+          <div className="w-px h-5 bg-zinc-800 shrink-0" aria-hidden="true" />
 
           {/* Quick Access Icons */}
-          <nav className="flex items-center gap-0.5 overflow-x-auto no-scrollbar px-2 flex-1">
+          <nav
+            className="flex items-center gap-0.5 overflow-x-auto no-scrollbar px-2 flex-1"
+            aria-label="Mobile quick access"
+          >
             {topModules.map((mod) => {
               const Icon = mod.icon;
               const isActive = currentModule === mod.slug;
@@ -142,6 +146,8 @@ export default function AdminHeader() {
                 <Link
                   key={mod.slug}
                   href={`/admin/${mod.slug}`}
+                  aria-label={mod.name}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0",
                     isActive
@@ -151,7 +157,10 @@ export default function AdminHeader() {
                 >
                   <Icon className="w-4 h-4" />
                   {isActive && (
-                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
+                    <span
+                      className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent"
+                      aria-hidden="true"
+                    />
                   )}
                 </Link>
               );
@@ -164,7 +173,10 @@ export default function AdminHeader() {
       <header className="hidden lg:block pb-5 mb-5 border-b border-zinc-800/50">
         <div className="flex items-center justify-between gap-4">
           {/* Quick Access Modules */}
-          <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-1">
+          <nav
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-1"
+            aria-label="Quick access"
+          >
             {topModules.map((mod) => {
               const Icon = mod.icon;
               const isActive = currentModule === mod.slug;
@@ -172,6 +184,7 @@ export default function AdminHeader() {
                 <Link
                   key={mod.slug}
                   href={`/admin/${mod.slug}`}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0",
                     isActive
@@ -184,6 +197,7 @@ export default function AdminHeader() {
                       "w-4 h-4 transition-transform duration-200",
                       !isActive && "group-hover:scale-110",
                     )}
+                    aria-hidden="true"
                   />
                   <span
                     className={cn(
@@ -196,7 +210,10 @@ export default function AdminHeader() {
                     {mod.name}
                   </span>
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
+                    <span
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent"
+                      aria-hidden="true"
+                    />
                   )}
                 </Link>
               );
