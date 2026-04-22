@@ -280,6 +280,12 @@ function ResumeManager({
                 <button
                   onClick={() => toggleActive(res._id, res.payload.is_active)}
                   disabled={uploading || res.payload.is_active}
+                  aria-pressed={res.payload.is_active}
+                  aria-label={
+                    res.payload.is_active
+                      ? `${res.payload.filename} is the active resume`
+                      : `Set ${res.payload.filename} as the active resume`
+                  }
                   className={cn(
                     "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
                     res.payload.is_active
@@ -293,6 +299,7 @@ function ResumeManager({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => confirmDelete(res._id)}
+                      aria-label={`Confirm deletion of ${res.payload.filename}`}
                       className="px-2 py-1 rounded-md text-[10px] font-bold bg-danger/15 text-danger border border-danger/25 hover:bg-danger/25 transition-colors"
                     >
                       Confirm
@@ -300,7 +307,7 @@ function ResumeManager({
                     <button
                       onClick={() => setPendingDeleteId(null)}
                       className="p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors"
-                      aria-label="Cancel delete"
+                      aria-label={`Cancel deletion of ${res.payload.filename}`}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -310,7 +317,7 @@ function ResumeManager({
                     onClick={() => setPendingDeleteId(res._id)}
                     disabled={uploading}
                     className="p-1.5 text-zinc-500 hover:text-danger transition-colors disabled:opacity-50"
-                    aria-label="Delete resume"
+                    aria-label={`Delete ${res.payload.filename}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -567,6 +574,9 @@ export default function PortfolioAdminView() {
         </div>
         {status && (
           <div
+            role={status.kind === "error" ? "alert" : "status"}
+            aria-live={status.kind === "error" ? "assertive" : "polite"}
+            aria-atomic="true"
             className={cn(
               "relative mt-4 text-sm rounded-xl px-4 py-3 border",
               status.kind === "success"
@@ -845,6 +855,12 @@ export default function PortfolioAdminView() {
             </div>
             <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
               <div
+                role="progressbar"
+                aria-label="Portfolio publish readiness"
+                aria-valuemin={0}
+                aria-valuemax={readiness.total}
+                aria-valuenow={readiness.done}
+                aria-valuetext={`${readiness.done} of ${readiness.total} quality checks complete`}
                 className="h-full bg-accent transition-all"
                 style={{ width: `${readiness.pct}%` }}
               />
