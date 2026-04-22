@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Banknote, TrendingUp, TrendingDown } from "lucide-react";
+import { Banknote, TrendingUp, TrendingDown, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import { WidgetStat } from "@/components/dashboard/widget-primitives";
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 import { formatCurrency, type NumberFormat } from "@/lib/formatters";
 
 interface Expense {
@@ -109,18 +112,23 @@ export default function ExpensesWidget() {
           ) : (
             <div />
           )}
-          {topCategory && (
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-              Top: {topCategory[0]}
-            </span>
-          )}
         </div>
       }
     >
-      <WidgetStat
-        value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
-        label="spent this month"
-      />
+      <div className="space-y-3">
+        <WidgetStat
+          value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
+          label="spent this month"
+        />
+        {topCategory && (
+          <WidgetHighlight
+            icon={Tag}
+            text={topCategory[0]}
+            subtext="top category"
+            variant="accent"
+          />
+        )}
+      </div>
     </WidgetCard>
   );
 }
