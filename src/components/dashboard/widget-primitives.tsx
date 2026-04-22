@@ -38,10 +38,12 @@ export function WidgetStat({
 }) {
   return (
     <div>
-      <p className="text-4xl font-bold text-zinc-50 tracking-tight tabular-nums">
+      <p className="text-4xl font-black text-white tracking-tighter tabular-nums leading-none">
         {value}
       </p>
-      <p className="text-xs text-zinc-500 mt-1 font-medium">{label}</p>
+      <p className="text-[10px] font-bold text-zinc-500 mt-2 uppercase tracking-widest leading-none">
+        {label}
+      </p>
     </div>
   );
 }
@@ -130,7 +132,7 @@ export function WidgetMiniStats({
             >
               {stat.value}
             </p>
-            <p className="text-[9px] text-zinc-600 font-medium leading-tight">
+            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-none mt-1">
               {stat.label}
             </p>
           </div>
