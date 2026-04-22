@@ -354,11 +354,12 @@ export default function TodoAdminView() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Deep search objectives..."
+              aria-label="Search objectives"
               className="w-full bg-zinc-950/30 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0">
+          <div className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0" role="group" aria-label="Sort options">
             {(["recent", "due_date", "priority"] as const).map((s) => (
               <button
                 key={s}
@@ -370,6 +371,8 @@ export default function TodoAdminView() {
                     : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
                 )}
                 title={`Sort by ${s.replace("_", " ")}`}
+                aria-label={`Sort by ${s.replace("_", " ")}`}
+                aria-pressed={sortBy === s}
               >
                 {s === "recent" ? (
                   <Clock className="w-4 h-4" />

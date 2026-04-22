@@ -45,17 +45,20 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
             onChange={(e) => setTitle(e.target.value)}
             disabled={isSaving}
             placeholder="What objective will you conquer next?"
+            aria-label="Task title"
             className="w-full bg-transparent border-none rounded-2xl pl-11 pr-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 focus:ring-0 transition-all font-medium"
           />
         </div>
 
-        <div className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40">
+        <div className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40" role="group" aria-label="Set task priority">
           {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
             <button
               key={p}
               type="button"
               onClick={() => setPriority(p)}
               disabled={isSaving}
+              aria-label={`${p} priority`}
+              aria-pressed={priority === p}
               className={cn(
                 "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                 priority === p
@@ -75,6 +78,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
         <button
           type="submit"
           disabled={!title.trim() || isSaving}
+          aria-label="Add task"
           className="flex items-center justify-center w-11 h-11 bg-accent text-zinc-950 rounded-2xl hover:bg-accent-hover transition-all disabled:opacity-0 disabled:scale-90 active:scale-95 shadow-lg shadow-accent/20"
         >
           <Command className="w-4 h-4" />
