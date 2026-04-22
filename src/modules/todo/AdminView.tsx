@@ -359,7 +359,11 @@ export default function TodoAdminView() {
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0" role="group" aria-label="Sort options">
+          <div
+            className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0"
+            role="group"
+            aria-label="Sort options"
+          >
             {(["recent", "due_date", "priority"] as const).map((s) => (
               <button
                 key={s}

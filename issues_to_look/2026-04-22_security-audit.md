@@ -22,6 +22,7 @@ No autonomous code change was made. The findings below are real enough to track,
 ### 1. Missing explicit security headers
 
 Files:
+
 - `next.config.ts`
 - `src/middleware.ts`
 
@@ -31,17 +32,20 @@ Why I held back:
 Adding these headers safely needs a full pass over inline scripts, embedding requirements, and deployment behavior. A rushed CSP or HSTS change is easy to break.
 
 Suggested follow-up:
+
 - Add a reviewed header policy in `next.config.ts` or middleware.
 - Roll out CSP in report-only mode first if possible.
 
 ### 2. `PUT /api/system` accepts arbitrary `*Settings` payloads without schema validation
 
 File:
+
 - `src/app/api/system/route.ts`
 
 The route allowlists known top-level fields, but it also accepts any key whose name ends with `Settings`. Those values are written directly to MongoDB with no Zod validation or shape enforcement.
 
 Risk:
+
 - Authenticated admin clients can persist malformed or unexpected config blobs.
 - Future code may trust those settings objects and fail open on bad structure.
 
@@ -51,11 +55,13 @@ The safe fix is to introduce a real schema for system settings and decide which 
 ### 3. `POST /api/import` restores raw documents without schema revalidation
 
 File:
+
 - `src/app/api/import/route.ts`
 
 The import route checks that collections are arrays of plain objects and enforces size limits, but imported `content` documents are inserted directly after stripping `_id`. The route does not revalidate `module_type`, `payload`, or document shape against `SchemaRegistry`.
 
 Risk:
+
 - A backup file can repopulate the database with invalid or stale document shapes.
 - Downstream code may assume imported records satisfy current schemas when they do not.
 
@@ -72,6 +78,7 @@ Import validation touches backup compatibility, migration behavior, and failure 
 Ran `pnpm check` after the audit report was added.
 
 Result:
+
 - `lint` completed with existing warnings.
 - `typecheck` failed on current `main` at `src/app/api/auth/login/__tests__/route.test.ts:30` with `TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.`
 
