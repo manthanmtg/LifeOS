@@ -8,7 +8,6 @@ import {
   Folder,
   Paperclip,
   Edit3,
-  FolderInput,
   Trash2,
   Eye,
   Download,

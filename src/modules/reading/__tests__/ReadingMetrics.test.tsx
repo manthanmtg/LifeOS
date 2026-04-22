@@ -4,7 +4,7 @@ import { describe, it, expect } from "vitest";
 import { ReadingMetrics } from "../components/ReadingMetrics";
 import React from "react";
 
-import { ReadingItem, ReadingPayload } from "../types";
+import { ReadingItem } from "../types";
 
 describe("ReadingMetrics", () => {
   it("renders metrics correctly", () => {

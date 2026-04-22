@@ -3,15 +3,10 @@
 import { useState, useMemo } from "react";
 import {
   Plus,
-  Search,
-  CreditCard,
   ArrowRight,
-  Trash2,
   RefreshCw,
   Download,
   Wallet,
-  TrendingDown,
-  Scale,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";

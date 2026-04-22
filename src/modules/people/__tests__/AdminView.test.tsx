@@ -45,11 +45,11 @@ describe("PeopleAdminView", () => {
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
-    const { getByText, queryByText, findByText } = render(<PeopleAdminView />);
+    render(<PeopleAdminView />);
 
     await waitFor(
       () => {
-        expect(queryByText(/Loading/i)).toBeNull();
+        expect(screen.queryByText(/Loading/i)).toBeNull();
       },
       { timeout: 2000 },
     );
