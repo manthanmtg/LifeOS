@@ -52,9 +52,10 @@ function renderNavLinks(
   links: LinkItem[],
   pathname: string,
   setMobileOpen: (v: boolean) => void,
+  label: string,
 ) {
   return (
-    <>
+    <nav className="space-y-1" aria-label={label}>
       {links.map((link) => {
         const Icon = link.icon;
         const isActive = pathname === link.href;
@@ -63,6 +64,7 @@ function renderNavLinks(
             key={link.href}
             href={link.href}
             onClick={() => setMobileOpen(false)}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
               "relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors min-h-[44px]",
               isActive
@@ -77,12 +79,12 @@ function renderNavLinks(
                 transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
               />
             )}
-            <Icon className="w-4 h-4 relative z-10" />
+            <Icon className="w-4 h-4 relative z-10" aria-hidden="true" />
             <span className="relative z-10">{link.name}</span>
           </Link>
         );
       })}
-    </>
+    </nav>
   );
 }
 
@@ -220,17 +222,28 @@ export default function AdminSidebar() {
                 </div>
                 <button
                   onClick={() => setMobileOpen(false)}
+                  aria-label="Close navigation menu"
                   className="p-1 text-zinc-500 hover:text-zinc-300 shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="px-4 space-y-1 pb-2">
-                {renderNavLinks(links.slice(0, 1), pathname, setMobileOpen)}
+                {renderNavLinks(
+                  links.slice(0, 1),
+                  pathname,
+                  setMobileOpen,
+                  "Main navigation",
+                )}
                 <GlobalModuleSearch variant="sidebar" />
               </div>
               <div className="flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
-                {renderNavLinks(links.slice(1), pathname, setMobileOpen)}
+                {renderNavLinks(
+                  links.slice(1),
+                  pathname,
+                  setMobileOpen,
+                  "Modules",
+                )}
               </div>
               <div className="p-4 border-t border-zinc-800 space-y-1">
                 <Link
@@ -282,11 +295,16 @@ export default function AdminSidebar() {
           </div>
         </div>
         <div className="px-4 space-y-1 pb-2">
-          {renderNavLinks(links.slice(0, 1), pathname, setMobileOpen)}
+          {renderNavLinks(
+            links.slice(0, 1),
+            pathname,
+            setMobileOpen,
+            "Main navigation",
+          )}
           <GlobalModuleSearch variant="sidebar" />
         </div>
         <div className="flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
-          {renderNavLinks(links.slice(1), pathname, setMobileOpen)}
+          {renderNavLinks(links.slice(1), pathname, setMobileOpen, "Modules")}
         </div>
         <div className="p-4 border-t border-zinc-800 mt-auto space-y-1">
           <Link
