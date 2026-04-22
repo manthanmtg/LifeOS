@@ -104,13 +104,21 @@ export default function ExpensesAdminView() {
           </p>
         </div>
 
-        <div className="flex items-center bg-zinc-900/50 border border-zinc-800 p-1.5 rounded-2xl backdrop-blur-sm self-start md:self-auto">
+        <div
+          role="tablist"
+          aria-label="Expense views"
+          className="flex items-center bg-zinc-900/50 border border-zinc-800 p-1.5 rounded-2xl backdrop-blur-sm self-start md:self-auto"
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
+                id={`${tab.id}-tab`}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`${tab.id}-panel`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all relative",
@@ -144,6 +152,9 @@ export default function ExpensesAdminView() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
+            id={`${activeTab}-panel`}
+            role="tabpanel"
+            aria-labelledby={`${activeTab}-tab`}
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
