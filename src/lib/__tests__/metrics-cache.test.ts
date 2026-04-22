@@ -42,7 +42,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 
     const result = await getTieredVisits();
@@ -80,7 +80,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 
     // First call - should hit DB
@@ -125,7 +125,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     vi.mocked(getDb).mockResolvedValueOnce(mockDb as any);
 
     // First call - success
@@ -170,7 +170,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 
     const result = await getTieredVisits();
