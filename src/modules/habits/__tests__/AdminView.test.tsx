@@ -11,6 +11,7 @@ import {
   getDateStr,
 } from "../components/types";
 import type { Habit } from "../components/types";
+import { buildHeatmapWeeks } from "../components/HabitHeatmap";
 
 // --- Utility function tests ---
 
@@ -52,6 +53,34 @@ describe("heatmapDaysCount", () => {
 
   it("returns approximately 12 months of days", () => {
     expect(heatmapDaysCount(12)).toBe(362);
+  });
+});
+
+describe("buildHeatmapWeeks", () => {
+  it("aligns the first column to a Monday week start", () => {
+    const weeks = buildHeatmapWeeks(["2026-04-22", "2026-04-23"], true);
+    expect(weeks[0]).toEqual([
+      null,
+      null,
+      "2026-04-22",
+      "2026-04-23",
+      null,
+      null,
+      null,
+    ]);
+  });
+
+  it("aligns the first column to a Sunday week start", () => {
+    const weeks = buildHeatmapWeeks(["2026-04-22", "2026-04-23"], false);
+    expect(weeks[0]).toEqual([
+      null,
+      null,
+      null,
+      "2026-04-22",
+      "2026-04-23",
+      null,
+      null,
+    ]);
   });
 });
 

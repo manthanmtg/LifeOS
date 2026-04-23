@@ -9,8 +9,35 @@ interface HabitHeatmapProps {
   color: string;
   days: string[];
   todayStr: string;
+  weekStartMon: boolean;
   onToggleDay: (date: string) => void;
   isLoggingDay: string | null;
+}
+
+type HeatmapDay = string | null;
+
+export function buildHeatmapWeeks(
+  days: string[],
+  weekStartMon: boolean,
+): HeatmapDay[][] {
+  if (days.length === 0) return [];
+
+  const firstDay = new Date(`${days[0]}T00:00:00`).getDay();
+  const leadingBlanks = weekStartMon ? (firstDay + 6) % 7 : firstDay;
+  const alignedDays: HeatmapDay[] = [
+    ...Array.from<null>({ length: leadingBlanks }).fill(null),
+    ...days,
+  ];
+
+  const trailingBlanks = (7 - (alignedDays.length % 7)) % 7;
+  alignedDays.push(...Array.from<null>({ length: trailingBlanks }).fill(null));
+
+  const result: HeatmapDay[][] = [];
+  for (let i = 0; i < alignedDays.length; i += 7) {
+    result.push(alignedDays.slice(i, i + 7));
+  }
+
+  return result;
 }
 
 export default function HabitHeatmap({
@@ -18,24 +45,22 @@ export default function HabitHeatmap({
   color,
   days,
   todayStr,
+  weekStartMon,
   onToggleDay,
   isLoggingDay,
 }: HabitHeatmapProps) {
   // Group days into weeks (columns of 7)
-  const weeks = useMemo(() => {
-    const result: string[][] = [];
-    for (let i = 0; i < days.length; i += 7) {
-      result.push(days.slice(i, i + 7));
-    }
-    return result;
-  }, [days]);
+  const weeks = useMemo(
+    () => buildHeatmapWeeks(days, weekStartMon),
+    [days, weekStartMon],
+  );
 
   // Month labels
   const monthLabels = useMemo(() => {
     const labels: { label: string; col: number }[] = [];
     let lastMonth = "";
     for (let w = 0; w < weeks.length; w++) {
-      const firstDay = weeks[w][0];
+      const firstDay = weeks[w].find(Boolean);
       if (!firstDay) continue;
       const month = new Date(firstDay + "T00:00:00").toLocaleString("en-US", {
         month: "short",
@@ -48,7 +73,9 @@ export default function HabitHeatmap({
     return labels;
   }, [weeks]);
 
-  const dayLabels = ["", "Mon", "", "Wed", "", "Fri", ""];
+  const dayLabels = weekStartMon
+    ? ["", "Mon", "", "Wed", "", "Fri", ""]
+    : ["Sun", "", "Tue", "", "Thu", "", "Sat"];
 
   return (
     <div className="overflow-x-auto">
@@ -111,11 +138,6 @@ export default function HabitHeatmap({
                     />
                   );
                 })}
-                {/* Pad incomplete weeks */}
-                {week.length < 7 &&
-                  Array.from({ length: 7 - week.length }, (_, i) => (
-                    <div key={`pad-${i}`} className="w-3 h-3" />
-                  ))}
               </div>
             ))}
           </div>
