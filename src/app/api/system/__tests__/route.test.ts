@@ -43,7 +43,7 @@ describe("PUT /api/system", () => {
     expect(response.status).toBe(200);
     expect(mockUpdateOne).toHaveBeenCalledWith(
       { _id: "global" },
-      { $set: { site_title: "New Title", active_theme: "dark" } }
+      { $set: { site_title: "New Title", active_theme: "dark" } },
     );
   });
 
@@ -57,7 +57,7 @@ describe("PUT /api/system", () => {
     expect(response.status).toBe(200);
     expect(mockUpdateOne).toHaveBeenCalledWith(
       { _id: "global" },
-      { $set: { expenseSettings: { currency: "EUR" } } }
+      { $set: { expenseSettings: { currency: "EUR" } } },
     );
   });
 
@@ -72,7 +72,7 @@ describe("PUT /api/system", () => {
     expect(response.status).toBe(200);
     expect(mockUpdateOne).toHaveBeenCalledWith(
       { _id: "global" },
-      { $set: { site_title: "New Title" } }
+      { $set: { site_title: "New Title" } },
     );
   });
 
@@ -113,7 +113,7 @@ describe("PUT /api/system", () => {
     expect(response.status).toBe(200);
     expect(mockUpdateOne).toHaveBeenCalledWith(
       { _id: "global" },
-      { $set: { site_title: "New Title" } }
+      { $set: { site_title: "New Title" } },
     );
   });
 });

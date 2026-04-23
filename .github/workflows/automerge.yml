@@ -23,7 +23,6 @@ jobs:
       github.event.pull_request.state == 'open' &&
       github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
-
     steps:
       - name: Enable squash auto-merge
         env:

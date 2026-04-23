@@ -42,7 +42,6 @@ html.light {
   --glass-border: rgba(0, 0, 0, 0.08);
 }
 
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -66,14 +65,18 @@ html.light {
   --color-danger: var(--danger);
   --color-danger-muted: var(--danger-muted);
   --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono, ui-monospace, SFMono-Regular, monospace);
+  --font-mono: var(
+    --font-jetbrains-mono,
+    ui-monospace,
+    SFMono-Regular,
+    monospace
+  );
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
 }
-
 
 /* ========================================================================
    LIGHT MODE VARIANTS
@@ -331,7 +334,6 @@ html.light[data-theme="nordic-light"] {
   --accent: #4a6d96;
   --accent-hover: #3d5d84;
 }
-
 
 /* ========================================================================
    THEME DEFINITIONS
@@ -693,7 +695,6 @@ html.light[data-theme="nordic-light"] {
   --glass-bg: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(0, 0, 0, 0.08);
 }
-
 
 /* ========================================================================
    GLASSMORPHISM UTILITIES
