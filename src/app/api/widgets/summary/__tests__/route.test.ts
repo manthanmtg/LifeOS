@@ -159,6 +159,59 @@ describe("GET /api/widgets/summary", () => {
     expect(data.totalAttachments).toBe(2);
   });
 
+  it("returns summary for book module", async () => {
+    const mockBooks = [
+      {
+        created_at: "2026-01-01T00:00:00.000Z",
+        payload: {
+          title: "Current Book",
+          author: "Ada",
+          status: "reading",
+          current_page: 50,
+          total_pages: 200,
+        },
+      },
+      {
+        created_at: "2025-01-01T00:00:00.000Z",
+        payload: {
+          title: "Done Book",
+          author: "Grace",
+          status: "completed",
+          total_pages: 300,
+          rating: 4,
+        },
+      },
+      {
+        created_at: "2025-02-01T00:00:00.000Z",
+        payload: {
+          title: "Rated Book",
+          author: "Linus",
+          status: "completed",
+          total_pages: 250,
+          rating: 5,
+        },
+      },
+    ];
+    mockCollection().toArray.mockResolvedValue(mockBooks);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=book",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.total).toBe(3);
+    expect(data.completedCount).toBe(2);
+    expect(data.pagesRead).toBe(550);
+    expect(data.avgRating).toBe(4.5);
+    expect(data.current).toEqual({
+      title: "Current Book",
+      author: "Ada",
+      progress: 25,
+    });
+  });
+
   it("returns basic summary for unknown module type", async () => {
     mockCollection().toArray.mockResolvedValue([{ _id: "1" }, { _id: "2" }]);
 
