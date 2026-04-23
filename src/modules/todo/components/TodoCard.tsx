@@ -66,6 +66,7 @@ export default function TodoCard({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => onToggle(todo)}
+            aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
             className={cn(
               "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
               completed
@@ -84,6 +85,7 @@ export default function TodoCard({
               }}
               whileTap={{ scale: 0.9 }}
               onClick={() => onEdit(todo)}
+              aria-label={`Edit ${title}`}
               className="p-2 rounded-xl text-zinc-500 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
             >
               <Edit3 className="w-4 h-4" />
@@ -95,6 +97,7 @@ export default function TodoCard({
               }}
               whileTap={{ scale: 0.9 }}
               onClick={() => onDelete(todo._id)}
+              aria-label={`Delete ${title}`}
               className="p-2 rounded-xl text-zinc-500 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
             >
               <Trash2 className="w-4 h-4" />
@@ -155,6 +158,7 @@ export default function TodoCard({
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => onToggle(todo)}
+        aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
         className={cn(
           "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0",
           completed
@@ -210,6 +214,7 @@ export default function TodoCard({
           }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onEdit(todo)}
+          aria-label={`Edit ${title}`}
           className="p-2 rounded-xl text-zinc-600 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
         >
           <Edit3 className="w-4 h-4" />
@@ -221,6 +226,7 @@ export default function TodoCard({
           }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(todo._id)}
+          aria-label={`Delete ${title}`}
           className="p-2 rounded-xl text-zinc-600 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
         >
           <Trash2 className="w-4 h-4" />

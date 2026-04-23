@@ -68,6 +68,8 @@ export default function TodoFilters({
           <button
             key={f.id}
             onClick={() => onFilterChange(f.id)}
+            aria-label={`${f.label} filter, ${counts[f.id] || 0} items`}
+            aria-pressed={activeFilter === f.id}
             className={cn(
               "flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border transition-all shrink-0 touch-manipulation relative group",
               activeFilter === f.id

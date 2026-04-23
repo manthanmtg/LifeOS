@@ -397,12 +397,16 @@ export default function TodoAdminView() {
         />
 
         <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">
+          <span
+            className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]"
+            aria-live="polite"
+          >
             {filteredTodos.length} Results Found
           </span>
           {activeFilter === "done" && counts.done > 0 && (
             <button
               onClick={clearCompleted}
+              aria-label="Purge all completed objectives"
               className="text-[10px] font-black text-danger/60 hover:text-danger uppercase tracking-widest transition-colors"
             >
               Purge Completed
@@ -411,7 +415,12 @@ export default function TodoAdminView() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            role="status"
+            aria-label="Loading objectives"
+            aria-live="polite"
+          >
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
