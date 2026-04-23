@@ -2,44 +2,64 @@
 
 Selected prompt: `prompts/security_enhancer.md`
 
-Date: 2026-04-22
+Date: 2026-04-23
 
 ## Summary
 
 Audited `src/middleware.ts`, `src/lib/auth.ts`, and the routes under `src/app/api`.
 
-A trivial gap was fixed in `src/middleware.ts`: `GET /api/bills*` now requires admin auth like the rest of the Bills module. The remaining findings below still need deliberate follow-up rather than a <=15-line low-risk patch.
+The previously reported Bills route exposure is already fixed on `main`. This run closed one additional trivial gap in `src/app/api/auth/login/route.ts`: request bodies are now schema-validated before auth logic runs. The remaining findings below still need deliberate follow-up rather than a <=15-line low-risk patch.
 
 ## What looks good
 
-- `src/middleware.ts` protects `/admin/*` and the sensitive API surfaces that mutate data or expose admin-only data.
+- `src/middleware.ts` protects `/admin/*` and the sensitive API surfaces that mutate data or expose admin-only data, including all `/api/bills*` routes.
 - `src/lib/auth.ts` verifies JWTs with explicit issuer and audience checks.
 - Public `content` reads re-check admin state server-side before exposing private records.
 - Core content and bills write routes use Zod validation before persistence.
+- `POST /api/auth/login` now rejects malformed request bodies with an explicit 400 response instead of relying on implicit runtime failures.
 
-## Findings
+## Resolved findings
 
-### Resolved in this run: public `GET /api/bills*` exposure
+### Already resolved on `main`: public `GET /api/bills*` exposure
 
 Files:
 
 - `src/middleware.ts`
-- `src/app/api/bills/route.ts`
-- `src/app/api/bills/[id]/route.ts`
-- `src/app/api/bills/folders/route.ts`
 
 Problem:
 
 The Bills module is registered as `defaultPublic: false`, but middleware only protected non-`GET` bill routes. That meant unauthenticated users could read bill listings, bill details, and folder structure.
 
-Fix:
+Current state:
 
-- Changed middleware protection from "non-GET bills routes only" to "all `/api/bills*` routes".
+- Middleware now protects all `/api/bills*` routes.
 
 Why this was safe:
 
 - The admin UI already fetches these routes with the auth cookie.
 - Bills have no public views in the registry or module structure.
+
+### Resolved in this run: missing schema validation on `POST /api/auth/login`
+
+File:
+
+- `src/app/api/auth/login/route.ts`
+
+Problem:
+
+The login route read `request.json()` directly and only handled malformed payloads via the broad catch block. Non-object payloads or non-string passwords reached auth logic without an explicit schema gate.
+
+Fix:
+
+- Added a minimal Zod schema for the login request body.
+- Invalid bodies now return `400 Bad request` before rate limiting or password comparison.
+
+Why this was safe:
+
+- The route already treated malformed JSON as a client error.
+- Valid login requests are unchanged.
+
+## Open findings
 
 ### 1. Missing explicit security headers
 
@@ -93,7 +113,6 @@ Import validation touches backup compatibility, migration behavior, and failure 
 ## Notes
 
 - The prompt mentions auditing `proxy.ts`, but this repo uses `src/middleware.ts`.
-- I did not find an existing `issues_to_look` entry covering these exact findings.
 
 ## Verification
 
@@ -101,7 +120,6 @@ Ran `pnpm check` after the audit report was added.
 
 Result:
 
-- `lint` completed with existing warnings.
-- `typecheck` failed on current `main` at `src/app/api/auth/login/__tests__/route.test.ts:30` with `TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.`
-
-This failure appears unrelated to the audit report added in this run, but it prevented a clean verification pass.
+- `pnpm check` passed.
+- `lint` still reports the repo's existing `@next/next/no-img-element` warnings in health/document preview components, but there were no errors or regressions from this run.
+- `build` completed successfully, with existing environment-specific MongoDB auth noise from `.env.local` during static generation.
