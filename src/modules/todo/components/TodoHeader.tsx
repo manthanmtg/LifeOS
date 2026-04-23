@@ -21,7 +21,8 @@ export default function TodoHeader({
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => (window.location.href = "/admin")}
-              className="text-sm font-bold text-zinc-500 hover:text-accent px-2 py-1 rounded-lg hover:bg-accent/5 transition-all flex items-center gap-1.5"
+              aria-label="Back to Admin Portal"
+              className="text-sm font-bold text-zinc-500 hover:text-accent px-2 py-1 rounded-lg hover:bg-accent/5 transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
             >
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Portal</span>
@@ -44,7 +45,7 @@ export default function TodoHeader({
               aria-label="List view"
               aria-pressed={viewMode === "list"}
               className={cn(
-                "p-2 rounded-lg transition-all",
+                "p-2 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
                 viewMode === "list"
                   ? "bg-accent text-zinc-950 shadow-md"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
@@ -57,7 +58,7 @@ export default function TodoHeader({
               aria-label="Grid view"
               aria-pressed={viewMode === "grid"}
               className={cn(
-                "p-2 rounded-lg transition-all",
+                "p-2 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
                 viewMode === "grid"
                   ? "bg-accent text-zinc-950 shadow-md"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
@@ -68,7 +69,7 @@ export default function TodoHeader({
           </div>
           <button
             onClick={onAddTodo}
-            className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-black rounded-xl hover:bg-accent-hover shadow-lg shadow-accent/20 transition-all active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-black rounded-xl hover:bg-accent-hover shadow-lg shadow-accent/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Task</span>

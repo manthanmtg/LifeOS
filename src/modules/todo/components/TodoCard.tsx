@@ -86,7 +86,7 @@ export default function TodoCard({
               whileTap={{ scale: 0.9 }}
               onClick={() => onEdit(todo)}
               aria-label={`Edit ${title}`}
-              className="p-2 rounded-xl text-zinc-500 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
+              className="p-2 rounded-xl text-zinc-500 hover:text-accent opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none transition-all"
             >
               <Edit3 className="w-4 h-4" />
             </motion.button>
@@ -98,7 +98,7 @@ export default function TodoCard({
               whileTap={{ scale: 0.9 }}
               onClick={() => onDelete(todo._id)}
               aria-label={`Delete ${title}`}
-              className="p-2 rounded-xl text-zinc-500 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
+              className="p-2 rounded-xl text-zinc-500 hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-danger/40 outline-none transition-all"
             >
               <Trash2 className="w-4 h-4" />
             </motion.button>
@@ -215,7 +215,7 @@ export default function TodoCard({
           whileTap={{ scale: 0.9 }}
           onClick={() => onEdit(todo)}
           aria-label={`Edit ${title}`}
-          className="p-2 rounded-xl text-zinc-600 hover:text-accent opacity-0 group-hover:opacity-100 transition-all"
+          className="p-2 rounded-xl text-zinc-600 hover:text-accent opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none transition-all"
         >
           <Edit3 className="w-4 h-4" />
         </motion.button>
@@ -227,7 +227,7 @@ export default function TodoCard({
           whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(todo._id)}
           aria-label={`Delete ${title}`}
-          className="p-2 rounded-xl text-zinc-600 hover:text-danger opacity-0 group-hover:opacity-100 transition-all"
+          className="p-2 rounded-xl text-zinc-600 hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-danger/40 outline-none transition-all"
         >
           <Trash2 className="w-4 h-4" />
         </motion.button>
