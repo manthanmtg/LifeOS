@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GET } from "../route";
 import { getDb } from "@/lib/mongodb";
 import { cookies } from "next/headers";
@@ -47,6 +47,8 @@ describe("GET /api/widgets/summary", () => {
   let mockFind: any;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-23T12:00:00.000Z"));
     vi.clearAllMocks();
     mockFind = vi.fn().mockReturnThis();
     mockCollection = vi.fn().mockReturnValue({
@@ -61,6 +63,10 @@ describe("GET /api/widgets/summary", () => {
       get: vi.fn().mockReturnValue({ value: "valid-token" }),
     } as any);
     vi.mocked(verifyToken).mockResolvedValue({ userId: "admin" } as any);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("returns 400 if module_type is missing", async () => {
@@ -114,6 +120,43 @@ describe("GET /api/widgets/summary", () => {
     expect(data.doneCount).toBe(1);
     expect(data.topActive).toHaveLength(1);
     expect(data.topActive[0].title).toBe("Todo 1");
+  });
+
+  it("returns summary for maintenance_task module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      {
+        payload: {
+          status: "pending",
+          next_due: "2026-04-10T00:00:00.000Z",
+          history: [{ completed_at: "2026-04-02T10:00:00.000Z" }],
+        },
+      },
+      {
+        payload: {
+          status: "in_progress",
+          next_due: "2026-05-05T00:00:00.000Z",
+          history: [{ completed_at: "2026-03-20T10:00:00.000Z" }],
+        },
+      },
+      {
+        payload: {
+          status: "completed",
+          next_due: "2026-04-01T00:00:00.000Z",
+          history: [{ completed_at: "2026-04-15T10:00:00.000Z" }],
+        },
+      },
+    ]);
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=maintenance_task",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.total).toBe(3);
+    expect(data.overdue).toBe(1);
+    expect(data.upcoming).toBe(1);
+    expect(data.completedThisMonth).toBe(2);
   });
 
   it("returns summary for rain_entry module", async () => {

@@ -317,6 +317,61 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "maintenance_task": {
+        const now = nowRef;
+        const thirtyDaysFromNow = now + 30 * 24 * 60 * 60 * 1000;
+        const monthStart = new Date();
+        monthStart.setUTCDate(1);
+        monthStart.setUTCHours(0, 0, 0, 0);
+
+        let overdue = 0;
+        let upcoming = 0;
+        let completedThisMonth = 0;
+
+        for (const doc of docs) {
+          const payload = doc.payload;
+          const status = payload.status;
+          const isOpen = status !== "completed" && status !== "skipped";
+          const nextDueTime = payload.next_due
+            ? new Date(payload.next_due).getTime()
+            : null;
+
+          if (isOpen && nextDueTime !== null && nextDueTime < now) {
+            overdue++;
+          }
+
+          if (
+            isOpen &&
+            nextDueTime !== null &&
+            nextDueTime >= now &&
+            nextDueTime <= thirtyDaysFromNow
+          ) {
+            upcoming++;
+          }
+
+          for (const entry of payload.history || []) {
+            const completedAt = entry.completed_at
+              ? new Date(entry.completed_at).getTime()
+              : null;
+            if (
+              completedAt !== null &&
+              Number.isFinite(completedAt) &&
+              completedAt >= monthStart.getTime()
+            ) {
+              completedThisMonth++;
+            }
+          }
+        }
+
+        summary = {
+          total: docs.length,
+          overdue,
+          upcoming,
+          completedThisMonth,
+        };
+        break;
+      }
+
       case "recurring_expense": {
         const act = docs.filter((s) => s.payload.is_active);
 
