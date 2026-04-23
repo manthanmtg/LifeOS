@@ -72,12 +72,14 @@ describe("POST /api/auth/login", () => {
     expect(body.error).toBe("Internal server error");
   });
 
-  it("returns 401 if password is not a string", async () => {
+  it("returns 400 if password is not a string", async () => {
     const request = createRequest({ password: 123 }, "ip-not-string");
 
     const response = await POST(request);
 
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toBe("Bad request");
   });
 
   it("returns 400 on bad request (invalid JSON)", async () => {

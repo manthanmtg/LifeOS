@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
 import { timingSafeEqual } from "crypto";
+import { z } from "zod";
+
+const LoginRequestSchema = z.object({
+  password: z.string().min(1),
+});
 
 function safeCompare(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
@@ -19,7 +24,12 @@ const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 
 export async function POST(request: Request) {
   try {
-    const { password } = await request.json();
+    const parsedBody = LoginRequestSchema.safeParse(await request.json());
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    }
+
+    const { password } = parsedBody.data;
     const ip = request.headers.get("x-forwarded-for") || "unknown";
 
     // Check rate limit
