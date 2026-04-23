@@ -83,7 +83,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
           type="submit"
           disabled={!title.trim() || isSaving}
           aria-label="Add task"
-          className="flex items-center justify-center w-11 h-11 bg-accent text-zinc-950 rounded-2xl hover:bg-accent-hover transition-all disabled:opacity-0 disabled:scale-90 active:scale-95 shadow-lg shadow-accent/20"
+          className="flex items-center justify-center w-11 h-11 bg-accent text-zinc-950 rounded-2xl hover:bg-accent-hover transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed active:scale-95 shadow-lg shadow-accent/20"
         >
           <Command className="w-4 h-4" />
         </button>
