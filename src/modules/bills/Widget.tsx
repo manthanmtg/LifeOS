@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Receipt, FolderOpen } from "lucide-react";
+import { Receipt, FolderOpen, Paperclip } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -53,10 +53,15 @@ export default function BillsWidget() {
       footer={
         stats && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <span className="flex items-center gap-1.5">
-              <FolderOpen className="w-3 h-3" /> {stats.folderCount} folders
-            </span>
-            {daysAgo !== null && (
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5">
+                <FolderOpen className="w-3 h-3" /> {stats.folderCount} folders
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Paperclip className="w-3 h-3" /> {stats.totalAttachments} files
+              </span>
+            </div>
+            {daysAgo !== null ? (
               <span>
                 {daysAgo === 0
                   ? "added today"
@@ -64,6 +69,8 @@ export default function BillsWidget() {
                     ? "added yesterday"
                     : `added ${daysAgo}d ago`}
               </span>
+            ) : (
+              <span>ready to archive</span>
             )}
           </div>
         )
