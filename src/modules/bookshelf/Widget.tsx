@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Library, BookOpen, Star, TrendingUp } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -8,59 +8,38 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
-interface Book {
-  payload: {
+interface BookshelfSummary {
+  total: number;
+  completedCount: number;
+  avgRating: number;
+  pagesRead: number;
+  current: {
     title: string;
     author: string;
-    status: string;
-    current_page: number;
-    total_pages?: number;
-    rating?: number;
-    finished_at?: string;
-  };
+    progress: number;
+  } | null;
 }
 
 export default function BookshelfWidget() {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [summary, setSummary] = useState<BookshelfSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const ac = new AbortController();
-    fetch("/api/content?module_type=book", { signal: ac.signal })
+    fetch("/api/widgets/summary?module_type=book", { signal: ac.signal })
       .then((r) => r.json())
-      .then((data) => setBooks(data.data || []))
+      .then((data) => setSummary(data.data ?? null))
       .catch(() => {})
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
 
-  const summary = useMemo(() => {
-    const current = books.find((b) => b.payload.status === "reading");
-    const completedCount = books.filter(
-      (b) => b.payload.status === "completed",
-    ).length;
-    const rated = books.filter((b) => !!b.payload.rating);
-    const avgRating =
-      rated.reduce((s, b) => s + (b.payload.rating || 0), 0) /
-      Math.max(1, rated.length);
-    const pagesRead = books
-      .filter((b) => b.payload.status === "completed")
-      .reduce((s, b) => s + (b.payload.total_pages || 0), 0);
-
-    const progress = current?.payload.total_pages
-      ? Math.round(
-          ((current.payload.current_page || 0) / current.payload.total_pages) *
-            100,
-        )
-      : 0;
-
-    return { current, completedCount, avgRating, pagesRead, progress };
-  }, [books]);
-
+  const total = summary?.total ?? 0;
+  const avgRating = summary?.avgRating ?? 0;
   const pagesLabel =
-    summary.pagesRead >= 1000
-      ? `${(summary.pagesRead / 1000).toFixed(1)}k`
-      : String(summary.pagesRead);
+    (summary?.pagesRead ?? 0) >= 1000
+      ? `${((summary?.pagesRead ?? 0) / 1000).toFixed(1)}k`
+      : String(summary?.pagesRead ?? 0);
 
   return (
     <WidgetCard
@@ -76,23 +55,23 @@ export default function BookshelfWidget() {
           <span className="flex items-center gap-1 text-warning/80">
             <Star
               className="w-3 h-3"
-              fill={summary.avgRating > 0 ? "currentColor" : "none"}
+              fill={avgRating > 0 ? "currentColor" : "none"}
             />
-            {summary.avgRating > 0 ? summary.avgRating.toFixed(1) : "—"}
+            {avgRating > 0 ? avgRating.toFixed(1) : "—"}
           </span>
         </div>
       }
     >
       <div className="space-y-3">
         <WidgetStat
-          value={books.length}
-          label={`${summary.completedCount} completed`}
+          value={total}
+          label={`${summary?.completedCount ?? 0} completed`}
         />
-        {summary.current ? (
+        {summary?.current ? (
           <WidgetHighlight
             icon={BookOpen}
-            text={summary.current.payload.title}
-            subtext={`${summary.progress}% · ${summary.current.payload.author}`}
+            text={summary.current.title}
+            subtext={`${summary.current.progress}% · ${summary.current.author}`}
           />
         ) : (
           <WidgetHighlight

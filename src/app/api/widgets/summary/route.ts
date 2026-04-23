@@ -557,6 +557,50 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "book": {
+        const readingBooks = docs
+          .filter((doc) => doc.payload.status === "reading")
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+        const current = readingBooks[0] || null;
+        const completedBooks = docs.filter(
+          (doc) => doc.payload.status === "completed",
+        );
+        const ratedBooks = docs.filter((doc) => !!doc.payload.rating);
+        const pagesRead = completedBooks.reduce(
+          (sum, doc) => sum + (doc.payload.total_pages || 0),
+          0,
+        );
+        const avgRating =
+          ratedBooks.reduce((sum, doc) => sum + (doc.payload.rating || 0), 0) /
+          Math.max(1, ratedBooks.length);
+        const progress = current?.payload.total_pages
+          ? Math.round(
+              ((current.payload.current_page || 0) /
+                current.payload.total_pages) *
+                100,
+            )
+          : 0;
+
+        summary = {
+          total: docs.length,
+          completedCount: completedBooks.length,
+          avgRating,
+          pagesRead,
+          current: current
+            ? {
+                title: current.payload.title,
+                author: current.payload.author,
+                progress,
+              }
+            : null,
+        };
+        break;
+      }
+
       case "person": {
         summary = getPeopleSummary(
           docs.map((doc) =>
