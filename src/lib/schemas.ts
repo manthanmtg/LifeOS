@@ -4,18 +4,30 @@ import { z } from "zod";
 export const SocialLinkSchema = z.object({
   platform: z
     .string()
-    .min(1, "Platform name is required (e.g., GitHub, LinkedIn)"),
+    .trim()
+    .min(1, "Platform name is required (e.g., GitHub, LinkedIn)")
+    .max(50),
   url: z.string().url("Must be a valid URL"),
 });
 
 export const PortfolioProfileSchema = z.object({
-  full_name: z.string().min(1, "Full name is required").default("Life OS"),
-  hero_title: z.string().min(3, "Title must be at least 3 characters"),
-  sub_headline: z.string().optional(),
+  full_name: z
+    .string()
+    .trim()
+    .min(1, "Full name is required")
+    .max(100)
+    .default("Life OS"),
+  hero_title: z
+    .string()
+    .trim()
+    .min(3, "Title must be at least 3 characters")
+    .max(200),
+  sub_headline: z.string().trim().max(500).optional(),
   bio: z
     .string()
+    .trim()
     .max(1000, "Bio is getting too long! Keep it under 1000 characters."),
-  skills: z.array(z.string()),
+  skills: z.array(z.string().trim().max(50)),
   social_links: z.array(SocialLinkSchema),
   available_for_hire: z.boolean().default(false),
 });
@@ -136,15 +148,18 @@ export const SnippetSchema = z.object({
 
 // --- 9. HABIT TRACKER ---
 export const HabitSchema = z.object({
-  name: z.string().min(1, "Habit name is required"),
-  description: z.string().optional(),
+  name: z.string().trim().min(1, "Habit name is required").max(100),
+  description: z.string().trim().max(500).optional(),
   frequency: z.enum(["daily", "weekly"]).default("daily"),
   target_count: z.number().int().positive().default(1),
-  color: z.string().default("#10b981"),
+  color: z
+    .string()
+    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color code")
+    .default("#10b981"),
   completions: z
     .array(
       z.object({
-        date: z.string(),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"),
         count: z.number().int().min(0).default(1),
       }),
     )
@@ -469,12 +484,17 @@ export const PersonSchema = z.object({
 
 // --- 18. VEHICLE MANAGER ---
 export const VehicleSchema = z.object({
-  name: z.string().min(1, "Vehicle name is required"),
-  make: z.string().optional(),
-  model: z.string().optional(),
-  year: z.number().int().optional(),
-  registration_number: z.string().optional(),
-  color: z.string().optional(),
+  name: z.string().trim().min(1, "Vehicle name is required").max(100),
+  make: z.string().trim().max(100).optional(),
+  model: z.string().trim().max(100).optional(),
+  year: z
+    .number()
+    .int()
+    .min(1886, "Year must be 1886 or later")
+    .max(new Date().getFullYear() + 1, "Year cannot be too far in the future")
+    .optional(),
+  registration_number: z.string().trim().max(50).optional(),
+  color: z.string().trim().max(50).optional(),
   fuel_type: z
     .enum(["petrol", "diesel", "electric", "hybrid", "cng", "lpg", "other"])
     .default("petrol"),
@@ -598,9 +618,9 @@ export const MaintenanceTaskSchema = z.object({
 
 // --- 21. WHITEBOARD ---
 export const WhiteboardNoteSchema = z.object({
-  name: z.string().min(1, "Whiteboard name is required"),
-  description: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  name: z.string().trim().min(1, "Whiteboard name is required").max(100),
+  description: z.string().trim().max(1000).optional(),
+  tags: z.array(z.string().trim().max(50)).default([]),
   is_favorite: z.boolean().default(false),
   color_label: z
     .enum(["none", "red", "blue", "green", "yellow", "purple", "orange"])
