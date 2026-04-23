@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, FileText, Edit3, Trash2, Eye } from "lucide-react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DOC_TYPE_CONFIG } from "./constants";
@@ -155,11 +156,15 @@ export default function DocumentsTab({
                             </div>
                           ) : (
                             <>
-                              <img
-                                src={`data:${att.content_type};base64,${att.data}`}
-                                alt={att.filename}
-                                className="w-full h-full object-cover opacity-60 group-hover/att:opacity-100 transition-all duration-300"
-                              />
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={`data:${att.content_type};base64,${att.data}`}
+                                  alt={att.filename}
+                                  fill
+                                  unoptimized
+                                  className="object-cover opacity-60 group-hover/att:opacity-100 transition-all duration-300"
+                                />
+                              </div>
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/att:opacity-100 transition-opacity" />
                             </>
                           )}

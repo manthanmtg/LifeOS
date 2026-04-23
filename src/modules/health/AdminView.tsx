@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import {
   HeartPulse,
   Plus,
@@ -854,11 +855,15 @@ export default function HealthAdminView() {
               )}
             >
               {p.profile_pic ? (
-                <img
-                  src={`data:${p.profile_pic.content_type};base64,${p.profile_pic.data}`}
-                  alt={p.name}
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative w-full h-full">
+                  <Image
+                    src={`data:${p.profile_pic.content_type};base64,${p.profile_pic.data}`}
+                    alt={p.name}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 getInitials(p.name)
               )}
