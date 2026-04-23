@@ -11,6 +11,7 @@ interface HabitCardProps {
   habit: Habit;
   days: string[];
   todayStr: string;
+  weekStartMon: boolean;
   onEdit: (habit: Habit) => void;
   onDelete: (id: string) => void;
   onToggleDay: (habit: Habit, date: string) => void;
@@ -32,6 +33,7 @@ export default function HabitCard({
   habit,
   days,
   todayStr,
+  weekStartMon,
   onEdit,
   onDelete,
   onToggleDay,
@@ -186,6 +188,7 @@ export default function HabitCard({
           color={habit.payload.color}
           days={days}
           todayStr={todayStr}
+          weekStartMon={weekStartMon}
           onToggleDay={(date) => onToggleDay(habit, date)}
           isLoggingDay={loggingKey}
         />

@@ -262,6 +262,7 @@ export default function HabitsAdminView() {
                 habit={habit}
                 days={days}
                 todayStr={todayStr}
+                weekStartMon={settings.weekStartMon}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onToggleDay={toggleDay}
