@@ -2,6 +2,7 @@ import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { getTieredVisits } from "@/lib/metrics-cache";
+import { SystemUpdateSchema } from "@/lib/schemas";
 
 export async function GET() {
   try {
@@ -24,8 +25,13 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
+    const parsed = SystemUpdateSchema.safeParse(body);
 
-    // Define allowed fields to prevent mass assignment/overwriting critical system state
+    if (!parsed.success) {
+      return ApiError("Invalid settings format", 400);
+    }
+
+    // Define allowed base fields
     const baseFields = [
       "active_theme",
       "color_mode",
@@ -42,9 +48,18 @@ export async function PUT(request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: Record<string, any> = {};
 
-    for (const [key, value] of Object.entries(body)) {
-      if (baseFields.includes(key) || key.endsWith("Settings")) {
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (baseFields.includes(key)) {
         updateData[key] = value;
+      } else if (key.endsWith("Settings")) {
+        // Enforce that module-specific settings must be objects
+        if (
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
+          updateData[key] = value;
+        }
       }
     }
 
