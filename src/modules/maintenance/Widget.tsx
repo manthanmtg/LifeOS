@@ -1,28 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Wrench, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
+import { Wrench, AlertTriangle, Clock } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
+interface MaintenanceSummary {
+  total: number;
+  overdue: number;
+  upcoming: number;
+  completedThisMonth: number;
+}
+
 export default function MaintenanceWidget() {
-  const [summary, setSummary] = useState({
-    total: 0,
-    overdue: 0,
-    upcoming: 0,
-    completedThisMonth: 0,
-  });
+  const [summary, setSummary] = useState<MaintenanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const ac = new AbortController();
-    fetch("/api/maintenance/summary", { signal: ac.signal })
+    fetch("/api/widgets/summary?module_type=maintenance_task", {
+      signal: ac.signal,
+    })
       .then((r) => r.json())
       .then((d) => {
-        if (d.data) setSummary(d.data);
+        setSummary(d.data ?? null);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -35,44 +39,41 @@ export default function MaintenanceWidget() {
       icon={Wrench}
       loading={loading}
       href="/admin/maintenance"
-      footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5 text-warning/80">
-            <Clock className="w-3 h-3" /> {summary.upcoming} due soon
-          </span>
-          <span className="flex items-center gap-1.5 text-success/80">
-            <CheckCircle2 className="w-3 h-3" /> {summary.completedThisMonth}{" "}
-            done
-          </span>
-        </div>
-      }
     >
-      <div className="space-y-3">
-        <WidgetStat
-          value={summary.overdue}
-          label={summary.overdue > 0 ? "overdue" : "all on schedule"}
-        />
-        {summary.overdue > 0 ? (
-          <WidgetHighlight
-            icon={AlertTriangle}
-            text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
-            subtext="needs immediate attention"
-            variant="danger"
+      {summary && (
+        <div className="space-y-3">
+          <WidgetStat
+            value={summary.overdue}
+            label={summary.overdue > 0 ? "overdue tasks" : "all on schedule"}
           />
-        ) : summary.upcoming > 0 ? (
-          <WidgetHighlight
-            icon={Clock}
-            text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} coming up`}
-            variant="warning"
-          />
-        ) : (
-          <WidgetHighlight
-            icon={Wrench}
-            text={`${summary.total} tasks tracked, all clear`}
-            variant="success"
-          />
-        )}
-      </div>
+          {summary.overdue > 0 ? (
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
+              subtext={
+                summary.upcoming > 0
+                  ? `${summary.upcoming} due in the next 30 days`
+                  : "needs immediate attention"
+              }
+              variant="danger"
+            />
+          ) : summary.upcoming > 0 ? (
+            <WidgetHighlight
+              icon={Clock}
+              text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} due soon`}
+              subtext={`${summary.completedThisMonth} completed this month`}
+              variant="warning"
+            />
+          ) : (
+            <WidgetHighlight
+              icon={Wrench}
+              text={`${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`}
+              subtext={`${summary.completedThisMonth} completed this month`}
+              variant="success"
+            />
+          )}
+        </div>
+      )}
     </WidgetCard>
   );
 }
