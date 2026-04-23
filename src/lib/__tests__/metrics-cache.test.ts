@@ -42,7 +42,6 @@ describe("metrics-cache", () => {
       }),
     };
 
-
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 
     const result = await getTieredVisits();
@@ -79,7 +78,6 @@ describe("metrics-cache", () => {
         aggregate: mockAggregate,
       }),
     };
-
 
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 
@@ -125,7 +123,6 @@ describe("metrics-cache", () => {
       }),
     };
 
-
     vi.mocked(getDb).mockResolvedValueOnce(mockDb as any);
 
     // First call - success
@@ -169,7 +166,6 @@ describe("metrics-cache", () => {
         aggregate: mockAggregate,
       }),
     };
-
 
     vi.mocked(getDb).mockResolvedValue(mockDb as any);
 

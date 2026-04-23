@@ -808,7 +808,10 @@ export const SystemUpdateSchema = z
     site_icon: z.string().optional(),
     bio: z.string().optional(),
     moduleRegistry: z
-      .record(z.string(), z.object({ enabled: z.boolean(), isPublic: z.boolean() }))
+      .record(
+        z.string(),
+        z.object({ enabled: z.boolean(), isPublic: z.boolean() }),
+      )
       .optional(),
     widgetRegistry: z.record(z.string(), z.boolean()).optional(),
     moduleOrder: z.array(z.string()).optional(),
