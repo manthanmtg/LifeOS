@@ -799,6 +799,24 @@ export const BillFolderSchema = z.object({
   color: z.string().optional(),
 });
 
+// --- 23. SYSTEM CONFIG ---
+export const SystemUpdateSchema = z
+  .object({
+    active_theme: z.string().optional(),
+    color_mode: z.enum(["light", "dark"]).optional(),
+    site_title: z.string().optional(),
+    site_icon: z.string().optional(),
+    bio: z.string().optional(),
+    moduleRegistry: z
+      .record(z.string(), z.object({ enabled: z.boolean(), isPublic: z.boolean() }))
+      .optional(),
+    widgetRegistry: z.record(z.string(), z.boolean()).optional(),
+    moduleOrder: z.array(z.string()).optional(),
+    orderingStrategy: z.enum(["custom", "name", "visits"]).optional(),
+    visitSortScope: z.enum(["admin", "public", "all"]).optional(),
+  })
+  .catchall(z.any());
+
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
   blog_post: BlogPostSchema,
