@@ -79,82 +79,91 @@ export default function PayoffChart({
   }, [schedule]);
 
   return (
-    <div className="h-[300px] w-full mt-4">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="5%"
-                stopColor="var(--color-accent)"
-                stopOpacity={0.3}
-              />
-              <stop
-                offset="95%"
-                stopColor="var(--color-accent)"
-                stopOpacity={0}
-              />
-            </linearGradient>
-            <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="5%"
-                stopColor="var(--color-danger)"
-                stopOpacity={0.2}
-              />
-              <stop
-                offset="95%"
-                stopColor="var(--color-danger)"
-                stopOpacity={0}
-              />
-            </linearGradient>
-          </defs>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="rgba(255,255,255,0.05)"
-          />
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: "#71717a", fontSize: 10, fontWeight: 800 }}
-          />
-          <YAxis
-            hide
-            domain={["auto", "auto"]}
-            axisLine={false}
-            tickFormatter={(value) =>
-              `${currencySymbol}${value > 1000 ? (value / 1000).toFixed(0) + "k" : value}`
-            }
-          />
-          <Tooltip
-            content={
-              <CustomTooltip
-                currencySymbol={currencySymbol}
-                numberFormat={numberFormat}
-              />
-            }
-          />
-          <Area
-            type="monotone"
-            dataKey="balance"
-            stroke="var(--color-accent)"
-            strokeWidth={3}
-            fillOpacity={1}
-            fill="url(#colorBalance)"
-            animationDuration={1500}
-          />
-          <Area
-            type="monotone"
-            dataKey="interestPaid"
-            stroke="var(--color-danger)"
-            strokeWidth={2}
-            fillOpacity={1}
-            fill="url(#colorInterest)"
-            animationDuration={2000}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+    <div className="relative mt-4 h-[300px] w-full overflow-hidden rounded-[28px] border border-zinc-800/80 bg-gradient-to-br from-zinc-900/90 via-zinc-950/70 to-zinc-900/90 shadow-[0_24px_80px_rgba(var(--color-accent),0.12)]">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-12 top-6 h-28 w-28 rounded-full bg-accent/15 blur-3xl" />
+        <div className="absolute bottom-4 right-10 h-24 w-24 rounded-full bg-danger/10 blur-3xl" />
+        <div className="absolute inset-[1px] rounded-[27px] border border-zinc-50/5" />
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-zinc-50/5 to-transparent" />
+      </div>
+
+      <div className="relative h-full w-full px-3 py-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-accent)"
+                  stopOpacity={0.36}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-accent)"
+                  stopOpacity={0}
+                />
+              </linearGradient>
+              <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-danger)"
+                  stopOpacity={0.24}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-danger)"
+                  stopOpacity={0}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="rgba(255,255,255,0.07)"
+            />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#a1a1aa", fontSize: 10, fontWeight: 800 }}
+            />
+            <YAxis
+              hide
+              domain={["auto", "auto"]}
+              axisLine={false}
+              tickFormatter={(value) =>
+                `${currencySymbol}${value > 1000 ? (value / 1000).toFixed(0) + "k" : value}`
+              }
+            />
+            <Tooltip
+              content={
+                <CustomTooltip
+                  currencySymbol={currencySymbol}
+                  numberFormat={numberFormat}
+                />
+              }
+            />
+            <Area
+              type="monotone"
+              dataKey="balance"
+              stroke="var(--color-accent)"
+              strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#colorBalance)"
+              animationDuration={1500}
+            />
+            <Area
+              type="monotone"
+              dataKey="interestPaid"
+              stroke="var(--color-danger)"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#colorInterest)"
+              animationDuration={2000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
