@@ -3,6 +3,7 @@
 import React from "react";
 import { X, Download } from "lucide-react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 
 interface ImagePreviewProps {
   src: string;
@@ -45,15 +46,19 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
 
       {/* Image Container */}
       <div
-        className="relative w-full h-full flex items-center justify-center"
+        className="relative w-full h-full flex items-center justify-center p-4 sm:p-8"
         onClick={onClose}
       >
-        <img
-          src={src}
-          alt={alt}
-          className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl animate-in zoom-in duration-300"
-          onClick={(e) => e.stopPropagation()}
-        />
+        <div className="relative w-full h-full max-w-full max-h-[85vh]">
+          <Image
+            src={src}
+            alt={alt || "Image Preview"}
+            fill
+            unoptimized
+            className="object-contain rounded-lg shadow-2xl animate-in zoom-in duration-300"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       </div>
 
       {/* Footer Info / Tip */}

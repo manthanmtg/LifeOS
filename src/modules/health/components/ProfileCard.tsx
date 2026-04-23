@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, AlertCircle, Pill, Syringe } from "lucide-react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PROFILE_TYPE_CONFIG } from "./constants";
@@ -64,11 +65,15 @@ export default function ProfileCard({
           )}
         >
           {pl.profile_pic ? (
-            <img
-              src={`data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`}
-              alt={pl.name}
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={`data:${pl.profile_pic.content_type};base64,${pl.profile_pic.data}`}
+                alt={pl.name}
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
           ) : (
             getInitials(pl.name)
           )}

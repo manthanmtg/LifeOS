@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BLOOD_GROUPS } from "./constants";
@@ -80,11 +81,15 @@ export default function ProfileFormModal({
               <div className="flex flex-col items-center justify-center pb-2">
                 <label className="relative group cursor-pointer w-24 h-24 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 flex items-center justify-center overflow-hidden transition-all shadow-xl">
                   {formData.profile_pic ? (
-                    <img
-                      src={`data:${formData.profile_pic.content_type};base64,${formData.profile_pic.data}`}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={`data:${formData.profile_pic.content_type};base64,${formData.profile_pic.data}`}
+                        alt="Profile"
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="text-zinc-500 group-hover:text-zinc-300 transition-colors flex flex-col items-center">
                       <Plus className="w-6 h-6 mb-1" />

@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { X, Download, FileText, ImageIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface DocPreviewProps {
   src: string;
@@ -96,11 +97,15 @@ export default function DocPreview({
           onClick={(e) => e.stopPropagation()}
         >
           {isImage ? (
-            <img
-              src={src}
-              alt={filename}
-              className="w-full h-full object-contain rounded-lg drop-shadow-2xl"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={src}
+                alt={filename}
+                fill
+                unoptimized
+                className="object-contain rounded-lg drop-shadow-2xl"
+              />
+            </div>
           ) : isPDF ? (
             <iframe
               src={`${src}#toolbar=0&view=Fit`}
