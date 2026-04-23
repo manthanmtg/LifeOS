@@ -36,7 +36,7 @@ describe('mongodb.ts', () => {
 
   it('connects to mongodb successfully in development', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017';
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
     // Ensure we don't have a cached global from another test
     delete (global as any)._mongoClientPromise;
 
@@ -49,7 +49,7 @@ describe('mongodb.ts', () => {
 
   it('connects to mongodb successfully in production', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017';
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
 
     const { getDb } = await import('../mongodb');
     const db = await getDb('testdb');
@@ -60,7 +60,7 @@ describe('mongodb.ts', () => {
   
   it('uses global client in development to avoid multiple connections', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017';
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
     
     const globalWithMongo = global as any;
     const mClient = { db: vi.fn().mockReturnValue('mock_global_db') };
@@ -80,7 +80,7 @@ describe('mongodb.ts', () => {
 
   it('throws a standardized error if connection fails in getDb', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017';
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     
     // override the mocked connect to reject
     const mClient = {
