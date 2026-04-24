@@ -216,9 +216,9 @@ const UNSUPPORTED_PROVIDERS: Record<
 > = {
   google: {
     name: "Google AI",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
     dashboardUrl: "https://aistudio.google.com",
     reason: "No programmatic usage API yet.",
   },
@@ -1170,8 +1170,8 @@ export default function AiUsageAdminView() {
                     value={stats.totalReq.toLocaleString()}
                     sub={`across ${Object.keys(stats.byProvider).length} providers`}
                     icon={Zap}
-                    accent="text-blue-400"
-                    accentBg="bg-blue-500/10"
+                    accent="text-accent"
+                    accentBg="bg-accent/10"
                   />
                   <StatCard
                     label="Input Tokens"
