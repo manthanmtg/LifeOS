@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Car, AlertTriangle, Fuel, Wrench } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -34,7 +35,7 @@ export default function VehicleWidget() {
       loading={loading}
       href="/admin/vehicle"
       footer={
-        summary && (
+        summary && summary.total > 0 && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1.5 text-warning/80">
               <Fuel className="w-3 h-3" />
@@ -53,14 +54,30 @@ export default function VehicleWidget() {
       }
     >
       {summary && (
-        <div className="space-y-3">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="space-y-3"
+        >
           <WidgetStat
-            value={summary.alertCount}
+            value={summary.total > 0 ? summary.alertCount : 0}
             label={
-              summary.alertCount > 0 ? "service alerts" : "all systems clear"
+              summary.total > 0
+                ? summary.alertCount > 0
+                  ? "service alerts"
+                  : "all systems clear"
+                : "vehicles tracked"
             }
           />
-          {summary.alertCount > 0 ? (
+          {summary.total === 0 ? (
+            <WidgetHighlight
+              icon={Car}
+              text="No vehicles added yet"
+              subtext="Service, fuel, and expiry reminders will show up here"
+              variant="accent"
+            />
+          ) : summary.alertCount > 0 ? (
             <WidgetHighlight
               icon={AlertTriangle}
               text={`${summary.alertCount} expiry/service alert${summary.alertCount !== 1 ? "s" : ""}`}
@@ -74,7 +91,7 @@ export default function VehicleWidget() {
               variant="success"
             />
           )}
-        </div>
+        </motion.div>
       )}
     </WidgetCard>
   );
