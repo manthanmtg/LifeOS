@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   Plus,
   Trash2,
@@ -121,9 +121,9 @@ interface RecurringExpense {
   };
 }
 
-function daysUntil(date: string): number {
+function daysUntil(date: string, now: number): number {
   return Math.ceil(
-    (new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    (new Date(date).getTime() - now) / (1000 * 60 * 60 * 24),
   );
 }
 
@@ -226,6 +226,7 @@ interface SortableRecurringExpenseCardProps {
   onEdit: (s: RecurringExpense) => void;
   onDelete: (id: string) => void;
   isProcessingId: string | null;
+  now: number;
 }
 
 function SortableRecurringExpenseCard({
@@ -241,6 +242,7 @@ function SortableRecurringExpenseCard({
   onEdit,
   onDelete,
   isProcessingId,
+  now,
 }: SortableRecurringExpenseCardProps) {
   const {
     attributes,
@@ -256,7 +258,7 @@ function SortableRecurringExpenseCard({
     transition,
   };
 
-  const days = daysUntil(s.payload.next_renewal_date);
+  const days = daysUntil(s.payload.next_renewal_date, now);
   const state = renewalState(
     days,
     renewalWarningDays,
@@ -477,6 +479,7 @@ function DragPreviewCard({ s, sym }: { s: RecurringExpense; sym: string }) {
 }
 
 export default function RecurringExpensesAdminView() {
+  const now = useMemo(() => Date.now(), []);
   const {
     settings,
     updateSettings,
@@ -651,16 +654,15 @@ export default function RecurringExpensesAdminView() {
     fetchSubs();
   }, [fetchSubs]);
 
+  const initializedSort = useRef(false);
   useEffect(() => {
-    if (
-      settingsLoaded &&
-      settings.defaultSort &&
-      settings.defaultSort !== sortBy
-    ) {
-      setSortBy(settings.defaultSort as typeof sortBy);
+    if (settingsLoaded && !initializedSort.current) {
+      if (settings.defaultSort) {
+        setSortBy(settings.defaultSort as typeof sortBy);
+      }
+      initializedSort.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsLoaded]);
+  }, [settingsLoaded, settings.defaultSort]);
 
   // Update category state when categories change to ensure new categories are available
   useEffect(() => {
@@ -939,7 +941,7 @@ export default function RecurringExpensesAdminView() {
       )
         return false;
 
-      const days = daysUntil(sub.payload.next_renewal_date);
+      const days = daysUntil(sub.payload.next_renewal_date, now);
       if (statusFilter === "overdue" && days >= 0) return false;
       if (
         statusFilter === "warning" &&
@@ -952,7 +954,7 @@ export default function RecurringExpensesAdminView() {
         `${sub.payload.name} ${sub.payload.category} ${sub.payload.billing_cycle}`.toLowerCase();
       return haystack.includes(query);
     });
-  }, [subs, searchQuery, statusFilter, settings.renewalWarningDays]);
+  }, [subs, searchQuery, statusFilter, settings.renewalWarningDays, now]);
 
   if (loading) return <AdminModuleSkeleton />;
 
@@ -1028,9 +1030,9 @@ export default function RecurringExpensesAdminView() {
                 className="px-3 py-1.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-xs text-zinc-300"
               >
                 {item.payload.name} ·{" "}
-                {daysUntil(item.payload.next_renewal_date) <= 0
+                {daysUntil(item.payload.next_renewal_date, now) <= 0
                   ? "due"
-                  : `${daysUntil(item.payload.next_renewal_date)}d`}
+                  : `${daysUntil(item.payload.next_renewal_date, now)}d`}
               </div>
             ))}
           </div>
@@ -1497,6 +1499,7 @@ export default function RecurringExpensesAdminView() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   isProcessingId={isProcessingId}
+                  now={now}
                 />
               ))}
             </div>
