@@ -129,7 +129,7 @@ Every module folder `src/modules/[name]/` MUST export:
 - [x] First-run seed utility (`src/lib/seed.ts`) — auto-creates `system.global` document
 - [x] JWT auth via `jose` (`src/lib/auth.ts`) — `signToken()` / `verifyToken()`, 7-day expiry
 - [x] Login API (`POST /api/auth/login`) — validates against `ADMIN_PASSWORD` env var, sets HTTP-only cookie
-- [x] Next.js 16 middleware (`src/middleware.ts`) — protects `/admin/*`, `/api/system/*`, mutating `/api/content/*`
+- [x] Next.js 16 middleware (`src/proxy.ts`) — protects `/admin/*`, `/api/system/*`, mutating `/api/content/*`
 - [x] Polymorphic content API (`/api/content`) — GET with query filters, POST with Zod validation
 - [x] Single-item API (`/api/content/[id]`) — GET, PUT (re-validates payload), DELETE
 - [x] System config API (`/api/system`) — GET/PUT for global config

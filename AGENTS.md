@@ -87,7 +87,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 ### Auth & Middleware
 
-`src/middleware.ts` is the Next.js middleware. It protects `/admin/*` routes and non-GET `/api/content` requests using JWT tokens (jose library) stored in `lifeos_token` HTTP-only cookie. GET requests to `/api/content` are public.
+`src/proxy.ts` is the Next.js middleware. It protects `/admin/*` routes and non-GET `/api/content` requests using JWT tokens (jose library) stored in `lifeos_token` HTTP-only cookie. GET requests to `/api/content` are public.
 
 ### Key Files
 
