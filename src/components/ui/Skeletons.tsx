@@ -63,6 +63,28 @@ export function DashboardSkeleton() {
   );
 }
 
+/** Skeleton for a generic content list */
+export function ContentListSkeleton({ length = 5 }: { length?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
+        >
+          <div className="flex items-center justify-between">
+            <div className="space-y-2 flex-1">
+              <SkeletonBlock className="h-5 w-2/5" />
+              <SkeletonBlock className="h-3 w-3/5" />
+            </div>
+            <SkeletonBlock className="h-8 w-20 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** Skeleton for an admin module page (content list) */
 export function AdminModuleSkeleton() {
   return (
@@ -90,22 +112,7 @@ export function AdminModuleSkeleton() {
       </div>
 
       {/* Content list */}
-      <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
-          >
-            <div className="flex items-center justify-between">
-              <div className="space-y-2 flex-1">
-                <SkeletonBlock className="h-5 w-2/5" />
-                <SkeletonBlock className="h-3 w-3/5" />
-              </div>
-              <SkeletonBlock className="h-8 w-20 rounded-lg" />
-            </div>
-          </div>
-        ))}
-      </div>
+      <ContentListSkeleton />
     </div>
   );
 }

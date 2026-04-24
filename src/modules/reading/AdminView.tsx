@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, BookOpen, Settings, RefreshCw, Sparkles } from "lucide-react";
+import { Plus, BookOpen, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import {
@@ -17,6 +17,7 @@ import { ReadingItemCard } from "./components/ReadingItemCard";
 import { ReadingFilters } from "./components/ReadingFilters";
 import { PRIORITY_ORDER } from "./utils";
 import { AnimatePresence, motion } from "framer-motion";
+import { ContentListSkeleton } from "@/components/ui/Skeletons";
 
 export default function ReadingAdminView() {
   const {
@@ -304,10 +305,7 @@ export default function ReadingAdminView() {
       />
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-          <RefreshCw className="w-8 h-8 animate-spin text-accent mb-3" />
-          <span>Loading queue...</span>
-        </div>
+        <ContentListSkeleton length={4} />
       ) : filtered.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}

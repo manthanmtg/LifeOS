@@ -43,6 +43,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
+
 const BILLING_CYCLES = [
   "monthly",
   "yearly",
@@ -952,13 +954,7 @@ export default function RecurringExpensesAdminView() {
     });
   }, [subs, searchQuery, statusFilter, settings.renewalWarningDays]);
 
-  if (loading)
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-        <RefreshCw className="w-8 h-8 animate-spin text-accent mb-3" />
-        <span>Loading expenses...</span>
-      </div>
-    );
+  if (loading) return <AdminModuleSkeleton />;
 
   return (
     <div className="animate-fade-in-up space-y-6">
@@ -1463,9 +1459,7 @@ export default function RecurringExpensesAdminView() {
         </div>
       )}
 
-      {loading ? (
-        <div className="text-center text-zinc-500 py-12">Loading...</div>
-      ) : subs.length === 0 ? (
+      {subs.length === 0 ? (
         <div className="text-center text-zinc-500 py-12">
           <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>No recurring expenses tracked yet</p>
