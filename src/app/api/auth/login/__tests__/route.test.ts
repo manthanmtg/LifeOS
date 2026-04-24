@@ -65,11 +65,15 @@ describe("POST /api/auth/login", () => {
     delete process.env.ADMIN_PASSWORD;
     const request = createRequest({ password: "test-password" }, "ip-no-env");
 
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     const response = await POST(request);
 
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Internal server error");
+
+    consoleSpy.mockRestore();
   });
 
   it("returns 400 if password is not a string", async () => {

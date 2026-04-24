@@ -93,9 +93,13 @@ describe("mongodb.ts", () => {
       return mClient;
     });
 
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     const { getDb } = await import("../mongodb");
     await expect(getDb()).rejects.toThrow(
       "Database service is currently unavailable.",
     );
+
+    consoleSpy.mockRestore();
   });
 });
