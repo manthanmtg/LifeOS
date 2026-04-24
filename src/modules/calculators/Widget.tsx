@@ -1,12 +1,12 @@
 "use client";
 
-import { Calculator } from "lucide-react";
+import { Calculator, TrendingUp, Landmark, Receipt } from "lucide-react";
 import { useMemo } from "react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
-  WidgetHighlight,
+  WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
 import {
   buildDefaultCalculatorsSettings,
@@ -36,7 +36,7 @@ function normalizeSettings(
 }
 
 export default function CalculatorsWidget() {
-  const { settings } = useModuleSettings<CalculatorsModuleSettings>(
+  const { settings, loaded } = useModuleSettings<CalculatorsModuleSettings>(
     "calculatorsSettings",
     DEFAULT_SETTINGS,
   );
@@ -52,7 +52,24 @@ export default function CalculatorsWidget() {
       const calcEnabled = normalized.enabledCalculators[calc.id] !== false;
       return catEnabled && calcEnabled;
     });
-    return { enabledCategories, enabledCalculators };
+
+    const investingCount = enabledCalculators.filter(
+      (c) => c.categoryId === "core",
+    ).length;
+    const debtCount = enabledCalculators.filter(
+      (c) => c.categoryId === "debt",
+    ).length;
+    const taxCount = enabledCalculators.filter(
+      (c) => c.categoryId === "tax",
+    ).length;
+
+    return {
+      enabledCategories,
+      enabledCalculators,
+      investingCount,
+      debtCount,
+      taxCount,
+    };
   }, [normalized.enabledCategories, normalized.enabledCalculators]);
 
   return (
@@ -60,25 +77,28 @@ export default function CalculatorsWidget() {
       title="Calculators"
       icon={Calculator}
       href="/admin/calculators"
+      loading={!loaded}
       footer={
         <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
           {summary.enabledCategories.length} categories available
         </div>
       }
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         <WidgetStat
           value={summary.enabledCalculators.length}
           label="calculators ready"
         />
-        <WidgetHighlight
-          icon={Calculator}
-          text={
-            summary.enabledCalculators.length > 0
-              ? "Quick access to all tools"
-              : "Enable calculators in settings"
-          }
-          variant={summary.enabledCalculators.length > 0 ? "accent" : "warning"}
+        <WidgetMiniStats
+          stats={[
+            {
+              value: summary.investingCount,
+              label: "Investing",
+              icon: TrendingUp,
+            },
+            { value: summary.debtCount, label: "Debt", icon: Landmark },
+            { value: summary.taxCount, label: "Tax", icon: Receipt },
+          ]}
         />
       </div>
     </WidgetCard>
