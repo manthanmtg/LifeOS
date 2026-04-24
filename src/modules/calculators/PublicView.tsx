@@ -112,6 +112,8 @@ export default function CalculatorsPublicView({
     activeCategory,
     searchQuery,
   ]);
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 || activeCategory !== "all";
 
   const groupedCalculators = useMemo(() => {
     const map: Record<string, typeof visibleCalculators> = {};
@@ -191,13 +193,27 @@ export default function CalculatorsPublicView({
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search calculators by purpose..."
+              aria-label="Search calculators"
               className="w-full rounded-xl border border-zinc-800 bg-zinc-950/70 pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
             />
           </div>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveCategory("all");
+              }}
+              className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-50"
+            >
+              Reset filters
+            </button>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
             onClick={() => setActiveCategory("all")}
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs border transition-colors",
@@ -212,6 +228,7 @@ export default function CalculatorsPublicView({
           {visibleCategories.map((category) => (
             <button
               key={category.id}
+              type="button"
               onClick={() => setActiveCategory(category.id)}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs border transition-colors",
@@ -229,11 +246,27 @@ export default function CalculatorsPublicView({
       {visibleCalculators.length === 0 ? (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-10 text-center">
           <p className="text-zinc-300 text-lg font-medium">
-            No calculators available right now.
+            {hasActiveFilters
+              ? "No calculators match your current filters."
+              : "No calculators available right now."}
           </p>
           <p className="text-zinc-500 mt-1 text-sm">
-            This module is currently configured with no public calculators.
+            {hasActiveFilters
+              ? "Try a broader search or reset the category filter."
+              : "This module is currently configured with no public calculators."}
           </p>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveCategory("all");
+              }}
+              className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-50"
+            >
+              Clear filters
+            </button>
+          ) : null}
         </div>
       ) : (
         <div className="space-y-6">
