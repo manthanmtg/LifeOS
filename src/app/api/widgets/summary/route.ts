@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getDb } from "@/lib/mongodb";
 import { ContentDocument } from "@/lib/types";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
@@ -8,6 +7,21 @@ import { getIdeaMetrics, getIdeaSpotlight } from "@/modules/ideas/insights";
 import type { IdeaRecord } from "@/modules/ideas/shared";
 import { getPeopleSummary, toPersonDocument } from "@/modules/people/insights";
 import type { PersonPayload } from "@/modules/people/types";
+import { z } from "zod";
+import {
+  VehicleSchema,
+  HealthProfileSchema,
+  RecurringExpenseSchema,
+  BillSchema,
+} from "@/lib/schemas";
+import type { EmiLoan } from "@/modules/emi-tracker/types";
+
+// --- Types for local use ---
+type LoanPayload = EmiLoan["payload"];
+type VehiclePayload = z.infer<typeof VehicleSchema>;
+type HealthProfilePayload = z.infer<typeof HealthProfileSchema>;
+type RecurringExpensePayload = z.infer<typeof RecurringExpenseSchema>;
+type BillPayload = z.infer<typeof BillSchema>;
 
 // --- EMI Utility Functions ---
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
@@ -38,7 +52,7 @@ function roundTo(n: number, decimals: number) {
   return Math.round(n * f) / f;
 }
 
-function computeScheduleLite(loan: any, decimals: number) {
+function computeScheduleLite(loan: LoanPayload, decimals: number) {
   const processingFee =
     (loan.processing_fee_amount ?? 0) +
     (loan.processing_fee_percent
@@ -54,7 +68,7 @@ function computeScheduleLite(loan: any, decimals: number) {
 
   const adjustments = [...(loan.rate_adjustments || [])]
     .filter(
-      (a: any) => !!a.effective_date && Number.isFinite(a.annual_interest_rate),
+      (a) => !!a.effective_date && Number.isFinite(a.annual_interest_rate),
     )
     .sort(
       (a, b) =>
@@ -149,15 +163,16 @@ export async function GET(request: Request) {
     const contentColl = db.collection<ContentDocument>("content");
     const docs = (await contentColl
       .find({ module_type, is_public: false })
-      .toArray()) as any[];
+      .toArray()) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    let summary: any = {};
+    let summary: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
     const nowRef = Date.now();
 
     switch (module_type) {
       case "vehicle": {
         let alertCount = 0;
-        let latestService: any = null;
+        let latestService: VehiclePayload["service_records"][number] | null =
+          null;
         let fuelCostThisMonth = 0;
         const now = new Date();
         const monthStart = new Date(
@@ -207,7 +222,7 @@ export async function GET(request: Request) {
 
       case "health_profile": {
         let alertCount = 0;
-        let latestVisit: any = null;
+        let latestVisit: HealthProfilePayload["visits"][number] | null = null;
         let activeMedCount = 0;
         let activeConditionCount = 0;
         let upcomingVacCount = 0;
@@ -373,7 +388,9 @@ export async function GET(request: Request) {
       }
 
       case "recurring_expense": {
-        const act = docs.filter((s) => s.payload.is_active);
+        const act = docs.filter(
+          (s) => s.payload.is_active,
+        ) as ContentDocument<RecurringExpensePayload>[];
 
         const monthlyEquivalent = (cost: number, cycle: string) => {
           if (cycle === "yearly") return cost / 12;
@@ -391,7 +408,8 @@ export async function GET(request: Request) {
 
         let overdueCount = 0;
         let dueSoonCount = 0;
-        let nextRenewal: any = null;
+        let nextRenewal: { name: string; next_renewal_date: string } | null =
+          null;
 
         for (const s of act) {
           const payload = s.payload;
@@ -505,7 +523,7 @@ export async function GET(request: Request) {
 
       case "bill": {
         let totalAttachments = 0;
-        let recentBill: any = null;
+        let recentBill: ContentDocument<BillPayload> | null = null;
 
         for (const s of docs) {
           const payload = s.payload;
