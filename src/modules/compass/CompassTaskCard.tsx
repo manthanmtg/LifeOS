@@ -1,16 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import { RefreshCw, CheckCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CompassTask } from "./types";
 
 const PRIORITY_MAP = {
-  p1: { label: "P1: Urgent", color: "text-danger bg-danger/10" },
-  p2: { label: "P2: High", color: "text-warning bg-warning/10" },
-  p3: { label: "P3: Normal", color: "text-accent bg-accent/10" },
-  p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10" },
-  p5: { label: "P5: Backburner", color: "text-zinc-500 bg-zinc-800/50" },
+  p1: { label: "P1: Urgent", color: "text-danger bg-danger/10 border-danger/20" },
+  p2: { label: "P2: High", color: "text-warning bg-warning/10 border-warning/20" },
+  p3: { label: "P3: Normal", color: "text-accent bg-accent/10 border-accent/20" },
+  p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10 border-zinc-700/50" },
+  p5: { label: "P5: Backburner", color: "text-zinc-500 bg-zinc-800/50 border-zinc-700/30" },
 };
 
 interface CompassTaskCardProps {
@@ -49,19 +50,22 @@ export default function CompassTaskCard({
   const checklistTotal = task.payload.checklist?.length ?? 0;
 
   return (
-    <div
+    <motion.div
       draggable
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
+      onDragStartCapture={onDragStart}
+      onDragEndCapture={onDragEnd}
       onClick={onClick}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
-        "bg-zinc-900 border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-all shadow-sm group",
+        "bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-colors shadow-sm hover:shadow-xl hover:shadow-accent/5 group relative overflow-hidden",
         isDragging && "opacity-50 scale-95",
         isStuck && "border-warning/30 bg-warning/5",
       )}
     >
       <div className="flex gap-2 items-start justify-between mb-2">
-        <h4 className="text-sm font-medium text-zinc-300 leading-snug">
+        <h4 className="text-sm font-medium text-zinc-300 leading-snug group-hover:text-white transition-colors">
           {task.payload.title}
         </h4>
         {(isUpdating || isDeleting) && (
@@ -72,7 +76,7 @@ export default function CompassTaskCard({
       <div className="flex flex-wrap gap-2 items-center text-zinc-500 mt-3">
         <span
           className={cn(
-            "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded",
+            "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border",
             priority.color,
           )}
         >
@@ -81,7 +85,7 @@ export default function CompassTaskCard({
         {task.payload.category_tags?.slice(0, 2).map((tag) => (
           <span
             key={tag}
-            className="text-[10px] text-zinc-400 bg-zinc-800 px-1.5 py-0.5 rounded"
+            className="text-[10px] text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 px-1.5 py-0.5 rounded transition-colors group-hover:border-zinc-600"
           >
             {tag}
           </span>
@@ -89,8 +93,8 @@ export default function CompassTaskCard({
 
         <div className="ml-auto flex items-center gap-3">
           {checklistTotal > 0 && (
-            <span className="text-xs flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
+            <span className="text-xs flex items-center gap-1 group-hover:text-zinc-300 transition-colors">
+              <CheckCircle className="w-3 h-3 text-accent" />
               {checklistDone}/{checklistTotal}
             </span>
           )}
@@ -104,6 +108,6 @@ export default function CompassTaskCard({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
