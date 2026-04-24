@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Target, Flame, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import { Habit, computeMetrics } from "./components/types";
@@ -57,22 +58,33 @@ export default function HabitsWidget() {
           completed today
         </p>
         {/* 7-day sparkline bars */}
-        <div className="mt-4 flex items-end gap-0.5 h-6">
+        <div className="mt-4 flex items-end gap-1 h-8">
           {metrics.last7Days.map((pct, i) => (
-            <div
+            <motion.div
               key={i}
-              className="flex-1 rounded-sm transition-all"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: `${Math.max(pct, 8)}%`, opacity: 0.8 }}
+              transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
+              whileHover={{ 
+                opacity: 1, 
+                scaleX: 1.1,
+                filter: "brightness(1.2)"
+              }}
+              className="flex-1 rounded-t-[2px] transition-colors relative group/bar"
               style={{
-                height: `${Math.max(pct, 4)}%`,
                 backgroundColor:
                   pct >= 70
                     ? "var(--color-success)"
                     : pct >= 40
                       ? "var(--color-warning)"
-                      : "var(--color-zinc-700, #3f3f46)",
-                opacity: 0.8,
+                      : "var(--color-zinc-700)",
               }}
-            />
+              title={`${pct}% completion`}
+            >
+               <div className="absolute -top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[8px] font-bold text-zinc-400">
+                {pct}%
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
