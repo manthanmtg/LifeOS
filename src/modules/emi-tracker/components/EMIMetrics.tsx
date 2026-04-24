@@ -51,8 +51,8 @@ export default function EMIMetrics({
           : `Mixed (${quickStats.outstandingByCurrency.length})`,
       sub: "Total Principal left",
       icon: Landmark,
-      color: "text-blue-400",
-      bg: "bg-blue-400/10",
+      color: "text-accent",
+      bg: "bg-accent/10",
     },
     {
       label: "Interest Saved",

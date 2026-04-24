@@ -4,7 +4,7 @@ import { DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Housing: "bg-blue-500/15 text-blue-400",
+  Housing: "bg-accent/15 text-accent",
   Food: "bg-warning/15 text-warning",
   Transportation: "bg-accent/15 text-accent",
   Utilities: "bg-warning/15 text-warning",

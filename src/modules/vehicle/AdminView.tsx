@@ -148,9 +148,9 @@ const FUEL_TYPE_CONFIG: Record<
   },
   diesel: {
     label: "Diesel",
-    color: "text-slate-400",
-    bg: "bg-slate-500/10",
-    border: "border-slate-500/20",
+    color: "text-zinc-400",
+    bg: "bg-zinc-500/10",
+    border: "border-zinc-500/20",
   },
   electric: {
     label: "Electric",
@@ -160,9 +160,9 @@ const FUEL_TYPE_CONFIG: Record<
   },
   hybrid: {
     label: "Hybrid",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
+    color: "text-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
   },
   cng: {
     label: "CNG",
@@ -188,7 +188,7 @@ const SERVICE_TYPE_CONFIG: Record<
   ServiceType,
   { label: string; icon: typeof Wrench; color: string }
 > = {
-  routine: { label: "Routine", icon: Wrench, color: "text-blue-400" },
+  routine: { label: "Routine", icon: Wrench, color: "text-accent" },
   repair: { label: "Repair", icon: Wrench, color: "text-danger" },
   inspection: { label: "Inspection", icon: Eye, color: "text-accent" },
   tire: { label: "Tire", icon: Disc, color: "text-zinc-400" },
@@ -200,7 +200,7 @@ const SERVICE_TYPE_CONFIG: Record<
 };
 
 const DOC_TYPE_CONFIG: Record<DocType, { label: string; color: string }> = {
-  insurance: { label: "Insurance", color: "text-blue-400" },
+  insurance: { label: "Insurance", color: "text-accent" },
   registration: { label: "Registration", color: "text-accent" },
   pollution: { label: "Pollution Cert", color: "text-success" },
   license: { label: "License", color: "text-warning" },

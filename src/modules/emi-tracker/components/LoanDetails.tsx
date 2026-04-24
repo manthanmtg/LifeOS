@@ -197,7 +197,7 @@ export default function LoanDetails({
             label: "Interest Paid",
             value: totalInterest,
             sub: "Across tenure",
-            color: "text-blue-400",
+            color: "text-accent",
             icon: Info,
             amounts: `${formatMoney(paidInterest, sym, 0, numberFormat)} + ${formatMoney(remainingInterest, sym, 0, numberFormat)} (Left)`,
           },
@@ -290,7 +290,7 @@ export default function LoanDetails({
 
                 <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg">
                   <h3 className="text-sm font-bold text-zinc-300 mb-6 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-blue-400" />
+                    <Info className="w-4 h-4 text-accent" />
                     Technical Profile
                   </h3>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
