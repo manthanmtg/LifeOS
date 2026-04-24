@@ -45,8 +45,7 @@ export async function PUT(request: Request) {
       "visitSortScope",
     ];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(parsed.data)) {
       if (baseFields.includes(key)) {
