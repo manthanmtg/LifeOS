@@ -96,9 +96,11 @@ describe("metrics-cache", () => {
     const { getDb } = await import("@/lib/mongodb");
 
     vi.mocked(getDb).mockRejectedValue(new Error("DB Connection Failed"));
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await getTieredVisits();
     expect(result).toEqual({});
+    consoleSpy.mockRestore();
   });
 
   it("should return stale cache if DB error occurs after initial fetch", async () => {
@@ -135,12 +137,14 @@ describe("metrics-cache", () => {
 
     // Second call - DB error
     vi.mocked(getDb).mockRejectedValueOnce(new Error("DB Error"));
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await getTieredVisits();
 
     // Should return stale cache instead of empty object
     expect(result.habits.admin).toEqual([5, 5, 5, 5]);
 
+    consoleSpy.mockRestore();
     vi.restoreAllMocks();
   });
 

@@ -270,6 +270,7 @@ describe("GET /api/widgets/summary", () => {
 
   it("returns 500 if database fails", async () => {
     vi.mocked(getDb).mockRejectedValue(new Error("DB Connection failed"));
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const request = createRequest(
       "http://localhost/api/widgets/summary?module_type=todo",
@@ -279,5 +280,6 @@ describe("GET /api/widgets/summary", () => {
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Failed to fetch widget summary");
+    consoleSpy.mockRestore();
   });
 });
