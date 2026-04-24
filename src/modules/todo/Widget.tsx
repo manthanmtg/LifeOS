@@ -6,6 +6,7 @@ import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
   WidgetHighlight,
+  WidgetList,
 } from "@/components/dashboard/widget-primitives";
 
 interface TodoSummary {
@@ -25,8 +26,6 @@ export default function TodoWidget() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  const topTask = summary?.topActive?.[0];
 
   return (
     <WidgetCard
@@ -51,11 +50,12 @@ export default function TodoWidget() {
             value={summary.activeCount}
             label={summary.activeCount === 0 ? "all clear" : "pending"}
           />
-          {topTask ? (
-            <WidgetHighlight
-              icon={ListTodo}
-              text={topTask.title}
-              variant="accent"
+          {summary.topActive.length > 0 ? (
+            <WidgetList
+              items={summary.topActive.map((t) => ({
+                label: t.title,
+                icon: ListTodo,
+              }))}
             />
           ) : (
             <WidgetHighlight
