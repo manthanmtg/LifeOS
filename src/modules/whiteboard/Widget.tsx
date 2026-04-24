@@ -8,8 +8,6 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
-const NOW_MS = Date.now();
-
 interface WhiteboardDoc {
   is_public: boolean;
   payload: {
@@ -24,11 +22,15 @@ interface WhiteboardDoc {
 export default function WhiteboardWidget() {
   const [boards, setBoards] = useState<WhiteboardDoc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadedAtMs, setLoadedAtMs] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/content?module_type=whiteboard_note")
       .then((r) => r.json())
-      .then((d) => setBoards(d.data || []))
+      .then((d) => {
+        setLoadedAtMs(Date.now());
+        setBoards(d.data || []);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -50,12 +52,13 @@ export default function WhiteboardWidget() {
     )[0];
   }, [boards]);
 
-  const daysAgo = latestBoard
-    ? Math.floor(
-        (NOW_MS - new Date(latestBoard.updated_at).getTime()) /
-          (1000 * 60 * 60 * 24),
-      )
-    : null;
+  const daysAgo = useMemo(() => {
+    if (!latestBoard || loadedAtMs === null) return null;
+    return Math.floor(
+      (loadedAtMs - new Date(latestBoard.updated_at).getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
+  }, [latestBoard, loadedAtMs]);
 
   return (
     <WidgetCard
