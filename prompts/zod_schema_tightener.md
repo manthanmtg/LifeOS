@@ -18,6 +18,7 @@ The LifeOS application utilizes a polymorphic MongoDB layer. Everything lives in
 ### 2. Audit (Pick 1–3 Issues)
 
 Check for loose validations:
+
 - **Missing Constraints**: Usage of `.string()` without `.min()`, `.max()`, or `trim()`.
 - **Loose Enums**: String fields that describe a set of known values (e.g. `status`, `category`) that aren't utilizing `.enum()` or `.nativeEnum()`.
 - **Bad Formats**: URL fields without `.url()`, email fields without `.email()`, or id-like fields without Regex validation.

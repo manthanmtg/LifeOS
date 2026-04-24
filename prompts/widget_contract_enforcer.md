@@ -17,6 +17,7 @@ Widgets are dashboard tiles—not mini-applications. They must abide by a strict
 ### 2. Audit (Pick 1–3 Issues)
 
 Evaluate the widget code against the Widget Contract rules:
+
 - **Height constraint**: Does the widget visually exceed the 280px `WIDGET_MAX_HEIGHT` constraint natively or load oversized data?
 - **Restricted Primitives**: Is it using undocumented layout structures, instead of exactly ONE recommended combo (e.g. `WidgetStat` + `WidgetHighlight`, `WidgetStat` + `WidgetMiniStats`, `WidgetStat` + `WidgetList`, or standalone `WidgetStat`)?
 - **Data Fetching**: Is it querying `/api/content?module_type=X` to pull down the entire DB collection, instead of efficiently hitting `/api/widgets/summary`?

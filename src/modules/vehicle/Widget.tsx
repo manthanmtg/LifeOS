@@ -35,7 +35,8 @@ export default function VehicleWidget() {
       loading={loading}
       href="/admin/vehicle"
       footer={
-        summary && summary.total > 0 && (
+        summary &&
+        summary.total > 0 && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1.5 text-warning/80">
               <Fuel className="w-3 h-3" />

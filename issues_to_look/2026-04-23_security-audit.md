@@ -6,13 +6,13 @@ Date: 2026-04-23
 
 ## Summary
 
-Audited `src/middleware.ts`, `src/lib/auth.ts`, and the routes under `src/app/api`.
+Audited `src/proxy.ts`, `src/lib/auth.ts`, and the routes under `src/app/api`.
 
 This run closed a trivial gap in `src/app/api/system/route.ts`: request bodies are now schema-validated and module-specific `*Settings` are enforced to be objects.
 
 ## What looks good
 
-- `src/middleware.ts` protects `/admin/*` and the sensitive API surfaces that mutate data or expose admin-only data, including all `/api/bills*` routes.
+- `src/proxy.ts` protects `/admin/*` and the sensitive API surfaces that mutate data or expose admin-only data, including all `/api/bills*` routes.
 - `src/lib/auth.ts` verifies JWTs with explicit issuer and audience checks.
 - Public `content` reads re-check admin state server-side before exposing private records.
 - Core content and bills write routes use Zod validation before persistence.
@@ -62,7 +62,7 @@ Fix:
 Files:
 
 - `next.config.ts`
-- `src/middleware.ts`
+- `src/proxy.ts`
 
 There is no app-level configuration for headers such as CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, or `Permissions-Policy`.
 

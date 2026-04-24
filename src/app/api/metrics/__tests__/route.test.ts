@@ -18,7 +18,7 @@ describe("Metrics API Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockInsertOne = vi.fn().mockResolvedValue({ acknowledged: true });
     mockFind = {
       sort: vi.fn().mockReturnThis(),
@@ -45,52 +45,68 @@ describe("Metrics API Route", () => {
       expect(mockCollection.find).toHaveBeenCalledWith({
         timestamp: { $gte: expect.any(String) },
       });
-      
+
       const sinceArg = mockCollection.find.mock.calls[0][0].timestamp.$gte;
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
+        .toISOString()
+        .slice(0, 10);
       expect(sinceArg.slice(0, 10)).toBe(thirtyDaysAgo);
     });
 
     it("respects custom days parameter", async () => {
-      const req = new NextRequest(new URL("http://localhost/api/metrics?days=7"));
+      const req = new NextRequest(
+        new URL("http://localhost/api/metrics?days=7"),
+      );
       const response = await GET(req);
 
       expect(response.status).toBe(200);
       const sinceArg = mockCollection.find.mock.calls[0][0].timestamp.$gte;
-      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000)
+        .toISOString()
+        .slice(0, 10);
       expect(sinceArg.slice(0, 10)).toBe(sevenDaysAgo);
     });
 
     it("clips days parameter between 1 and 365", async () => {
       // Test lower bound
-      const reqLow = new NextRequest(new URL("http://localhost/api/metrics?days=0"));
+      const reqLow = new NextRequest(
+        new URL("http://localhost/api/metrics?days=0"),
+      );
       await GET(reqLow);
       let sinceArg = mockCollection.find.mock.calls[0][0].timestamp.$gte;
-      let expected = new Date(Date.now() - 1 * 86400000).toISOString().slice(0, 10);
+      let expected = new Date(Date.now() - 1 * 86400000)
+        .toISOString()
+        .slice(0, 10);
       expect(sinceArg.slice(0, 10)).toBe(expected);
 
       // Test upper bound
-      const reqHigh = new NextRequest(new URL("http://localhost/api/metrics?days=400"));
+      const reqHigh = new NextRequest(
+        new URL("http://localhost/api/metrics?days=400"),
+      );
       await GET(reqHigh);
       sinceArg = mockCollection.find.mock.calls[1][0].timestamp.$gte;
-      expected = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10);
+      expected = new Date(Date.now() - 365 * 86400000)
+        .toISOString()
+        .slice(0, 10);
       expect(sinceArg.slice(0, 10)).toBe(expected);
     });
 
     it("returns empty array and 200 on database error (graceful degradation)", async () => {
       vi.mocked(getDb).mockRejectedValue(new Error("DB Error"));
       const req = new NextRequest(new URL("http://localhost/api/metrics"));
-      
+
       // Mock console.error to avoid cluttering test output
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-      
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
       const response = await GET(req);
 
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body).toEqual({ success: true, data: [] });
       expect(consoleSpy).toHaveBeenCalled();
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -105,15 +121,15 @@ describe("Metrics API Route", () => {
         value: 1,
         device_type: "mobile",
         is_admin: true,
-        metadata: { extra: "data" }
+        metadata: { extra: "data" },
       };
-      
+
       const req = new NextRequest(new URL("http://localhost/api/metrics"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "user-agent": "Mozilla/5.0",
-          "x-forwarded-for": "1.2.3.4"
+          "x-forwarded-for": "1.2.3.4",
         },
         body: JSON.stringify(metricData),
       });
@@ -122,7 +138,7 @@ describe("Metrics API Route", () => {
 
       expect(response.status).toBe(200);
       expect(mockInsertOne).toHaveBeenCalled();
-      
+
       const insertedEvent = mockInsertOne.mock.calls[0][0];
       expect(insertedEvent.path).toBe("/dashboard");
       expect(insertedEvent.module).toBe("todo");
@@ -172,7 +188,7 @@ describe("Metrics API Route", () => {
 
       await POST(req);
       const insertedEvent = mockInsertOne.mock.calls[0][0];
-      
+
       expect(insertedEvent.path.length).toBeLessThanOrEqual(200);
       expect(insertedEvent.module.length).toBeLessThanOrEqual(100);
       expect(insertedEvent.action.length).toBeLessThanOrEqual(50);
@@ -193,14 +209,16 @@ describe("Metrics API Route", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const response = await POST(req);
 
       expect(response.status).toBe(500);
       const body = await response.json();
       expect(body.error).toBe("Failed to record metric");
-      
+
       consoleSpy.mockRestore();
     });
   });

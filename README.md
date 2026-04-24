@@ -231,7 +231,7 @@ src/
 │   └── ... (see full list below)
 ├── components/shell/               # Layout components
 ├── registry.ts                     # Module config
-└── middleware.ts                   # Auth middleware
+└── proxy.ts                        # Auth middleware
 ```
 
 ---

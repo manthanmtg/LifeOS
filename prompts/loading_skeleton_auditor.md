@@ -22,7 +22,7 @@ Check for these common gaps:
 
 - **Missing Next.js Loaders**: Missing `loading.tsx` in a route group that incurs server-side fetching latency.
 - **Basic Spinners/Text**: Components that conditionally render `<div>Loading...</div>` or `<Spinner />` instead of a skeleton primitive.
-- **Dynamic Import Violations**: `next/dynamic` imports lacking the `{ loading: () => <Skeleton /> }`  *object literal* as the secondary argument.
+- **Dynamic Import Violations**: `next/dynamic` imports lacking the `{ loading: () => <Skeleton /> }` _object literal_ as the secondary argument.
 - **Widget States**: Widgets that fail to track `loading` state to `false` in a `.finally()` block, or fail to render an `animate-pulse` visual.
 
 ### 3. Fix (Small Scope)
