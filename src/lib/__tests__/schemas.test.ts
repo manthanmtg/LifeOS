@@ -54,6 +54,18 @@ describe("schemas", () => {
       const result = ExpenseSchema.safeParse(expense);
       expect(result.success).toBe(true);
     });
+
+    it("rejects malformed expense currency codes", () => {
+      const expense = {
+        amount: 100,
+        currency: "usd",
+        description: "Test Expense",
+        category: "Food",
+        date: new Date().toISOString(),
+      };
+      const result = ExpenseSchema.safeParse(expense);
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("IdeaSchema", () => {

@@ -72,6 +72,7 @@ export default function SettingsTab({
               type="text"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
+              maxLength={80}
               onKeyDown={(e) => e.key === "Enter" && addCategory()}
               placeholder="Add new category..."
               className="flex-1 bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-3 text-sm text-zinc-50 focus:outline-none focus:border-accent transition-all"
