@@ -35,9 +35,16 @@ export const PortfolioProfileSchema = z.object({
 // --- 2. EXPENSE TRACKER ---
 export const ExpenseSchema = z.object({
   amount: z.number().positive("Amount must be greater than 0"),
-  currency: z.string().length(3).default("USD"),
-  description: z.string().min(2, "Please provide a brief description"),
-  merchant: z.string().optional(),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
+    .default("USD"),
+  description: z
+    .string()
+    .trim()
+    .min(2, "Please provide a brief description")
+    .max(200),
+  merchant: z.string().trim().max(100).optional(),
   account: z
     .enum([
       "Cash",
@@ -48,9 +55,9 @@ export const ExpenseSchema = z.object({
       "Other",
     ])
     .default("UPI"),
-  category: z.string().min(1, "Category is required"),
-  subcategory: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  category: z.string().trim().min(1, "Category is required").max(80),
+  subcategory: z.string().trim().max(80).optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   date: z.string().datetime("Must be a valid ISO Date string"),
   type: z.enum(["income", "expense"]).default("expense"),
   is_recurring: z.boolean().default(false),

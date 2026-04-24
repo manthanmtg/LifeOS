@@ -138,7 +138,7 @@ export default function ExpenseForm({
 
   const handleAddTag = () => {
     const t = tagInput.trim();
-    if (t && !tags.includes(t)) {
+    if (t && tags.length < 20 && !tags.includes(t)) {
       setTags([...tags, t]);
       setTagInput("");
     }
@@ -149,18 +149,20 @@ export default function ExpenseForm({
     setError("");
     const parsedAmount = parseFloat(amount);
     if (!parsedAmount || parsedAmount <= 0) return setError("Invalid amount");
-    if (!description.trim()) return setError("Description required");
+    if (description.trim().length < 2) {
+      return setError("Description must be at least 2 characters");
+    }
 
     setIsSubmitting(true);
     try {
       const payload = {
         amount: parsedAmount,
         currency: settings.defaultCurrency,
-        description,
-        merchant,
+        description: description.trim(),
+        merchant: merchant.trim(),
         account,
         category,
-        subcategory,
+        subcategory: subcategory.trim(),
         tags,
         date: new Date(date).toISOString(),
         type,
@@ -330,6 +332,7 @@ export default function ExpenseForm({
                 <input
                   type="number"
                   step="0.01"
+                  min="0.01"
                   autoFocus
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
@@ -352,6 +355,8 @@ export default function ExpenseForm({
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                minLength={2}
+                maxLength={200}
                 placeholder={
                   type === "income"
                     ? "Where did this come from?"
@@ -419,6 +424,7 @@ export default function ExpenseForm({
                   type="text"
                   value={merchant}
                   onChange={(e) => setMerchant(e.target.value)}
+                  maxLength={100}
                   placeholder={
                     type === "income" ? "e.g. Employer" : "e.g. Amazon"
                   }
@@ -508,6 +514,7 @@ export default function ExpenseForm({
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
+                  maxLength={50}
                   onKeyDown={(e) =>
                     e.key === "Enter" && (e.preventDefault(), handleAddTag())
                   }
