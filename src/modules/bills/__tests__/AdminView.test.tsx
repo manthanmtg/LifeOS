@@ -5,8 +5,7 @@ import React from "react";
 
 // Mock pdf.js to prevent "DOMMatrix is not defined" in Node environment
 vi.mock("react-pdf", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Document: ({ children }: any) => <div data-testid="pdf-mock">{children}</div>,
+  Document: ({ children }: { children: React.ReactNode }) => <div data-testid="pdf-mock">{children}</div>,
   Page: () => <div data-testid="page-mock">PDF Page Mock</div>,
   pdfjs: { GlobalWorkerOptions: {} },
 }));

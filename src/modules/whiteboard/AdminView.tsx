@@ -80,8 +80,7 @@ const COLOR_BORDER: Record<string, string> = {
   orange: "border-l-orange-500/60",
 };
 
-function relativeTime(dateStr: string): string {
-  const now = Date.now();
+function relativeTime(dateStr: string, now: number): string {
   const then = new Date(dateStr).getTime();
   const diff = now - then;
   const mins = Math.floor(diff / 60000);
@@ -100,6 +99,7 @@ function relativeTime(dateStr: string): string {
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 export default function WhiteboardAdminView() {
+  const now = useMemo(() => Date.now(), []);
   const [whiteboards, setWhiteboards] = useState<ContentDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1106,9 +1106,8 @@ export default function WhiteboardAdminView() {
                         </span>
                       )}
                       <span title={new Date(board.updated_at).toLocaleString()}>
-                        {relativeTime(board.updated_at)}
-                      </span>
-                    </div>
+                        {relativeTime(board.updated_at, now)}
+                      </span>                    </div>
                   </div>
                 </motion.div>
               );
