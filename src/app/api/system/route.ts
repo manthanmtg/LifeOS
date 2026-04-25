@@ -1,6 +1,6 @@
 import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
-import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { getTieredVisits } from "@/lib/metrics-cache";
 import { SystemUpdateSchema } from "@/lib/schemas";
 
@@ -28,7 +28,7 @@ export async function PUT(request: Request) {
     const parsed = SystemUpdateSchema.safeParse(body);
 
     if (!parsed.success) {
-      return ApiError("Invalid settings format", 400);
+      return ApiValidationError(parsed.error.format());
     }
 
     // Define allowed base fields

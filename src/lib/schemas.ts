@@ -847,6 +847,18 @@ export const SystemUpdateSchema = z
   })
   .catchall(z.any());
 
+export const MetricEventSchema = z.object({
+  path: z.string().max(200).default("/"),
+  module: z.string().max(100).default("core"),
+  action: z.string().max(50).default("view"),
+  label: z.string().max(200).nullable().optional(),
+  value: z.number().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).default({}),
+  referrer: z.string().max(500).nullable().optional(),
+  device_type: z.enum(["mobile", "tablet", "desktop", "unknown"]).default("unknown"),
+  is_admin: z.boolean().default(false),
+});
+
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
   blog_post: BlogPostSchema,

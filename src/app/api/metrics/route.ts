@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { getDb } from "@/lib/mongodb";
-import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { createHash } from "crypto";
+import { MetricEventSchema } from "@/lib/schemas";
 
 export async function GET(req: NextRequest) {
   const rawDays = parseInt(req.nextUrl.searchParams.get("days") || "30");
@@ -26,6 +27,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const parsed = MetricEventSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return ApiValidationError(parsed.error.format());
+    }
+
     const db = await getDb();
 
     const ip = req.headers.get("x-forwarded-for") || "unknown";
@@ -35,33 +42,9 @@ export async function POST(req: NextRequest) {
       .digest("hex")
       .slice(0, 12);
 
-    const safeStr = (v: unknown, fallback: string, maxLen = 500): string => {
-      if (typeof v !== "string") return fallback;
-      return v.slice(0, maxLen);
-    };
-
-    const allowedDeviceTypes = ["mobile", "tablet", "desktop", "unknown"];
-    const deviceType = allowedDeviceTypes.includes(body.device_type)
-      ? body.device_type
-      : "desktop";
-
     const event = {
-      path: safeStr(body.path, "/", 200),
-      module: safeStr(body.module, "core", 100),
-      action: safeStr(body.action, "view", 50),
-      label: typeof body.label === "string" ? body.label.slice(0, 200) : null,
-      value: typeof body.value === "number" ? body.value : null,
-      metadata:
-        typeof body.metadata === "object" &&
-        body.metadata !== null &&
-        !Array.isArray(body.metadata)
-          ? JSON.parse(JSON.stringify(body.metadata).slice(0, 2000))
-          : {},
-      referrer:
-        typeof body.referrer === "string" ? body.referrer.slice(0, 500) : null,
-      device_type: deviceType,
+      ...parsed.data,
       session_id: sessionHash,
-      is_admin: typeof body.is_admin === "boolean" ? body.is_admin : false,
       timestamp: new Date().toISOString(),
     };
 
