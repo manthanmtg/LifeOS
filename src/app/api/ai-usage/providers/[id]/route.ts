@@ -78,6 +78,9 @@ export async function PUT(
       name: merged.name,
       provider: merged.provider,
       admin_api_key: merged.admin_api_key,
+      plan: merged.plan,
+      monthly_budget: merged.monthly_budget,
+      organization_name: merged.organization_name,
       is_active: merged.is_active,
       last_synced_at: merged.last_synced_at,
     });
