@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Presentation, Globe } from "lucide-react";
+import { Presentation, Globe, Layers } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -25,6 +25,9 @@ export default function SlidesWidget() {
     const publicDecks = items.filter(
       (i) => i.payload.visibility === "public",
     ).length;
+    const uniqueTopics = new Set(
+      items.map((i) => i.payload.topic).filter(Boolean),
+    ).size;
     const latest =
       items.length > 0
         ? [...items].sort(
@@ -33,7 +36,7 @@ export default function SlidesWidget() {
               new Date(a.created_at).getTime(),
           )[0]
         : null;
-    return { total: items.length, publicDecks, latest };
+    return { total: items.length, publicDecks, uniqueTopics, latest };
   }, [items]);
 
   return (
@@ -47,6 +50,9 @@ export default function SlidesWidget() {
           <span className="flex items-center gap-1.5 text-success/80">
             <Globe className="w-3 h-3" /> {summary.publicDecks} public
           </span>
+          <span className="flex items-center gap-1.5 text-accent/80">
+            <Layers className="w-3 h-3" /> {summary.uniqueTopics} topics
+          </span>
         </div>
       }
     >
@@ -56,7 +62,7 @@ export default function SlidesWidget() {
           <WidgetHighlight
             icon={Presentation}
             text={summary.latest.payload.title}
-            subtext={summary.latest.payload.format?.toUpperCase()}
+            subtext={`Latest • ${summary.latest.payload.format?.toUpperCase()}`}
           />
         ) : (
           <WidgetHighlight icon={Presentation} text="No decks yet" />
