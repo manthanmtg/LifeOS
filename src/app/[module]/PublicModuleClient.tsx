@@ -7,17 +7,14 @@ import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import { moduleRegistry } from "@/registry";
 import { Briefcase } from "lucide-react";
-import { PublicModuleSkeleton } from "@/components/ui/Skeletons";
+import { PublicModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
 
 /* ── Module-specific public views ─────────────────────────────── */
 function ViewLoadingFallback() {
   return (
-    <div className="space-y-3 animate-pulse">
+    <div className="space-y-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-20 bg-zinc-900/40 rounded-xl border border-zinc-800/50"
-        />
+        <SkeletonBlock key={i} className="h-20 rounded-xl" />
       ))}
     </div>
   );
