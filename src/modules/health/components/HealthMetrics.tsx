@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { HeartPulse, AlertTriangle, Pill, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { HealthProfile } from "./types";
@@ -14,7 +15,10 @@ export default function HealthMetrics({
   profiles,
   alertCount,
 }: HealthMetricsProps) {
-  const snapshots = profiles.map(getProfileOverviewSnapshot);
+  const snapshots = useMemo(
+    () => profiles.map(getProfileOverviewSnapshot),
+    [profiles],
+  );
   const totalActiveMeds = snapshots.reduce(
     (sum, snapshot) => sum + snapshot.activeMedicationCount,
     0,
