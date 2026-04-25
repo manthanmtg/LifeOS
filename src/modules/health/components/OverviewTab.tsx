@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatDate } from "./helpers";
@@ -26,7 +27,10 @@ export default function OverviewTab({
   onDeleteCondition,
 }: OverviewTabProps) {
   const p = profile.payload;
-  const snapshot = getProfileOverviewSnapshot(profile);
+  const snapshot = useMemo(
+    () => getProfileOverviewSnapshot(profile),
+    [profile],
+  );
 
   return (
     <motion.div

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Plus, Activity, Edit3, Trash2, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -24,13 +25,16 @@ export default function LabResultsTab({
   renderModal,
 }: LabResultsTabProps) {
   const p = payload;
-  const profile = {
-    _id: "inline-profile",
-    created_at: "",
-    updated_at: "",
-    payload,
-  };
-  const grouped = getSortedLabGroups(profile);
+
+  const grouped = useMemo(() => {
+    const profile = {
+      _id: "inline-profile",
+      created_at: "",
+      updated_at: "",
+      payload,
+    };
+    return getSortedLabGroups(profile);
+  }, [payload]);
 
   return (
     <motion.div
