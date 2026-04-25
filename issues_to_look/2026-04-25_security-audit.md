@@ -34,4 +34,9 @@ A proactive security audit was performed on the LifeOS API and authentication la
 - **Status**: [VERIFIED]
 
 ## Action Items
-- [ ] Tighten `ai-usage` provider PUT validation to include all fields in the schema check.
+- [x] Tighten `ai-usage` provider PUT validation and add internal auth checks for "Defense in Depth". (Resolved 2026-04-25)
+
+## Follow-up Audit - 2026-04-25
+- **Observation**: Several `ai-usage` endpoints relied solely on `proxy.ts` for authentication.
+- **Action**: Implemented internal `verifyToken` checks in `limits`, `providers`, and `debug` routes to ensure defense-in-depth.
+- **Verification**: Verified that all sensitive AI usage endpoints now have redundant authentication.

@@ -1,5 +1,7 @@
 import { getDb } from "@/lib/mongodb";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export interface LimitWindow {
   label: string;
@@ -104,6 +106,11 @@ function parseOpenAILimits(headers: Headers): LimitWindow[] {
 
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const db = await getDb();
     const providers = await db
       .collection("ai_providers")

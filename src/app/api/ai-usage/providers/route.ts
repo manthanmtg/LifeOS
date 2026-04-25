@@ -1,6 +1,8 @@
 import { getDb } from "@/lib/mongodb";
 import { AiProviderConfigSchema } from "@/lib/schemas";
 import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 function maskKey(key: string): string {
   if (key.length <= 8) return "****" + key.slice(-4);
@@ -9,6 +11,11 @@ function maskKey(key: string): string {
 
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const db = await getDb();
     const coll = db.collection("ai_providers");
     const providers = await coll.find().sort({ created_at: -1 }).toArray();
@@ -26,6 +33,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const body = await request.json();
     const parsed = AiProviderConfigSchema.safeParse(body);
     if (!parsed.success) {

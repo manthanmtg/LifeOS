@@ -7,6 +7,8 @@ import {
   ApiValidationError,
   ApiNotFound,
 } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 function maskKey(key: string): string {
   if (key.length <= 8) return "****" + key.slice(-4);
@@ -18,6 +20,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const id = (await params).id;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
@@ -39,6 +46,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const id = (await params).id;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
@@ -99,6 +111,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const id = (await params).id;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
