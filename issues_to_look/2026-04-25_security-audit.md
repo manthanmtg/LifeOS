@@ -1,33 +1,37 @@
 # Security Audit Report - 2026-04-25
 
 ## Summary
-A routine security audit was performed on the LifeOS codebase, focusing on authentication, middleware, API validation, and error masking. The overall security posture is strong, with central middleware (`proxy.ts`) and standard JWT-based authentication.
+A proactive security audit was performed on the LifeOS API and authentication layers. The system generally follows good security practices, including CSRF protection, secure cookie handling, and centralized authentication via `proxy.ts`.
 
 ## Findings
 
-### 1. Authentication & Middleware (`proxy.ts`)
-- **Status**: GOOD
-- **Observations**: `proxy.ts` correctly identifies and protects sensitive routes. It also includes CSRF protection for state-mutating API requests by validating the `Origin` header.
+### 1. Partial Validation in `ai-usage` Provider Update
+- **File**: `src/app/api/ai-usage/providers/[id]/route.ts`
+- **Issue**: The `PUT` handler merges several optional fields (`plan`, `monthly_budget`, `organization_name`) into the update data but excludes them from the `safeParse` validation call. This could allow invalid data types (e.g., a string instead of a number for `monthly_budget`) to be persisted in the database.
+- **Risk**: Low (Admin only, but could lead to UI breakage or unexpected behavior).
+- **Status**: [FIXING]
 
-### 2. Schema Validation
-- **Status**: FAIR
-- **Observations**:
-    - Most routes in `/api/content` use Zod validation via `SchemaRegistry`.
-    - `src/app/api/system/route.ts` uses `SystemUpdateSchema.safeParse` but returns a generic "Invalid settings format" error instead of detailed validation errors.
-    - `src/app/api/metrics/route.ts` uses manual sanitization instead of Zod. While safe, it deviates from the project's standard.
-    - `src/app/api/auth/login/route.ts` is well-implemented with `timingSafeEqual` and rate limiting.
+### 2. Large Fetch Limit in Metrics API
+- **File**: `src/app/api/metrics/route.ts`
+- **Issue**: `GET /api/metrics` has a hardcoded limit of 10,000 records. While protected by admin authentication, this is a large amount of data to return in a single request.
+- **Risk**: Very Low.
+- **Status**: [DOCUMENTED]
 
-### 3. Error Masking
-- **Status**: GOOD
-- **Observations**: Standard `ApiError` helper is used across the codebase, generally with static messages. No leaks of stack traces or raw database errors were found in production-facing endpoints.
+### 3. Redundant Authentication Checks
+- **Files**: Multiple (e.g., `api/bills/route.ts`, `api/widgets/summary/route.ts`)
+- **Observation**: These endpoints perform their own `verifyToken` checks in addition to being covered by `proxy.ts`.
+- **Recommendation**: Keep as-is. Redundancy provides "defense in depth" in case `proxy.ts` configuration is accidentally modified.
+- **Status**: [VERIFIED]
 
-### 4. Sensitive Data
-- **Status**: GOOD
-- **Observations**: `src/app/api/ai-usage/debug/route.ts` correctly masks API keys even in the debug view. This endpoint is disabled in production.
+### 4. Public Content Access Control
+- **File**: `src/app/api/content/route.ts`
+- **Observation**: Correctly implements internal filtering where non-admins can only see documents marked `is_public: true`.
+- **Status**: [VERIFIED]
 
-## Recommended Trivial Improvements
-1. Update `src/app/api/system/route.ts` to use `ApiValidationError` for better debugging and consistency.
-2. Introduce `MetricEventSchema` in `src/lib/schemas.ts` and use it in `src/app/api/metrics/route.ts`.
+### 5. CSRF Protection
+- **File**: `src/proxy.ts`
+- **Observation**: Implements Origin vs Host header validation for all state-mutating requests (`POST`, `PUT`, `DELETE`).
+- **Status**: [VERIFIED]
 
-## Structural Recommendations (Non-Trivial)
-- None identified at this time.
+## Action Items
+- [ ] Tighten `ai-usage` provider PUT validation to include all fields in the schema check.
