@@ -31,7 +31,7 @@ All module data lives in a **single MongoDB `content` collection** using a discr
 - `is_public` — controls public visibility
 - Timestamps (`created_at`, `updated_at`) are ISO strings managed by the API
 
-Three MongoDB collections total: `system` (global config), `content` (all module data), `metrics` (analytics events). See `src/lib/types.ts` for `SystemConfig`, `ContentDocument`, and `MetricEvent` interfaces.
+Three MongoDB collections total: `system` (global config), `content` (all module data), `metrics` (analytics events). See `src/lib/types.ts` for `SystemConfig` and `ContentDocument` interfaces.
 
 ### Module System
 

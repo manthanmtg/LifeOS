@@ -49,11 +49,3 @@ export interface ContentDocument<T = unknown> {
   updated_at: string; // ISO String
   payload: T;
 }
-
-export interface MetricEvent {
-  _id?: ObjectId;
-  path: string;
-  referrer: string;
-  device_type: "mobile" | "tablet" | "desktop" | "unknown";
-  timestamp: string; // ISO String
-}

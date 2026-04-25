@@ -20,8 +20,8 @@ import { Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { evaluateAllCalculatedFields } from "./FormulaEngine";
 import type { FormulaContext } from "./FormulaEngine";
-import ConfirmDialog from "./ConfirmDialog";
-import Toast, { ToastType } from "./Toast";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast, { ToastType } from "@/components/ui/Toast";
 
 // --- Types (from AdminView) ---
 interface FieldDef {

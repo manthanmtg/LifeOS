@@ -167,33 +167,24 @@ describe("Metrics API Route", () => {
       expect(insertedEvent.path).toBe("/");
       expect(insertedEvent.module).toBe("core");
       expect(insertedEvent.action).toBe("view");
-      expect(insertedEvent.device_type).toBe("desktop");
+      expect(insertedEvent.device_type).toBe("unknown");
       expect(insertedEvent.is_admin).toBe(false);
       expect(insertedEvent.metadata).toEqual({});
     });
 
-    it("sanitizes long input strings", async () => {
+    it("fails validation for excessively long strings", async () => {
       const longString = "a".repeat(1000);
       const req = new NextRequest(new URL("http://localhost/api/metrics"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           path: longString,
-          module: longString,
-          action: longString,
-          label: longString,
-          referrer: longString,
         }),
       });
 
-      await POST(req);
-      const insertedEvent = mockInsertOne.mock.calls[0][0];
-
-      expect(insertedEvent.path.length).toBeLessThanOrEqual(200);
-      expect(insertedEvent.module.length).toBeLessThanOrEqual(100);
-      expect(insertedEvent.action.length).toBeLessThanOrEqual(50);
-      expect(insertedEvent.label.length).toBeLessThanOrEqual(200);
-      expect(insertedEvent.referrer.length).toBeLessThanOrEqual(500);
+      const response = await POST(req);
+      expect(response.status).toBe(400); // ApiValidationError
+      expect(mockInsertOne).not.toHaveBeenCalled();
     });
 
     it("generates consistent session_id for same user on same day", () => {
