@@ -3,6 +3,8 @@ import { getDb } from "@/lib/mongodb";
 import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { createHash } from "crypto";
 import { MetricEventSchema } from "@/lib/schemas";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const rawDays = parseInt(req.nextUrl.searchParams.get("days") || "30");
@@ -42,8 +44,14 @@ export async function POST(req: NextRequest) {
       .digest("hex")
       .slice(0, 12);
 
+    // Verify admin status to prevent spoofing of the is_admin flag
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isActuallyAdmin = token ? !!(await verifyToken(token)) : false;
+
     const event = {
       ...parsed.data,
+      is_admin: isActuallyAdmin,
       session_id: sessionHash,
       timestamp: new Date().toISOString(),
     };

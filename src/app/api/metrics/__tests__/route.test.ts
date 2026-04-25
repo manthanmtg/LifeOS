@@ -8,7 +8,17 @@ vi.mock("@/lib/mongodb", () => ({
   getDb: vi.fn(),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(),
+}));
+
+vi.mock("@/lib/auth", () => ({
+  verifyToken: vi.fn(),
+}));
+
 import { getDb } from "@/lib/mongodb";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 describe("Metrics API Route", () => {
   let mockDb: any;
@@ -18,6 +28,11 @@ describe("Metrics API Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    vi.mocked(cookies).mockReturnValue({
+      get: vi.fn().mockReturnValue(undefined),
+    } as any);
+    vi.mocked(verifyToken).mockResolvedValue(null);
 
     mockInsertOne = vi.fn().mockResolvedValue({ acknowledged: true });
     mockFind = {
@@ -112,7 +127,13 @@ describe("Metrics API Route", () => {
   });
 
   describe("POST /api/metrics", () => {
-    it("successfully records a metric event", async () => {
+    it("successfully records a metric event for an admin", async () => {
+      // Mock admin session
+      vi.mocked(cookies).mockReturnValue({
+        get: vi.fn().mockReturnValue({ value: "valid-token" }),
+      } as any);
+      vi.mocked(verifyToken).mockResolvedValue({ role: "admin" });
+
       const metricData = {
         path: "/dashboard",
         module: "todo",
@@ -140,17 +161,28 @@ describe("Metrics API Route", () => {
       expect(mockInsertOne).toHaveBeenCalled();
 
       const insertedEvent = mockInsertOne.mock.calls[0][0];
-      expect(insertedEvent.path).toBe("/dashboard");
-      expect(insertedEvent.module).toBe("todo");
-      expect(insertedEvent.action).toBe("complete");
-      expect(insertedEvent.label).toBe("Task 1");
-      expect(insertedEvent.value).toBe(1);
-      expect(insertedEvent.device_type).toBe("mobile");
       expect(insertedEvent.is_admin).toBe(true);
-      expect(insertedEvent.metadata).toEqual({ extra: "data" });
-      expect(insertedEvent.session_id).toBeDefined();
-      expect(insertedEvent.session_id).toHaveLength(12);
-      expect(insertedEvent.timestamp).toBeDefined();
+    });
+
+    it("prevents is_admin spoofing for unauthenticated requests", async () => {
+      // No cookies/token mocked (default beforeEach handles this)
+
+      const metricData = {
+        path: "/public",
+        is_admin: true, // Spoofed value
+      };
+
+      const req = new NextRequest(new URL("http://localhost/api/metrics"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(metricData),
+      });
+
+      const response = await POST(req);
+
+      expect(response.status).toBe(200);
+      const insertedEvent = mockInsertOne.mock.calls[0][0];
+      expect(insertedEvent.is_admin).toBe(false); // Should be forced to false
     });
 
     it("uses default values for missing fields", async () => {

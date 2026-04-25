@@ -2,6 +2,8 @@ import { getDb } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { ContentDocument } from "@/lib/types";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -357,6 +359,11 @@ async function fetchAnthropicUsage(
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const body = await request.json().catch(() => ({}));
     const targetId = body.provider_id;
     const syncDays = Math.min(body.days || 30, 90);
