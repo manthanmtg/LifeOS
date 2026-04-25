@@ -13,8 +13,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ConfirmDialog from "./ConfirmDialog";
-import Toast, { ToastType } from "./Toast";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast, { ToastType } from "@/components/ui/Toast";
 
 import {
   AreaDef,
