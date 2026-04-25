@@ -1,5 +1,7 @@
 import { getDb } from "@/lib/mongodb";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 /** Debug endpoint - inspects what's in DB and tests a raw provider API call */
 export async function GET() {
@@ -8,6 +10,11 @@ export async function GET() {
   }
 
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const db = await getDb();
 
     // 1. List all stored providers (masked keys)
@@ -54,6 +61,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("lifeos_token")?.value;
+    const isAdmin = token ? !!(await verifyToken(token)) : false;
+    if (!isAdmin) return ApiError("Unauthorized", 401);
+
     const { provider_id } = await request.json();
     const db = await getDb();
     const { ObjectId } = await import("mongodb");
