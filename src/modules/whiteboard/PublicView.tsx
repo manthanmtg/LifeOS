@@ -6,10 +6,20 @@ import "@excalidraw/excalidraw/index.css";
 import { PenLine, Search, Tag, X, Star, Shapes } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WhiteboardPreview from "./WhiteboardPreview";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 w-full h-full bg-zinc-900 flex items-center justify-center">
+        <div className="w-full h-full p-8 space-y-4">
+          <SkeletonBlock className="w-full h-full rounded-xl opacity-20" />
+        </div>
+      </div>
+    ),
+  },
 );
 
 interface WhiteboardDoc {

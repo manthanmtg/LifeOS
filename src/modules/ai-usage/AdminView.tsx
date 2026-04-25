@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -649,22 +650,21 @@ export default function AiUsageAdminView() {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-10 bg-zinc-800/50 rounded-lg w-1/3" />
+      <div className="space-y-6">
+        <SkeletonBlock className="h-10 w-1/3" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[0, 1].map((i) => (
-            <div
-              key={i}
-              className="h-40 bg-zinc-900/50 rounded-2xl border border-zinc-800/50"
-            />
+            <SkeletonBlock key={i} className="h-40 w-full rounded-2xl" />
           ))}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-24 bg-zinc-900/50 rounded-2xl border border-zinc-800/50"
-            />
+            <SkeletonBlock key={i} className="h-24 w-full rounded-2xl" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <SkeletonBlock key={i} className="h-16 w-full rounded-xl" />
           ))}
         </div>
       </div>
