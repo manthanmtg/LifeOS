@@ -65,10 +65,10 @@ export default function HabitsWidget() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: `${Math.max(pct, 8)}%`, opacity: 0.8 }}
               transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
-              whileHover={{ 
-                opacity: 1, 
+              whileHover={{
+                opacity: 1,
                 scaleX: 1.1,
-                filter: "brightness(1.2)"
+                filter: "brightness(1.2)",
               }}
               className="flex-1 rounded-t-[2px] transition-colors relative group/bar"
               style={{
@@ -81,7 +81,7 @@ export default function HabitsWidget() {
               }}
               title={`${pct}% completion`}
             >
-               <div className="absolute -top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[8px] font-bold text-zinc-400">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[8px] font-bold text-zinc-400">
                 {pct}%
               </div>
             </motion.div>

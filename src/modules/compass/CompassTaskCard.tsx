@@ -7,11 +7,26 @@ import { cn } from "@/lib/utils";
 import type { CompassTask } from "./types";
 
 const PRIORITY_MAP = {
-  p1: { label: "P1: Urgent", color: "text-danger bg-danger/10 border-danger/20" },
-  p2: { label: "P2: High", color: "text-warning bg-warning/10 border-warning/20" },
-  p3: { label: "P3: Normal", color: "text-accent bg-accent/10 border-accent/20" },
-  p4: { label: "P4: Low", color: "text-zinc-400 bg-zinc-400/10 border-zinc-700/50" },
-  p5: { label: "P5: Backburner", color: "text-zinc-500 bg-zinc-800/50 border-zinc-700/30" },
+  p1: {
+    label: "P1: Urgent",
+    color: "text-danger bg-danger/10 border-danger/20",
+  },
+  p2: {
+    label: "P2: High",
+    color: "text-warning bg-warning/10 border-warning/20",
+  },
+  p3: {
+    label: "P3: Normal",
+    color: "text-accent bg-accent/10 border-accent/20",
+  },
+  p4: {
+    label: "P4: Low",
+    color: "text-zinc-400 bg-zinc-400/10 border-zinc-700/50",
+  },
+  p5: {
+    label: "P5: Backburner",
+    color: "text-zinc-500 bg-zinc-800/50 border-zinc-700/30",
+  },
 };
 
 interface CompassTaskCardProps {
@@ -51,6 +66,7 @@ export default function CompassTaskCard({
 
   return (
     <motion.div
+      layout
       draggable
       onDragStartCapture={onDragStart}
       onDragEndCapture={onDragEnd}
@@ -62,9 +78,24 @@ export default function CompassTaskCard({
         "bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-colors shadow-sm hover:shadow-xl hover:shadow-accent/5 group relative overflow-hidden",
         isDragging && "opacity-50 scale-95",
         isStuck && "border-warning/30 bg-warning/5",
+        task.payload.priority === "p1" && "border-danger/30 bg-danger/[0.02]",
+        task.payload.priority === "p2" && "border-warning/30 bg-warning/[0.02]",
       )}
     >
-      <div className="flex gap-2 items-start justify-between mb-2">
+      {/* Accent side bar for high priority */}
+      {(task.payload.priority === "p1" || task.payload.priority === "p2") && (
+        <div
+          className={cn(
+            "absolute left-0 top-0 bottom-0 w-1",
+            task.payload.priority === "p1" ? "bg-danger" : "bg-warning",
+          )}
+        />
+      )}
+
+      {/* Glass shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+      <div className="flex gap-2 items-start justify-between mb-2 relative z-10">
         <h4 className="text-sm font-medium text-zinc-300 leading-snug group-hover:text-white transition-colors">
           {task.payload.title}
         </h4>
@@ -73,7 +104,7 @@ export default function CompassTaskCard({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 items-center text-zinc-500 mt-3">
+      <div className="flex flex-wrap gap-2 items-center text-zinc-500 mt-3 relative z-10">
         <span
           className={cn(
             "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border",

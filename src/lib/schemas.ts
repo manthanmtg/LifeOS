@@ -855,7 +855,9 @@ export const MetricEventSchema = z.object({
   value: z.number().nullable().optional(),
   metadata: z.record(z.string(), z.any()).default({}),
   referrer: z.string().max(500).nullable().optional(),
-  device_type: z.enum(["mobile", "tablet", "desktop", "unknown"]).default("unknown"),
+  device_type: z
+    .enum(["mobile", "tablet", "desktop", "unknown"])
+    .default("unknown"),
   is_admin: z.boolean().default(false),
 });
 

@@ -122,9 +122,7 @@ interface RecurringExpense {
 }
 
 function daysUntil(date: string, now: number): number {
-  return Math.ceil(
-    (new Date(date).getTime() - now) / (1000 * 60 * 60 * 24),
-  );
+  return Math.ceil((new Date(date).getTime() - now) / (1000 * 60 * 60 * 24));
 }
 
 function monthlyEquivalent(cost: number, cycle: string): number {
