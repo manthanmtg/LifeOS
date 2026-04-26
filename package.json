@@ -23,7 +23,6 @@
     "@excalidraw/excalidraw": "^0.18.0",
     "@tailwindcss/typography": "^0.5.19",
     "clsx": "^2.1.1",
-    "core-js": "^3.48.0",
     "framer-motion": "^12.35.0",
     "jose": "^6.2.0",
     "jspdf": "^4.2.0",
