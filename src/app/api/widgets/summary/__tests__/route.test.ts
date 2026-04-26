@@ -122,6 +122,29 @@ describe("GET /api/widgets/summary", () => {
     expect(data.topActive[0].title).toBe("Todo 1");
   });
 
+  it("returns summary for compass_task module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      { payload: { status: "in_progress", priority: "p1" } },
+      { payload: { status: "in_progress", priority: "p2" } },
+      { payload: { status: "review", priority: "p1" } },
+      { payload: { status: "done", priority: "p1" } },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=compass_task",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual({
+      total: 4,
+      inProgressCount: 2,
+      criticalCount: 1,
+      reviewCount: 1,
+    });
+  });
+
   it("returns summary for maintenance_task module", async () => {
     mockCollection().toArray.mockResolvedValue([
       {

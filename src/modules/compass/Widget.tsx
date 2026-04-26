@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CompassTask } from "./types";
 import { AlertCircle, Map, CheckCircle } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -9,21 +8,36 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
+interface CompassSummary {
+  total: number;
+  inProgressCount: number;
+  criticalCount: number;
+  reviewCount: number;
+}
+
 export default function CompassWidget() {
-  const [tasks, setTasks] = useState<CompassTask[]>([]);
+  const [summary, setSummary] = useState<CompassSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=compass_task")
+    const ac = new AbortController();
+    fetch("/api/widgets/summary?module_type=compass_task", {
+      signal: ac.signal,
+    })
       .then((r) => r.json())
-      .then((d) => setTasks(d.data || []))
-      .catch(console.error)
+      .then((d) => setSummary(d.data || null))
+      .catch((error) => {
+        if (error.name !== "AbortError") console.error(error);
+      })
       .finally(() => setLoading(false));
+
+    return () => ac.abort();
   }, []);
 
-  const inProgress = tasks.filter((t) => t.payload.status === "in_progress");
-  const critical = inProgress.filter((t) => t.payload.priority === "p1");
-  const review = tasks.filter((t) => t.payload.status === "review");
+  const inProgressCount = summary?.inProgressCount ?? 0;
+  const criticalCount = summary?.criticalCount ?? 0;
+  const reviewCount = summary?.reviewCount ?? 0;
+  const total = summary?.total ?? 0;
 
   return (
     <WidgetCard
@@ -35,27 +49,27 @@ export default function CompassWidget() {
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
           <span className="flex items-center gap-1">
-            <CheckCircle className="w-3 h-3" /> {review.length} in review
+            <CheckCircle className="w-3 h-3" /> {reviewCount} in review
           </span>
-          <span>{tasks.length} total</span>
+          <span>{total} total</span>
         </div>
       }
     >
       <div className="space-y-3">
         <WidgetStat
-          value={inProgress.length}
-          label={inProgress.length === 0 ? "no active tasks" : "in progress"}
+          value={inProgressCount}
+          label={inProgressCount === 0 ? "no active tasks" : "in progress"}
         />
-        {critical.length > 0 ? (
+        {criticalCount > 0 ? (
           <WidgetHighlight
             icon={AlertCircle}
-            text={`${critical.length} critical path item${critical.length !== 1 ? "s" : ""}`}
+            text={`${criticalCount} critical path item${criticalCount !== 1 ? "s" : ""}`}
             variant="danger"
           />
-        ) : review.length > 0 ? (
+        ) : reviewCount > 0 ? (
           <WidgetHighlight
             icon={CheckCircle}
-            text={`${review.length} awaiting review`}
+            text={`${reviewCount} awaiting review`}
             variant="warning"
           />
         ) : (
