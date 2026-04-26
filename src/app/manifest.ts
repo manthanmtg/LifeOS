@@ -2,6 +2,8 @@ import { MetadataRoute } from "next";
 import { getDb } from "@/lib/mongodb";
 import { SystemConfig } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   let name = "Life OS";
   let icon = "/favicon.ico";
