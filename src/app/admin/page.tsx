@@ -196,8 +196,9 @@ export default function AdminDashboard() {
     }));
   };
 
-  const visibleWidgets = enabledModules.filter(
-    (key) => widgetRegistry[key] !== false,
+  const visibleWidgets = useMemo(
+    () => enabledModules.filter((key) => widgetRegistry[key] !== false),
+    [enabledModules, widgetRegistry],
   );
 
   const greeting = useMemo(() => {

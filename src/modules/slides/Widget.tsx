@@ -30,11 +30,11 @@ export default function SlidesWidget() {
     ).size;
     const latest =
       items.length > 0
-        ? [...items].sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime(),
-          )[0]
+        ? items.reduce((a, b) =>
+            new Date(b.created_at).getTime() > new Date(a.created_at).getTime()
+              ? b
+              : a,
+          )
         : null;
     return { total: items.length, publicDecks, uniqueTopics, latest };
   }, [items]);
