@@ -1,10 +1,11 @@
 import { getDb } from "@/lib/mongodb";
 import { ContentDocument } from "@/lib/types";
 import { ObjectId } from "mongodb";
-import { ApiSuccess, ApiError, ApiNotFound } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiNotFound, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import type { BillPayload, BillAttachment } from "@/modules/bills/types";
+import { z } from "zod";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -22,15 +23,19 @@ export async function POST(
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
     const body = await request.json();
-    const { filename, content_type, data } = body as {
-      filename: string;
-      content_type: string;
-      data: string;
-    };
+    const parsed = z
+      .object({
+        filename: z.string().min(1),
+        content_type: z.string().min(1),
+        data: z.string().min(1),
+      })
+      .safeParse(body);
 
-    if (!filename || !content_type || !data) {
-      return ApiError("filename, content_type, and data are required", 400);
+    if (!parsed.success) {
+      return ApiValidationError(parsed.error.format());
     }
+
+    const { filename, content_type, data } = parsed.data;
 
     // Validate file type
     if (
