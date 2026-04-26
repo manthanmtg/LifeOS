@@ -322,6 +322,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <Switch
+                    aria-label={`Show ${config.name} widget`}
                     checked={isEnabled}
                     onCheckedChange={() => toggleWidget(key)}
                   />
