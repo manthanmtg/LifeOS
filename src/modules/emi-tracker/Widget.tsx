@@ -87,26 +87,6 @@ export default function EMITrackerWidget() {
       icon={Landmark}
       loading={loading}
       href="/admin/emi-tracker"
-      footer={
-        summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <span className="flex items-center gap-1.5">
-              <Landmark className="w-3 h-3" />
-              {summary.activeCount} active loan
-              {summary.activeCount !== 1 ? "s" : ""}
-            </span>
-            {summary.nearest && (
-              <span>
-                due{" "}
-                {new Date(summary.nearest.due).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
-            )}
-          </div>
-        )
-      }
     >
       {summary && (
         <div className="space-y-3">
