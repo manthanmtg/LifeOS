@@ -37,7 +37,7 @@ export default function BillModal({
   onSaved,
 }: BillModalProps) {
   const [name, setName] = useState(bill?.payload.name ?? "");
-  const [billDate, setBillDate] = useState(
+  const [billDate, setBillDate] = useState(() =>
     bill?.payload.bill_date
       ? bill.payload.bill_date.substring(0, 10)
       : new Date().toISOString().substring(0, 10),

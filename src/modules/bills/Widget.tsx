@@ -8,8 +8,6 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
-const NOW_MS = Date.now();
-
 interface BillStats {
   total: number;
   folderCount: number;
@@ -27,22 +25,27 @@ interface BillStats {
 
 export default function BillsWidget() {
   const [stats, setStats] = useState<BillStats | null>(null);
+  const [daysAgo, setDaysAgo] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/widgets/summary?module_type=bill")
       .then((r) => r.json())
-      .then((d) => setStats(d.data || null))
+      .then((d) => {
+        const fetchedStats = d.data || null;
+        setStats(fetchedStats);
+        if (fetchedStats?.recentBill) {
+          setDaysAgo(
+            Math.floor(
+              (Date.now() - new Date(fetchedStats.recentBill.payload.bill_date).getTime()) /
+                (1000 * 60 * 60 * 24),
+            )
+          );
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  const daysAgo = stats?.recentBill
-    ? Math.floor(
-        (NOW_MS - new Date(stats.recentBill.payload.bill_date).getTime()) /
-          (1000 * 60 * 60 * 24),
-      )
-    : null;
 
   return (
     <WidgetCard
