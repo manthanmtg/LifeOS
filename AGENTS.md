@@ -4,17 +4,19 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 
 ## Commands
 
-- `pnpm dev` — Start dev server (Turbopack)
+- `pnpm dev` — Start dev server
 - `pnpm build` — Production build (includes memory fix)
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
 - `pnpm typecheck` — Run TypeScript type checking (includes memory fix)
 - `pnpm test` — Run tests using Vitest
+- `pnpm test:watch` — Run tests in watch mode
+- `pnpm test:coverage` — Run tests with coverage report
 - `pnpm format` — Format code with Prettier
 - `pnpm format:check` — Check formatting with Prettier
 - `pnpm check` — Run full CI check (lint, typecheck, build, test)
 - Vitest is the configured test framework
 
-## Agent Guidelines
+### Agent Guidelines
 
 ### Quality Verification
 
@@ -94,6 +96,8 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 ### Key Files
 
 - `src/lib/mongodb.ts` — Cached MongoClient singleton (global in dev for HMR)
+- `src/lib/types.ts` — Shared TypeScript interfaces and ContentDocument structure
+- `src/lib/schemas.ts` — Zod SchemaRegistry for module payload validation
 - `src/lib/auth.ts` — JWT sign/verify with jose
 - `src/lib/api-response.ts` — `ApiSuccess`, `ApiError`, `ApiValidationError` helpers
 - `src/lib/utils.ts` — `cn()` class merge utility
