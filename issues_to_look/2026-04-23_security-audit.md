@@ -57,18 +57,23 @@ Fix:
 
 ## Open findings
 
-### 1. Missing explicit security headers
+### 1. CSP and HSTS policy still need review
 
 Files:
 
 - `next.config.ts`
 - `src/proxy.ts`
 
-There is no app-level configuration for headers such as CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, or `Permissions-Policy`.
+Baseline browser hardening headers were added in a later run:
+`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and a
+minimal `Permissions-Policy`.
+
+CSP and HSTS remain intentionally unset because both require deployment-aware
+policy decisions.
 
 Suggested follow-up:
 
-- Add a reviewed header policy in `next.config.ts` or middleware.
+- Add a reviewed CSP and HSTS policy in `next.config.ts` or middleware.
 
 ### 2. `POST /api/import` restores raw documents without schema revalidation
 
