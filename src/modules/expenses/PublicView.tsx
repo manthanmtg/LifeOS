@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +31,16 @@ export default function ExpensesPublicView({
 }: {
   items: Record<string, unknown>[];
 }) {
-  const expenses = (items as unknown as Expense[]).sort(
-    (a, b) =>
-      new Date(b.payload.date).getTime() - new Date(a.payload.date).getTime(),
+  const expenses = useMemo(
+    () =>
+      (items as unknown as Expense[])
+        .map((expense) => ({
+          ...expense,
+          displayDate: new Date(expense.payload.date).toLocaleDateString(),
+          sortTime: new Date(expense.payload.date).getTime(),
+        }))
+        .sort((a, b) => b.sortTime - a.sortTime),
+    [items],
   );
 
   if (expenses.length === 0) {
@@ -103,9 +111,7 @@ export default function ExpensesPublicView({
                 >
                   {exp.payload.category}
                 </span>
-                <span className="text-xs text-zinc-500">
-                  {new Date(exp.payload.date).toLocaleDateString()}
-                </span>
+                <span className="text-xs text-zinc-500">{exp.displayDate}</span>
               </div>
             </div>
             <span className="text-lg font-semibold text-zinc-50 whitespace-nowrap">
