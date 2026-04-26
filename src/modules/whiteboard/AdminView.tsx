@@ -73,7 +73,7 @@ interface ContentDoc {
 const COLOR_LABELS: { value: ColorLabel; dot: string; label: string }[] = [
   { value: "none", dot: "bg-zinc-600", label: "None" },
   { value: "red", dot: "bg-danger", label: "Red" },
-  { value: "blue", dot: "bg-blue-500", label: "Blue" },
+  { value: "blue", dot: "bg-accent", label: "Blue" },
   { value: "green", dot: "bg-success", label: "Green" },
   { value: "yellow", dot: "bg-warning", label: "Yellow" },
   { value: "purple", dot: "bg-violet-500", label: "Purple" },
@@ -83,7 +83,7 @@ const COLOR_LABELS: { value: ColorLabel; dot: string; label: string }[] = [
 const COLOR_BORDER: Record<string, string> = {
   none: "",
   red: "border-l-danger/60",
-  blue: "border-l-blue-500/60",
+  blue: "border-l-accent/60",
   green: "border-l-success/60",
   yellow: "border-l-warning/60",
   purple: "border-l-violet-500/60",
@@ -664,7 +664,7 @@ export default function WhiteboardAdminView() {
         </div>
 
         {/* Excalidraw Canvas */}
-        <div className="flex-1 rounded-2xl overflow-hidden border border-zinc-800 bg-white">
+        <div className="flex-1 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950">
           <Excalidraw
             excalidrawAPI={(api: unknown) => {
               excalidrawApiRef.current = api;

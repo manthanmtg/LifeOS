@@ -110,7 +110,7 @@ export const CURR_SYM: Record<string, string> = {
 };
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  Housing: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+  Housing: "bg-accent/15 text-accent border-accent/20",
   Food: "bg-orange-500/15 text-orange-400 border-orange-500/20",
   Transportation: "bg-purple-500/15 text-purple-400 border-purple-500/20",
   Utilities: "bg-warning/15 text-warning border-warning/20",
@@ -127,14 +127,14 @@ export const CATEGORY_COLORS: Record<string, string> = {
   "Personal Care": "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/20",
   "Gifts/Donations": "bg-pink-500/15 text-pink-400 border-pink-500/20",
   Taxes: "bg-danger/15 text-danger border-danger/20",
-  "Business Expenses": "bg-slate-500/15 text-slate-400 border-slate-500/20",
-  "Home Maintenance": "bg-stone-500/15 text-stone-400 border-stone-500/20",
+  "Business Expenses": "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
+  "Home Maintenance": "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
   Childcare: "bg-lime-500/15 text-lime-400 border-lime-500/20",
   "Pet Care": "bg-orange-500/15 text-orange-400 border-orange-500/20",
 };
 
 export const DYNAMIC_COLORS = [
-  "bg-blue-500/15 text-blue-400 border-blue-500/20",
+  "bg-accent/15 text-accent border-accent/20",
   "bg-orange-500/15 text-orange-400 border-orange-500/20",
   "bg-purple-500/15 text-purple-400 border-purple-500/20",
   "bg-warning/15 text-warning border-warning/20",
