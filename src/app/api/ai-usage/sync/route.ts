@@ -447,7 +447,7 @@ export async function POST(request: Request) {
         );
       } catch (error) {
         result.status = "error";
-        result.error = error instanceof Error ? error.message : "Unknown error";
+        result.error = "Sync failed";
         console.error(`Sync failed for ${config.name}:`, error);
       }
 

@@ -76,4 +76,27 @@ describe("/api/ai-usage/debug", () => {
       expect.any(Error),
     );
   });
+
+  it("masks inner errors in POST responses", async () => {
+    vi.mocked(getDb).mockResolvedValue({
+      collection: vi.fn().mockReturnValue({
+        findOne: vi.fn().mockResolvedValue({
+          _id: "123",
+          name: "OpenAI",
+          provider: "openai",
+          admin_api_key: "key",
+        }),
+      }),
+    } as any);
+
+    // Mock fetch to fail for the inner call
+    global.fetch = vi.fn().mockRejectedValue(new Error("Sensitive inner error"));
+
+    const response = await POST(createRequest({ provider_id: "123456789012345678901234" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.data.usage.error).toBe("Failed to fetch debug info");
+    expect(body.data.cost.error).toBe("Failed to fetch debug info");
+  });
 });
