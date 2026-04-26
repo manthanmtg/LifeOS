@@ -7,7 +7,8 @@ import {
   ShoppingListTab,
 } from "./types";
 
-const SMART_ENTRY_PATTERN = /^(.*?)\s+(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?$/;
+const QUANTITY_FIRST_PATTERN = /^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/;
+const NAME_FIRST_PATTERN = /^(.*?)[,\s]+(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?$/;
 
 export function createItemId() {
   if (
@@ -21,17 +22,29 @@ export function createItemId() {
 }
 
 export function parseSmartEntry(text: string): ParsedShoppingEntry {
-  const match = text.trim().match(SMART_ENTRY_PATTERN);
+  const trimmed = text.trim();
 
-  if (match) {
+  // Try quantity first: "10 eggs" or "2kg Milk"
+  const qFirstMatch = trimmed.match(QUANTITY_FIRST_PATTERN);
+  if (qFirstMatch) {
     return {
-      name: match[1].trim(),
-      quantity: match[2],
-      unit: match[3] || undefined,
+      name: qFirstMatch[3].trim(),
+      quantity: qFirstMatch[1],
+      unit: qFirstMatch[2] || undefined,
     };
   }
 
-  return { name: text.trim() };
+  // Try name first: "Milk 2 ltr" or "Apples, 1.5kg"
+  const nFirstMatch = trimmed.match(NAME_FIRST_PATTERN);
+  if (nFirstMatch) {
+    return {
+      name: nFirstMatch[1].trim(),
+      quantity: nFirstMatch[2],
+      unit: nFirstMatch[3] || undefined,
+    };
+  }
+
+  return { name: trimmed };
 }
 
 export function summarizeList(

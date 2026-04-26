@@ -4,8 +4,8 @@ import {
   CheckCircle2,
   ChevronLeft,
   Copy,
-  Info,
   Plus,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -131,21 +131,20 @@ export default function ShoppingListDetailView({
           {quickAddItem.trim() ? (
             <div className="mt-3 flex items-center gap-3 rounded-2xl border border-accent/20 bg-accent/5 p-3 text-xs animate-in zoom-in-95 duration-200">
               <div className="rounded-xl border border-accent/20 bg-zinc-950 p-2 text-accent">
-                <Info className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" />
               </div>
-              <div>
-                <p className="font-medium text-zinc-300">Smart preview</p>
-                <p className="text-zinc-500">
-                  {parsedQuickAdd.name}
-                  {parsedQuickAdd.quantity ? (
-                    <span className="mx-1 text-accent">
-                      {parsedQuickAdd.quantity}
+              <div className="flex-1">
+                <p className="font-medium text-zinc-400">Smart Preview</p>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <span className="text-sm font-semibold text-zinc-100">
+                    {parsedQuickAdd.name}
+                  </span>
+                  {(parsedQuickAdd.quantity || parsedQuickAdd.unit) && (
+                    <span className="flex items-center gap-1 rounded-md bg-accent/10 px-1.5 py-0.5 font-medium text-accent">
+                      {parsedQuickAdd.quantity} {parsedQuickAdd.unit}
                     </span>
-                  ) : null}
-                  {parsedQuickAdd.unit ? (
-                    <span className="text-zinc-400">{parsedQuickAdd.unit}</span>
-                  ) : null}
-                </p>
+                  )}
+                </div>
               </div>
             </div>
           ) : null}
