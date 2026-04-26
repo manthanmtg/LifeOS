@@ -14,9 +14,15 @@ You are an autonomous improvement agent for the LifeOS project. Your job is to *
 
 ### 1. Select a Prompt
 
-- Identify and pick one **at random** by running the following shell command (this ensures a fair, uniform selection):
+- Read `prompts/README.md` first. Its run contract applies to every selected prompt.
+- Identify and pick one **autonomous-safe prompt** at random by running the following shell command:
   ```bash
-  find prompts -name "*.md" ! -name "random_selector.md" | awk 'BEGIN{srand()} {a[NR]=$0} END{print a[int(rand()*NR)+1]}'
+  find prompts -name "*.md" \
+    ! -name "README.md" \
+    ! -name "random_selector.md" \
+    ! -name "module_generator_prompt.md" \
+    | sort \
+    | shuf -n 1
   ```
 - Log which prompt you selected so the run is traceable.
 
@@ -47,8 +53,9 @@ If the answer to **any** of these is "no", **do NOT make the change.** Instead:
 
 ### 4. Verify
 
-- Run `pnpm check` (or at minimum `pnpm lint && pnpm format`) to confirm zero regressions.
-- If any check fails, **revert your changes**, log the failure in `issues_to_look/`, and stop.
+- Run `pnpm check` to confirm zero regressions.
+- If verification fails due to TypeScript/build memory pressure, retry once with `NODE_OPTIONS="--max-old-space-size=4096" pnpm check`.
+- If any check still fails, **revert only your own changes**, log the failure in `issues_to_look/`, and stop.
 
 ### 5. Commit
 
@@ -58,10 +65,9 @@ If the answer to **any** of these is "no", **do NOT make the change.** Instead:
 
 ## Prompt Selection Weights (Optional Guidance)
 
-All prompts have equal probability by default, but if the agent wants to be smart about it:
+All autonomous-safe prompts have equal probability by default, but if the agent wants to be smart about it:
 
 - **Prefer** prompts that target areas with known issues (check `issues_to_look/` for hints).
-- **Deprioritize** `module_generator_prompt.md` — creating new modules is a drastic change and should only happen when the user explicitly asks.
 - **Favor** small-scope prompts (`lint_and_purity_doctor`, `test_corrector`, `build_verifier`) when in doubt.
 
 ## What Success Looks Like

@@ -11,7 +11,7 @@ Pick exactly one random module from `src/modules/` (excluding `_template`) and m
 - **Pick a module**: Randomly select ONE module directory.
 - **Read everything**: Understand every file, every feature, every data point it handles.
 - **Spot problems**: Monolithic files (>300 lines), messy state, `any` types, missing loading states, hardcoded colors, cramped or wasteful layouts, confusing labels, bad mobile experience.
-- **Spot opportunities**: Look for places where a smart addition would genuinely help — a trend line on data that changes over time, a quick-action shortcut for a frequent task, a summary metric that saves scrolling. Only flag these if they'd actually be useful.
+- **Spot opportunities**: Look for places where a smart addition would genuinely help — a trend line on data that changes over time, a quick-action shortcut for a frequent task outside dashboard widgets, or a summary metric that saves scrolling. Only flag these if they'd actually be useful.
 - **Map all features**: List every existing capability. Nothing gets dropped — features can move or get reorganized, but they must all remain accessible.
 
 ### 2. Refactor
@@ -59,7 +59,7 @@ If yes to any of these, **do NOT change code.** Instead, log what you found and 
 - **Keep it simple**: Don't add complexity for its own sake. Every change should have a clear reason.
 - **No feature regression**: Everything the old version did, the new version does — just better.
 - **Useful data**: If the module tracks data, surface it meaningfully. Don't add metrics or charts just to fill space.
-- **Smart where it counts**: Trends, sparklines, quick actions, and automations are great — when they solve a real problem. Don't add them just to look clever.
+- **Smart where it counts**: Trends, sparklines, quick actions outside widgets, and automations are great — when they solve a real problem. Don't add them just to look clever.
 - **Frictionless actions**: Common tasks should be fast and obvious. Feedback should be immediate.
 
 ## Issue Cleanup
