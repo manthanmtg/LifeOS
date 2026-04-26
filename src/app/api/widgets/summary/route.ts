@@ -332,6 +332,31 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "compass_task": {
+        let inProgressCount = 0;
+        let criticalCount = 0;
+        let reviewCount = 0;
+
+        for (const task of docs) {
+          const { status, priority } = task.payload;
+
+          if (status === "in_progress") {
+            inProgressCount++;
+            if (priority === "p1") criticalCount++;
+          } else if (status === "review") {
+            reviewCount++;
+          }
+        }
+
+        summary = {
+          total: docs.length,
+          inProgressCount,
+          criticalCount,
+          reviewCount,
+        };
+        break;
+      }
+
       case "maintenance_task": {
         const now = nowRef;
         const thirtyDaysFromNow = now + 30 * 24 * 60 * 60 * 1000;
