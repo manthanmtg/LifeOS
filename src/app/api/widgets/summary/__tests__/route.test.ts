@@ -200,6 +200,50 @@ describe("GET /api/widgets/summary", () => {
     expect(data.rainyDays).toBe(1);
   });
 
+  it("returns compact summary for reading_item module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      {
+        payload: {
+          title: "Priority article",
+          type: "article",
+          priority: "high",
+          is_read: false,
+        },
+      },
+      {
+        payload: {
+          title: "Queued paper",
+          type: "paper",
+          priority: "medium",
+          is_read: false,
+        },
+      },
+      {
+        payload: {
+          title: "Finished video",
+          type: "video",
+          priority: "low",
+          is_read: true,
+        },
+      },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=reading_item",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual({
+      unreadCount: 2,
+      readCount: 1,
+      highPriorityCount: 1,
+      typeCount: 3,
+      topPriority: { title: "Priority article" },
+    });
+  });
+
   it("returns summary for bill module", async () => {
     const mockBills = [
       {

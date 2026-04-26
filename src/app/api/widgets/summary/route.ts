@@ -609,6 +609,41 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "reading_item": {
+        let unreadCount = 0;
+        let readCount = 0;
+        let highPriorityCount = 0;
+        const typeSet = new Set<string>();
+        let topPriority: { title: string } | null = null;
+
+        for (const item of docs) {
+          const payload = item.payload;
+          if (payload.type) typeSet.add(payload.type);
+
+          if (payload.is_read) {
+            readCount++;
+            continue;
+          }
+
+          unreadCount++;
+          if (payload.priority === "high") {
+            highPriorityCount++;
+            if (!topPriority) {
+              topPriority = { title: payload.title };
+            }
+          }
+        }
+
+        summary = {
+          unreadCount,
+          readCount,
+          highPriorityCount,
+          typeCount: typeSet.size,
+          topPriority,
+        };
+        break;
+      }
+
       case "blog_post": {
         const publishedPosts = docs.filter(
           (doc) => doc.payload.status === "published",
