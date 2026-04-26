@@ -29,11 +29,14 @@ describe("mongodb.ts", () => {
     vi.clearAllMocks();
   });
 
-  it("throws an error if MONGODB_URI is not defined", async () => {
+  it("does not require MONGODB_URI until a database connection is requested", async () => {
     delete process.env.MONGODB_URI;
-    await expect(async () => {
-      await import("../mongodb");
-    }).rejects.toThrow('Invalid/Missing environment variable: "MONGODB_URI"');
+
+    const { getDb } = await import("../mongodb");
+
+    await expect(getDb()).rejects.toThrow(
+      'Invalid/Missing environment variable: "MONGODB_URI"',
+    );
   });
 
   it("connects to mongodb successfully in development", async () => {
@@ -71,7 +74,7 @@ describe("mongodb.ts", () => {
 
     const { default: clientPromise, getDb } = await import("../mongodb");
 
-    expect(clientPromise).toBe(mockPromise);
+    await expect(clientPromise).resolves.toBe(mClient);
     expect(MongoClient).not.toHaveBeenCalled();
 
     const db = await getDb();

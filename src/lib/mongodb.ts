@@ -1,11 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-}
-
-const uri = process.env.MONGODB_URI;
-
 // Optimized options for pooling and resilience
 const options = {
   serverApi: {
@@ -22,30 +16,40 @@ const options = {
 };
 
 let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let cachedClientPromise: Promise<MongoClient> | undefined;
 
-if (process.env.NODE_ENV === "development") {
-  // In development mode, use a global variable so that the value
-  // is preserved across module reloads caused by HMR (Hot Module Replacement).
-  const globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
+function getClientPromise() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
+  }
 
-  if (!globalWithMongo._mongoClientPromise) {
+  if (process.env.NODE_ENV === "development") {
+    // In development mode, use a global variable so that the value
+    // is preserved across module reloads caused by HMR (Hot Module Replacement).
+    const globalWithMongo = global as typeof globalThis & {
+      _mongoClientPromise?: Promise<MongoClient>;
+    };
+
+    if (!globalWithMongo._mongoClientPromise) {
+      client = new MongoClient(uri, options);
+      globalWithMongo._mongoClientPromise = client.connect().catch((err) => {
+        console.error("Failed to connect to MongoDB in development:", err);
+        throw err;
+      });
+    }
+    return globalWithMongo._mongoClientPromise;
+  }
+
+  // In production mode, it's best to not use a global variable.
+  if (!cachedClientPromise) {
     client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect().catch((err) => {
-      console.error("Failed to connect to MongoDB in development:", err);
+    cachedClientPromise = client.connect().catch((err) => {
+      console.error("Failed to connect to MongoDB in production:", err);
       throw err;
     });
   }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect().catch((err) => {
-    console.error("Failed to connect to MongoDB in production:", err);
-    throw err;
-  });
+  return cachedClientPromise;
 }
 
 /**
@@ -53,8 +57,10 @@ if (process.env.NODE_ENV === "development") {
  * Defaults to the database specified in the connection string, or `lifeos`.
  */
 export async function getDb(dbName?: string) {
+  const promise = getClientPromise();
+
   try {
-    const connectedClient = await clientPromise;
+    const connectedClient = await promise;
     return connectedClient.db(dbName || "lifeos");
   } catch (error) {
     console.error("CRITICAL: Database connection failed in getDb:", error);
@@ -62,5 +68,15 @@ export async function getDb(dbName?: string) {
     throw new Error("Database service is currently unavailable.");
   }
 }
+
+const clientPromise = {
+  then: (...args: Parameters<Promise<MongoClient>["then"]>) =>
+    getClientPromise().then(...args),
+  catch: (...args: Parameters<Promise<MongoClient>["catch"]>) =>
+    getClientPromise().catch(...args),
+  finally: (...args: Parameters<Promise<MongoClient>["finally"]>) =>
+    getClientPromise().finally(...args),
+  [Symbol.toStringTag]: "Promise",
+} as Promise<MongoClient>;
 
 export default clientPromise;
