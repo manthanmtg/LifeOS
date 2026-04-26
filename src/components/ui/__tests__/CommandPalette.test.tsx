@@ -2,7 +2,17 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { act } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { routerMocks } from "@/test/mocks/navigation";
+import * as adminModules from "@/lib/admin-modules";
 import CommandPalette from "../CommandPalette";
+
+vi.mock("@/lib/admin-modules", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/admin-modules")>();
+
+  return {
+    ...actual,
+    getOrderedAdminModules: vi.fn(actual.getOrderedAdminModules),
+  };
+});
 
 describe("CommandPalette", () => {
   beforeEach(() => {
@@ -74,6 +84,25 @@ describe("CommandPalette", () => {
     });
 
     expect(screen.getByText("No results found")).toBeInTheDocument();
+  });
+
+  it("does not rebuild module commands while navigating the current list", async () => {
+    const orderingSpy = vi.mocked(adminModules.getOrderedAdminModules);
+    orderingSpy.mockClear();
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({ data: {} }),
+    } as Response);
+
+    render(<CommandPalette />);
+    openPalette();
+
+    await screen.findByPlaceholderText(/Type a command/i);
+    await waitFor(() => expect(orderingSpy).toHaveBeenCalled());
+
+    const callsAfterLoad = orderingSpy.mock.calls.length;
+    fireEvent.mouseEnter(screen.getByText("Go to Blog"));
+
+    expect(orderingSpy).toHaveBeenCalledTimes(callsAfterLoad);
   });
 });
 
