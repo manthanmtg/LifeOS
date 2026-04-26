@@ -33,48 +33,48 @@ export default function AiUsageWidget() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { totalThisMonth, trend, topProvider, totalTokens, thisMonthLength } = useMemo(() => {
-    const thisMonth = entries.filter((e) => {
-      const d = new Date(e.payload.date);
-      return (
-        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  const { totalThisMonth, trend, topProvider, totalTokens, thisMonthLength } =
+    useMemo(() => {
+      const thisMonth = entries.filter((e) => {
+        const d = new Date(e.payload.date);
+        return (
+          d.getMonth() === now.getMonth() &&
+          d.getFullYear() === now.getFullYear()
+        );
+      });
+      const lastMonth = entries.filter((e) => {
+        const d = new Date(e.payload.date);
+        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return (
+          d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
+        );
+      });
+
+      const tThisMonth = thisMonth.reduce((s, e) => s + e.payload.cost, 0);
+      const tLastMonth = lastMonth.reduce((s, e) => s + e.payload.cost, 0);
+      const tr =
+        tLastMonth > 0 ? ((tThisMonth - tLastMonth) / tLastMonth) * 100 : 0;
+
+      const tProvider = Object.entries(
+        thisMonth.reduce<Record<string, number>>((acc, e) => {
+          acc[e.payload.provider] = (acc[e.payload.provider] || 0) + 1;
+          return acc;
+        }, {}),
+      ).sort((a, b) => b[1] - a[1])[0];
+
+      const tTokens = thisMonth.reduce(
+        (s, e) => s + e.payload.input_tokens + e.payload.output_tokens,
+        0,
       );
-    });
-    const lastMonth = entries.filter((e) => {
-      const d = new Date(e.payload.date);
-      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return (
-        d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
-      );
-    });
 
-    const tThisMonth = thisMonth.reduce((s, e) => s + e.payload.cost, 0);
-    const tLastMonth = lastMonth.reduce((s, e) => s + e.payload.cost, 0);
-    const tr =
-      tLastMonth > 0
-        ? ((tThisMonth - tLastMonth) / tLastMonth) * 100
-        : 0;
-
-    const tProvider = Object.entries(
-      thisMonth.reduce<Record<string, number>>((acc, e) => {
-        acc[e.payload.provider] = (acc[e.payload.provider] || 0) + 1;
-        return acc;
-      }, {}),
-    ).sort((a, b) => b[1] - a[1])[0];
-
-    const tTokens = thisMonth.reduce(
-      (s, e) => s + e.payload.input_tokens + e.payload.output_tokens,
-      0,
-    );
-
-    return {
-      totalThisMonth: tThisMonth,
-      trend: tr,
-      topProvider: tProvider,
-      totalTokens: tTokens,
-      thisMonthLength: thisMonth.length
-    };
-  }, [entries, now]);
+      return {
+        totalThisMonth: tThisMonth,
+        trend: tr,
+        topProvider: tProvider,
+        totalTokens: tTokens,
+        thisMonthLength: thisMonth.length,
+      };
+    }, [entries, now]);
 
   const accentColor = trend > 0 ? "danger" : trend < 0 ? "success" : "accent";
 
