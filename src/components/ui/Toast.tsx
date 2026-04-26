@@ -65,7 +65,7 @@ export default function Toast({
                 action.onClick();
                 onClose();
               }}
-              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold transition-all shrink-0"
+              className="px-3 py-1.5 bg-zinc-50/10 hover:bg-zinc-50/20 rounded-xl text-xs font-bold transition-all shrink-0"
             >
               {action.label}
             </button>
@@ -74,7 +74,7 @@ export default function Toast({
           <button
             onClick={onClose}
             aria-label="Close notification"
-            className="p-1 hover:bg-white/5 rounded-lg transition-colors shrink-0"
+            className="p-1 hover:bg-zinc-50/5 rounded-lg transition-colors shrink-0"
           >
             <X className="w-4 h-4 opacity-50 hover:opacity-100" />
           </button>
