@@ -47,10 +47,8 @@ export async function GET() {
 
     return ApiSuccess({ providers, usageCount, sampleEntries });
   } catch (error) {
-    return ApiError(
-      error instanceof Error ? error.message : "Debug failed",
-      500,
-    );
+    console.error("GET /api/ai-usage/debug failed:", error);
+    return ApiError("Debug failed", 500);
   }
 }
 
@@ -161,9 +159,7 @@ export async function POST(request: Request) {
       cost: { status: costStatus, error: costError, raw: costRaw },
     });
   } catch (error) {
-    return ApiError(
-      error instanceof Error ? error.message : "Test failed",
-      500,
-    );
+    console.error("POST /api/ai-usage/debug failed:", error);
+    return ApiError("Test failed", 500);
   }
 }
