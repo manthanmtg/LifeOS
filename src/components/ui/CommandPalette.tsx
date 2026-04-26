@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -92,42 +92,49 @@ export default function CommandPalette() {
       .catch(() => {});
   }, []);
 
-  const commands: CommandItem[] = [
-    {
-      id: "nav-dashboard",
-      label: "Go to Dashboard",
-      icon: LayoutDashboard,
-      action: () => router.push("/admin"),
-    },
-    ...getOrderedAdminModules(config).map((module) => ({
-      id: `nav-${module.key}`,
-      label: `Go to ${module.name}`,
-      description: module.description,
-      icon: IconMap[module.icon] || User,
-      action: () => router.push(module.href),
-    })),
-    {
-      id: "nav-settings",
-      label: "Go to Settings",
-      icon: Settings,
-      action: () => router.push("/admin/settings"),
-    },
-    {
-      id: "action-theme",
-      label: "Change Theme",
-      description: "Open theme gallery",
-      icon: Palette,
-      action: () => router.push("/admin/settings"),
-    },
-  ];
+  const commands: CommandItem[] = useMemo(
+    () => [
+      {
+        id: "nav-dashboard",
+        label: "Go to Dashboard",
+        icon: LayoutDashboard,
+        action: () => router.push("/admin"),
+      },
+      ...getOrderedAdminModules(config).map((module) => ({
+        id: `nav-${module.key}`,
+        label: `Go to ${module.name}`,
+        description: module.description,
+        icon: IconMap[module.icon] || User,
+        action: () => router.push(module.href),
+      })),
+      {
+        id: "nav-settings",
+        label: "Go to Settings",
+        icon: Settings,
+        action: () => router.push("/admin/settings"),
+      },
+      {
+        id: "action-theme",
+        label: "Change Theme",
+        description: "Open theme gallery",
+        icon: Palette,
+        action: () => router.push("/admin/settings"),
+      },
+    ],
+    [config, router],
+  );
 
-  const filtered = query
-    ? commands.filter(
-        (cmd) =>
-          cmd.label.toLowerCase().includes(query.toLowerCase()) ||
-          cmd.description?.toLowerCase().includes(query.toLowerCase()),
-      )
-    : commands;
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.toLowerCase();
+
+    return normalizedQuery
+      ? commands.filter(
+          (cmd) =>
+            cmd.label.toLowerCase().includes(normalizedQuery) ||
+            cmd.description?.toLowerCase().includes(normalizedQuery),
+        )
+      : commands;
+  }, [commands, query]);
 
   // Cmd+K global shortcut
   useEffect(() => {
