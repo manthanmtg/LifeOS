@@ -89,7 +89,9 @@ describe("PublicHeader", () => {
 
     fireEvent.click(screen.getByRole("button"));
     const mobileBlogLink = await screen.findAllByRole("link", { name: "Blog" });
-    fireEvent.click(mobileBlogLink[mobileBlogLink.length - 1]);
+    const mobileNavLink = mobileBlogLink[mobileBlogLink.length - 1];
+    mobileNavLink.addEventListener("click", (event) => event.preventDefault());
+    fireEvent.click(mobileNavLink);
 
     await waitFor(() =>
       expect(screen.queryAllByRole("link", { name: "Blog" })).toHaveLength(1),
