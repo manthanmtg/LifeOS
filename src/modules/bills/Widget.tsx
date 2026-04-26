@@ -37,9 +37,10 @@ export default function BillsWidget() {
         if (fetchedStats?.recentBill) {
           setDaysAgo(
             Math.floor(
-              (Date.now() - new Date(fetchedStats.recentBill.payload.bill_date).getTime()) /
+              (Date.now() -
+                new Date(fetchedStats.recentBill.payload.bill_date).getTime()) /
                 (1000 * 60 * 60 * 24),
-            )
+            ),
           );
         }
       })
