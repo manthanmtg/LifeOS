@@ -38,7 +38,7 @@ export function WidgetStat({
 }) {
   return (
     <div>
-      <p className="text-4xl font-black text-white tracking-tighter tabular-nums leading-none">
+      <p className="text-4xl font-black text-zinc-50 tracking-tighter tabular-nums leading-none">
         {value}
       </p>
       <p className="text-[10px] font-bold text-zinc-500 mt-2 uppercase tracking-widest leading-none">
