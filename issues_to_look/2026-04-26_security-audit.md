@@ -60,3 +60,35 @@ finding by adding baseline browser hardening headers in `next.config.ts`:
 - `pnpm vitest run src/app/api/ai-usage/limits/__tests__/route.test.ts` - PASS
 - `pnpm vitest run src/app/api/ai-usage/sync/__tests__/route.test.ts` - PASS
 - `pnpm check` - PASS
+
+## Follow-up run (2026-04-26 18:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Scope audited:
+
+- `src/proxy.ts`
+- `src/lib/auth.ts`
+- `src/lib/api-response.ts`
+- `next.config.ts`
+- API routes under `src/app/api`
+
+Result:
+
+- No new autonomous-safe security fix was identified.
+- Existing middleware still protects admin routes, sensitive API prefixes,
+  content mutations, widget summaries, import/export, bills, database stats,
+  AI usage routes, and GET metrics.
+- Core write routes continue to use schema validation or explicit allowlists
+  before persistence.
+- Public content reads continue to restrict non-admin callers to
+  `is_public: true`, with item reads re-checking private-document access.
+- Baseline hardening headers are present in `next.config.ts`.
+
+No-op rationale:
+
+- CSP and HSTS remain deployment-policy decisions already documented in
+  `issues_to_look/2026-04-23_security-audit.md`.
+- Import backup content revalidation remains a structural compatibility change
+  already documented in `issues_to_look/2026-04-23_security-audit.md`.
+- Duplicating either finding would add noise without making the project safer.
