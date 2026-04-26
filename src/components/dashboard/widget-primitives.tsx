@@ -2,6 +2,7 @@
 
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 /**
  * Max height for any widget card (in pixels).
@@ -29,7 +30,7 @@ const TEXT_COLOR: Record<SemanticColor, string> = {
 };
 
 /** Hero number with label — the primary metric every widget must show. */
-export function WidgetStat({
+export const WidgetStat = memo(function WidgetStat({
   value,
   label,
 }: {
@@ -46,10 +47,10 @@ export function WidgetStat({
       </p>
     </div>
   );
-}
+});
 
 /** A compact spotlight / alert row for one key detail. */
-export function WidgetHighlight({
+export const WidgetHighlight = memo(function WidgetHighlight({
   icon: Icon,
   text,
   subtext,
@@ -90,7 +91,7 @@ export function WidgetHighlight({
       )}
     </div>
   );
-}
+});
 
 const GRID_COLS: Record<number, string> = {
   1: "grid-cols-1",
@@ -99,7 +100,7 @@ const GRID_COLS: Record<number, string> = {
 };
 
 /** Up to 3 mini stat cells in a horizontal row. */
-export function WidgetMiniStats({
+export const WidgetMiniStats = memo(function WidgetMiniStats({
   stats,
 }: {
   stats: Array<{
@@ -140,10 +141,10 @@ export function WidgetMiniStats({
       })}
     </div>
   );
-}
+});
 
 /** Compact list — hard-capped at 2 items. */
-export function WidgetList({
+export const WidgetList = memo(function WidgetList({
   items,
 }: {
   items: Array<{ label: string; icon?: LucideIcon }>;
@@ -166,4 +167,4 @@ export function WidgetList({
       ))}
     </div>
   );
-}
+});
