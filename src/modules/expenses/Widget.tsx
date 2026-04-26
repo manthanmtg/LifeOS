@@ -44,6 +44,8 @@ export default function ExpensesWidget() {
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
   const format = settings.numberFormat || "western";
 
+  const [now] = useState(() => new Date());
+
   useEffect(() => {
     const ac = new AbortController();
     fetch("/api/content?module_type=expense", { signal: ac.signal })
@@ -55,7 +57,6 @@ export default function ExpensesWidget() {
   }, []);
 
   const { totalThisMonth, trend, topCategory } = useMemo(() => {
-    const now = new Date();
     const thisMonth = expenses.filter((e) => {
       const d = new Date(e.payload.date);
       return (
@@ -85,7 +86,7 @@ export default function ExpensesWidget() {
     const tc = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
 
     return { totalThisMonth: ttm, trend: t, topCategory: tc };
-  }, [expenses]);
+  }, [expenses, now]);
 
   return (
     <WidgetCard
