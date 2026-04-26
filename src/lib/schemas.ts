@@ -66,14 +66,15 @@ export const ExpenseSchema = z.object({
 
 // --- 3. BLOG POSTS ---
 export const BlogPostSchema = z.object({
-  title: z.string().min(3, "Post title is required"),
+  title: z.string().trim().min(3, "Post title is required").max(200),
   slug: z
     .string()
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly"),
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly")
+    .max(200),
   content: z.string().min(1, "Post cannot be empty"),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   published_at: z.string().datetime().optional(),
-  tags: z.array(z.string()).default([]),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   cover_image_url: z.string().url().optional(),
   estimated_reading_time: z.number().int().optional(),
   seo_description: z
@@ -100,21 +101,21 @@ export const RecurringExpenseSchema = z.object({
 // --- 5. READING QUEUE ---
 export const ReadingItemSchema = z.object({
   url: z.string().url("Must be a valid URL"),
-  title: z.string().min(1, "Title is required"),
-  source_domain: z.string().optional(),
+  title: z.string().trim().min(1, "Title is required").max(500),
+  source_domain: z.string().trim().max(200).optional(),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
-  type: z.string().default("article"),
+  type: z.string().trim().min(1).max(50).default("article"),
   is_read: z.boolean().default(false),
   read_at: z.string().datetime().optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  notes: z.string().trim().max(5000).optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 // --- 6. BOOKSHELF ---
 export const BookSchema = z.object({
-  title: z.string().min(1, "Book title is required"),
-  author: z.string().min(1, "Author is required"),
-  isbn: z.string().optional(),
+  title: z.string().trim().min(1, "Book title is required").max(300),
+  author: z.string().trim().min(1, "Author is required").max(200),
+  isbn: z.string().trim().max(20).optional(),
   cover_url: z.string().url().optional(),
   status: z
     .enum(["want_to_read", "reading", "completed", "abandoned"])
@@ -124,9 +125,9 @@ export const BookSchema = z.object({
   rating: z.number().int().min(1).max(5).optional(),
   started_at: z.string().datetime().optional(),
   finished_at: z.string().datetime().optional(),
-  summary: z.string().optional(),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  summary: z.string().trim().max(5000).optional(),
+  notes: z.string().trim().max(5000).optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 // --- 7. IDEA DUMP ---
