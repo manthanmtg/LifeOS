@@ -49,7 +49,7 @@ export default function ExpenseForm({
   const [subcategory, setSubcategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [type, setType] = useState<"income" | "expense">("expense");
   const [isRecurring, setIsRecurring] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

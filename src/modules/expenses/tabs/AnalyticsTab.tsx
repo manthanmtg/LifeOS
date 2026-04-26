@@ -55,7 +55,7 @@ export default function AnalyticsTab({
   expenses,
   settings,
 }: AnalyticsTabProps) {
-  const [selectedYear, setSelectedYear] = useState(
+  const [selectedYear, setSelectedYear] = useState(() =>
     new Date().getFullYear().toString(),
   );
   const [activeTab, setActiveTab] = useState<
