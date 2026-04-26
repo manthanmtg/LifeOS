@@ -2498,7 +2498,3 @@ export function buildDefaultCalculatorsSettings(): CalculatorsModuleSettings {
     enabledCalculators,
   };
 }
-
-export function getCalculatorById(id: string) {
-  return CALCULATOR_DEFINITIONS.find((calculator) => calculator.id === id);
-}
