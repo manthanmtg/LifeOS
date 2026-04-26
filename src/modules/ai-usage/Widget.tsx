@@ -66,12 +66,15 @@ export default function AiUsageWidget() {
     0,
   );
 
+  const accentColor = trend > 0 ? "danger" : trend < 0 ? "success" : "accent";
+
   return (
     <WidgetCard
       title="AI Usage"
       icon={Bot}
       loading={loading}
       href="/admin/ai-usage"
+      accentColor={accentColor}
       footer={
         <div className="flex items-center justify-between">
           {trend !== 0 ? (
@@ -104,10 +107,13 @@ export default function AiUsageWidget() {
           value={`$${formatNumber(totalThisMonth, "western", 2)}`}
           label={`this month · ${thisMonth.length} calls`}
         />
-        {totalTokens > 0 ? (
+        {entries.length === 0 ? (
+          <WidgetHighlight icon={Bot} text="No usage tracked yet" />
+        ) : totalTokens > 0 ? (
           <WidgetHighlight
             icon={Cpu}
             text={`${formatNumber(totalTokens / 1000, "western", 1)}K tokens used`}
+            variant="accent"
           />
         ) : (
           <WidgetHighlight icon={Bot} text="No usage this month" />
