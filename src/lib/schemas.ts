@@ -131,25 +131,25 @@ export const BookSchema = z.object({
 
 // --- 7. IDEA DUMP ---
 export const IdeaSchema = z.object({
-  title: z.string().min(1, "Idea title is required"),
-  description: z.string().optional(),
-  notes: z.string().optional(),
-  category: z.string().optional(),
+  title: z.string().trim().min(1, "Idea title is required").max(200),
+  description: z.string().trim().max(1000).optional(),
+  notes: z.string().trim().max(5000).optional(),
+  category: z.string().trim().max(50).optional(),
   status: z.enum(["raw", "exploring", "archived"]).default("raw"),
-  tags: z.array(z.string()).default([]),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   promoted_to_portfolio: z.boolean().default(false),
   promoted_at: z.string().datetime().optional(),
-  order: z.number().optional(),
+  order: z.number().int().optional(),
 });
 
 // --- 8. SNIPPET BOX ---
 export const SnippetSchema = z.object({
-  title: z.string().min(1, "Snippet title is required"),
-  code: z.string().min(1, "Code content is required"),
-  language: z.string().min(1, "Language is required"),
-  description: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  title: z.string().trim().min(1, "Snippet title is required").max(200),
+  code: z.string().min(1, "Code content is required").max(100000),
+  language: z.string().trim().min(1, "Language is required").max(50),
+  description: z.string().trim().max(1000).optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   is_favorite: z.boolean().default(false),
 });
 
