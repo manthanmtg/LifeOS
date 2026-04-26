@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -67,6 +68,17 @@ export default function ExpenseList({
   isDeletingId,
 }: ExpenseListProps) {
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
+  const displayExpenses = useMemo(
+    () =>
+      expenses.map((expense) => ({
+        ...expense,
+        displayDate: new Date(expense.payload.date).toLocaleDateString(
+          undefined,
+          { month: "short", day: "numeric" },
+        ),
+      })),
+    [expenses],
+  );
 
   return (
     <div className="space-y-4">
@@ -95,7 +107,7 @@ export default function ExpenseList({
 
         <div className="divide-y divide-zinc-800/30">
           <AnimatePresence initial={false} mode="popLayout">
-            {expenses.map((expense, idx) => {
+            {displayExpenses.map((expense, idx) => {
               const isIncome = expense.payload.type === "income";
               const Icon =
                 CATEGORY_ICONS[expense.payload.category] ||
@@ -156,10 +168,7 @@ export default function ExpenseList({
                         )}
                         <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
                         <span className="text-[9px] font-bold text-zinc-600 uppercase">
-                          {new Date(expense.payload.date).toLocaleDateString(
-                            undefined,
-                            { month: "short", day: "numeric" },
-                          )}
+                          {expense.displayDate}
                         </span>
                       </div>
                     </div>

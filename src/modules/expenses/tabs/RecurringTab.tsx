@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   Plus,
   RotateCw,
@@ -32,6 +32,16 @@ interface RecurringExpense {
 export default function RecurringTab({ settings }: RecurringTabProps) {
   const [subs, setSubs] = useState<RecurringExpense[]>([]);
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
+  const displaySubs = useMemo(
+    () =>
+      subs.map((sub) => ({
+        ...sub,
+        renewalDateLabel: new Date(
+          sub.payload.next_renewal_date,
+        ).toLocaleDateString(),
+      })),
+    [subs],
+  );
 
   const fetchSubs = useCallback(async () => {
     try {
@@ -94,7 +104,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
 
       {/* Subscription Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {subs.map((sub, idx) => (
+        {displaySubs.map((sub, idx) => (
           <motion.div
             key={sub._id}
             initial={{ opacity: 0, scale: 0.95 }}
@@ -131,8 +141,7 @@ export default function RecurringTab({ settings }: RecurringTabProps) {
                   {formatNumber(sub.payload.cost, settings.numberFormat)}
                 </p>
                 <div className="flex items-center justify-end gap-1 text-[10px] font-bold text-zinc-500 mt-1">
-                  <Clock className="w-3 h-3" />{" "}
-                  {new Date(sub.payload.next_renewal_date).toLocaleDateString()}
+                  <Clock className="w-3 h-3" /> {sub.renewalDateLabel}
                 </div>
               </div>
             </div>
