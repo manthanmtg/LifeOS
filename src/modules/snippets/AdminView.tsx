@@ -201,7 +201,7 @@ export default function SnippetsAdminView() {
   return (
     <div className="animate-fade-in-up space-y-6 pb-12">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-zinc-800 bg-zinc-900 p-8 shadow-2xl shadow-black/20">
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-zinc-800 bg-zinc-900 p-8 shadow-2xl shadow-zinc-950/20">
         <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-accent/10 blur-[100px]" />
         <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-accent/5 blur-[100px]" />
 
@@ -238,7 +238,7 @@ export default function SnippetsAdminView() {
                   setEditingSnippet(null);
                   setShowForm(true);
                 }}
-                className="group flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-accent/20 transition-all active:scale-95"
+                className="group flex items-center gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-bold px-6 py-3 rounded-2xl shadow-lg shadow-accent/20 transition-all active:scale-95"
               >
                 <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                 New Snippet
