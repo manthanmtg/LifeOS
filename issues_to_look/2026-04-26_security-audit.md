@@ -38,10 +38,27 @@ Fix:
 
 ## Existing open findings not duplicated
 
-- Missing explicit app-wide security headers remains documented in `issues_to_look/2026-04-23_security-audit.md`.
+- CSP and HSTS policy review remains documented in `issues_to_look/2026-04-23_security-audit.md`.
 - Import backup content revalidation remains documented in `issues_to_look/2026-04-23_security-audit.md`.
+
+## Follow-up run
+
+Selected prompt: `prompts/security_enhancer.md`
+
+This run addressed the narrow, reviewable portion of the existing header
+finding by adding baseline browser hardening headers in `next.config.ts`:
+
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+CSP and HSTS were left documented for human review because they require
+deployment-aware policy decisions.
 
 ## Verification
 
 - Red: `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` failed because raw internal error messages were returned.
 - Green: `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` passed after masking responses.
+- Red: `pnpm vitest run src/test/security-headers.test.ts` failed because `nextConfig.headers` had no global headers.
+- Green: `pnpm vitest run src/test/security-headers.test.ts` passed after adding the baseline headers.
