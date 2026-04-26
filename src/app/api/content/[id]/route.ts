@@ -65,7 +65,10 @@ export async function PUT(
     if (!existing) return ApiNotFound();
 
     const schema = SchemaRegistry[existing.module_type];
-    if (schema && payload) {
+    if (payload !== undefined && !schema) {
+      return ApiError("Unknown module_type for existing content", 400);
+    }
+    if (payload !== undefined && schema) {
       const parsed = schema.safeParse(payload);
       if (!parsed.success) {
         return ApiValidationError(parsed.error.format());
@@ -76,7 +79,7 @@ export async function PUT(
       updated_at: new Date().toISOString(),
     };
     if (is_public !== undefined) updateData.is_public = is_public;
-    if (payload) updateData.payload = schema ? schema.parse(payload) : payload;
+    if (payload !== undefined && schema) updateData.payload = schema.parse(payload);
 
     await contentColl.updateOne(
       { _id: new ObjectId(id) },
