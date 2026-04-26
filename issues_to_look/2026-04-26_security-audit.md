@@ -144,3 +144,20 @@ No-op rationale:
 - Both remaining findings need an explicit product/deployment decision or a
   separately scoped test plan, so this run did not change security-critical
   code.
+
+## Follow-up run (Zod schema validation for Bill endpoints)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Scope audited:
+- `src/app/api/bills` endpoints
+
+Problem:
+- `src/app/api/bills/[id]/attachments/route.ts`, `src/app/api/bills/[id]/move/route.ts`, and `src/app/api/bills/folders/[id]/move/route.ts` were missing Zod `safeParse()` calls for incoming `POST` and `PUT` request bodies, instead relying on direct type assertions (`as { ... }`) or manual checking. This bypassed strict schema validation.
+
+Fix:
+- Replaced manual assertions with inline `z.object(...).safeParse()` validation.
+- Returned standard `ApiValidationError` responses on failure.
+
+Verification:
+- `pnpm check` - PASS

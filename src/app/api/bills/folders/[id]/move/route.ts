@@ -1,9 +1,10 @@
 import { getDb } from "@/lib/mongodb";
 import { ContentDocument } from "@/lib/types";
 import { ObjectId } from "mongodb";
-import { ApiSuccess, ApiError, ApiNotFound } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiNotFound, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { z } from "zod";
 
 export async function PUT(
   request: Request,
@@ -19,7 +20,9 @@ export async function PUT(
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
     const body = await request.json();
-    const { parent_id } = body as { parent_id: string | null };
+    const parsed = z.object({ parent_id: z.string().nullable() }).safeParse(body);
+    if (!parsed.success) return ApiValidationError(parsed.error.format());
+    const { parent_id } = parsed.data;
 
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
