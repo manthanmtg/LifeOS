@@ -5,8 +5,10 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 ## Commands
 
 - `pnpm dev` — Start dev server (Turbopack)
-- `pnpm build` — Production build
+- `pnpm build` — Production build (includes memory fix)
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
+- `pnpm typecheck` — Run TypeScript type checking (includes memory fix)
+- `pnpm test` — Run tests using Vitest
 - `pnpm format` — Format code with Prettier
 - `pnpm format:check` — Check formatting with Prettier
 - `pnpm check` — Run full CI check (lint, typecheck, build, test)
@@ -100,7 +102,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 ### Loading States
 
-Every data-fetching component must show a rich skeleton/shimmer loading state — never a blank screen or bare spinner. Shared skeleton components live in `src/components/ui/Skeletons.tsx` (`SkeletonBlock`, `WidgetSkeleton`, `DashboardSkeleton`, `AdminModuleSkeleton`, `BlogListSkeleton`, `BlogPostSkeleton`, `PublicModuleSkeleton`).
+Every data-fetching component must show a rich skeleton/shimmer loading state — never a blank screen or bare spinner. Shared skeleton components live in `src/components/ui/Skeletons.tsx` (`SkeletonBlock`, `WidgetSkeleton`, `DashboardSkeleton`, `AdminModuleSkeleton`, `ContentListSkeleton`, `BlogListSkeleton`, `BlogPostSkeleton`, `PublicModuleSkeleton`, `PortfolioSkeleton`).
 
 - **Widget components** — Track a `loading` state via `useState(true)`, set `false` in `.finally()`. Return an `animate-pulse` skeleton while loading.
 - **Dynamic imports** — Always pass a `{ loading: () => <Skeleton /> }` option to `next/dynamic`. Note: Next.js requires this to be an **object literal**, not a shared variable.
@@ -131,12 +133,12 @@ When adding a new module, ensure both its `Widget.tsx` and `AdminView.tsx` follo
 
 The TypeScript compiler can hit Node's default heap limit (~1.5–2 GB) during type-checking, especially on memory-constrained servers. Common causes: large codebase, deeply inferred types (e.g., Zod's `.infer`), or `skipLibCheck: false` forcing type-checking of all `node_modules` `.d.ts` files.
 
-**Fixes (apply as needed):**
+**Fixes:**
 
-- **Increase Node heap**: `NODE_OPTIONS="--max-old-space-size=4096" pnpm build`
-- **Enable `skipLibCheck`**: Set `"skipLibCheck": true` in `tsconfig.json` `compilerOptions`
-- **Narrow `include`**: Ensure `tsconfig.json` only includes `src/` — not the entire repo
-- **Add swap space**: On low-RAM servers, adding swap prevents hard OOM kills
+- **Increase Node heap**: Already configured in `package.json` scripts (`--max-old-space-size=4096`).
+- **Enable `skipLibCheck`**: Set `"skipLibCheck": true` in `tsconfig.json` `compilerOptions` (Done).
+- **Narrow `include`**: Ensure `tsconfig.json` only includes `src/` — not the entire repo (Done).
+- **Add swap space**: On low-RAM servers, adding swap prevents hard OOM kills.
 
 ## Visual Verification with Playwright MCP
 
