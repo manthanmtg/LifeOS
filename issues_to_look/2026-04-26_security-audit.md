@@ -92,3 +92,20 @@ No-op rationale:
 - Import backup content revalidation remains a structural compatibility change
   already documented in `issues_to_look/2026-04-23_security-audit.md`.
 - Duplicating either finding would add noise without making the project safer.
+
+## Follow-up run (Content Update Schema Validation)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Files:
+- `src/app/api/content/[id]/route.ts`
+
+Problem:
+- The PUT route for updating content allowed bypassing Zod schema validation if the `module_type` in the database was missing from the `SchemaRegistry`. While POST explicitly prevented inserting unknown module types, PUT did not enforce this same check, potentially allowing unvalidated arbitrary payloads into the database for existing content.
+
+Fix:
+- Enforced schema existence checks in the PUT handler (`if (payload !== undefined && !schema)`).
+- Required `schema.parse(payload)` execution when updating content payloads.
+
+Verification:
+- `pnpm check` - PASS
