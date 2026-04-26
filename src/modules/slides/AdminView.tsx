@@ -20,6 +20,7 @@ import {
   Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import { SlideViewer } from "./Viewer";
 import { DeckPreview } from "./DeckPreview";
 import {
@@ -31,6 +32,37 @@ import {
   VISIBILITY_LABELS,
   VISIBILITY_STYLES,
 } from "./types";
+
+function DeckGridSkeleton() {
+  return (
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 animate-pulse"
+      aria-label="Loading decks"
+    >
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3"
+        >
+          <SkeletonBlock className="w-full h-32 rounded-xl" />
+          <div className="space-y-2">
+            <SkeletonBlock className="h-4 w-3/4" />
+            <SkeletonBlock className="h-3 w-full" />
+            <SkeletonBlock className="h-3 w-2/3" />
+          </div>
+          <div className="flex items-center gap-2">
+            <SkeletonBlock className="h-5 w-16 rounded-full" />
+            <SkeletonBlock className="h-5 w-20 rounded-full" />
+          </div>
+          <div className="flex items-center justify-between pt-2">
+            <SkeletonBlock className="h-3 w-24" />
+            <SkeletonBlock className="h-8 w-20 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function SlidesAdminView() {
   const [items, setItems] = useState<DeckItem[]>([]);
@@ -692,12 +724,7 @@ export default function SlidesAdminView() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-zinc-500">
-          <div className="flex flex-col items-center gap-3">
-            <RefreshCw className="w-8 h-8 animate-spin text-accent" />
-            <span>Loading your decks...</span>
-          </div>
-        </div>
+        <DeckGridSkeleton />
       ) : filtered.length === 0 ? (
         <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
           <Presentation className="w-10 h-10 mx-auto mb-3 opacity-30" />
