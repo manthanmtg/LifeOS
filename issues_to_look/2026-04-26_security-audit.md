@@ -8,7 +8,7 @@ Date: 2026-04-26
 
 Audited `src/proxy.ts`, `src/lib/auth.ts`, `next.config.ts`, and API routes under `src/app/api`.
 
-This run fixed a narrow error-masking gap in the non-production AI usage debug endpoint.
+This run focused on masking internal and external error messages across multiple AI usage API routes.
 
 ## What looks good
 
@@ -20,30 +20,31 @@ This run fixed a narrow error-masking gap in the non-production AI usage debug e
 
 ## Resolved in this run
 
-### Mask internal debug route exceptions
+### Mask internal and external error messages in AI usage routes
 
-File:
+Files:
 
-- `src/app/api/ai-usage/debug/route.ts`
+- `src/app/api/ai-usage/limits/route.ts`
+- `src/app/api/ai-usage/sync/route.ts`
+- `src/app/api/ai-usage/debug/route.ts` (inner catch blocks)
 
 Problem:
 
-The non-production AI usage debug route returned raw caught exception messages to the client. If a database or provider call threw a sensitive message, that text could be reflected in the API response.
+Several API routes in the AI usage module were leaking internal exception messages (e.g., from database failures) or external API error messages (e.g., from OpenAI/Anthropic) directly to the client. This could expose sensitive system details.
 
 Fix:
 
-- Log caught exceptions server-side.
-- Return generic `Debug failed` and `Test failed` messages to clients.
-- Added regression coverage in `src/app/api/ai-usage/debug/__tests__/route.test.ts`.
+- Replaced dynamic error messages (`error.message`) with generic, safe messages ("Failed to fetch limits", "Sync failed", "Failed to fetch debug info").
+- Logged all original error details to the server console for debugging.
+- Created regression tests for `limits` and `sync` routes.
+- Updated existing tests for the `debug` route to cover inner error masking.
 
 ## Existing open findings not duplicated
 
 - CSP and HSTS policy review remains documented in `issues_to_look/2026-04-23_security-audit.md`.
 - Import backup content revalidation remains documented in `issues_to_look/2026-04-23_security-audit.md`.
 
-## Follow-up run
-
-Selected prompt: `prompts/security_enhancer.md`
+## Follow-up run (Baseline Headers)
 
 This run addressed the narrow, reviewable portion of the existing header
 finding by adding baseline browser hardening headers in `next.config.ts`:
@@ -53,12 +54,9 @@ finding by adding baseline browser hardening headers in `next.config.ts`:
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 
-CSP and HSTS were left documented for human review because they require
-deployment-aware policy decisions.
-
 ## Verification
 
-- Red: `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` failed because raw internal error messages were returned.
-- Green: `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` passed after masking responses.
-- Red: `pnpm vitest run src/test/security-headers.test.ts` failed because `nextConfig.headers` had no global headers.
-- Green: `pnpm vitest run src/test/security-headers.test.ts` passed after adding the baseline headers.
+- `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` - PASS
+- `pnpm vitest run src/app/api/ai-usage/limits/__tests__/route.test.ts` - PASS
+- `pnpm vitest run src/app/api/ai-usage/sync/__tests__/route.test.ts` - PASS
+- `pnpm check` - PASS
