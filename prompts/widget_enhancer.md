@@ -17,7 +17,7 @@ Select a random module and ensure its dashboard widget (`Widget.tsx`) is a high-
 - **User Value**: From a user's perspective, does the widget show what they need to see _right now_? (e.g., for `expenses`, current month total; for `habits`, today's progress).
 - **Visual Polish**: Does it use the "LifeOS Premium" aesthetic (glassmorphism, semantic colors, Lucide icons, smooth transitions)?
 - **Empty States**: Does it handle "no data" or "loading" states gracefully with shimmer/skeletons?
-- **Quick Actions**: Does it offer "one-tap" actions if appropriate (e.g., "Log Expense", "Check Habit")?
+- **Navigation**: Does the outer `WidgetCard` route to the correct module via `href`? Do not add internal quick actions.
 
 ### 3. Enhancement Pass (One Small Improvement)
 
@@ -25,6 +25,7 @@ Select a random module and ensure its dashboard widget (`Widget.tsx`) is a high-
 - Examples of single improvements: add a loading skeleton, fix a missing semantic color, add one meaningful metric, improve empty state copy.
 - Use `framer-motion` for subtle animations.
 - Use semantic colors (`success`, `warning`, `danger`, `accent`).
+- Respect the Widget Contract: no internal `<button>`, `<input>`, form, or standalone link elements inside widgets. The whole card is the action.
 - If the widget is already polished, check up to 2 more modules. If all are good, **no-op** — log "all widgets look great" and stop.
 
 ### 4. No-Op Protocol

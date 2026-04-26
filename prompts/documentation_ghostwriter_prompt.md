@@ -24,7 +24,7 @@ Pick **one random module or core directory** and ensure its documentation is acc
   - **Overview**: What the module does.
   - **Data Schema**: Key fields in the `payload` as defined by Zod.
   - **Features**: List of metrics, actions, and "Smart" capabilities.
-- **Architecture Updates**: Update global docs like `AGENT.md` if new patterns or core utilities are introduced.
+- **Architecture Updates**: Update global docs like `AGENTS.md` if new patterns or core utilities are introduced.
 - **Example Usage**: Provide clear, copy-pasteable examples for component usage or API interaction.
 
 ### 3. Style & Tone

@@ -7,15 +7,15 @@ Pick one random component or module and make **one targeted visual improvement**
 ## Scope
 
 - Pick **one** component or module at random.
-- Make **one** visual improvement (e.g., add an animation, improve a shadow, fix typography, add a gradient). Don't redesign the whole thing.
+- Make **one** visual consistency improvement. Match nearby LifeOS patterns before adding any new animation, shadow, typography treatment, or gradient. Don't redesign the whole thing.
 
 ## Aesthetic Checklist (Pick One to Improve)
 
-1. **Animations**: Use `layout` and `AnimatePresence` for smooth list updates. Add subtle `whileHover={{ scale: 1.02 }}` and `whileTap={{ scale: 0.98 }}` to buttons.
-2. **Depth**: Use multi-layered shadows (e.g., `shadow-xl shadow-accent/10`) and glassmorphism (`backdrop-blur-md`).
-3. **Typography**: Ensure font weights are bold/black for headers and tracking is adjusted (`tracking-tighter` for large titles, `tracking-widest` for caps labels).
-4. **Color Harmonies**: Avoid default Tailwind colors. Use `accent`, `success`, `warning`, and `danger` variables. Add subtle gradients (`from-zinc-900 to-zinc-950`).
-5. **Micro-interactions**: Implement indicator glows, breadcrumbs, and high-quality Lucide icon placements.
+1. **Consistency**: Align spacing, borders, radius, and hierarchy with adjacent components.
+2. **Animations**: Add or tune motion only where the surrounding UI already uses similar transitions.
+3. **Depth**: Adjust shadows, borders, or backdrop treatment only to match existing LifeOS surfaces.
+4. **Typography**: Improve readability without introducing new type scales or viewport-based sizing.
+5. **Color Harmony**: Use semantic colors and `zinc-*` neutrals only; avoid one-off hues and decorative gradients.
 
 ## No-Op Protocol
 
@@ -26,7 +26,7 @@ Pick one random component or module and make **one targeted visual improvement**
 
 - Pick a random target.
 - Audit it against the checklist — find the **single weakest area**.
-- Make one focused improvement.
+- Make one focused improvement that improves consistency, not novelty.
 - Run `pnpm check` — zero regressions.
 - Commit with a message like: `style(habits): add glassmorphic card depth to habit list`
 

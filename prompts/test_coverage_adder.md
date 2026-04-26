@@ -29,6 +29,9 @@ Coverage grows like a garden. Each run plants a few seeds. Over many runs, the e
   - Error handling (invalid inputs, network failures via mocks)
 - Use `vi.mock()` for external dependencies (MongoDB, fetch, next/navigation).
 - Use `vi.useFakeTimers()` for time-dependent logic.
+- Use centralized fixtures from `tests/fixtures` if they exist; otherwise keep local fixtures small and explicit.
+- Use async testing helpers such as `waitFor` or `findBy*` for components that fetch data.
+- For polymorphic content behavior, cover relevant `module_type` scenarios instead of only one happy-path payload.
 
 ### 3. No-Op Conditions
 
