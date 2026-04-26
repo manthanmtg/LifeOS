@@ -103,7 +103,10 @@ export default function ItemSection({
 
       {!isHidden ? (
         items.length > 0 ? (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <motion.div
+            layout
+            className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
+          >
             <AnimatePresence mode="popLayout">
               {items.map((item) => (
                 <motion.div
@@ -163,10 +166,10 @@ export default function ItemSection({
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 px-4 py-6 text-center text-sm text-zinc-500">
-            {emptyMessage}
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/10 px-4 py-8 text-center text-sm text-zinc-500">
+            <p className="font-medium text-zinc-600">{emptyMessage}</p>
           </div>
         )
       ) : null}
