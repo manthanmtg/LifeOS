@@ -104,7 +104,8 @@ export async function POST(request: Request) {
         usageStatus = r.status;
         usageRaw = await r.json();
       } catch (e) {
-        usageError = e instanceof Error ? e.message : String(e);
+        console.error("OpenAI usage fetch failed:", e);
+        usageError = "Failed to fetch debug info";
       }
 
       const cUrl = `https://api.openai.com/v1/organization/costs?start_time=${startUnix}&bucket_width=1d&limit=3`;
@@ -116,7 +117,8 @@ export async function POST(request: Request) {
         costStatus = r.status;
         costRaw = await r.json();
       } catch (e) {
-        costError = e instanceof Error ? e.message : String(e);
+        console.error("OpenAI cost fetch failed:", e);
+        costError = "Failed to fetch debug info";
       }
     } else if (config.provider === "anthropic") {
       const uUrl = `https://api.anthropic.com/v1/organizations/usage_report/messages?starting_at=${fmtDate(start)}&ending_at=${fmtDate(now)}&bucket_width=1d&group_by[]=model`;
@@ -131,7 +133,8 @@ export async function POST(request: Request) {
         usageStatus = r.status;
         usageRaw = await r.json();
       } catch (e) {
-        usageError = e instanceof Error ? e.message : String(e);
+        console.error("Anthropic usage fetch failed:", e);
+        usageError = "Failed to fetch debug info";
       }
 
       const cUrl = `https://api.anthropic.com/v1/organizations/cost_report?starting_at=${fmtDate(start)}&ending_at=${fmtDate(now)}&bucket_width=1d`;
@@ -146,7 +149,8 @@ export async function POST(request: Request) {
         costStatus = r.status;
         costRaw = await r.json();
       } catch (e) {
-        costError = e instanceof Error ? e.message : String(e);
+        console.error("Anthropic cost fetch failed:", e);
+        costError = "Failed to fetch debug info";
       }
     }
 

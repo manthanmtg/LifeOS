@@ -139,7 +139,8 @@ export async function GET() {
             base.windows = parseAnthropicLimits(res.headers);
             if (!res.ok && base.windows.length === 0) {
               const txt = await res.text().catch(() => "");
-              base.error = `API ${res.status}: ${txt.slice(0, 120)}`;
+              console.error(`Anthropic API error ${res.status}: ${txt}`);
+              base.error = "Failed to fetch limits";
             }
           } else if (config.provider === "openai") {
             // Admin keys work for /v1/models list
@@ -149,12 +150,13 @@ export async function GET() {
             base.windows = parseOpenAILimits(res.headers);
             if (!res.ok && base.windows.length === 0) {
               const txt = await res.text().catch(() => "");
-              base.error = `API ${res.status}: ${txt.slice(0, 120)}`;
+              console.error(`OpenAI API error ${res.status}: ${txt}`);
+              base.error = "Failed to fetch limits";
             }
           }
         } catch (e) {
-          base.error =
-            e instanceof Error ? e.message : "Failed to fetch limits";
+          console.error(`Failed to fetch limits for ${config.name}:`, e);
+          base.error = "Failed to fetch limits";
         }
 
         return base;
@@ -163,9 +165,7 @@ export async function GET() {
 
     return ApiSuccess({ results });
   } catch (error) {
-    return ApiError(
-      error instanceof Error ? error.message : "Failed to fetch limits",
-      500,
-    );
+    console.error("GET /api/ai-usage/limits failed:", error);
+    return ApiError("Failed to fetch limits", 500);
   }
 }
