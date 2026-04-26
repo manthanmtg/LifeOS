@@ -1117,7 +1117,8 @@ export default function WhiteboardAdminView() {
                       )}
                       <span title={new Date(board.updated_at).toLocaleString()}>
                         {relativeTime(board.updated_at, now)}
-                      </span>                    </div>
+                      </span>{" "}
+                    </div>
                   </div>
                 </motion.div>
               );
