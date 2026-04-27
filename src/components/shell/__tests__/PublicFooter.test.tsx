@@ -32,6 +32,31 @@ describe("PublicFooter", () => {
     expect(screen.queryByRole("link", { name: /X/i })).not.toBeInTheDocument();
   });
 
+  it("groups social links in a labeled navigation landmark", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({
+        data: [
+          {
+            payload: {
+              social_links: [
+                { platform: "GitHub", url: "https://github.com/example" },
+              ],
+            },
+          },
+        ],
+      }),
+    } as Response);
+
+    render(<PublicFooter />);
+
+    const socialNav = await screen.findByRole("navigation", {
+      name: /social links/i,
+    });
+    expect(socialNav).toContainElement(
+      screen.getByRole("link", { name: /GitHub/i }),
+    );
+  });
+
   it("keeps the static footer content when profile fetch fails", async () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("unavailable"));
 
