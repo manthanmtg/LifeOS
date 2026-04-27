@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Calendar, CloudRain, Droplets } from "lucide-react";
+import { CloudRain, Droplets } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetHighlight,
   WidgetStat,
-  WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
 import type { RainSummary } from "./types";
 
@@ -95,22 +94,6 @@ export default function RainTrackerWidget() {
             subtext="Add an entry to start tracking trends."
           />
         )}
-        <WidgetMiniStats
-          stats={[
-            {
-              value: `${stats.last30} ${displayUnit}`,
-              label: "30-day total",
-              icon: Calendar,
-              color: "accent",
-            },
-            {
-              value: stats.rainyDays,
-              label: "Rainy days",
-              icon: CloudRain,
-              color: "warning",
-            },
-          ]}
-        />
       </div>
     </WidgetCard>
   );
