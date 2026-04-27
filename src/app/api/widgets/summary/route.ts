@@ -13,6 +13,7 @@ import {
   HealthProfileSchema,
   RecurringExpenseSchema,
   BillSchema,
+  SnippetSchema,
 } from "@/lib/schemas";
 import type { EmiLoan } from "@/modules/emi-tracker/types";
 
@@ -22,6 +23,7 @@ type VehiclePayload = z.infer<typeof VehicleSchema>;
 type HealthProfilePayload = z.infer<typeof HealthProfileSchema>;
 type RecurringExpensePayload = z.infer<typeof RecurringExpenseSchema>;
 type BillPayload = z.infer<typeof BillSchema>;
+type SnippetPayload = z.infer<typeof SnippetSchema>;
 
 // --- EMI Utility Functions ---
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
@@ -161,6 +163,29 @@ export async function GET(request: Request) {
 
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
+
+    if (module_type === "snippet") {
+      const snippetDocs = (await contentColl
+        .find(
+          { module_type, is_public: false },
+          { projection: { "payload.is_favorite": 1, "payload.language": 1 } },
+        )
+        .toArray()) as ContentDocument<SnippetPayload>[];
+      const languageSet = new Set<string>();
+      let favorites = 0;
+
+      for (const snippet of snippetDocs) {
+        if (snippet.payload.is_favorite) favorites++;
+        if (snippet.payload.language) languageSet.add(snippet.payload.language);
+      }
+
+      return ApiSuccess({
+        total: snippetDocs.length,
+        favorites,
+        languageCount: languageSet.size,
+      });
+    }
+
     const docs = (await contentColl
       .find({ module_type, is_public: false })
       .toArray()) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -780,7 +805,9 @@ export async function GET(request: Request) {
           },
           {},
         );
-        const tc = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+        const tc = Object.entries(categoryTotals).sort(
+          (a, b) => b[1] - a[1],
+        )[0];
 
         summary = {
           totalThisMonth: ttm,

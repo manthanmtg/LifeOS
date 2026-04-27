@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Code, Star } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -8,31 +8,35 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
-interface Snippet {
-  payload: {
-    title: string;
-    is_favorite: boolean;
-    language: string;
-  };
+interface SnippetSummary {
+  total: number;
+  favorites: number;
+  languageCount: number;
 }
 
+const EMPTY_SUMMARY: SnippetSummary = {
+  total: 0,
+  favorites: 0,
+  languageCount: 0,
+};
+
 export default function SnippetsWidget() {
-  const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const [summary, setSummary] = useState<SnippetSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=snippet")
+    const controller = new AbortController();
+
+    fetch("/api/widgets/summary?module_type=snippet", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
-      .then((data) => setSnippets(data.data || []))
+      .then((data) => setSummary(data.data || EMPTY_SUMMARY))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
 
-  const summary = useMemo(() => {
-    const favorites = snippets.filter((s) => s.payload.is_favorite).length;
-    const languages = new Set(snippets.map((s) => s.payload.language));
-    return { total: snippets.length, favorites, languageCount: languages.size };
-  }, [snippets]);
+    return () => controller.abort();
+  }, []);
 
   return (
     <WidgetCard
