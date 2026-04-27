@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 
 /**
- * Standard API response format for Life OS
- */
-export type ApiResponse<T = unknown> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-  details?: unknown;
-};
-
-/**
  * Success response helper
  */
 export const ApiSuccess = <T>(data: T, status = 200) => {
