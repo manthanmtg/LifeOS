@@ -79,7 +79,8 @@ export async function PUT(
       updated_at: new Date().toISOString(),
     };
     if (is_public !== undefined) updateData.is_public = is_public;
-    if (payload !== undefined && schema) updateData.payload = schema.parse(payload);
+    if (payload !== undefined && schema)
+      updateData.payload = schema.parse(payload);
 
     await contentColl.updateOne(
       { _id: new ObjectId(id) },

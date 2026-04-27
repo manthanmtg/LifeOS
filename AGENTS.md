@@ -6,11 +6,13 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 
 - `pnpm dev` — Start dev server
 - `pnpm build` — Production build (includes memory fix)
+- `pnpm start` — Start production server
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
 - `pnpm typecheck` — Run TypeScript type checking (includes memory fix)
 - `pnpm test` — Run tests using Vitest
 - `pnpm test:watch` — Run tests in watch mode
 - `pnpm test:coverage` — Run tests with coverage report
+- `pnpm test:ui` — Run tests with Vitest UI
 - `pnpm format` — Format code with Prettier
 - `pnpm format:check` — Check formatting with Prettier
 - `pnpm check` — Run full CI check (lint, typecheck, build, test)
@@ -24,7 +26,7 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 
 ### Architecture
 
-Life OS is a Next.js 16 App Router application — a "shell" that dynamically renders a public portfolio and a private admin dashboard. It uses MongoDB, Tailwind CSS v4, Zod v4, and Framer Motion.
+Life OS is a Next.js 16 App Router application — a "shell" that dynamically renders a public portfolio and a private admin dashboard. It uses MongoDB, Tailwind CSS v4, Zod v4, and Framer Motion v12.
 
 ### Polymorphic Data Layer
 
@@ -45,7 +47,7 @@ Each module is a self-contained folder under `src/modules/[name]/` with up to th
 - `Widget.tsx` — Dashboard summary card for the admin bento grid at `/admin`
 - `PublicView.tsx` (optional) — Read-only public view
 
-The `src/registry.ts` maps module slugs to `ModuleConfig` (name, icon, defaultPublic, contentType). The `src/lib/schemas.ts` has a `SchemaRegistry` mapping `contentType` strings to Zod schemas for validation.
+The `src/registry.ts` maps module slugs to `ModuleConfig` (name, icon, defaultPublic, contentType, description, tags). The `src/lib/schemas.ts` has a `SchemaRegistry` mapping `contentType` strings to Zod schemas for validation.
 
 The dynamic admin route (`src/app/admin/[module]/page.tsx`) imports `@/modules/${moduleName}/AdminView` at runtime, falling back to `_template/AdminView` if not found.
 
@@ -73,7 +75,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 ### Adding a New Module
 
-1. Register in `src/registry.ts` with slug, name, icon (Lucide React name), defaultPublic, contentType
+1. Register in `src/registry.ts` with slug, name, icon (Lucide React name), defaultPublic, contentType, description, and tags
 2. Add Zod schema to `src/lib/schemas.ts` and register in `SchemaRegistry`
 3. Create `src/modules/[name]/AdminView.tsx` — fetch data via `/api/content?module_type=<contentType>`
 4. Create `src/modules/[name]/Widget.tsx` following the Widget Contract (see above) and add dynamic import to `src/app/admin/page.tsx`
@@ -97,7 +99,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 - `src/lib/mongodb.ts` — Cached MongoClient singleton (global in dev for HMR)
 - `src/lib/types.ts` — Shared TypeScript interfaces and ContentDocument structure
-- `src/lib/schemas.ts` — Zod SchemaRegistry for module payload validation
+- `src/lib/schemas.ts` — Zod schemas and the `SchemaRegistry` for module payload validation
 - `src/lib/auth.ts` — JWT sign/verify with jose
 - `src/lib/api-response.ts` — `ApiSuccess`, `ApiError`, `ApiValidationError` helpers
 - `src/lib/utils.ts` — `cn()` class merge utility

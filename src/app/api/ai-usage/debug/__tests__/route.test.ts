@@ -90,9 +90,13 @@ describe("/api/ai-usage/debug", () => {
     } as any);
 
     // Mock fetch to fail for the inner call
-    global.fetch = vi.fn().mockRejectedValue(new Error("Sensitive inner error"));
+    global.fetch = vi
+      .fn()
+      .mockRejectedValue(new Error("Sensitive inner error"));
 
-    const response = await POST(createRequest({ provider_id: "123456789012345678901234" }));
+    const response = await POST(
+      createRequest({ provider_id: "123456789012345678901234" }),
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);

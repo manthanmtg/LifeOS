@@ -47,14 +47,22 @@ describe("/api/ai-usage/sync", () => {
       collection: vi.fn().mockReturnValue({
         find: vi.fn().mockReturnValue({
           toArray: vi.fn().mockResolvedValue([
-            { _id: "123", name: "OpenAI", provider: "openai", admin_api_key: "key", is_active: true }
-          ])
-        })
-      })
+            {
+              _id: "123",
+              name: "OpenAI",
+              provider: "openai",
+              admin_api_key: "key",
+              is_active: true,
+            },
+          ]),
+        }),
+      }),
     } as any);
 
     // Mock fetch to fail with sensitive info
-    global.fetch = vi.fn().mockRejectedValue(new Error("Sensitive internal error"));
+    global.fetch = vi
+      .fn()
+      .mockRejectedValue(new Error("Sensitive internal error"));
 
     const response = await POST(createRequest({}));
     const body = await response.json();
@@ -65,7 +73,9 @@ describe("/api/ai-usage/sync", () => {
   });
 
   it("masks top-level catch block errors", async () => {
-    vi.mocked(getDb).mockRejectedValue(new Error("DB Connection string leaked"));
+    vi.mocked(getDb).mockRejectedValue(
+      new Error("DB Connection string leaked"),
+    );
 
     const response = await POST(createRequest({}));
     const body = await response.json();
