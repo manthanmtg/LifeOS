@@ -29,7 +29,7 @@ export default function PublicFooter() {
           Built with <Heart className="w-3.5 h-3.5 text-danger" /> using Life OS
         </p>
         {socialLinks.filter((l) => l.platform && l.url).length > 0 && (
-          <div className="flex items-center gap-4">
+          <nav aria-label="Social links" className="flex items-center gap-4">
             {socialLinks
               .filter((l) => l.platform && l.url)
               .map((l, i) => (
@@ -43,7 +43,7 @@ export default function PublicFooter() {
                   <ExternalLink className="w-3 h-3" /> {l.platform}
                 </a>
               ))}
-          </div>
+          </nav>
         )}
         <p>&copy; {new Date().getFullYear()} Life OS</p>
       </div>
