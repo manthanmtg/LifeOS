@@ -15,14 +15,19 @@ You are an autonomous improvement agent for the LifeOS project. Your job is to *
 ### 1. Select a Prompt
 
 - Read `prompts/README.md` first. Its run contract applies to every selected prompt.
-- Identify and pick one **autonomous-safe prompt** at random by running the following shell command:
+- Identify and pick one **autonomous-safe prompt** at random by running the following shell command. `prompts_optimizer.md` should run rarely, about 1 in 25 runs, because it maintains the prompt suite itself:
   ```bash
-  find prompts -name "*.md" \
-    ! -name "README.md" \
-    ! -name "random_selector.md" \
-    ! -name "module_generator_prompt.md" \
-    | sort \
-    | shuf -n 1
+  if [ "$((RANDOM % 25))" -eq 0 ]; then
+    printf '%s\n' prompts/prompts_optimizer.md
+  else
+    find prompts -maxdepth 1 -name "*.md" \
+      ! -name "README.md" \
+      ! -name "random_selector.md" \
+      ! -name "module_generator_prompt.md" \
+      ! -name "prompts_optimizer.md" \
+      | sort \
+      | shuf -n 1
+  fi
   ```
 - Log which prompt you selected so the run is traceable.
 
