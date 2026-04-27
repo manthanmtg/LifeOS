@@ -72,18 +72,6 @@ export function getBreadcrumbPath(
   return path;
 }
 
-export function getFolderPath(folders: BillFolder[], folderId: string): string {
-  const parts: string[] = [];
-  let current = folders.find((f) => f._id === folderId);
-  while (current) {
-    parts.unshift(current.payload.name);
-    current = current.payload.parent_id
-      ? folders.find((f) => f._id === current!.payload.parent_id)
-      : undefined;
-  }
-  return parts.join(" / ");
-}
-
 export function getAllDescendantFolderIds(
   folders: BillFolder[],
   parentId: string,

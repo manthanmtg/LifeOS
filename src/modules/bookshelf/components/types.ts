@@ -54,13 +54,6 @@ export const STATUS_STYLES: Record<BookStatus, string> = {
   abandoned: "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
 };
 
-export const STATUS_ICONS: Record<BookStatus, string> = {
-  want_to_read: "BookMarked",
-  reading: "BookOpen",
-  completed: "BookCheck",
-  abandoned: "BookX",
-};
-
 export interface BookshelfStats {
   total: number;
   reading: number;
