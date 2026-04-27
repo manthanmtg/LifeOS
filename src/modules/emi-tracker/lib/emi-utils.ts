@@ -15,7 +15,7 @@ export const CURR_SYM: Record<string, string> = {
   BRL: "R$",
 };
 
-export function formatNumber(
+function formatNumber(
   num: number,
   format: "western" | "indian" = "western",
 ): string {
@@ -68,7 +68,7 @@ export function toDateInputValue(iso: string) {
   }
 }
 
-export function numberToWordsIndian(num: number): string {
+function numberToWordsIndian(num: number): string {
   if (num === 0) return "Zero";
 
   const ones = [
@@ -186,11 +186,11 @@ export function parseDateInputToISO(dateOnly: string) {
   return new Date(dateOnly).toISOString();
 }
 
-export function clampDueDay(year: number, monthIndex: number, dueDay: number) {
+function clampDueDay(year: number, monthIndex: number, dueDay: number) {
   return new Date(year, monthIndex, dueDay, 12, 0, 0, 0);
 }
 
-export function computeFirstDueDate(startISO: string, dueDay: number) {
+function computeFirstDueDate(startISO: string, dueDay: number) {
   const start = new Date(startISO);
   const candidate = clampDueDay(start.getFullYear(), start.getMonth(), dueDay);
   if (candidate.getTime() >= start.getTime()) return candidate;
@@ -209,7 +209,7 @@ export function computeEmiFromFormula(
   return (principal * (r * pow)) / (pow - 1);
 }
 
-export function getLoanBasePrincipal(loan: EmiLoan["payload"]) {
+function getLoanBasePrincipal(loan: EmiLoan["payload"]) {
   const processingFee =
     (loan.processing_fee_amount ?? 0) +
     (loan.processing_fee_percent
