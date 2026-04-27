@@ -4,7 +4,8 @@
 
 The portfolio module powers the public landing page for LifeOS. It stores one
 profile document in the shared `content` collection, renders the public
-portfolio at `/`, and exposes the same public view through `/portfolio`.
+portfolio at `/`, exposes the same public view through `/portfolio`, and links
+active resume uploads through the `/resume` viewer.
 
 The admin view at `/admin/portfolio` lets the owner edit identity copy, skills,
 social links, hiring availability, and uploaded PDF resumes. The dashboard
@@ -55,12 +56,12 @@ Resume payloads are validated by `ResumeSchema`.
 - Readiness scoring based on core profile completeness: name, hero title,
   sub-headline, bio length, skill count, and valid social links.
 - Suggested skill and social-platform shortcuts for faster profile setup.
-- Resume manager for uploading PDFs, activating one resume, and deleting old
-  files.
+- Resume manager for uploading PDFs up to 5MB, activating one resume, and
+  deleting old files.
 - Public `PortfolioShowcase` with animated hero, social links, skills grid,
   biography section, hiring badge, and optional resume link.
-- `/api/portfolio/resume` endpoint that streams the active PDF resume with a
-  profile-derived filename when available.
+- `/resume` viewer that embeds the active PDF resume served by
+  `/api/portfolio/resume` with a profile-derived filename when available.
 - Dashboard widget that follows the widget contract with one hero metric
   (`skills.length`) and one highlight row (`hero_title` and `sub_headline`).
 
@@ -73,7 +74,9 @@ flowchart LR
   Content --> PublicHome["/"]
   Content --> PublicModule["/portfolio"]
   Content --> Widget["/admin bento widget"]
-  Content --> ResumeAPI["/api/portfolio/resume"]
+  Content --> ResumePage["/resume"]
+  ResumePage --> ResumeAPI["/api/portfolio/resume"]
+  Content --> ResumeAPI
   ResumeAPI --> Browser["inline PDF response"]
 ```
 
@@ -112,9 +115,11 @@ curl -L /api/portfolio/resume --output resume.pdf
 
 - `AdminView.tsx` owns profile editing and resume management.
 - `View.tsx` fetches the public profile and active resume for the root
-  portfolio page.
+  portfolio page; when a resume exists, `PortfolioShowcase` links to `/resume`.
 - `PublicView.tsx` normalizes generic public module items before rendering
   `PortfolioShowcase`.
 - `PortfolioShowcase.tsx` is the shared public renderer.
+- `src/app/resume/page.tsx` hosts the resume viewer, while
+  `src/app/api/portfolio/resume/route.ts` streams the active PDF.
 - `Widget.tsx` fetches `portfolio_profile` and renders the constrained bento
   tile.
