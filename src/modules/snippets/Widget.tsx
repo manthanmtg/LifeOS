@@ -44,12 +44,6 @@ export default function SnippetsWidget() {
       icon={Code}
       loading={loading}
       href="/admin/snippets"
-      footer={
-        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-          {summary.languageCount} language
-          {summary.languageCount !== 1 ? "s" : ""}
-        </div>
-      }
     >
       <div className="space-y-3">
         <WidgetStat value={summary.total} label="code snippets" />
