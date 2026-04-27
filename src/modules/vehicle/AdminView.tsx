@@ -241,9 +241,24 @@ function toISODate(d: string): string {
   return new Date(d + "T00:00:00").toISOString();
 }
 
-function daysUntil(dateStr?: string): number | null {
+function getTodayDateInput(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function compareDatesDesc(a: string, b: string): number {
+  return Date.parse(b) - Date.parse(a);
+}
+
+function compareDatesAsc(a: string, b: string): number {
+  return Date.parse(a) - Date.parse(b);
+}
+
+function daysUntil(
+  dateStr: string | undefined,
+  todayIso: string,
+): number | null {
   if (!dateStr) return null;
-  const now = new Date();
+  const now = new Date(todayIso + "T00:00:00");
   now.setHours(0, 0, 0, 0);
   const target = new Date(dateStr);
   target.setHours(0, 0, 0, 0);
@@ -252,19 +267,24 @@ function daysUntil(dateStr?: string): number | null {
 
 function getExpiryStatus(
   dateStr?: string,
+  todayIso?: string,
 ): "expired" | "warning" | "ok" | "none" {
-  if (!dateStr) return "none";
-  const days = daysUntil(dateStr);
+  if (!dateStr || !todayIso) return "none";
+  const days = daysUntil(dateStr, todayIso);
   if (days === null) return "none";
   if (days < 0) return "expired";
   if (days <= 30) return "warning";
   return "ok";
 }
 
-function expiryBadge(dateStr?: string, label?: string) {
-  const status = getExpiryStatus(dateStr);
+function expiryBadge(
+  dateStr: string | undefined,
+  todayIso: string,
+  label?: string,
+) {
+  const status = getExpiryStatus(dateStr, todayIso);
   if (status === "none") return null;
-  const days = daysUntil(dateStr)!;
+  const days = daysUntil(dateStr, todayIso)!;
   const config = {
     expired: {
       text: `${label ? label + ": " : ""}Expired ${Math.abs(days)}d ago`,
@@ -331,6 +351,7 @@ export default function VehicleAdminView() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [todayIso] = useState(getTodayDateInput);
 
   // Modal states
   const [showVehicleForm, setShowVehicleForm] = useState(false);
@@ -472,7 +493,7 @@ export default function VehicleAdminView() {
       setServiceForm({
         type: "routine",
         currency: "INR",
-        date: new Date().toISOString().slice(0, 10),
+        date: todayIso,
       });
     }
     setShowServiceForm(true);
@@ -485,9 +506,7 @@ export default function VehicleAdminView() {
     }
     const record: ServiceRecord = {
       id: editingService?.id || uuid(),
-      date: toISODate(
-        serviceForm.date || new Date().toISOString().slice(0, 10),
-      ),
+      date: toISODate(serviceForm.date || todayIso),
       type: (serviceForm.type as ServiceType) || "routine",
       description: serviceForm.description || "",
       odometer: serviceForm.odometer ? Number(serviceForm.odometer) : undefined,
@@ -535,7 +554,7 @@ export default function VehicleAdminView() {
         fuel_unit: "liters",
         currency: "INR",
         full_tank: true,
-        date: new Date().toISOString().slice(0, 10),
+        date: todayIso,
       });
     }
     setShowFuelForm(true);
@@ -548,7 +567,7 @@ export default function VehicleAdminView() {
     }
     const log: FuelLog = {
       id: editingFuel?.id || uuid(),
-      date: toISODate(fuelForm.date || new Date().toISOString().slice(0, 10)),
+      date: toISODate(fuelForm.date || todayIso),
       quantity: Number(fuelForm.quantity),
       fuel_unit: (fuelForm.fuel_unit as FuelUnit) || "liters",
       cost: Number(fuelForm.cost),
@@ -647,7 +666,7 @@ export default function VehicleAdminView() {
         { label: "Next Service", date: p.next_service_due },
       ];
       for (const c of checks) {
-        const s = getExpiryStatus(c.date);
+        const s = getExpiryStatus(c.date, todayIso);
         if (s === "expired" || s === "warning") {
           alerts.push({
             vehicleName: p.name,
@@ -659,7 +678,7 @@ export default function VehicleAdminView() {
       }
       // Check document expiries
       for (const doc of p.documents || []) {
-        const s = getExpiryStatus(doc.expiry_date);
+        const s = getExpiryStatus(doc.expiry_date, todayIso);
         if (s === "expired" || s === "warning") {
           alerts.push({
             vehicleName: p.name,
@@ -673,10 +692,10 @@ export default function VehicleAdminView() {
     alerts.sort((a, b) => {
       if (a.status === "expired" && b.status !== "expired") return -1;
       if (a.status !== "expired" && b.status === "expired") return 1;
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return compareDatesAsc(a.date, b.date);
     });
     return alerts;
-  }, [vehicles]);
+  }, [todayIso, vehicles]);
 
   const selectedStats = useMemo(() => {
     if (!selectedVehicle) return null;
@@ -956,8 +975,8 @@ export default function VehicleAdminView() {
                   icon: Wrench,
                 },
               ].map((item) => {
-                const status = getExpiryStatus(item.date);
-                const days = daysUntil(item.date);
+                const status = getExpiryStatus(item.date, todayIso);
+                const days = daysUntil(item.date, todayIso);
                 const statusColors = {
                   expired: "border-danger/20 bg-danger/5",
                   warning: "border-warning/20 bg-warning/5",
@@ -1086,10 +1105,7 @@ export default function VehicleAdminView() {
             ) : (
               <div className="space-y-3">
                 {[...p.service_records]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime(),
-                  )
+                  .sort((a, b) => compareDatesDesc(a.date, b.date))
                   .map((record) => {
                     const stConfig = SERVICE_TYPE_CONFIG[record.type];
                     const StIcon = stConfig.icon;
@@ -1405,10 +1421,7 @@ export default function VehicleAdminView() {
             ) : (
               <div className="space-y-3">
                 {[...p.fuel_logs]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.date).getTime() - new Date(a.date).getTime(),
-                  )
+                  .sort((a, b) => compareDatesDesc(a.date, b.date))
                   .map((log) => (
                     <motion.div
                       key={log.id}
@@ -1708,8 +1721,8 @@ export default function VehicleAdminView() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(p.documents || []).map((doc) => {
                   const dConfig = DOC_TYPE_CONFIG[doc.type];
-                  const days = daysUntil(doc.expiry_date);
-                  const status = getExpiryStatus(doc.expiry_date);
+                  const days = daysUntil(doc.expiry_date, todayIso);
+                  const status = getExpiryStatus(doc.expiry_date, todayIso);
                   return (
                     <motion.div
                       key={doc.id}
@@ -1779,7 +1792,7 @@ export default function VehicleAdminView() {
                               }}
                             />
                           </div>
-                          {expiryBadge(doc.expiry_date)}
+                          {expiryBadge(doc.expiry_date, todayIso)}
                         </div>
                       ) : (
                         <p className="text-xs text-zinc-600 italic">
@@ -2033,7 +2046,7 @@ export default function VehicleAdminView() {
               vp.pollution_certificate_expiry,
               vp.next_service_due,
             ].some((d) => {
-              const s = getExpiryStatus(d);
+              const s = getExpiryStatus(d, todayIso);
               return s === "expired" || s === "warning";
             });
 
@@ -2130,9 +2143,13 @@ export default function VehicleAdminView() {
 
                 {/* Expiry badges */}
                 <div className="flex flex-wrap gap-1.5 mb-4">
-                  {expiryBadge(vp.insurance_expiry, "Insurance")}
-                  {expiryBadge(vp.pollution_certificate_expiry, "PUC")}
-                  {expiryBadge(vp.next_service_due, "Service")}
+                  {expiryBadge(vp.insurance_expiry, todayIso, "Insurance")}
+                  {expiryBadge(
+                    vp.pollution_certificate_expiry,
+                    todayIso,
+                    "PUC",
+                  )}
+                  {expiryBadge(vp.next_service_due, todayIso, "Service")}
                 </div>
 
                 {/* Footer stats */}
