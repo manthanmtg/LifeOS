@@ -169,7 +169,7 @@ const PROVIDER_META: Record<
     colorHex: "#fb923c",
     bg: "bg-warning/10",
     border: "border-warning/20",
-    gradient: "from-orange-500/20 via-orange-500/5 to-transparent",
+    gradient: "from-warning/20 via-warning/5 to-transparent",
     keyPrefix: "sk-ant-admin",
     keyLabel: "Admin API Key",
     docsUrl: "https://docs.anthropic.com/en/api/usage-cost-api",
