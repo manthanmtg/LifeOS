@@ -3,14 +3,14 @@ import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-export interface LimitWindow {
+interface LimitWindow {
   label: string;
   limit: number;
   remaining: number;
   reset_at?: string; // ISO string or relative like "1m30s"
 }
 
-export interface ProviderLimitResult {
+interface ProviderLimitResult {
   provider_id: string;
   provider_name: string;
   provider_type: string;
