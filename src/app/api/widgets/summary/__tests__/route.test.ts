@@ -45,14 +45,17 @@ describe("GET /api/widgets/summary", () => {
   let mockCollection: any;
   let mockDb: any;
   let mockFind: any;
+  let mockSort: any;
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-23T12:00:00.000Z"));
     vi.clearAllMocks();
     mockFind = vi.fn().mockReturnThis();
+    mockSort = vi.fn().mockReturnThis();
     mockCollection = vi.fn().mockReturnValue({
       find: mockFind,
+      sort: mockSort,
       toArray: vi.fn().mockResolvedValue([]),
     });
     mockDb = { collection: mockCollection };
@@ -267,6 +270,64 @@ describe("GET /api/widgets/summary", () => {
       { module_type: "snippet", is_public: false },
       { projection: { "payload.is_favorite": 1, "payload.language": 1 } },
     );
+  });
+
+  it("returns compact summary for binge_item module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      {
+        payload: {
+          title: "Severance",
+          status: "watching",
+          rating: 5,
+          current_season: 2,
+          current_episode: 3,
+        },
+      },
+      {
+        payload: {
+          title: "Planet Earth",
+          status: "completed",
+          rating: 4,
+        },
+      },
+      {
+        payload: {
+          title: "Queued Film",
+          status: "to_watch",
+        },
+      },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=binge_item",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual({
+      total: 3,
+      watchingCount: 1,
+      avgRating: 4.5,
+      latest: {
+        title: "Severance",
+        current_season: 2,
+        current_episode: 3,
+      },
+    });
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "binge_item", is_public: false },
+      {
+        projection: {
+          "payload.title": 1,
+          "payload.status": 1,
+          "payload.rating": 1,
+          "payload.current_season": 1,
+          "payload.current_episode": 1,
+        },
+      },
+    );
+    expect(mockSort).toHaveBeenCalledWith({ created_at: -1 });
   });
 
   it("returns summary for bill module", async () => {

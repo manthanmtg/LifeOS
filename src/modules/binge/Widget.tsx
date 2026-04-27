@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Tv, Star, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -8,36 +8,36 @@ import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
-import type { BingeItem } from "./types";
+
+interface BingeSummary {
+  total: number;
+  watchingCount: number;
+  avgRating: number;
+  latest: {
+    title: string;
+    current_season?: number;
+    current_episode?: number;
+  } | null;
+}
+
+const EMPTY_SUMMARY: BingeSummary = {
+  total: 0,
+  watchingCount: 0,
+  avgRating: 0,
+  latest: null,
+};
 
 export default function BingeWidget() {
-  const [items, setItems] = useState<BingeItem[]>([]);
+  const [summary, setSummary] = useState<BingeSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=binge_item")
+    fetch("/api/widgets/summary?module_type=binge_item")
       .then((res) => res.json())
-      .then((data) => setItems(data.data || []))
+      .then((data) => setSummary(data.data || EMPTY_SUMMARY))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
-  const summary = useMemo(() => {
-    const watching = items.filter((i) => i.payload.status === "watching");
-    const rated = items.filter((i) => !!i.payload.rating);
-    const avgRating =
-      rated.length > 0
-        ? rated.reduce((sum, i) => sum + (i.payload.rating || 0), 0) /
-          rated.length
-        : 0;
-    const latest = watching[watching.length - 1] ?? null;
-    return {
-      total: items.length,
-      watchingCount: watching.length,
-      avgRating: Number.isFinite(avgRating) ? avgRating : 0,
-      latest,
-    };
-  }, [items]);
 
   return (
     <WidgetCard
@@ -70,10 +70,10 @@ export default function BingeWidget() {
         {summary.latest ? (
           <WidgetHighlight
             icon={Play}
-            text={summary.latest.payload.title}
+            text={summary.latest.title}
             subtext={
-              summary.latest.payload.current_season
-                ? `S${summary.latest.payload.current_season}${summary.latest.payload.current_episode ? ` · E${summary.latest.payload.current_episode}` : ""}`
+              summary.latest.current_season
+                ? `S${summary.latest.current_season}${summary.latest.current_episode ? ` · E${summary.latest.current_episode}` : ""}`
                 : undefined
             }
           />

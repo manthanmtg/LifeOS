@@ -24,6 +24,13 @@ type HealthProfilePayload = z.infer<typeof HealthProfileSchema>;
 type RecurringExpensePayload = z.infer<typeof RecurringExpenseSchema>;
 type BillPayload = z.infer<typeof BillSchema>;
 type SnippetPayload = z.infer<typeof SnippetSchema>;
+type BingeSummaryPayload = {
+  title: string;
+  status?: string;
+  rating?: number;
+  current_season?: number;
+  current_episode?: number;
+};
 
 // --- EMI Utility Functions ---
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
@@ -183,6 +190,50 @@ export async function GET(request: Request) {
         total: snippetDocs.length,
         favorites,
         languageCount: languageSet.size,
+      });
+    }
+
+    if (module_type === "binge_item") {
+      const bingeDocs = (await contentColl
+        .find(
+          { module_type, is_public: false },
+          {
+            projection: {
+              "payload.title": 1,
+              "payload.status": 1,
+              "payload.rating": 1,
+              "payload.current_season": 1,
+              "payload.current_episode": 1,
+            },
+          },
+        )
+        .sort({ created_at: -1 })
+        .toArray()) as ContentDocument<BingeSummaryPayload>[];
+
+      const watching = bingeDocs.filter(
+        (item) => item.payload.status === "watching",
+      );
+      const rated = bingeDocs.filter(
+        (item) => typeof item.payload.rating === "number",
+      );
+      const avgRating =
+        rated.length > 0
+          ? rated.reduce((sum, item) => sum + (item.payload.rating ?? 0), 0) /
+            rated.length
+          : 0;
+      const latest = watching[0]?.payload;
+
+      return ApiSuccess({
+        total: bingeDocs.length,
+        watchingCount: watching.length,
+        avgRating: Number.isFinite(avgRating) ? avgRating : 0,
+        latest: latest
+          ? {
+              title: latest.title,
+              current_season: latest.current_season,
+              current_episode: latest.current_episode,
+            }
+          : null,
       });
     }
 
