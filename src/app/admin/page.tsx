@@ -71,6 +71,10 @@ const widgetImports: Record<string, ComponentType> = {
     ssr: false,
     loading: () => <WidgetSkeleton />,
   }),
+  "shopping-list": dynamic(() => import("@/modules/shopping-list/Widget"), {
+    ssr: false,
+    loading: () => <WidgetSkeleton />,
+  }),
   "ai-usage": dynamic(() => import("@/modules/ai-usage/Widget"), {
     ssr: false,
     loading: () => <WidgetSkeleton />,
