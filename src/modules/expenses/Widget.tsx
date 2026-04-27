@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Banknote, TrendingUp, TrendingDown, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -11,8 +11,10 @@ import {
 } from "@/components/dashboard/widget-primitives";
 import { formatCurrency, type NumberFormat } from "@/lib/formatters";
 
-interface Expense {
-  payload: { amount: number; category: string; date: string };
+interface ExpenseSummary {
+  totalThisMonth: number;
+  trend: number;
+  topCategory: [string, number] | null;
 }
 
 interface ExpenseSettings {
@@ -39,54 +41,24 @@ export default function ExpensesWidget() {
     defaultCurrency: "USD",
     numberFormat: "western",
   });
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [summary, setSummary] = useState<ExpenseSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
   const format = settings.numberFormat || "western";
 
-  const [now] = useState(() => new Date());
-
   useEffect(() => {
     const ac = new AbortController();
-    fetch("/api/content?module_type=expense", { signal: ac.signal })
+    fetch("/api/widgets/summary?module_type=expense", { signal: ac.signal })
       .then((r) => r.json())
-      .then((d) => setExpenses(d.data || []))
+      .then((d) => setSummary(d.data || null))
       .catch(() => {})
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
 
-  const { totalThisMonth, trend, topCategory } = useMemo(() => {
-    const thisMonth = expenses.filter((e) => {
-      const d = new Date(e.payload.date);
-      return (
-        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      );
-    });
-    const lastMonth = expenses.filter((e) => {
-      const d = new Date(e.payload.date);
-      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return (
-        d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
-      );
-    });
-
-    const ttm = thisMonth.reduce((s, e) => s + e.payload.amount, 0);
-    const tlm = lastMonth.reduce((s, e) => s + e.payload.amount, 0);
-    const t = tlm > 0 ? ((ttm - tlm) / tlm) * 100 : 0;
-
-    const categoryTotals = thisMonth.reduce<Record<string, number>>(
-      (acc, e) => {
-        acc[e.payload.category] =
-          (acc[e.payload.category] || 0) + e.payload.amount;
-        return acc;
-      },
-      {},
-    );
-    const tc = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
-
-    return { totalThisMonth: ttm, trend: t, topCategory: tc };
-  }, [expenses, now]);
+  const totalThisMonth = summary?.totalThisMonth ?? 0;
+  const trend = summary?.trend ?? 0;
+  const topCategory = summary?.topCategory ?? null;
 
   return (
     <WidgetCard
