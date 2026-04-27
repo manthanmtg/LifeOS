@@ -15,7 +15,12 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt || "Image preview"}
+    >
       {/* Header / Controls */}
       <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10">
         <div className="min-w-0 flex-1">
@@ -29,14 +34,16 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
           <a
             href={src}
             download={alt || "profile-picture"}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label="Download image"
             title="Download Image"
           >
             <Download className="w-5 h-5" />
           </a>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label="Close image preview"
             title="Close Preview"
           >
             <X className="w-5 h-5" />
