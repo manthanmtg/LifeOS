@@ -13,7 +13,7 @@ Failing tests erode trust in the test suite. If tests are always red, developers
 ### 1. Run the Suite
 
 - Execute `pnpm test` and capture the output.
-- If **all tests pass**, you're done — no-op. Log "all tests passing" and stop.
+- If **all tests pass**, you're done — no-op. Report "all tests passing" in the run summary and stop; do not create an `issues_to_look/` entry for a healthy test suite.
 
 ### 2. Triage Failures
 
