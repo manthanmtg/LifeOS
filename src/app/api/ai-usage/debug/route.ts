@@ -1,7 +1,12 @@
 import { getDb } from "@/lib/mongodb";
-import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { z } from "zod";
+
+const DebugProviderRequestSchema = z.object({
+  provider_id: z.string().min(1),
+});
 
 /** Debug endpoint - inspects what's in DB and tests a raw provider API call */
 export async function GET() {
@@ -64,7 +69,12 @@ export async function POST(request: Request) {
     const isAdmin = token ? !!(await verifyToken(token)) : false;
     if (!isAdmin) return ApiError("Unauthorized", 401);
 
-    const { provider_id } = await request.json();
+    const parsed = DebugProviderRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return ApiValidationError(parsed.error.format());
+    }
+
+    const { provider_id } = parsed.data;
     const db = await getDb();
     const { ObjectId } = await import("mongodb");
 
