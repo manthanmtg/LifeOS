@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Heart, ExternalLink } from "lucide-react";
-
-interface SocialLink {
-  platform: string;
-  url: string;
-}
+import { getRenderableSocialLinks, type SocialLink } from "./footer-links";
 
 export default function PublicFooter() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const renderableSocialLinks = useMemo(
+    () => getRenderableSocialLinks(socialLinks),
+    [socialLinks],
+  );
 
   useEffect(() => {
     fetch("/api/content?module_type=portfolio_profile")
@@ -28,21 +28,19 @@ export default function PublicFooter() {
         <p className="flex items-center gap-1.5">
           Built with <Heart className="w-3.5 h-3.5 text-danger" /> using Life OS
         </p>
-        {socialLinks.filter((l) => l.platform && l.url).length > 0 && (
+        {renderableSocialLinks.length > 0 && (
           <nav aria-label="Social links" className="flex items-center gap-4">
-            {socialLinks
-              .filter((l) => l.platform && l.url)
-              .map((l, i) => (
-                <a
-                  key={i}
-                  href={l.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors"
-                >
-                  <ExternalLink className="w-3 h-3" /> {l.platform}
-                </a>
-              ))}
+            {renderableSocialLinks.map((l, i) => (
+              <a
+                key={i}
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" /> {l.platform}
+              </a>
+            ))}
           </nav>
         )}
         <p>&copy; {new Date().getFullYear()} Life OS</p>
