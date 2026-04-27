@@ -27,6 +27,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import WhiteboardPreview from "./WhiteboardPreview";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import type { ExcalidrawElements, ExcalidrawAppState, ExcalidrawFiles } from "./types";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -670,15 +671,15 @@ export default function WhiteboardAdminView() {
               excalidrawApiRef.current = api;
             }}
             initialData={{
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              elements: activeBoard.payload.elements as any,
+              
+              elements: activeBoard.payload.elements as ExcalidrawElements,
               appState: {
                 ...activeBoard.payload.app_state,
                 theme: "dark",
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              } as any,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              files: activeBoard.payload.files as any,
+                
+              } as ExcalidrawAppState,
+              
+              files: (activeBoard.payload.files as ExcalidrawFiles) ?? null,
             }}
             onChange={handleChange}
             theme="dark"

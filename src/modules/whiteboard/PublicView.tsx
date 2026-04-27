@@ -7,6 +7,7 @@ import { PenLine, Search, Tag, X, Star, Shapes } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WhiteboardPreview from "./WhiteboardPreview";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import type { ExcalidrawElements, ExcalidrawAppState, ExcalidrawFiles } from "./types";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -232,16 +233,16 @@ export default function WhiteboardPublicView({
           <div className="flex-1">
             <Excalidraw
               initialData={{
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                elements: viewingBoard.payload.elements as any,
+                
+                elements: viewingBoard.payload.elements as ExcalidrawElements,
                 appState: {
                   ...viewingBoard.payload.app_state,
                   theme: "dark",
                   viewModeEnabled: true,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                files: viewingBoard.payload.files as any,
+                  
+                } as ExcalidrawAppState,
+                
+                files: (viewingBoard.payload.files as ExcalidrawFiles) ?? null,
               }}
               viewModeEnabled={true}
               theme="dark"
