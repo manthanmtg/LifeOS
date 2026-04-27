@@ -244,6 +244,31 @@ describe("GET /api/widgets/summary", () => {
     });
   });
 
+  it("returns projected summary for snippet module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      { payload: { is_favorite: true, language: "typescript" } },
+      { payload: { is_favorite: false, language: "typescript" } },
+      { payload: { is_favorite: true, language: "bash" } },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=snippet",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual({
+      total: 3,
+      favorites: 2,
+      languageCount: 2,
+    });
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "snippet", is_public: false },
+      { projection: { "payload.is_favorite": 1, "payload.language": 1 } },
+    );
+  });
+
   it("returns summary for bill module", async () => {
     const mockBills = [
       {
