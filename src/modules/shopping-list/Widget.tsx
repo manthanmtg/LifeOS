@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ListChecks, ShoppingBag } from "lucide-react";
-import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetHighlight,
@@ -42,12 +41,7 @@ export default function ShoppingListWidget() {
       loading={loading}
       href="/admin/shopping-list"
     >
-      <motion.div
-        className="space-y-3"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-      >
+      <div className="space-y-3">
         <WidgetStat
           value={totalLists}
           label={totalLists === 1 ? "list tracked" : "lists tracked"}
@@ -62,7 +56,7 @@ export default function ShoppingListWidget() {
           }
           variant={totalLists > 0 ? "accent" : "default"}
         />
-      </motion.div>
+      </div>
     </WidgetCard>
   );
 }
