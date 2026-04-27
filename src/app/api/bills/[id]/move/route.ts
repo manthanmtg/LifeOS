@@ -1,7 +1,12 @@
 import { getDb } from "@/lib/mongodb";
 import { ContentDocument } from "@/lib/types";
 import { ObjectId } from "mongodb";
-import { ApiSuccess, ApiError, ApiNotFound, ApiValidationError } from "@/lib/api-response";
+import {
+  ApiSuccess,
+  ApiError,
+  ApiNotFound,
+  ApiValidationError,
+} from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import { z } from "zod";
@@ -20,7 +25,9 @@ export async function PUT(
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
     const body = await request.json();
-    const parsed = z.object({ folder_id: z.string().nullable() }).safeParse(body);
+    const parsed = z
+      .object({ folder_id: z.string().nullable() })
+      .safeParse(body);
     if (!parsed.success) return ApiValidationError(parsed.error.format());
     const { folder_id } = parsed.data;
 

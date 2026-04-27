@@ -98,16 +98,20 @@ No-op rationale:
 Selected prompt: `prompts/security_enhancer.md`
 
 Files:
+
 - `src/app/api/content/[id]/route.ts`
 
 Problem:
+
 - The PUT route for updating content allowed bypassing Zod schema validation if the `module_type` in the database was missing from the `SchemaRegistry`. While POST explicitly prevented inserting unknown module types, PUT did not enforce this same check, potentially allowing unvalidated arbitrary payloads into the database for existing content.
 
 Fix:
+
 - Enforced schema existence checks in the PUT handler (`if (payload !== undefined && !schema)`).
 - Required `schema.parse(payload)` execution when updating content payloads.
 
 Verification:
+
 - `pnpm check` - PASS
 
 ## Follow-up run (2026-04-26 20:45 UTC)
@@ -150,14 +154,18 @@ No-op rationale:
 Selected prompt: `prompts/security_enhancer.md`
 
 Scope audited:
+
 - `src/app/api/bills` endpoints
 
 Problem:
+
 - `src/app/api/bills/[id]/attachments/route.ts`, `src/app/api/bills/[id]/move/route.ts`, and `src/app/api/bills/folders/[id]/move/route.ts` were missing Zod `safeParse()` calls for incoming `POST` and `PUT` request bodies, instead relying on direct type assertions (`as { ... }`) or manual checking. This bypassed strict schema validation.
 
 Fix:
+
 - Replaced manual assertions with inline `z.object(...).safeParse()` validation.
 - Returned standard `ApiValidationError` responses on failure.
 
 Verification:
+
 - `pnpm check` - PASS
