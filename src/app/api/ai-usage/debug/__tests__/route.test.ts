@@ -77,6 +77,15 @@ describe("/api/ai-usage/debug", () => {
     );
   });
 
+  it("rejects malformed POST payloads before database access", async () => {
+    const response = await POST(createRequest({ provider_id: 123 }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("Validation failed");
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
   it("masks inner errors in POST responses", async () => {
     vi.mocked(getDb).mockResolvedValue({
       collection: vi.fn().mockReturnValue({
