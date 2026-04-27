@@ -745,6 +745,51 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "expense": {
+        const now = new Date(nowRef);
+        const thisMonth: typeof docs = [];
+        const lastMonth: typeof docs = [];
+
+        for (const doc of docs) {
+          const d = new Date(doc.payload.date);
+          if (
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          ) {
+            thisMonth.push(doc);
+          } else {
+            const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            if (
+              d.getMonth() === lm.getMonth() &&
+              d.getFullYear() === lm.getFullYear()
+            ) {
+              lastMonth.push(doc);
+            }
+          }
+        }
+
+        const ttm = thisMonth.reduce((s, e) => s + (e.payload.amount || 0), 0);
+        const tlm = lastMonth.reduce((s, e) => s + (e.payload.amount || 0), 0);
+        const t = tlm > 0 ? ((ttm - tlm) / tlm) * 100 : 0;
+
+        const categoryTotals = thisMonth.reduce<Record<string, number>>(
+          (acc, e) => {
+            const cat = e.payload.category || "Uncategorized";
+            acc[cat] = (acc[cat] || 0) + (e.payload.amount || 0);
+            return acc;
+          },
+          {},
+        );
+        const tc = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+
+        summary = {
+          totalThisMonth: ttm,
+          trend: t,
+          topCategory: tc ? tc : null,
+        };
+        break;
+      }
+
       default:
         summary = { total: docs.length };
         break;
