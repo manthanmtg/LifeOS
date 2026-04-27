@@ -85,16 +85,16 @@ export const BlogPostSchema = z.object({
 
 // --- 4. RECURRING EXPENSES ---
 export const RecurringExpenseSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().trim().min(1, "Name is required").max(100),
   cost: z.number().positive("Cost must be greater than 0"),
   currency: z.string().length(3).default("USD"),
   billing_cycle: z.enum(["monthly", "yearly", "weekly", "daily", "quarterly"]),
   next_renewal_date: z.string().datetime("Must be a valid ISO Date"),
-  category: z.string().min(1, "Category is required"),
+  category: z.string().trim().min(1, "Category is required").max(100),
   url: z.string().url().optional(),
   is_active: z.boolean().default(true),
   enable_reminders: z.boolean().default(true),
-  notes: z.string().optional(),
+  notes: z.string().trim().max(2000).optional(),
   order: z.number().optional(),
 });
 
@@ -317,8 +317,8 @@ export const CropHistorySchema = z.object({
 
 // --- 13. TODO MODULE ---
 export const TodoSchema = z.object({
-  title: z.string().min(1, "Task title is required"),
-  notes: z.string().optional(),
+  title: z.string().trim().min(1, "Task title is required").max(200),
+  notes: z.string().trim().max(2000).optional(),
   due_date: z.string().datetime().optional(),
   completed: z.boolean().default(false),
   completed_at: z.string().datetime().optional(),
@@ -328,25 +328,25 @@ export const TodoSchema = z.object({
 // --- 14. SHOPPING LIST MODULE ---
 export const ShoppingItemSchema = z.object({
   id: z.string().uuid().or(z.string()),
-  name: z.string().min(1, "Item name is required"),
-  quantity: z.string().optional(),
-  unit: z.string().optional(),
+  name: z.string().trim().min(1, "Item name is required").max(100),
+  quantity: z.string().trim().max(50).optional(),
+  unit: z.string().trim().max(20).optional(),
   purchased: z.boolean().default(false),
 });
 
 export const ShoppingListSchema = z.object({
-  title: z.string().min(1, "List title is required"),
+  title: z.string().trim().min(1, "List title is required").max(200),
   items: z.array(ShoppingItemSchema).default([]),
   is_completed: z.boolean().default(false),
   completed_at: z.string().datetime().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 // --- 12. RAIN TRACKER ---
 export const RainAreaSchema = z.object({
-  name: z.string().min(1, "Area name is required"),
-  location: z.string().optional(),
-  description: z.string().optional(),
+  name: z.string().trim().min(1, "Area name is required").max(100),
+  location: z.string().trim().max(200).optional(),
+  description: z.string().trim().max(1000).optional(),
   is_active: z.boolean().default(true),
 });
 
@@ -355,8 +355,8 @@ export const RainEntrySchema = z.object({
   rainfall_amount: z.number().min(0, "Rainfall cannot be negative"),
   rainfall_unit: z.enum(["mm", "cm", "in"]).default("mm"),
   date: z.string().datetime("Must be a valid ISO date-time"),
-  notes: z.string().optional(),
-  source: z.string().optional(), // e.g., manual, sensor, imported
+  notes: z.string().trim().max(2000).optional(),
+  source: z.string().trim().max(100).optional(), // e.g., manual, sensor, imported
 });
 
 // --- 15. PORTFOLIO RESUME ---
