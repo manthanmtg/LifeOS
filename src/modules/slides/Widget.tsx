@@ -7,7 +7,7 @@ import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
-import type { DeckItem } from "./types";
+import { type DeckItem, FORMAT_LABELS } from "./types";
 
 export default function SlidesWidget() {
   const [items, setItems] = useState<DeckItem[]>([]);
@@ -62,7 +62,7 @@ export default function SlidesWidget() {
           <WidgetHighlight
             icon={Presentation}
             text={summary.latest.payload.title}
-            subtext={`Latest • ${summary.latest.payload.format?.toUpperCase()}`}
+            subtext={`Latest • ${FORMAT_LABELS[summary.latest.payload.format] || summary.latest.payload.format.toUpperCase()}`}
           />
         ) : (
           <WidgetHighlight icon={Presentation} text="No decks yet" />
