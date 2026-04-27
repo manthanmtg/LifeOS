@@ -182,9 +182,8 @@ export function AreaSidebar({
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.2, delay: index * 0.03 }}
-              onClick={() => onSelectArea(area._id)}
               className={cn(
-                "group relative cursor-pointer rounded-xl border p-3 transition-all",
+                "group relative rounded-xl border transition-all",
                 isSelected
                   ? "border-accent/25 bg-accent/8 shadow-[0_0_20px_-8px_var(--color-accent)]"
                   : "border-transparent bg-zinc-900/30 hover:border-zinc-800 hover:bg-zinc-900/60",
@@ -194,8 +193,12 @@ export function AreaSidebar({
                 <div className="absolute left-0 top-1/2 h-8 w-0.5 -translate-y-1/2 rounded-r-full bg-accent" />
               ) : null}
 
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1 overflow-hidden">
+              <motion.button
+                type="button"
+                onClick={() => onSelectArea(area._id)}
+                className="block w-full cursor-pointer rounded-xl p-3 pr-16 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+              >
+                <div className="min-w-0 overflow-hidden">
                   <h4
                     className={cn(
                       "flex items-center gap-1.5 truncate text-sm font-semibold",
@@ -228,31 +231,31 @@ export function AreaSidebar({
                     ) : null}
                   </div>
                 </div>
+              </motion.button>
 
-                <div className="ml-2 flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onEditArea(area);
-                    }}
-                    className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-accent"
-                    aria-label={`Edit ${area.payload.name}`}
-                  >
-                    <Edit3 className="h-3 w-3" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onDeleteArea(area._id);
-                    }}
-                    className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-danger"
-                    aria-label={`Delete ${area.payload.name}`}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
+              <div className="absolute right-3 top-3 flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEditArea(area);
+                  }}
+                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                  aria-label={`Edit ${area.payload.name}`}
+                >
+                  <Edit3 className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDeleteArea(area._id);
+                  }}
+                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/60"
+                  aria-label={`Delete ${area.payload.name}`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
               </div>
             </motion.div>
           );
