@@ -284,5 +284,9 @@ describe("HabitsWidget", () => {
     await waitFor(() => expect(screen.queryByText(/Loading/i)).toBeNull(), {
       timeout: 2000,
     });
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/widgets/summary?module_type=habit",
+      expect.any(Object),
+    );
   });
 });
