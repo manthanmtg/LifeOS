@@ -20,5 +20,6 @@ describe("rain tracker accessibility contract", () => {
 
     expect(source).toContain("WidgetHighlight");
     expect(source).not.toContain("WidgetMiniStats");
+    expect(source).not.toContain("footer=");
   });
 });

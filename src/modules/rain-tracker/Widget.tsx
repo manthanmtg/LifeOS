@@ -42,15 +42,11 @@ export default function RainTrackerWidget() {
       return {
         last7: "0.0",
         last30: "0.0",
-        total: "0.0",
-        rainyDays: "0",
         latestEntryLabel: "None",
       };
     return {
       last7: (data.last7Mm * rate).toFixed(1),
       last30: (data.last30Mm * rate).toFixed(1),
-      total: (data.totalMm * rate).toFixed(1),
-      rainyDays: String(data.rainyDays ?? 0),
       latestEntryLabel: data.latestEntryDate
         ? new Date(data.latestEntryDate).toLocaleDateString(undefined, {
             month: "short",
@@ -66,14 +62,6 @@ export default function RainTrackerWidget() {
       icon={CloudRain}
       loading={loading}
       href="/admin/rain-tracker"
-      footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-          <span>
-            {stats.total} {displayUnit} total
-          </span>
-          <span>{stats.rainyDays} rainy days</span>
-        </div>
-      }
     >
       <div className="space-y-3">
         <WidgetStat
