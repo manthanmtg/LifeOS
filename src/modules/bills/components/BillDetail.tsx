@@ -100,6 +100,7 @@ export default function BillDetail({
   };
 
   const handleDownload = (attachment: Bill["payload"]["attachments"][0]) => {
+    if (!attachment.data) return;
     const a = document.createElement("a");
     a.href = `data:${attachment.content_type};base64,${attachment.data}`;
     a.download = attachment.filename;
@@ -107,6 +108,7 @@ export default function BillDetail({
   };
 
   const handlePreview = (attachment: Bill["payload"]["attachments"][0]) => {
+    if (!attachment.data) return;
     if (
       attachment.content_type.startsWith("image/") ||
       attachment.content_type === "application/pdf"
@@ -225,12 +227,14 @@ export default function BillDetail({
               </p>
 
               {/* Image thumbnails grid */}
-              {(bill.payload.attachments ?? []).some((a) =>
-                a.content_type.startsWith("image/"),
+              {(bill.payload.attachments ?? []).some(
+                (a) => a.data && a.content_type.startsWith("image/"),
               ) && (
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   {(bill.payload.attachments ?? [])
-                    .filter((a) => a.content_type.startsWith("image/"))
+                    .filter(
+                      (a) => a.data && a.content_type.startsWith("image/"),
+                    )
                     .map((att) => (
                       <button
                         key={att.id}

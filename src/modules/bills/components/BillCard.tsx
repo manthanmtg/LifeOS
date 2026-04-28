@@ -22,11 +22,11 @@ export default function BillCard({
   onDragStart,
 }: BillCardProps) {
   const attachCount = bill.payload.attachments?.length ?? 0;
-  const firstImage = bill.payload.attachments?.find((a) =>
-    a.content_type.startsWith("image/"),
+  const firstImage = bill.payload.attachments?.find(
+    (a) => a.data && a.content_type.startsWith("image/"),
   );
   const firstPDF = bill.payload.attachments?.find(
-    (a) => a.content_type === "application/pdf",
+    (a) => a.data && a.content_type === "application/pdf",
   );
 
   return (
@@ -42,14 +42,14 @@ export default function BillCard({
         <div className="h-28 sm:h-32 w-full bg-zinc-800/50 overflow-hidden shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`data:${firstImage.content_type};base64,${firstImage.data}`}
+            src={`data:${firstImage.content_type};base64,${firstImage.data!}`}
             alt=""
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
           />
         </div>
       ) : firstPDF ? (
         <PdfThumbnail
-          base64Data={firstPDF.data}
+          base64Data={firstPDF.data!}
           className="h-28 sm:h-32 w-full shrink-0 border-b border-zinc-800/50"
         />
       ) : (

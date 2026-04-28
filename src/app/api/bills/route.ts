@@ -5,14 +5,20 @@ import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request?: Request) {
   try {
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
-    const results = await contentColl
+    const compact =
+      request &&
+      new URL(request.url).searchParams.get("compact")?.toLowerCase() ===
+        "true";
+    const cursor = contentColl
       .find({ module_type: "bill" })
-      .sort({ created_at: -1 })
-      .toArray();
+      .sort({ created_at: -1 });
+    const results = await (
+      compact ? cursor.project({ "payload.attachments.data": 0 }) : cursor
+    ).toArray();
     return ApiSuccess(results);
   } catch (error) {
     console.error("GET /api/bills failed:", error);
