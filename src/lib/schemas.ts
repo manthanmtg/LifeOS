@@ -176,20 +176,18 @@ export const HabitSchema = z.object({
 
 // --- SCHEMA REGISTRY EXPORT ---
 // --- 9. COMPASS (KANBAN) ---
+const CompassCommentSchema = z.object({
+  text: z.string().trim().min(1).max(2000),
+  created_at: z.string().datetime(),
+});
+
 export const CompassTaskSchema = z.object({
-  title: z.string().min(1, "Task title is required"),
+  title: z.string().trim().min(1, "Task title is required").max(200),
   status: z
     .enum(["backlog", "in_progress", "review", "done"])
     .default("backlog"),
-  description: z.string().optional(),
-  comments: z
-    .array(
-      z.object({
-        text: z.string().min(1),
-        created_at: z.string().datetime(),
-      }),
-    )
-    .default([]),
+  description: z.string().trim().max(2000).optional(),
+  comments: z.array(CompassCommentSchema).default([]),
   checklist: z
     .array(
       z.object({
@@ -197,27 +195,20 @@ export const CompassTaskSchema = z.object({
           .string()
           .uuid()
           .default(() => crypto.randomUUID()),
-        text: z.string().min(1),
+        text: z.string().trim().min(1).max(200),
         completed: z.boolean().default(false),
-        description: z.string().optional(),
-        comments: z
-          .array(
-            z.object({
-              text: z.string().min(1),
-              created_at: z.string().datetime(),
-            }),
-          )
-          .default([]),
+        description: z.string().trim().max(2000).optional(),
+        comments: z.array(CompassCommentSchema).default([]),
       }),
     )
     .default([]),
-  category_tags: z.array(z.string()).default([]),
+  category_tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   priority: z.enum(["p1", "p2", "p3", "p4", "p5"]).default("p3"),
   target_date: z.string().datetime().optional(),
   links: z
     .array(
       z.object({
-        label: z.string().min(1),
+        label: z.string().trim().min(1).max(100),
         url: z.string().url("Must be a valid URL"),
       }),
     )

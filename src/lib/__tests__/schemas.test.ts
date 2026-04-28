@@ -28,6 +28,44 @@ describe("schemas", () => {
       const result = CompassTaskSchema.safeParse(task);
       expect(result.success).toBe(false);
     });
+
+    it("rejects overlong task text fields", () => {
+      const task = {
+        title: "x".repeat(201),
+        status: "backlog",
+        description: "x".repeat(2001),
+        comments: [
+          {
+            text: "x".repeat(2001),
+            created_at: new Date().toISOString(),
+          },
+        ],
+        checklist: [
+          {
+            id: crypto.randomUUID(),
+            text: "x".repeat(201),
+            description: "x".repeat(2001),
+            comments: [
+              {
+                text: "x".repeat(2001),
+                created_at: new Date().toISOString(),
+              },
+            ],
+          },
+        ],
+        category_tags: ["x".repeat(51)],
+        links: [
+          {
+            label: "x".repeat(101),
+            url: "https://example.com",
+          },
+        ],
+      };
+
+      const result = CompassTaskSchema.safeParse(task);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("RainEntrySchema", () => {
