@@ -64,6 +64,50 @@ the shared MongoDB `content` collection with `module_type: "emi_loan"`.
 - Exports amortization schedules as CSV or PDF from the schedule tab.
 - Logs analytics events for create, update, and payload update actions.
 
+## API Examples
+
+Fetch all EMI loans:
+
+```bash
+curl '/api/content?module_type=emi_loan'
+```
+
+Create a private EMI loan:
+
+```bash
+curl -X POST '/api/content' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "module_type": "emi_loan",
+    "is_public": false,
+    "payload": {
+      "title": "Home loan",
+      "lender_name": "Acme Bank",
+      "category": "Home",
+      "currency": "INR",
+      "principal": 5000000,
+      "tenure_months": 240,
+      "interest_type": "floating",
+      "annual_interest_rate": 8.5,
+      "monthly_emi": 43391,
+      "processing_fee_financed": false,
+      "start_date": "2026-04-01T00:00:00.000Z",
+      "due_day_of_month": 5,
+      "recast_strategy": "keep_emi_adjust_tenure",
+      "rate_adjustments": [],
+      "payments": [],
+      "documents": [],
+      "status": "active"
+    }
+  }'
+```
+
+Fetch the dashboard summary consumed by the Bento Grid widget:
+
+```bash
+curl '/api/widgets/summary?module_type=emi_loan&decimals=2&currency=INR'
+```
+
 ## Schedule Logic
 
 [`lib/emi-utils.ts`](lib/emi-utils.ts) is the calculation boundary for the
@@ -90,7 +134,7 @@ module. It:
 - Links the whole card to `/admin/emi-tracker`.
 - Fetches only summary data from
   `/api/widgets/summary?module_type=emi_loan&decimals=<n>&currency=<code>`.
-- Shows one hero metric, the primary outstanding balance, plus one nearest-EMI
+- Shows one hero metric, the primary balance amount, plus one nearest-EMI
   highlight.
 - Uses semantic variants for overdue and due-soon EMI states.
 
@@ -130,7 +174,13 @@ defaults:
 | [`lib/emi-utils.ts`](lib/emi-utils.ts)                                   | Amortization, payoff, formatting, CSV, and PDF helpers.                             |
 | [`components/LoanForm.tsx`](components/LoanForm.tsx)                     | Loan create/edit form.                                                              |
 | [`components/LoanDetails.tsx`](components/LoanDetails.tsx)               | Detail tabs, payoff simulator, exports, and nested update flows.                    |
+| [`components/LoanAnalysis.tsx`](components/LoanAnalysis.tsx)             | Principal, interest, and cumulative payment charts.                                 |
+| [`components/PayoffChart.tsx`](components/PayoffChart.tsx)               | Payoff projection chart used by the simulator tab.                                  |
+| [`components/ScheduleTable.tsx`](components/ScheduleTable.tsx)           | Amortization table with CSV and PDF export actions.                                 |
 | [`components/PaymentList.tsx`](components/PaymentList.tsx)               | EMI and prepayment history editor.                                                  |
 | [`components/DocumentList.tsx`](components/DocumentList.tsx)             | Document vault editor with uploaded data URL support.                               |
 | [`components/RateAdjustmentList.tsx`](components/RateAdjustmentList.tsx) | Floating-rate adjustment editor.                                                    |
+| [`components/EMIMetrics.tsx`](components/EMIMetrics.tsx)                 | Portfolio-level active loan, balance, due date, and interest-saved metrics.         |
+| [`components/LoanList.tsx`](components/LoanList.tsx)                     | Filtered loan-card list for the sidebar.                                            |
+| [`components/LoanCard.tsx`](components/LoanCard.tsx)                     | Individual loan summary card with payoff progress.                                  |
 | [`__tests__/AdminView.test.tsx`](__tests__/AdminView.test.tsx)           | Admin view behavior tests.                                                          |
