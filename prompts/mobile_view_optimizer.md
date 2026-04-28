@@ -35,7 +35,11 @@ Optimize one issue only.
 
 ### 1. Audit
 
-Review one target at mobile and desktop widths through code inspection, existing responsive classes, and nearby layout patterns. Prefer fixes where the issue is visible from the markup or styles.
+Pick one target to audit at mobile and desktop widths:
+```bash
+{ find src/modules -name "Widget.tsx"; find src/modules -name "AdminView.tsx"; find src/components -name "*.tsx"; find src/app -name "loading.tsx"; } | sort -R | head -n 1
+```
+Review the target through code inspection, existing responsive classes, and nearby layout patterns. Prefer fixes where the issue is visible from the markup or styles.
 
 ### 2. Fix One Thing
 

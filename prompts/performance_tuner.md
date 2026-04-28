@@ -20,6 +20,9 @@ Performance is invisible when it's good and infuriating when it's bad. Each run 
 ### 1. Pick a Target
 
 Select one area to investigate:
+```bash
+{ find src/modules -name "AdminView.tsx"; find src/modules -name "Widget.tsx"; find src/components -name "*.tsx"; find src/app/api -name "route.ts"; } | sort -R | head -n 1
+```
 
 - A module's `AdminView.tsx` (look for re-render issues)
 - A widget in `src/modules/*/Widget.tsx` (look for unnecessary fetches)
