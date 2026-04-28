@@ -20,6 +20,10 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 
 ### Agent Guidelines
 
+### Autonomous Prompt Runs
+
+When executing files from `prompts/`, read `prompts/README.md` first and treat it as the run contract. For random autonomous runs, use `prompts/random_selector.md`, update `prompts/prompts_metadata.json` selection and terminal outcome counters in the same branch, and keep the selected prompt's changes small enough for quick review. If a prompt cannot be completed safely, log the reason in `issues_to_look/` instead of inventing new policy.
+
 ### Quality Verification
 
 **Whenever you make changes, once the feature is complete, run `pnpm check` to verify linting, types, build, and tests.** This ensures no regressions were introduced. At minimum, run `pnpm lint` and `pnpm format` before finishing your work.
