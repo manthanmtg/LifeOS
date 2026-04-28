@@ -801,21 +801,21 @@ export const DeckSchema = z.object({
 });
 
 export const BillSchema = z.object({
-  name: z.string().min(1, "Bill name is required"),
+  name: z.string().trim().min(1, "Bill name is required").max(200),
   bill_date: z.string().datetime("Must be a valid ISO date-time"),
-  amount: z.number().optional(),
+  amount: z.number().nonnegative("Amount cannot be negative").optional(),
   currency: z.string().length(3).default("INR"),
-  description: z.string().optional(),
-  notes: z.string().optional(),
+  description: z.string().trim().max(1000).optional(),
+  notes: z.string().trim().max(5000).optional(),
   folder_id: z.string().optional(),
-  attachments: z.array(BillAttachmentSchema).default([]),
-  tags: z.array(z.string()).default([]),
+  attachments: z.array(BillAttachmentSchema).max(50).default([]),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 export const BillFolderSchema = z.object({
-  name: z.string().min(1, "Folder name is required"),
+  name: z.string().trim().min(1, "Folder name is required").max(100),
   parent_id: z.string().optional(),
-  color: z.string().optional(),
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color").optional(),
 });
 
 // --- 23. SYSTEM CONFIG ---
