@@ -868,6 +868,61 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "ai_usage": {
+        const now = new Date(nowRef);
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+        const lastMonthDate = new Date(thisYear, thisMonth - 1, 1);
+        const lastMonth = lastMonthDate.getMonth();
+        const lastYear = lastMonthDate.getFullYear();
+
+        let totalThisMonth = 0;
+        let totalLastMonth = 0;
+        let totalTokens = 0;
+        let thisMonthLength = 0;
+        const providerCounts: Record<string, number> = {};
+
+        for (const d of docs) {
+          const p = d.payload;
+          const dDate = new Date(p.date);
+          const dMonth = dDate.getMonth();
+          const dYear = dDate.getFullYear();
+
+          if (dMonth === thisMonth && dYear === thisYear) {
+            totalThisMonth += p.cost || 0;
+            totalTokens += (p.input_tokens || 0) + (p.output_tokens || 0);
+            thisMonthLength++;
+            if (p.provider) {
+              providerCounts[p.provider] = (providerCounts[p.provider] || 0) + 1;
+            }
+          } else if (dMonth === lastMonth && dYear === lastYear) {
+            totalLastMonth += p.cost || 0;
+          }
+        }
+
+        const trend =
+          totalLastMonth > 0
+            ? ((totalThisMonth - totalLastMonth) / totalLastMonth) * 100
+            : 0;
+        const topProvider =
+          Object.entries(providerCounts).sort((a, b) => b[1] - a[1])[0] || null;
+
+        summary = {
+          totalCount: docs.length,
+          totalThisMonth,
+          trend,
+          topProvider,
+          totalTokens,
+          thisMonthLength,
+        };
+        break;
+      }
+
+      case "portfolio_profile": {
+        summary = docs[0]?.payload || null;
+        break;
+      }
+
       default:
         summary = { total: docs.length };
         break;

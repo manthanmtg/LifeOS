@@ -10,71 +10,47 @@ import {
 } from "@/components/dashboard/widget-primitives";
 import { formatNumber } from "@/lib/formatters";
 
-interface AiUsageEntry {
-  payload: {
-    provider: string;
-    cost: number;
-    input_tokens: number;
-    output_tokens: number;
-    date: string;
-  };
+interface AiUsageSummary {
+  totalCount: number;
+  totalThisMonth: number;
+  trend: number;
+  topProvider: [string, number] | null;
+  totalTokens: number;
+  thisMonthLength: number;
 }
 
 export default function AiUsageWidget() {
-  const [entries, setEntries] = useState<AiUsageEntry[]>([]);
+  const [summary, setSummary] = useState<AiUsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [now] = useState(() => new Date());
 
   useEffect(() => {
-    fetch("/api/content?module_type=ai_usage")
+    fetch("/api/widgets/summary?module_type=ai_usage")
       .then((r) => r.json())
-      .then((d) => setEntries(d.data || []))
+      .then((d) => setSummary(d.data || null))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const { totalThisMonth, trend, topProvider, totalTokens, thisMonthLength } =
-    useMemo(() => {
-      const thisMonth = entries.filter((e) => {
-        const d = new Date(e.payload.date);
-        return (
-          d.getMonth() === now.getMonth() &&
-          d.getFullYear() === now.getFullYear()
-        );
-      });
-      const lastMonth = entries.filter((e) => {
-        const d = new Date(e.payload.date);
-        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        return (
-          d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear()
-        );
-      });
-
-      const tThisMonth = thisMonth.reduce((s, e) => s + e.payload.cost, 0);
-      const tLastMonth = lastMonth.reduce((s, e) => s + e.payload.cost, 0);
-      const tr =
-        tLastMonth > 0 ? ((tThisMonth - tLastMonth) / tLastMonth) * 100 : 0;
-
-      const tProvider = Object.entries(
-        thisMonth.reduce<Record<string, number>>((acc, e) => {
-          acc[e.payload.provider] = (acc[e.payload.provider] || 0) + 1;
-          return acc;
-        }, {}),
-      ).sort((a, b) => b[1] - a[1])[0];
-
-      const tTokens = thisMonth.reduce(
-        (s, e) => s + e.payload.input_tokens + e.payload.output_tokens,
-        0,
-      );
-
+  const {
+    totalCount,
+    totalThisMonth,
+    trend,
+    topProvider,
+    totalTokens,
+    thisMonthLength,
+  } = useMemo(() => {
+    if (!summary) {
       return {
-        totalThisMonth: tThisMonth,
-        trend: tr,
-        topProvider: tProvider,
-        totalTokens: tTokens,
-        thisMonthLength: thisMonth.length,
+        totalCount: 0,
+        totalThisMonth: 0,
+        trend: 0,
+        topProvider: null,
+        totalTokens: 0,
+        thisMonthLength: 0,
       };
-    }, [entries, now]);
+    }
+    return summary;
+  }, [summary]);
 
   const accentColor = trend > 0 ? "danger" : trend < 0 ? "success" : "accent";
 
@@ -117,7 +93,7 @@ export default function AiUsageWidget() {
           value={`$${formatNumber(totalThisMonth, "western", 2)}`}
           label={`this month · ${thisMonthLength} calls`}
         />
-        {entries.length === 0 ? (
+        {totalCount === 0 ? (
           <WidgetHighlight icon={Bot} text="No usage tracked yet" />
         ) : totalTokens > 0 ? (
           <WidgetHighlight

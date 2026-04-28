@@ -19,20 +19,18 @@ interface Profile {
 }
 
 export default function PortfolioWidget() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile["payload"] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content?module_type=portfolio_profile")
+    fetch("/api/widgets/summary?module_type=portfolio_profile")
       .then((r) => r.json())
-      .then((d) => {
-        if (d.data?.length > 0) setProfile(d.data[0]);
-      })
+      .then((d) => setProfile(d.data || null))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const p = profile?.payload;
+  const p = profile;
 
   return (
     <WidgetCard
