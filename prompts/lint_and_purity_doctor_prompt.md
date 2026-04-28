@@ -34,6 +34,9 @@ Audit and resolve technical debt related to linting rules, type safety, and Reac
 ## Workflow
 
 - Step 1: Pick a random module/directory.
+```bash
+{ find src/modules -maxdepth 1 -mindepth 1 -type d ! -name "_template"; printf "src/lib\nsrc/components\nsrc/app/api"; } | sort -R | head -n 1
+```
 - Step 2: Identify files with `eslint-disable` or `@ts-ignore` comments.
 - Step 3: Resolve the underlying issues and remove the suppressions.
 - Step 4: Check `useMemo` and `useCallback` dependency arrays for completeness.

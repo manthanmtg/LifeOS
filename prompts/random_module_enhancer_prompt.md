@@ -16,6 +16,9 @@ Pick exactly one random module from `src/modules/` (excluding `_template`) and m
 ### 1. Audit
 
 - **Pick a module**: Randomly select ONE module directory.
+```bash
+find src/modules -maxdepth 1 -mindepth 1 -type d ! -name "_template" | sort -R | head -n 1
+```
 - **Read everything**: Understand every file, every feature, every data point it handles.
 - **Spot problems**: Monolithic files (>300 lines), messy state, `any` types, missing loading states, hardcoded colors, cramped or wasteful layouts, confusing labels, bad mobile experience.
 - **Spot opportunities**: Look for places where a smart addition would genuinely help — a trend line on data that changes over time, a quick-action shortcut for a frequent task outside dashboard widgets, or a summary metric that saves scrolling. Only flag these if they'd actually be useful.
