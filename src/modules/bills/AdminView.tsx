@@ -78,7 +78,7 @@ export default function BillsAdminView() {
   const loadData = useCallback(async () => {
     try {
       const [billsRes, foldersRes] = await Promise.all([
-        fetch("/api/bills").then((r) => r.json()),
+        fetch("/api/bills?compact=true").then((r) => r.json()),
         fetch("/api/bills/folders").then((r) => r.json()),
       ]);
       setBills(billsRes.data || []);
@@ -93,6 +93,40 @@ export default function BillsAdminView() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const fetchFullBill = useCallback(
+    async (bill: Bill) => {
+      try {
+        const res = await fetch(`/api/bills/${bill._id}`);
+        if (!res.ok) {
+          showToast("Failed to load bill", "error");
+          return null;
+        }
+        const data = await res.json();
+        return (data.data as Bill | undefined) ?? bill;
+      } catch {
+        showToast("Failed to load bill", "error");
+        return null;
+      }
+    },
+    [showToast],
+  );
+
+  const handleOpenBill = useCallback(
+    async (bill: Bill) => {
+      const fullBill = await fetchFullBill(bill);
+      if (fullBill) setDetailBill(fullBill);
+    },
+    [fetchFullBill],
+  );
+
+  const handleEditBill = useCallback(
+    async (bill: Bill) => {
+      const fullBill = await fetchFullBill(bill);
+      if (fullBill) setBillModal({ open: true, bill: fullBill });
+    },
+    [fetchFullBill],
+  );
 
   // ─── Derived state ─────────────────────────────────────────────────────
 
@@ -431,8 +465,8 @@ export default function BillsAdminView() {
                         folder={folders.find(
                           (f) => f._id === bill.payload.folder_id,
                         )}
-                        onClick={() => setDetailBill(bill)}
-                        onEdit={(b) => setBillModal({ open: true, bill: b })}
+                        onClick={() => handleOpenBill(bill)}
+                        onEdit={handleEditBill}
                         onDragStart={() => {}}
                       />
                     ))}
@@ -448,8 +482,8 @@ export default function BillsAdminView() {
                         folder={folders.find(
                           (f) => f._id === bill.payload.folder_id,
                         )}
-                        onClick={() => setDetailBill(bill)}
-                        onEdit={(b) => setBillModal({ open: true, bill: b })}
+                        onClick={() => handleOpenBill(bill)}
+                        onEdit={handleEditBill}
                         onDragStart={() => {}}
                       />
                     ))}

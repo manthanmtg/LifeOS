@@ -2,7 +2,7 @@ export interface BillAttachment {
   id: string;
   filename: string;
   content_type: string;
-  data: string; // base64-encoded file content
+  data?: string; // base64-encoded file content, omitted from compact lists
   size: number; // bytes
   uploaded_at: string; // ISO datetime
 }

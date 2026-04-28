@@ -52,6 +52,22 @@ const mockBills = [
   },
 ];
 
+const mockCompactBills = mockBills.map((bill) => ({
+  ...bill,
+  payload: {
+    ...bill.payload,
+    attachments: bill.payload.attachments.map(
+      ({ id, filename, content_type, size, uploaded_at }) => ({
+        id,
+        filename,
+        content_type,
+        size,
+        uploaded_at,
+      }),
+    ),
+  },
+}));
+
 const mockFolders = [
   {
     _id: "folder-1",
@@ -67,16 +83,26 @@ describe("BillsAdminView", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     global.fetch = vi.fn().mockImplementation((url: string) => {
-      if (url === "/api/bills") {
+      if (url === "/api/bills?compact=true") {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({ data: mockBills }),
+          json: () => Promise.resolve({ data: mockCompactBills }),
         });
       }
       if (url === "/api/bills/folders") {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve({ data: mockFolders }),
+        });
+      }
+      if (url.startsWith("/api/bills/")) {
+        const id = url.split("/").at(-1);
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: mockBills.find((bill) => bill._id === id),
+            }),
         });
       }
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
@@ -118,6 +144,17 @@ describe("BillsAdminView", () => {
     await waitFor(() => {
       // Internet Bill February has 1 attachment
       expect(screen.getByText("1")).toBeDefined();
+    });
+  });
+
+  it("fetches full bill data before opening bill details", async () => {
+    render(<BillsAdminView />);
+
+    const billName = await screen.findByText("Internet Bill February");
+    fireEvent.click(billName);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/bills/bill-2");
     });
   });
 

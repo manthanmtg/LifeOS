@@ -29,8 +29,8 @@ export default function BillListRow({
   onDragStart,
 }: BillListRowProps) {
   const attachCount = bill.payload.attachments?.length ?? 0;
-  const hasPDF = bill.payload.attachments?.some(
-    (a) => a.content_type === "application/pdf",
+  const firstPDF = bill.payload.attachments?.find(
+    (a) => a.data && a.content_type === "application/pdf",
   );
   const hasImg = bill.payload.attachments?.some((a) =>
     a.content_type.startsWith("image/"),
@@ -51,13 +51,9 @@ export default function BillListRow({
             <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
               <ImageIcon className="w-5 h-5 text-accent" />
             </div>
-          ) : hasPDF ? (
+          ) : firstPDF ? (
             <PdfThumbnail
-              base64Data={
-                bill.payload.attachments!.find(
-                  (a) => a.content_type === "application/pdf",
-                )!.data
-              }
+              base64Data={firstPDF.data!}
               className="w-10 h-10 rounded-xl shrink-0 pointer-events-none overflow-hidden"
               isListRow
             />
