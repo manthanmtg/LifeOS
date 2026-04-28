@@ -369,9 +369,7 @@ export default function AiUsageAdminView() {
       const r = await fetch("/api/content?module_type=ai_usage");
       const d = await r.json();
       setEntries(d.data || []);
-    } catch {
-      /* */
-    }
+    } catch {}
   }, []);
 
   const fetchProviders = useCallback(async () => {
@@ -379,9 +377,7 @@ export default function AiUsageAdminView() {
       const r = await fetch("/api/ai-usage/providers");
       const d = await r.json();
       setProviders(d.data || []);
-    } catch {
-      /* */
-    }
+    } catch {}
   }, []);
 
   const fetchLimits = useCallback(async () => {
@@ -394,9 +390,7 @@ export default function AiUsageAdminView() {
         map[item.provider_id] = item;
       }
       setLimitsMap(map);
-    } catch {
-      /* */
-    } finally {
+    } catch {} finally {
       setLimitsLoading(false);
     }
   }, []);
