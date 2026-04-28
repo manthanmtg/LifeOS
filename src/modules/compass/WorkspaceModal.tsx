@@ -322,6 +322,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   type="text"
                   value={payload.title}
                   onChange={(e) => updateField("title", e.target.value)}
+                  maxLength={200}
                   className="w-full text-3xl font-bold bg-transparent border-none text-zinc-50 focus:outline-none focus:ring-0 p-0 placeholder-zinc-700"
                   placeholder="Task Title..."
                 />
@@ -339,6 +340,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     onChange={(e) => updateField("description", e.target.value)}
                     onBlur={() => setIsEditingDescription(false)}
                     placeholder="Write markdown here..."
+                    maxLength={2000}
                     className="w-full min-h-[200px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono transition-all"
                   />
                 ) : (
@@ -466,6 +468,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     onChange={(e) => setNewChecklist(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addChecklistItem()}
                     placeholder="Add an item..."
+                    maxLength={200}
                     className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-accent/40"
                   />
                   <button
@@ -493,6 +496,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                           if (!newComment.trim()) setIsAddingComment(false);
                         }}
                         placeholder="Add a comment or update note..."
+                        maxLength={2000}
                         className="flex-1 min-h-[100px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono"
                       />
                       <div className="flex flex-col gap-2">
@@ -561,6 +565,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                 updateField("comments", updated);
                               }}
                               onBlur={() => setEditingCommentIndex(null)}
+                              maxLength={2000}
                               className="w-full min-h-[80px] bg-zinc-900 border border-accent/30 rounded-xl p-3 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono"
                             />
                             <div className="flex justify-end">
@@ -691,6 +696,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={addTag}
                 placeholder="Add tag..."
+                maxLength={50}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-300 focus:outline-none focus:border-accent/40"
               />
             </div>
@@ -729,6 +735,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   value={newLinkLabel}
                   onChange={(e) => setNewLinkLabel(e.target.value)}
                   placeholder="Label (optional)"
+                  maxLength={100}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-accent/40"
                 />
                 <div className="flex gap-2">
@@ -838,6 +845,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     cl[selectedSubtaskIndex].text = e.target.value;
                     updateField("checklist", cl);
                   }}
+                  maxLength={200}
                   className="w-full text-2xl font-bold bg-transparent border-none text-zinc-50 focus:outline-none focus:ring-0 p-0 placeholder-zinc-700"
                   placeholder="Subtask Title..."
                 />
@@ -861,6 +869,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     }}
                     onBlur={() => setIsEditingSubtaskDescription(false)}
                     placeholder="Add more details about this subtask..."
+                    maxLength={2000}
                     className="w-full min-h-[150px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono transition-all"
                   />
                 ) : (
@@ -900,6 +909,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                             setIsAddingSubtaskComment(false);
                         }}
                         placeholder="Add a comment..."
+                        maxLength={2000}
                         className="flex-1 min-h-[100px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono"
                       />
                       <div className="flex flex-col gap-2">
@@ -979,6 +989,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                                 updateField("checklist", cl);
                               }}
                               onBlur={() => setEditingSubtaskCommentIndex(null)}
+                              maxLength={2000}
                               className="w-full bg-zinc-900 border border-accent/20 rounded-xl p-3 text-sm text-zinc-300 focus:outline-none"
                             />
                           ) : (

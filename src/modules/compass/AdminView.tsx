@@ -249,6 +249,7 @@ export default function CompassAdminView() {
               onChange={(e) => setQuickAddTitle(e.target.value)}
               placeholder="Type an idea and press Enter..."
               aria-label="Quick add task"
+              maxLength={200}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-zinc-50 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all shadow-sm disabled:opacity-50"
               disabled={isSaving}
             />
