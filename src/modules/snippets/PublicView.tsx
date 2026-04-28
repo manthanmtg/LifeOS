@@ -90,7 +90,7 @@ export default function SnippetsPublicView({
             className={cn(
               "px-5 py-3 rounded-2xl text-sm font-semibold border transition-all inline-flex items-center justify-center gap-2",
               favoritesOnly
-                ? "bg-warning/10 border-warning/30 text-warning shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                ? "bg-warning/10 border-warning/30 text-warning shadow-[0_0_15px_color-mix(in_srgb,var(--color-warning)_10%,transparent)]"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700",
             )}
           >
@@ -127,7 +127,7 @@ export default function SnippetsPublicView({
               className={cn(
                 "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border uppercase tracking-wider",
                 languageFilter === language
-                  ? "bg-accent/10 border-accent/30 text-accent shadow-[0_0_15px_rgba(100,100,255,0.05)]"
+                  ? "bg-accent/10 border-accent/30 text-accent shadow-[0_0_15px_color-mix(in_srgb,var(--color-accent)_5%,transparent)]"
                   : "bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600",
               )}
             >
@@ -152,7 +152,7 @@ export default function SnippetsPublicView({
           {filtered.map((snippet) => (
             <article
               key={snippet._id}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all duration-300 hover:shadow-xl hover:shadow-black/20"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all duration-300 hover:shadow-xl hover:shadow-zinc-950/20"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/50">
                 <div className="flex items-center gap-2 min-w-0">
