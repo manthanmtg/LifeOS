@@ -1,3 +1,10 @@
+---
+id: zod-schema-tightener
+title: Zod Schema Tightener Prompt
+category: verification
+enabled: true
+autonomousSafe: true
+---
 # Zod Schema Tightener Prompt
 
 ## Objective

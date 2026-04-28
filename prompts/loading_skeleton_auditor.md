@@ -1,3 +1,10 @@
+---
+id: loading-skeleton-auditor
+title: Loading Skeleton Auditor Prompt
+category: ui-quality
+enabled: true
+autonomousSafe: true
+---
 # Loading Skeleton Auditor Prompt
 
 ## Objective

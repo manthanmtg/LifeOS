@@ -1,3 +1,10 @@
+---
+id: theme-strictness-enforcer
+title: Theme Strictness Enforcer Prompt
+category: ui-quality
+enabled: true
+autonomousSafe: true
+---
 # Theme Strictness Enforcer Prompt
 
 ## Objective

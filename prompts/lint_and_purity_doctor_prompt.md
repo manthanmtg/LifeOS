@@ -1,3 +1,10 @@
+---
+id: lint-and-purity-doctor-prompt
+title: Lint & Purity Doctor Prompt
+category: verification
+enabled: true
+autonomousSafe: true
+---
 # Lint & Purity Doctor Prompt
 
 ## Objective

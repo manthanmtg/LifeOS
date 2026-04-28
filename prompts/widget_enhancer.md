@@ -1,3 +1,10 @@
+---
+id: widget-enhancer
+title: Dashboard Widget Enhancer Prompt
+category: feature-quality
+enabled: true
+autonomousSafe: true
+---
 # Dashboard Widget Enhancer Prompt
 
 ## Objective

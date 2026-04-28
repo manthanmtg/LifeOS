@@ -1,3 +1,10 @@
+---
+id: agent-docs-sync-prompt
+title: Agent Docs Sync Prompt
+category: documentation
+enabled: true
+autonomousSafe: true
+---
 # Agent Docs Sync Prompt
 
 ## Objective

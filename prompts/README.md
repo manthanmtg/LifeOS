@@ -1,3 +1,10 @@
+---
+id: readme
+title: Prompt Run Contract
+category: code-quality
+enabled: false
+autonomousSafe: false
+---
 # Prompt Run Contract
 
 These prompts are intended for small, autonomous LifeOS improvements. Every prompt run must follow this contract before applying prompt-specific instructions.

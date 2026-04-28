@@ -1,3 +1,10 @@
+---
+id: security-enhancer
+title: Security Enhancer Prompt
+category: security
+enabled: true
+autonomousSafe: true
+---
 # Security Enhancer Prompt
 
 ## Objective

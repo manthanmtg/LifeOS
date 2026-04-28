@@ -1,3 +1,10 @@
+---
+id: module-generator-prompt
+title: Module Generator Prompt
+category: feature-quality
+enabled: true
+autonomousSafe: false
+---
 # Module Generator Prompt
 
 > **⚠️ NOT FOR AUTONOMOUS USE.** This prompt creates entirely new modules, which is a drastic change. It should only be executed when a human explicitly requests a specific new module. `random_selector.md` excludes this prompt from autonomous selection. If an autonomous agent reaches this prompt without an explicit human module request, **no-op and stop**.

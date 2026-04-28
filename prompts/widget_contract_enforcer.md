@@ -1,3 +1,10 @@
+---
+id: widget-contract-enforcer
+title: Widget Contract Enforcer Prompt
+category: feature-quality
+enabled: true
+autonomousSafe: true
+---
 # Widget Contract Enforcer Prompt
 
 ## Objective
