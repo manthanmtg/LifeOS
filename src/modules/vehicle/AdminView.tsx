@@ -42,6 +42,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -765,20 +766,20 @@ export default function VehicleAdminView() {
       <div className="animate-fade-in-up space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="h-8 w-48 bg-zinc-800 rounded-lg animate-pulse" />
-            <div className="h-4 w-72 bg-zinc-800/60 rounded-md animate-pulse" />
+            <SkeletonBlock className="h-8 w-48 rounded-lg" />
+            <SkeletonBlock className="h-4 w-72 rounded-md" />
           </div>
-          <div className="h-10 w-32 bg-zinc-800 rounded-lg animate-pulse" />
+          <SkeletonBlock className="h-10 w-32 rounded-lg" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4 animate-pulse"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4"
             >
-              <div className="h-6 w-1/2 bg-zinc-800 rounded" />
-              <div className="h-4 w-3/4 bg-zinc-800/60 rounded" />
-              <div className="h-4 w-1/3 bg-zinc-800/40 rounded" />
+              <SkeletonBlock className="h-6 w-1/2 rounded" />
+              <SkeletonBlock className="h-4 w-3/4 rounded" />
+              <SkeletonBlock className="h-4 w-1/3 rounded" />
             </div>
           ))}
         </div>
