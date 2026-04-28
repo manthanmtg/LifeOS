@@ -3,9 +3,31 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import VehicleAdminView from "../AdminView";
 import React from "react";
 
+vi.mock("@/components/ui/Skeletons", async () => {
+  const React = await import("react");
+
+  return {
+    SkeletonBlock: ({ className }: { className?: string }) =>
+      React.createElement("div", {
+        "data-testid": "vehicle-skeleton-block",
+        className,
+      }),
+  };
+});
+
 describe("VehicleAdminView", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+  });
+
+  it("renders shared skeleton blocks while vehicles load", () => {
+    global.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+
+    render(<VehicleAdminView />);
+
+    expect(screen.getAllByTestId("vehicle-skeleton-block").length).toBeGreaterThan(
+      3,
+    );
   });
 
   it("renders and interacts with vehicle tabs", async () => {
