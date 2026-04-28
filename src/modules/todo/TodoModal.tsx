@@ -79,6 +79,9 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
         initial={{ opacity: 0, y: 100, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 100, scale: 0.95 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className="relative w-full md:max-w-xl bg-zinc-950/80 backdrop-blur-2xl border border-zinc-800/50 rounded-t-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden"
       >
         <div className="flex justify-center pt-4 pb-2 md:hidden">
@@ -99,7 +102,10 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
               />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-zinc-100 italic tracking-tight">
+              <h2
+                id="modal-title"
+                className="text-2xl font-black text-zinc-100 italic tracking-tight"
+              >
                 {todo ? "Edit Objective" : "New Objective"}
               </h2>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-0.5">
@@ -109,6 +115,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-3 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-2xl transition-all"
           >
             <X className="w-6 h-6" />
@@ -117,10 +124,14 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
 
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">
+            <label
+              htmlFor="todo-title"
+              className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1"
+            >
               Title of Conquest
             </label>
             <input
+              id="todo-title"
               autoFocus
               type="text"
               value={title}
@@ -136,12 +147,17 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
               <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
                 <Flag className="w-3.5 h-3.5" /> Priority Level
               </label>
-              <div className="flex gap-2 bg-zinc-900/40 p-1.5 rounded-[1.5rem] border border-zinc-800/50">
+              <div
+                className="flex gap-2 bg-zinc-900/40 p-1.5 rounded-[1.5rem] border border-zinc-800/50"
+                role="group"
+                aria-label="Priority"
+              >
                 {(["low", "medium", "high"] as TodoPriority[]).map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setPriority(p)}
+                    aria-pressed={priority === p}
                     className={cn(
                       "flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
                       priority === p
@@ -160,10 +176,14 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+              <label
+                htmlFor="todo-date"
+                className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
+              >
                 <Calendar className="w-3.5 h-3.5" /> Deadline
               </label>
               <input
+                id="todo-date"
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
@@ -173,10 +193,14 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
           </div>
 
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+            <label
+              htmlFor="todo-notes"
+              className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
+            >
               <AlignLeft className="w-3.5 h-3.5" /> Intelligence Notes
             </label>
             <textarea
+              id="todo-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Strategic details for the operation..."
