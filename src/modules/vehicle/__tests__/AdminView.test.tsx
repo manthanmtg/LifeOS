@@ -74,4 +74,51 @@ describe("VehicleAdminView", () => {
       }
     }
   });
+
+  it("marks vehicle cards with expiring document alerts", async () => {
+    global.fetch = vi.fn().mockImplementation((url) => {
+      if (url.includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: [
+                {
+                  _id: "v1",
+                  created_at: "2026-04-01T00:00:00.000Z",
+                  updated_at: "2026-04-01T00:00:00.000Z",
+                  payload: {
+                    name: "Civic",
+                    make: "Honda",
+                    model: "Civic",
+                    year: 2021,
+                    fuel_type: "petrol",
+                    odometer_reading: 18000,
+                    odometer_unit: "km",
+                    service_records: [],
+                    fuel_logs: [],
+                    documents: [
+                      {
+                        id: "doc1",
+                        type: "registration",
+                        title: "Registration renewal",
+                        expiry_date: new Date().toISOString(),
+                      },
+                    ],
+                  },
+                },
+              ],
+            }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    render(<VehicleAdminView />);
+
+    const cardMeta = await screen.findByText("Honda Civic 2021");
+    const card = cardMeta.closest(".cursor-pointer");
+
+    expect(card).toHaveClass("border-warning/20");
+  });
 });
