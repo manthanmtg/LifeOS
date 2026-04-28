@@ -13,11 +13,13 @@ import TodoHeader from "./components/TodoHeader";
 import TodoMetrics from "./components/TodoMetrics";
 import QuickAddTodo from "./components/QuickAddTodo";
 
+import TodoToolbar, { TodoSortType } from "./components/TodoToolbar";
+import TodoEmptyState from "./components/TodoEmptyState";
+import TodoLoading from "./components/TodoLoading";
+
 // UI Components
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import { SkeletonBlock } from "@/components/ui/Skeletons";
 import Toast, { type ToastType } from "@/components/ui/Toast";
-import { Search, Clock, Calendar, Flag, CheckSquare } from "lucide-react";
 
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
@@ -27,9 +29,7 @@ export default function TodoAdminView() {
   const [activeFilter, setActiveFilter] = useState<TodoFilterType>("todo");
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"recent" | "due_date" | "priority">(
-    "recent",
-  );
+  const [sortBy, setSortBy] = useState<TodoSortType>("recent");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   // Modal state
@@ -240,6 +240,9 @@ export default function TodoAdminView() {
   };
 
   const filteredTodos = useMemo(() => {
+    const now = new Date();
+    const todayStr = now.toDateString();
+
     return todos
       .filter((t) => {
         if (!t.payload) return false;
@@ -252,9 +255,8 @@ export default function TodoAdminView() {
         const dueDate = t.payload.due_date
           ? new Date(t.payload.due_date)
           : null;
-        const isToday =
-          dueDate && dueDate.toDateString() === new Date().toDateString();
-        const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
+        const isToday = dueDate && dueDate.toDateString() === todayStr;
+        const isOverdue = dueDate && dueDate < now && !isCompleted;
         const isHigh = t.payload.priority === "high";
 
         switch (activeFilter) {
@@ -299,8 +301,11 @@ export default function TodoAdminView() {
       });
   }, [todos, searchQuery, activeFilter, sortBy]);
 
-  const counts = useMemo(
-    () => ({
+  const counts = useMemo(() => {
+    const now = new Date();
+    const todayStr = now.toDateString();
+
+    return {
       todo: todos.filter((t) => !t.payload?.completed).length,
       done: todos.filter((t) => t.payload?.completed).length,
       today: todos.filter((t) => {
@@ -310,7 +315,7 @@ export default function TodoAdminView() {
         return (
           !t.payload?.completed &&
           dueDate &&
-          dueDate.toDateString() === new Date().toDateString()
+          dueDate.toDateString() === todayStr
         );
       }).length,
       overdue: todos.filter((t) => {
@@ -320,16 +325,15 @@ export default function TodoAdminView() {
         return (
           !t.payload?.completed &&
           dueDate &&
-          dueDate < new Date() &&
-          dueDate.toDateString() !== new Date().toDateString()
+          dueDate < now &&
+          dueDate.toDateString() !== todayStr
         );
       }).length,
       high: todos.filter(
         (t) => !t.payload?.completed && t.payload?.priority === "high",
       ).length,
-    }),
-    [todos],
-  );
+    };
+  }, [todos]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
@@ -347,49 +351,12 @@ export default function TodoAdminView() {
       <QuickAddTodo onAdd={handleQuickAdd} isSaving={isSaving} />
 
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col sm:flex-row items-center gap-4 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 p-2 rounded-2xl">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Deep search objectives..."
-              aria-label="Search objectives"
-              className="w-full bg-zinc-950/30 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
-            />
-          </div>
-
-          <div
-            className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0"
-            role="group"
-            aria-label="Sort options"
-          >
-            {(["recent", "due_date", "priority"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setSortBy(s)}
-                className={cn(
-                  "p-2 rounded-lg transition-all",
-                  sortBy === s
-                    ? "bg-accent text-zinc-950 shadow-md"
-                    : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
-                )}
-                title={`Sort by ${s.replace("_", " ")}`}
-                aria-label={`Sort by ${s.replace("_", " ")}`}
-                aria-pressed={sortBy === s}
-              >
-                {s === "recent" ? (
-                  <Clock className="w-4 h-4" />
-                ) : s === "due_date" ? (
-                  <Calendar className="w-4 h-4" />
-                ) : (
-                  <Flag className="w-4 h-4" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+        <TodoToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+        />
 
         <TodoFilters
           activeFilter={activeFilter}
@@ -416,31 +383,7 @@ export default function TodoAdminView() {
         </div>
 
         {loading ? (
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            role="status"
-            aria-label="Loading objectives"
-            aria-live="polite"
-          >
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="space-y-3 rounded-2xl border border-zinc-800/50 bg-zinc-900/40 p-4 backdrop-blur-md"
-              >
-                <div className="flex items-center gap-3">
-                  <SkeletonBlock className="h-6 w-6 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <SkeletonBlock className="h-3 w-3/5" />
-                    <SkeletonBlock className="h-2.5 w-1/3" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pl-9">
-                  <SkeletonBlock className="h-4 w-14 rounded-lg" />
-                  <SkeletonBlock className="h-4 w-20 rounded-lg" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <TodoLoading />
         ) : filteredTodos.length > 0 ? (
           <motion.div
             layout
@@ -468,22 +411,7 @@ export default function TodoAdminView() {
             </AnimatePresence>
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-24 text-center bg-zinc-900/20 border-2 border-dashed border-zinc-900 rounded-[3rem]"
-          >
-            <div className="w-20 h-20 rounded-[2.5rem] bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 shadow-2xl">
-              <CheckSquare className="w-10 h-10 text-zinc-800" />
-            </div>
-            <h3 className="text-xl font-black text-zinc-300 mb-2 italic">
-              Clean Slate
-            </h3>
-            <p className="text-sm text-zinc-500 max-w-xs font-medium">
-              Every great conquest begins with a single objective. Manifest your
-              path above.
-            </p>
-          </motion.div>
+          <TodoEmptyState />
         )}
       </div>
 
