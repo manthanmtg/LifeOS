@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
+import { ContentListSkeleton } from "@/components/ui/Skeletons";
 
 /**
  * BEST PRACTICE TEMPLATE FOR NEW MODULES
@@ -306,10 +307,7 @@ export default function TemplateAdminView() {
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-            <RefreshCw className="w-10 h-10 animate-spin text-accent mb-4" />
-            <p className="text-sm">Fetching records...</p>
-          </div>
+          <ContentListSkeleton length={3} />
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-20 border border-zinc-800 rounded-2xl bg-zinc-900/40">
             <Info className="w-10 h-10 mx-auto mb-3 opacity-20 text-zinc-400" />
