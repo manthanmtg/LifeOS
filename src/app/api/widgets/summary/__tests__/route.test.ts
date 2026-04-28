@@ -203,6 +203,48 @@ describe("GET /api/widgets/summary", () => {
     expect(data.rainyDays).toBe(1);
   });
 
+  it("returns summary for habit module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      {
+        payload: {
+          name: "Read",
+          frequency: "daily",
+          target_count: 1,
+          color: "#10b981",
+          completions: [
+            { date: "2026-04-22", count: 1 },
+            { date: "2026-04-23", count: 1 },
+          ],
+        },
+      },
+      {
+        payload: {
+          name: "Exercise",
+          frequency: "daily",
+          target_count: 1,
+          color: "#3b82f6",
+          completions: [{ date: "2026-04-21", count: 1 }],
+        },
+      },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=habit",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toMatchObject({
+      totalHabits: 2,
+      completedToday: 1,
+      bestCurrentStreak: 2,
+      weeklyCompletionRate: 21,
+      weeklyTrend: 100,
+    });
+    expect(data.last7Days).toEqual([0, 0, 0, 0, 50, 50, 50]);
+  });
+
   it("returns compact summary for reading_item module", async () => {
     mockCollection().toArray.mockResolvedValue([
       {

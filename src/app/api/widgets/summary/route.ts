@@ -7,6 +7,8 @@ import { getIdeaMetrics, getIdeaSpotlight } from "@/modules/ideas/insights";
 import type { IdeaRecord } from "@/modules/ideas/shared";
 import { getPeopleSummary, toPersonDocument } from "@/modules/people/insights";
 import type { PersonPayload } from "@/modules/people/types";
+import { computeMetrics } from "@/modules/habits/components/types";
+import type { Habit } from "@/modules/habits/components/types";
 import { z } from "zod";
 import {
   VehicleSchema,
@@ -685,6 +687,11 @@ export async function GET(request: Request) {
         break;
       }
 
+      case "habit": {
+        summary = computeMetrics(docs as Habit[]);
+        break;
+      }
+
       case "reading_item": {
         let unreadCount = 0;
         let readCount = 0;
@@ -893,7 +900,8 @@ export async function GET(request: Request) {
             totalTokens += (p.input_tokens || 0) + (p.output_tokens || 0);
             thisMonthLength++;
             if (p.provider) {
-              providerCounts[p.provider] = (providerCounts[p.provider] || 0) + 1;
+              providerCounts[p.provider] =
+                (providerCounts[p.provider] || 0) + 1;
             }
           } else if (dMonth === lastMonth && dYear === lastYear) {
             totalLastMonth += p.cost || 0;
