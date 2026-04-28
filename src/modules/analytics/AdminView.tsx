@@ -44,6 +44,28 @@ interface MetricEvent {
   timestamp: string;
 }
 
+export function getDeviceData(metrics: Pick<MetricEvent, "device_type">[]) {
+  const deviceCounts = metrics.reduce(
+    (counts, metric) => {
+      if (
+        metric.device_type === "desktop" ||
+        metric.device_type === "mobile" ||
+        metric.device_type === "tablet"
+      ) {
+        counts[metric.device_type]++;
+      }
+      return counts;
+    },
+    { desktop: 0, mobile: 0, tablet: 0 },
+  );
+
+  return [
+    { name: "Desktop", value: deviceCounts.desktop },
+    { name: "Mobile", value: deviceCounts.mobile },
+    { name: "Tablet", value: deviceCounts.tablet },
+  ].filter((device) => device.value > 0);
+}
+
 const COLORS = [
   "#6366f1",
   "#a855f7",
@@ -152,20 +174,7 @@ export default function AnalyticsAdminView() {
     }
 
     // Device breakdown
-    const deviceData = [
-      {
-        name: "Desktop",
-        value: filtered.filter((m) => m.device_type === "desktop").length,
-      },
-      {
-        name: "Mobile",
-        value: filtered.filter((m) => m.device_type === "mobile").length,
-      },
-      {
-        name: "Tablet",
-        value: filtered.filter((m) => m.device_type === "tablet").length,
-      },
-    ].filter((d) => d.value > 0);
+    const deviceData = getDeviceData(filtered);
 
     // Top actions
     const actionCounts: Record<string, number> = {};
