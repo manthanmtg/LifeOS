@@ -39,7 +39,7 @@ For each failing test, determine the root cause:
 ### 4. Verify
 
 - Run `pnpm test` again — confirm your fixes resolved the failures without introducing new ones.
-- Run `pnpm lint` to confirm no lint regressions.
+- Run `pnpm check` to confirm lint, types, build, and the full test suite still pass.
 
 ### 5. Commit
 
