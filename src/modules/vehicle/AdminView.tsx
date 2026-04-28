@@ -277,6 +277,11 @@ function getExpiryStatus(
   return "ok";
 }
 
+function hasActionableExpiry(dateStr: string | undefined, todayIso: string) {
+  const status = getExpiryStatus(dateStr, todayIso);
+  return status === "expired" || status === "warning";
+}
+
 function expiryBadge(
   dateStr: string | undefined,
   todayIso: string,
@@ -2041,14 +2046,15 @@ export default function VehicleAdminView() {
               (s, l) => s + l.cost,
               0,
             );
-            const hasAlerts = [
-              vp.insurance_expiry,
-              vp.pollution_certificate_expiry,
-              vp.next_service_due,
-            ].some((d) => {
-              const s = getExpiryStatus(d, todayIso);
-              return s === "expired" || s === "warning";
-            });
+            const hasAlerts =
+              [
+                vp.insurance_expiry,
+                vp.pollution_certificate_expiry,
+                vp.next_service_due,
+              ].some((d) => hasActionableExpiry(d, todayIso)) ||
+              (vp.documents || []).some((doc) =>
+                hasActionableExpiry(doc.expiry_date, todayIso),
+              );
 
             return (
               <motion.div
