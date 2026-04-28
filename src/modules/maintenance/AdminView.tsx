@@ -297,7 +297,6 @@ export default function MaintenanceAdminView() {
       const d = await r.json();
       setTasks(d.data || []);
     } catch {
-      // silently fail
     } finally {
       setLoading(false);
     }
@@ -485,7 +484,6 @@ export default function MaintenanceAdminView() {
       await fetch(`/api/content/${id}`, { method: "DELETE" });
       await fetchTasks();
     } catch {
-      // silently fail
     }
     setDeletingId(null);
   };
