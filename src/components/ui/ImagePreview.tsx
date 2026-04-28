@@ -34,7 +34,7 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
           <a
             href={src}
             download={alt || "profile-picture"}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-11 min-w-11 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Download image"
             title="Download Image"
           >
@@ -42,7 +42,7 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
           </a>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="min-h-11 min-w-11 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Close image preview"
             title="Close Preview"
           >

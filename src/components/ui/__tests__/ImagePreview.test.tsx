@@ -19,4 +19,8 @@ describe("ImagePreview", () => {
     expect(source).toContain('aria-label="Download image"');
     expect(source).toContain('aria-label="Close image preview"');
   });
+
+  it("keeps icon-only controls at least 44px for touch input", () => {
+    expect(source.match(/min-h-11 min-w-11/g) ?? []).toHaveLength(2);
+  });
 });
