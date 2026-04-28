@@ -2,7 +2,13 @@ import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 export default function SettingsLoading() {
   return (
-    <div className="animate-fade-in-up space-y-6">
+    <div
+      role="status"
+      aria-label="Loading settings"
+      aria-busy="true"
+      aria-live="polite"
+      className="animate-fade-in-up space-y-6"
+    >
       <div className="space-y-2">
         <SkeletonBlock className="h-8 w-32" />
         <SkeletonBlock className="h-4 w-64" />
