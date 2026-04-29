@@ -30,7 +30,7 @@ When executing files from `prompts/`, read `prompts/README.md` first and treat i
 
 ### Architecture
 
-Life OS is a Next.js 16 App Router application — a "shell" that dynamically renders a public portfolio and a private admin dashboard. It uses MongoDB, Tailwind CSS v4, Zod v4, and Framer Motion v12.
+Life OS is a Next.js 16 App Router application — a "shell" that dynamically renders a public portfolio and a private admin dashboard. It uses React 19, MongoDB, Tailwind CSS v4, Zod v4, and Framer Motion v12.
 
 ### Polymorphic Data Layer
 
