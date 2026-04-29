@@ -16,6 +16,7 @@ import {
   RecurringExpenseSchema,
   BillSchema,
   SnippetSchema,
+  WhiteboardNoteSchema,
 } from "@/lib/schemas";
 import type { EmiLoan } from "@/modules/emi-tracker/types";
 
@@ -26,6 +27,7 @@ type HealthProfilePayload = z.infer<typeof HealthProfileSchema>;
 type RecurringExpensePayload = z.infer<typeof RecurringExpenseSchema>;
 type BillPayload = z.infer<typeof BillSchema>;
 type SnippetPayload = z.infer<typeof SnippetSchema>;
+type WhiteboardNotePayload = z.infer<typeof WhiteboardNoteSchema>;
 type BingeSummaryPayload = {
   title: string;
   status?: string;
@@ -192,6 +194,59 @@ export async function GET(request: Request) {
         total: snippetDocs.length,
         favorites,
         languageCount: languageSet.size,
+      });
+    }
+
+    if (module_type === "whiteboard_note") {
+      const docs = (await contentColl
+        .find(
+          { module_type },
+          {
+            projection: {
+              is_public: 1,
+              updated_at: 1,
+              "payload.name": 1,
+              "payload.is_favorite": 1,
+            },
+          },
+        )
+        .toArray()) as ContentDocument<WhiteboardNotePayload>[];
+
+      let favorites = 0;
+      let publicCount = 0;
+      let latest: ContentDocument<WhiteboardNotePayload> | null = null;
+
+      for (const doc of docs) {
+        if (doc.is_public) publicCount++;
+        if (doc.payload.is_favorite) favorites++;
+
+        if (!latest) {
+          latest = doc;
+        } else {
+          const currentIsFav = latest.payload.is_favorite;
+          const docIsFav = doc.payload.is_favorite;
+
+          if (docIsFav && !currentIsFav) {
+            latest = doc;
+          } else if (docIsFav === currentIsFav) {
+            if (new Date(doc.updated_at) > new Date(latest.updated_at)) {
+              latest = doc;
+            }
+          }
+        }
+      }
+
+      return ApiSuccess({
+        total: docs.length,
+        favorites,
+        publicCount,
+        latest: latest
+          ? {
+              name: latest.payload.name,
+              is_favorite: latest.payload.is_favorite,
+              updated_at: latest.updated_at,
+            }
+          : null,
       });
     }
 
