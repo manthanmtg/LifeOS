@@ -43,7 +43,7 @@ export interface ConstantDef {
   value: number; // e.g. 120
 }
 
-export interface AnalyticsConfig {
+interface AnalyticsConfig {
   revenueFieldId?: string; // Which calculated field represents revenue/income
   yieldFieldId?: string; // Which source field is the primary yield (e.g. weight, undried)
 }

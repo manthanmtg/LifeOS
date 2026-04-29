@@ -133,7 +133,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   "Pet Care": "bg-warning/15 text-warning border-warning/20",
 };
 
-export const DYNAMIC_COLORS = [
+const DYNAMIC_COLORS = [
   "bg-accent/15 text-accent border-accent/20",
   "bg-warning/15 text-warning border-warning/20",
   "bg-success/15 text-success border-success/20",
