@@ -27,7 +27,12 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import WhiteboardPreview from "./WhiteboardPreview";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
-import type { ExcalidrawElements, ExcalidrawAppState, ExcalidrawFiles } from "./types";
+import {
+  toExcalidrawAppState,
+  toExcalidrawElements,
+  toExcalidrawFiles,
+} from "./types";
+import type { ExcalidrawApi, ExcalidrawAppState } from "./types";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -77,8 +82,8 @@ const COLOR_LABELS: { value: ColorLabel; dot: string; label: string }[] = [
   { value: "blue", dot: "bg-accent", label: "Blue" },
   { value: "green", dot: "bg-success", label: "Green" },
   { value: "yellow", dot: "bg-warning", label: "Yellow" },
-  { value: "purple", dot: "bg-violet-500", label: "Purple" },
-  { value: "orange", dot: "bg-orange-500", label: "Orange" },
+  { value: "purple", dot: "bg-zinc-500", label: "Purple" },
+  { value: "orange", dot: "bg-zinc-400", label: "Orange" },
 ];
 
 const COLOR_BORDER: Record<string, string> = {
@@ -87,8 +92,8 @@ const COLOR_BORDER: Record<string, string> = {
   blue: "border-l-accent/60",
   green: "border-l-success/60",
   yellow: "border-l-warning/60",
-  purple: "border-l-violet-500/60",
-  orange: "border-l-orange-500/60",
+  purple: "border-l-zinc-500/60",
+  orange: "border-l-zinc-400/60",
 };
 
 function relativeTime(dateStr: string, now: number): string {
@@ -107,10 +112,14 @@ function relativeTime(dateStr: string, now: number): string {
   });
 }
 
+function formatDateTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleString();
+}
+
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 export default function WhiteboardAdminView() {
-  const now = useMemo(() => Date.now(), []);
+  const [now] = useState(() => Date.now());
   const [whiteboards, setWhiteboards] = useState<ContentDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -146,7 +155,7 @@ export default function WhiteboardAdminView() {
   const [editorTagInput, setEditorTagInput] = useState("");
 
   // Excalidraw
-  const excalidrawApiRef = useRef<unknown>(null);
+  const excalidrawApiRef = useRef<ExcalidrawApi | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType) => {
@@ -224,6 +233,18 @@ export default function WhiteboardAdminView() {
 
     return result;
   }, [whiteboards, searchQuery, tagFilter, favoritesOnly, sortBy]);
+
+  const boardUpdatedMeta = useMemo(() => {
+    return new Map(
+      whiteboards.map((board) => [
+        board._id,
+        {
+          title: formatDateTime(board.updated_at),
+          relative: relativeTime(board.updated_at, now),
+        },
+      ]),
+    );
+  }, [whiteboards, now]);
 
   // ── CRUD helpers ──
   const updateBoard = async (
@@ -393,11 +414,7 @@ export default function WhiteboardAdminView() {
   const saveWhiteboard = useCallback(async () => {
     if (!activeBoard || !excalidrawApiRef.current) return;
 
-    const api = excalidrawApiRef.current as {
-      getSceneElements: () => Record<string, unknown>[];
-      getAppState: () => Record<string, unknown>;
-      getFiles: () => Record<string, unknown>;
-    };
+    const api = excalidrawApiRef.current;
 
     const elements = JSON.parse(
       JSON.stringify(
@@ -405,7 +422,7 @@ export default function WhiteboardAdminView() {
           .getSceneElements()
           .filter((el) => !(el as { isDeleted?: boolean }).isDeleted),
       ),
-    );
+    ) as ContentDoc["payload"]["elements"];
     const appState = api.getAppState() as Record<string, unknown>;
     const persistKeys = [
       "viewBackgroundColor",
@@ -667,19 +684,17 @@ export default function WhiteboardAdminView() {
         {/* Excalidraw Canvas */}
         <div className="flex-1 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950">
           <Excalidraw
-            excalidrawAPI={(api: unknown) => {
+            excalidrawAPI={(api: ExcalidrawApi) => {
               excalidrawApiRef.current = api;
             }}
             initialData={{
-              
-              elements: activeBoard.payload.elements as ExcalidrawElements,
+              elements: toExcalidrawElements(activeBoard.payload.elements),
               appState: {
-                ...activeBoard.payload.app_state,
+                ...toExcalidrawAppState(activeBoard.payload.app_state),
                 theme: "dark",
-                
               } as ExcalidrawAppState,
-              
-              files: (activeBoard.payload.files as ExcalidrawFiles) ?? null,
+
+              files: toExcalidrawFiles(activeBoard.payload.files) ?? null,
             }}
             onChange={handleChange}
             theme="dark"
@@ -919,6 +934,7 @@ export default function WhiteboardAdminView() {
             {filteredBoards.map((board) => {
               const isRenaming = renamingId === board._id;
               const elementCount = board.payload.elements?.length || 0;
+              const updatedMeta = boardUpdatedMeta.get(board._id);
               const colorBorder =
                 COLOR_BORDER[board.payload.color_label || "none"];
 
@@ -1018,7 +1034,7 @@ export default function WhiteboardAdminView() {
                               "w-5 h-5 rounded-full transition-all",
                               c.dot,
                               board.payload.color_label === c.value
-                                ? "ring-2 ring-white/40 scale-110"
+                                ? "ring-2 ring-zinc-50/40 scale-110"
                                 : "hover:scale-110 opacity-70 hover:opacity-100",
                             )}
                             title={c.label}
@@ -1116,8 +1132,8 @@ export default function WhiteboardAdminView() {
                           <Shapes className="w-3 h-3" /> {elementCount}
                         </span>
                       )}
-                      <span title={new Date(board.updated_at).toLocaleString()}>
-                        {relativeTime(board.updated_at, now)}
+                      <span title={updatedMeta?.title}>
+                        {updatedMeta?.relative}
                       </span>{" "}
                     </div>
                   </div>

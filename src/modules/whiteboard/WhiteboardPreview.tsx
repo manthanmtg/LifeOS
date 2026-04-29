@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { PenLine } from "lucide-react";
-import type { ExcalidrawElements, ExcalidrawAppState, ExcalidrawFiles } from "./types";
+import {
+  toExcalidrawAppState,
+  toExcalidrawElements,
+  toExcalidrawFiles,
+} from "./types";
 
 export default function WhiteboardPreview({
   elements,
@@ -21,16 +25,14 @@ export default function WhiteboardPreview({
     import("@excalidraw/excalidraw")
       .then(({ exportToSvg }) => {
         exportToSvg({
-          
-          elements: elements as ExcalidrawElements,
-          appState: {
+          elements: toExcalidrawElements(elements),
+          appState: toExcalidrawAppState({
             exportWithDarkMode: true,
             exportBackground: false,
             viewBackgroundColor: "transparent",
-            
-          } as ExcalidrawAppState,
-          
-          files: (files as ExcalidrawFiles) ?? null,
+          }),
+
+          files: toExcalidrawFiles(files) ?? null,
         })
           .then((svg: SVGSVGElement) => {
             if (cancelled) return;
