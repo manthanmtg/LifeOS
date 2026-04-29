@@ -184,6 +184,8 @@ export default function BookshelfAdminView() {
     setShowForm(true);
   }, []);
 
+  const now = useMemo(() => new Date(), []);
+
   return (
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
@@ -287,6 +289,7 @@ export default function BookshelfAdminView() {
                 onDelete={handleDelete}
                 isDeletingId={isDeletingId}
                 index={i}
+                now={now}
               />
             ))}
           </AnimatePresence>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Edit3,
   Trash2,
@@ -18,6 +19,7 @@ interface BookCardProps {
   onDelete: (id: string) => void;
   isDeletingId: string | null;
   index: number;
+  now: Date;
 }
 
 const cardVariants = {
@@ -85,15 +87,15 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function formatRelativeDate(iso?: string): string | null {
+function formatRelativeDate(iso: string | undefined, now: Date): string | null {
   if (!iso) return null;
   const date = new Date(iso);
   if (!Number.isFinite(date.getTime())) return null;
-  const now = new Date();
+
   const diffDays = Math.floor(
     (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
   );
-  if (diffDays === 0) return "today";
+  if (diffDays <= 0) return "today";
   if (diffDays === 1) return "yesterday";
   if (diffDays < 30) return `${diffDays}d ago`;
   if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
@@ -106,13 +108,14 @@ export default function BookCard({
   onDelete,
   isDeletingId,
   index,
+  now,
 }: BookCardProps) {
   const { payload } = book;
   const total = payload.total_pages || 0;
   const current = payload.current_page || 0;
   const isDeleting = isDeletingId === book._id;
-  const finishedDate = formatRelativeDate(payload.finished_at);
-  const startedDate = formatRelativeDate(payload.started_at);
+  const finishedDate = formatRelativeDate(payload.finished_at, now);
+  const startedDate = formatRelativeDate(payload.started_at, now);
 
   return (
     <motion.article
@@ -141,12 +144,15 @@ export default function BookCard({
         {/* Cover */}
         <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
           {payload.cover_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={payload.cover_url}
-              alt={payload.title}
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={payload.cover_url}
+                alt={payload.title}
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
           ) : (
             <BookOpen className="w-4 h-4 text-zinc-600" />
           )}
