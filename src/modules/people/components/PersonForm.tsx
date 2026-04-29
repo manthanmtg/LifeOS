@@ -194,6 +194,7 @@ export default function PersonForm({
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full name"
                   className={cn(inputCls, "font-medium")}
+                  maxLength={100}
                   required
                 />
               </div>
@@ -263,6 +264,7 @@ export default function PersonForm({
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+X XXX XXX XXXX"
                   className={inputCls}
+                  maxLength={50}
                 />
               </div>
             </div>
@@ -277,6 +279,7 @@ export default function PersonForm({
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   className={inputCls}
+                  maxLength={100}
                 />
               </div>
               <div className="space-y-1.5">
@@ -288,6 +291,7 @@ export default function PersonForm({
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   className={inputCls}
+                  maxLength={100}
                 />
               </div>
             </div>
@@ -411,6 +415,7 @@ export default function PersonForm({
                 placeholder="Anything worth remembering..."
                 rows={3}
                 className={cn(inputCls, "resize-none leading-relaxed")}
+                maxLength={5000}
               />
             </div>
           </fieldset>

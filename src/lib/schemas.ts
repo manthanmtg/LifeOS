@@ -298,7 +298,11 @@ export const EmiLoanSchema = z.object({
 // --- 11. CROP HISTORY ---
 export const CropHistorySchema = z.object({
   crop_id: z.string().trim().min(1, "Crop ID is required").max(100),
-  schedule_period: z.string().trim().min(1, "Schedule period is required").max(100),
+  schedule_period: z
+    .string()
+    .trim()
+    .min(1, "Schedule period is required")
+    .max(100),
   // actual data records for each source { sourceId: { fieldId: value } }
   source_data: z
     .record(z.string(), z.record(z.string(), z.coerce.number().optional()))
@@ -409,7 +413,7 @@ export const AiUsageSchema = z.object({
 
 // --- 17. PERSONAL CRM (PEOPLE) ---
 export const PersonSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().trim().min(1, "Name is required").max(100),
   relationship: z
     .enum([
       "family",
@@ -421,10 +425,10 @@ export const PersonSchema = z.object({
       "other",
     ])
     .default("friend"),
-  phone: z.string().optional(),
+  phone: z.string().trim().max(50).optional(),
   email: z.string().email().optional().or(z.literal("")),
-  company: z.string().optional(),
-  role: z.string().optional(),
+  company: z.string().trim().max(100).optional(),
+  role: z.string().trim().max(100).optional(),
   birthday: z.string().optional(), // YYYY-MM-DD
   avatar_url: z.string().url().optional().or(z.literal("")),
   profile_pic: z
@@ -433,13 +437,13 @@ export const PersonSchema = z.object({
       content_type: z.string().min(1),
     })
     .optional(),
-  interests: z.array(z.string()).default([]),
-  tags: z.array(z.string()).default([]),
-  notes: z.string().optional(),
+  interests: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
+  notes: z.string().trim().max(5000).optional(),
   social_links: z
     .array(
       z.object({
-        platform: z.string().min(1),
+        platform: z.string().trim().min(1).max(50),
         url: z.string().url(),
       }),
     )
@@ -817,7 +821,10 @@ export const BillSchema = z.object({
 export const BillFolderSchema = z.object({
   name: z.string().trim().min(1, "Folder name is required").max(100),
   parent_id: z.string().optional(),
-  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color").optional(),
+  color: z
+    .string()
+    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color")
+    .optional(),
 });
 
 // --- 23. SYSTEM CONFIG ---

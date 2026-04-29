@@ -151,5 +151,28 @@ describe("schemas", () => {
       const result = PersonSchema.safeParse(person);
       expect(result.success).toBe(true);
     });
+
+    it("rejects overlong person profile text fields", () => {
+      const person = {
+        name: "x".repeat(101),
+        relationship: "friend",
+        phone: "x".repeat(51),
+        company: "x".repeat(101),
+        role: "x".repeat(101),
+        interests: ["x".repeat(51)],
+        tags: ["x".repeat(51)],
+        notes: "x".repeat(5001),
+        social_links: [
+          {
+            platform: "x".repeat(51),
+            url: "https://example.com/profile",
+          },
+        ],
+      };
+
+      const result = PersonSchema.safeParse(person);
+
+      expect(result.success).toBe(false);
+    });
   });
 });
