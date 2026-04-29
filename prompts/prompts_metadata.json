@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-04-29T06:46:26.163Z",
+  "updatedAt": "2026-04-29T08:08:50.971Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -257,13 +257,13 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 3,
-      "totalCompleted": 1,
+      "totalSelected": 4,
+      "totalCompleted": 2,
       "totalNoop": 2,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-29T06:45:58.358Z",
-      "lastCompletedAt": "2026-04-29T06:46:26.163Z",
-      "lastOutcome": "noop"
+      "lastSelectedAt": "2026-04-29T08:01:01.648Z",
+      "lastCompletedAt": "2026-04-29T08:08:50.971Z",
+      "lastOutcome": "completed"
     },
     "visual_polish_artist_prompt.md": {
       "id": "visual-polish-artist-prompt",

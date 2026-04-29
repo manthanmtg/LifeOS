@@ -48,7 +48,7 @@ export default function ImageCropper({
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-4 sm:p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
           <h3 className="text-base sm:text-lg font-bold text-zinc-50">
@@ -63,7 +63,7 @@ export default function ImageCropper({
           </button>
         </div>
 
-        <div className="relative w-full h-[300px] sm:h-[400px] bg-black shrink-0">
+        <div className="relative w-full h-[300px] sm:h-[400px] bg-zinc-950 shrink-0">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -106,10 +106,10 @@ export default function ImageCropper({
             <button
               onClick={handleSave}
               disabled={isProcessing}
-              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-zinc-50 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-white/20"
+              className="flex-[2] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-zinc-50 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-zinc-50/20"
             >
               {isProcessing ? (
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-zinc-50/20 border-t-zinc-50 rounded-full animate-spin" />
               ) : (
                 <>
                   <Check className="w-4 h-4" /> Save Photo

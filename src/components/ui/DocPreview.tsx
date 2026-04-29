@@ -43,9 +43,9 @@ export default function DocPreview({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200">
       {/* Header */}
-      <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
+      <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10 bg-gradient-to-b from-zinc-950/80 to-transparent">
         <div className="min-w-0 flex-1 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 shadow-lg">
             {isImage ? (
@@ -92,7 +92,7 @@ export default function DocPreview({
         <div
           className={cn(
             "relative w-full h-full max-w-5xl max-h-[85vh] animate-in zoom-in-95 duration-300",
-            isPDF ? "bg-white rounded-xl shadow-2xl overflow-hidden" : "",
+            isPDF ? "bg-zinc-50 rounded-xl shadow-2xl overflow-hidden" : "",
           )}
           onClick={(e) => e.stopPropagation()}
         >
