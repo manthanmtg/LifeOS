@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Library, Search, Star, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -215,12 +216,15 @@ export default function BookshelfPublicView({
                         <div className="flex items-start gap-3">
                           <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
                             {book.payload.cover_url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={book.payload.cover_url}
-                                alt={book.payload.title}
-                                className="w-full h-full object-cover"
-                              />
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={book.payload.cover_url}
+                                  alt={book.payload.title}
+                                  fill
+                                  unoptimized
+                                  className="object-cover"
+                                />
+                              </div>
                             ) : (
                               <BookOpen className="w-4 h-4 text-zinc-500" />
                             )}

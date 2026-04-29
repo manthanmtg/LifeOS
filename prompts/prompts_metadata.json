@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-04-29T14:48:39.777Z",
+  "updatedAt": "2026-04-29T16:05:57.049Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -91,13 +91,13 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 2,
-      "totalCompleted": 0,
+      "totalSelected": 3,
+      "totalCompleted": 1,
       "totalNoop": 2,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-29T12:45:57.891Z",
-      "lastCompletedAt": "2026-04-29T12:46:42.193Z",
-      "lastOutcome": "noop"
+      "lastSelectedAt": "2026-04-29T16:01:09.574Z",
+      "lastCompletedAt": "2026-04-29T16:05:57.049Z",
+      "lastOutcome": "completed"
     },
     "loading_skeleton_auditor.md": {
       "id": "loading-skeleton-auditor",
