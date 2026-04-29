@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, CheckCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,13 +50,20 @@ export default function CompassTaskCard({
   onDragStart,
   onDragEnd,
 }: CompassTaskCardProps) {
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const ageDays = useMemo(() => {
     return (
-      (new Date().getTime() -
+      (now -
         new Date(task.updated_at || task.created_at).getTime()) /
       (1000 * 60 * 60 * 24)
     );
-  }, [task.updated_at, task.created_at]);
+  }, [task.updated_at, task.created_at, now]);
 
   const isStuck = isInProgress && ageDays > 7;
   const priority = PRIORITY_MAP[task.payload.priority];
