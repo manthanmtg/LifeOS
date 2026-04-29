@@ -8,57 +8,40 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
-interface WhiteboardDoc {
-  is_public: boolean;
-  payload: {
+interface WhiteboardSummary {
+  total: number;
+  favorites: number;
+  publicCount: number;
+  latest: {
     name: string;
-    elements: Record<string, unknown>[];
     is_favorite: boolean;
-    tags: string[];
-  };
-  updated_at: string;
+    updated_at: string;
+  } | null;
 }
 
 export default function WhiteboardWidget() {
-  const [boards, setBoards] = useState<WhiteboardDoc[]>([]);
+  const [summary, setSummary] = useState<WhiteboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadedAtMs, setLoadedAtMs] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/content?module_type=whiteboard_note")
+    fetch("/api/widgets/summary?module_type=whiteboard_note")
       .then((r) => r.json())
       .then((d) => {
         setLoadedAtMs(Date.now());
-        setBoards(d.data || []);
+        setSummary(d.data || null);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const stats = useMemo(() => {
-    const total = boards.length;
-    const favorites = boards.filter((b) => b.payload.is_favorite).length;
-    const publicCount = boards.filter((b) => b.is_public).length;
-    return { total, favorites, publicCount };
-  }, [boards]);
-
-  const latestBoard = useMemo(() => {
-    if (boards.length === 0) return null;
-    const favs = boards.filter((b) => b.payload.is_favorite);
-    const pool = favs.length > 0 ? favs : boards;
-    return [...pool].sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-    )[0];
-  }, [boards]);
-
   const daysAgo = useMemo(() => {
-    if (!latestBoard || loadedAtMs === null) return null;
+    if (!summary?.latest || loadedAtMs === null) return null;
     return Math.floor(
-      (loadedAtMs - new Date(latestBoard.updated_at).getTime()) /
+      (loadedAtMs - new Date(summary.latest.updated_at).getTime()) /
         (1000 * 60 * 60 * 24),
     );
-  }, [latestBoard, loadedAtMs]);
+  }, [summary, loadedAtMs]);
 
   return (
     <WidgetCard
@@ -69,15 +52,15 @@ export default function WhiteboardWidget() {
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
           <div className="flex items-center gap-3">
-            {stats.favorites > 0 && (
+            {(summary?.favorites ?? 0) > 0 && (
               <span className="flex items-center gap-1 text-warning">
                 <Star className="w-3 h-3" fill="currentColor" />{" "}
-                {stats.favorites}
+                {summary?.favorites}
               </span>
             )}
-            {stats.publicCount > 0 && (
+            {(summary?.publicCount ?? 0) > 0 && (
               <span className="flex items-center gap-1 text-success">
-                <Globe className="w-3 h-3" /> {stats.publicCount}
+                <Globe className="w-3 h-3" /> {summary?.publicCount}
               </span>
             )}
           </div>
@@ -94,14 +77,12 @@ export default function WhiteboardWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat value={stats.total} label="whiteboards" />
-        {latestBoard ? (
+        <WidgetStat value={summary?.total ?? 0} label="whiteboards" />
+        {summary?.latest ? (
           <WidgetHighlight
-            icon={latestBoard.payload.is_favorite ? Star : PenLine}
-            text={latestBoard.payload.name}
-            subtext={
-              latestBoard.payload.is_favorite ? "favorite" : "last edited"
-            }
+            icon={summary.latest.is_favorite ? Star : PenLine}
+            text={summary.latest.name}
+            subtext={summary.latest.is_favorite ? "favorite" : "last edited"}
           />
         ) : (
           <WidgetHighlight icon={PenLine} text="No boards yet" />
