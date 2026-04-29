@@ -134,7 +134,12 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
         {/* Mobile hamburger */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-1 text-zinc-400"
+          type="button"
+          aria-label={
+            mobileOpen ? "Close navigation menu" : "Open navigation menu"
+          }
+          aria-expanded={mobileOpen}
+          className="md:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-50"
         >
           {mobileOpen ? (
             <X className="w-5 h-5" />
