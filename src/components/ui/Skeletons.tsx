@@ -86,17 +86,23 @@ export function ContentListSkeleton({ length = 5 }: { length?: number }) {
 }
 
 /** Skeleton for an admin module page (content list) */
-export function AdminModuleSkeleton() {
+export function AdminModuleSkeleton({
+  withHeader = true,
+}: {
+  withHeader?: boolean;
+}) {
   return (
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <SkeletonBlock className="h-8 w-48" />
-          <SkeletonBlock className="h-4 w-72" />
+      {withHeader && (
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <SkeletonBlock className="h-8 w-48" />
+            <SkeletonBlock className="h-4 w-72" />
+          </div>
+          <SkeletonBlock className="h-10 w-32 rounded-xl" />
         </div>
-        <SkeletonBlock className="h-10 w-32 rounded-xl" />
-      </div>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

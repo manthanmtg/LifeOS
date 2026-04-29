@@ -26,19 +26,19 @@ import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 const DashboardTab = dynamic<DashboardTabProps>(
   () => import("./tabs/DashboardTab"),
   {
-    loading: () => <AdminModuleSkeleton />,
+    loading: () => <AdminModuleSkeleton withHeader={false} />,
   },
 );
 const AnalyticsTab = dynamic<AnalyticsTabProps>(
   () => import("./tabs/AnalyticsTab"),
   {
-    loading: () => <AdminModuleSkeleton />,
+    loading: () => <AdminModuleSkeleton withHeader={false} />,
   },
 );
 const SettingsTab = dynamic<SettingsTabProps>(
   () => import("./tabs/SettingsTab"),
   {
-    loading: () => <AdminModuleSkeleton />,
+    loading: () => <AdminModuleSkeleton withHeader={false} />,
   },
 );
 

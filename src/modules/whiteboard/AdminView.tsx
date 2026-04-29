@@ -541,7 +541,7 @@ export default function WhiteboardAdminView() {
   };
 
   // ── Loading skeleton ──
-  if (loading) return <AdminModuleSkeleton />;
+  if (loading) return <AdminModuleSkeleton withHeader={false} />;
 
   // ══════════════════════════════════════════════
   // ── EDITOR VIEW ──
