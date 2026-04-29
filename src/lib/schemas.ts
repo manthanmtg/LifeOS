@@ -295,15 +295,15 @@ export const EmiLoanSchema = z.object({
 
 // --- 11. CROP HISTORY ---
 export const CropHistorySchema = z.object({
-  crop_id: z.string().min(1, "Crop ID is required"),
-  schedule_period: z.string().min(1, "Schedule period is required"),
+  crop_id: z.string().trim().min(1, "Crop ID is required").max(100),
+  schedule_period: z.string().trim().min(1, "Schedule period is required").max(100),
   // actual data records for each source { sourceId: { fieldId: value } }
   source_data: z
     .record(z.string(), z.record(z.string(), z.coerce.number().optional()))
     .default({}),
   // summary user-entered data for the period { fieldId: value }
   summary_data: z.record(z.string(), z.coerce.number().optional()).default({}),
-  notes: z.string().optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 // --- 13. TODO MODULE ---
