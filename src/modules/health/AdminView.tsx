@@ -77,6 +77,7 @@ import {
 } from "./components/constants";
 import {
   formatDateInput,
+  getTodayDateInput,
   toISODate,
   getInitials,
   uuid,
@@ -431,7 +432,7 @@ export default function HealthAdminView() {
     } else {
       setEditingVaccination(null);
       setVaccinationForm({
-        date_administered: new Date().toISOString().slice(0, 10),
+        date_administered: getTodayDateInput(),
       });
     }
     setShowSubForm("vaccination");
@@ -446,8 +447,7 @@ export default function HealthAdminView() {
       id: editingVaccination?.id || uuid(),
       name: vaccinationForm.name || "",
       date_administered: toISODate(
-        vaccinationForm.date_administered ||
-          new Date().toISOString().slice(0, 10),
+        vaccinationForm.date_administered || getTodayDateInput(),
       ),
       next_due: vaccinationForm.next_due
         ? toISODate(vaccinationForm.next_due)
@@ -470,7 +470,7 @@ export default function HealthAdminView() {
       setVisitForm({
         type: "checkup",
         currency: "INR",
-        date: new Date().toISOString().slice(0, 10),
+        date: getTodayDateInput(),
       });
     }
     setShowSubForm("visit");
@@ -483,7 +483,7 @@ export default function HealthAdminView() {
     }
     const record: Visit = {
       id: editingVisit?.id || uuid(),
-      date: toISODate(visitForm.date || new Date().toISOString().slice(0, 10)),
+      date: toISODate(visitForm.date || getTodayDateInput()),
       type: (visitForm.type as VisitType) || "checkup",
       doctor: visitForm.doctor || undefined,
       facility: visitForm.facility || undefined,
@@ -506,7 +506,7 @@ export default function HealthAdminView() {
       setEditingLab(null);
       setLabForm({
         status: "normal",
-        date: new Date().toISOString().slice(0, 10),
+        date: getTodayDateInput(),
       });
     }
     setShowSubForm("lab");
@@ -519,7 +519,7 @@ export default function HealthAdminView() {
     }
     const record: LabResult = {
       id: editingLab?.id || uuid(),
-      date: toISODate(labForm.date || new Date().toISOString().slice(0, 10)),
+      date: toISODate(labForm.date || getTodayDateInput()),
       test_name: labForm.test_name || "",
       value: labForm.value || "",
       unit: labForm.unit || undefined,
@@ -538,7 +538,7 @@ export default function HealthAdminView() {
       setMeasurementForm({ ...m, date: formatDateInput(m.date) });
     } else {
       setEditingMeasurement(null);
-      setMeasurementForm({ date: new Date().toISOString().slice(0, 10) });
+      setMeasurementForm({ date: getTodayDateInput() });
     }
     setShowSubForm("measurement");
   };
@@ -550,9 +550,7 @@ export default function HealthAdminView() {
     }
     const record: Measurement = {
       id: editingMeasurement?.id || uuid(),
-      date: toISODate(
-        measurementForm.date || new Date().toISOString().slice(0, 10),
-      ),
+      date: toISODate(measurementForm.date || getTodayDateInput()),
       height_cm: measurementForm.height_cm
         ? Number(measurementForm.height_cm)
         : undefined,
@@ -638,8 +636,7 @@ export default function HealthAdminView() {
     const newVac: Vaccination = {
       ...vac,
       id: uuid(),
-      date_administered:
-        new Date().toISOString().slice(0, 10) + "T00:00:00.000Z",
+      date_administered: toISODate(getTodayDateInput()),
       next_due: undefined,
     };
     const arr = [...(selectedProfile.payload.vaccinations || []), newVac];
