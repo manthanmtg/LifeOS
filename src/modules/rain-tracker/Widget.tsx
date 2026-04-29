@@ -72,7 +72,7 @@ export default function RainTrackerWidget() {
           <WidgetHighlight
             icon={Droplets}
             text={`Latest log ${stats.latestEntryLabel}`}
-            subtext={`${stats.last30} ${displayUnit} over the last 30 days`}
+            subtext={`${stats.last30} ${displayUnit} over ${data.rainyDays} rainy days`}
             variant="accent"
           />
         ) : (
