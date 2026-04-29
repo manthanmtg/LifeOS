@@ -29,12 +29,14 @@ export async function GET() {
               .find({})
               .limit(sampleSize)
               .toArray();
-            const avgDocSize =
-              sampleDocs.reduce(
-                (acc, doc) => acc + JSON.stringify(doc).length,
-                0,
-              ) / sampleDocs.length;
-            totalSize = avgDocSize * documentCount;
+            if (sampleDocs.length > 0) {
+              const avgDocSize =
+                sampleDocs.reduce(
+                  (acc, doc) => acc + JSON.stringify(doc).length,
+                  0,
+                ) / sampleDocs.length;
+              totalSize = avgDocSize * documentCount;
+            }
           }
 
           return {
