@@ -302,6 +302,40 @@ export async function GET(request: Request) {
     const nowRef = Date.now();
 
     switch (module_type) {
+      case "deck": {
+        const publicDecks = docs.filter(
+          (i) => i.payload.visibility === "public",
+        ).length;
+        const uniqueTopics = new Set(
+          docs.map((i) => i.payload.topic).filter(Boolean),
+        ).size;
+        const latestDoc =
+          docs.length > 0
+            ? docs.reduce((a, b) =>
+                new Date(b.created_at).getTime() >
+                new Date(a.created_at).getTime()
+                  ? b
+                  : a,
+              )
+            : null;
+
+        summary = {
+          total: docs.length,
+          publicDecks,
+          uniqueTopics,
+          latest: latestDoc
+            ? {
+                payload: {
+                  title: latestDoc.payload.title,
+                  format: latestDoc.payload.format,
+                },
+                created_at: latestDoc.created_at,
+              }
+            : null,
+        };
+        break;
+      }
+
       case "vehicle": {
         let alertCount = 0;
         let latestService: VehiclePayload["service_records"][number] | null =
