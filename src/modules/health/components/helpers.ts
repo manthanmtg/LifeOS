@@ -15,6 +15,10 @@ export function formatDateInput(d?: string): string {
   return d.slice(0, 10);
 }
 
+export function getTodayDateInput(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function toISODate(d: string): string {
   if (!d) return "";
   if (d.includes("T")) return d;
