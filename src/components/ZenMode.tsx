@@ -1,11 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export default function ZenModeProvider({
   children,
 }: {
   children: React.ReactNode;
+}) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div ref={wrapperRef} suppressHydrationWarning>
+      {children}
+      <ZenModeController wrapperRef={wrapperRef} />
+    </div>
+  );
+}
+
+function ZenModeController({
+  wrapperRef,
+}: {
+  wrapperRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const [zen, setZen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -26,15 +41,17 @@ export default function ZenModeProvider({
     };
   }, [toggle]);
 
-  // Suppress hydration mismatch by not applying class until mounted
+  useEffect(() => {
+    wrapperRef.current?.classList.toggle("zen-mode", mounted && zen);
+  }, [mounted, wrapperRef, zen]);
+
+  if (!mounted || !zen) {
+    return null;
+  }
+
   return (
-    <div className={mounted && zen ? "zen-mode" : ""} suppressHydrationWarning>
-      {children}
-      {mounted && zen && (
-        <div className="fixed bottom-4 right-4 z-50 bg-zinc-800 text-zinc-400 text-xs px-3 py-1.5 rounded-full border border-zinc-700 animate-fade-in-up">
-          Zen Mode · <kbd className="font-mono text-accent">⌘⇧Z</kbd> to exit
-        </div>
-      )}
+    <div className="fixed bottom-4 right-4 z-50 bg-zinc-800 text-zinc-400 text-xs px-3 py-1.5 rounded-full border border-zinc-700 animate-fade-in-up">
+      Zen Mode · <kbd className="font-mono text-accent">⌘⇧Z</kbd> to exit
     </div>
   );
 }
