@@ -97,4 +97,33 @@ describe("PublicHeader", () => {
       expect(screen.queryAllByRole("link", { name: "Blog" })).toHaveLength(1),
     );
   });
+
+  it("labels the mobile menu button and exposes its expanded state", async () => {
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce({
+        json: async () => ({ data: [] }),
+      } as Response)
+      .mockResolvedValueOnce({
+        json: async () => ({
+          data: {
+            moduleRegistry: {},
+            moduleOrder: [],
+          },
+        }),
+      } as Response);
+
+    render(<PublicHeader />);
+
+    const menuButton = await screen.findByRole("button", {
+      name: "Open navigation menu",
+    });
+
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(menuButton);
+
+    expect(
+      screen.getByRole("button", { name: "Close navigation menu" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
 });
