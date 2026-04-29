@@ -27,7 +27,7 @@ export const PortfolioProfileSchema = z.object({
     .string()
     .trim()
     .max(1000, "Bio is getting too long! Keep it under 1000 characters."),
-  skills: z.array(z.string().trim().max(50)),
+  skills: z.array(z.string().trim().max(50)).max(100),
   social_links: z.array(SocialLinkSchema),
   available_for_hire: z.boolean().default(false),
 });
@@ -217,10 +217,12 @@ export const CompassTaskSchema = z.object({
 
 // --- 10. EMI TRACKER ---
 export const EmiLoanSchema = z.object({
-  title: z.string().min(1, "Loan title is required"),
+  title: z.string().trim().min(1, "Loan title is required").max(200),
   lender_name: z
     .string()
+    .trim()
     .min(1, "Bank / financier name is required")
+    .max(200)
     .optional(),
   category: z.string().min(1, "Category is required").default("Loan"),
   currency: z.string().length(3).default("INR"),
@@ -604,7 +606,7 @@ export const MaintenanceTaskSchema = z.object({
     .array(
       z.object({
         id: z.string().default(() => crypto.randomUUID()),
-        completed_at: z.string(), // ISO date
+        completed_at: z.string().datetime(), // ISO date
         cost: z.number().min(0).optional(),
         notes: z.string().optional(),
         vendor: z.string().optional(),
@@ -643,70 +645,70 @@ export const BillAttachmentSchema = z.object({
 });
 
 export const HealthProfileSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Name is required").max(100),
   type: z.enum(["self", "family", "pet"]).default("self"),
-  relation: z.string().optional(),
-  date_of_birth: z.string().optional(),
+  relation: z.string().trim().max(100).optional(),
+  date_of_birth: z.string().datetime().optional(),
   blood_group: z
     .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "unknown"])
     .default("unknown"),
   gender: z.enum(["male", "female", "other"]).optional(),
-  avatar_url: z.string().optional(),
+  avatar_url: z.string().url().optional(),
   profile_pic: z
     .object({
-      data: z.string(),
-      content_type: z.string(),
+      data: z.string().min(1),
+      content_type: z.string().min(1),
     })
     .optional(),
-  emergency_contact: z.string().optional(),
-  insurance_info: z.string().optional(),
-  allergies: z.array(z.string()).default([]),
+  emergency_contact: z.string().trim().max(200).optional(),
+  insurance_info: z.string().trim().max(500).optional(),
+  allergies: z.array(z.string().trim().max(100)).max(50).default([]),
   conditions: z
     .array(
       z.object({
-        id: z.string(),
-        name: z.string().min(1),
-        diagnosed_date: z.string().optional(),
+        id: z.string().min(1),
+        name: z.string().trim().min(1).max(200),
+        diagnosed_date: z.string().datetime().optional(),
         status: z.enum(["active", "managed", "resolved"]).default("active"),
-        notes: z.string().optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
   medications: z
     .array(
       z.object({
-        id: z.string(),
-        name: z.string().min(1),
-        dosage: z.string().optional(),
-        prescribed_by: z.string().optional(),
-        start_date: z.string().optional(),
-        end_date: z.string().optional(),
-        refill_date: z.string().optional(),
+        id: z.string().min(1),
+        name: z.string().trim().min(1).max(200),
+        dosage: z.string().trim().max(100).optional(),
+        prescribed_by: z.string().trim().max(200).optional(),
+        start_date: z.string().datetime().optional(),
+        end_date: z.string().datetime().optional(),
+        refill_date: z.string().datetime().optional(),
         status: z
           .enum(["active", "completed", "discontinued"])
           .default("active"),
-        notes: z.string().optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
   vaccinations: z
     .array(
       z.object({
-        id: z.string(),
-        name: z.string().min(1),
-        date_administered: z.string(),
-        next_due: z.string().optional(),
-        provider: z.string().optional(),
-        batch_number: z.string().optional(),
-        notes: z.string().optional(),
+        id: z.string().min(1),
+        name: z.string().trim().min(1).max(200),
+        date_administered: z.string().datetime(),
+        next_due: z.string().datetime().optional(),
+        provider: z.string().trim().max(200).optional(),
+        batch_number: z.string().trim().max(100).optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
   visits: z
     .array(
       z.object({
-        id: z.string(),
-        date: z.string(),
+        id: z.string().min(1),
+        date: z.string().datetime(),
         type: z
           .enum([
             "checkup",
@@ -720,45 +722,45 @@ export const HealthProfileSchema = z.object({
             "other",
           ])
           .default("checkup"),
-        doctor: z.string().optional(),
-        facility: z.string().optional(),
-        diagnosis: z.string().optional(),
-        prescription: z.string().optional(),
+        doctor: z.string().trim().max(200).optional(),
+        facility: z.string().trim().max(200).optional(),
+        diagnosis: z.string().trim().max(500).optional(),
+        prescription: z.string().trim().max(2000).optional(),
         cost: z.number().min(0).optional(),
         currency: z.string().length(3).default("INR"),
-        notes: z.string().optional(),
+        notes: z.string().trim().max(5000).optional(),
       }),
     )
     .default([]),
   lab_results: z
     .array(
       z.object({
-        id: z.string(),
-        date: z.string(),
-        test_name: z.string().min(1),
-        value: z.string(),
-        unit: z.string().optional(),
-        reference_range: z.string().optional(),
+        id: z.string().min(1),
+        date: z.string().datetime(),
+        test_name: z.string().trim().min(1).max(200),
+        value: z.string().trim().min(1).max(100),
+        unit: z.string().trim().max(50).optional(),
+        reference_range: z.string().trim().max(100).optional(),
         status: z.enum(["normal", "borderline", "abnormal"]).default("normal"),
-        notes: z.string().optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
   measurements: z
     .array(
       z.object({
-        id: z.string(),
-        date: z.string(),
+        id: z.string().min(1),
+        date: z.string().datetime(),
         height_cm: z.number().positive().optional(),
         weight_kg: z.number().positive().optional(),
-        notes: z.string().optional(),
+        notes: z.string().trim().max(1000).optional(),
       }),
     )
     .default([]),
   documents: z
     .array(
       z.object({
-        id: z.string(),
+        id: z.string().min(1),
         type: z
           .enum([
             "prescription",
@@ -770,9 +772,9 @@ export const HealthProfileSchema = z.object({
             "other",
           ])
           .default("other"),
-        title: z.string().min(1),
-        date: z.string().optional(),
-        notes: z.string().optional(),
+        title: z.string().trim().min(1).max(200),
+        date: z.string().datetime().optional(),
+        notes: z.string().trim().max(5000).optional(),
         attachments: z.array(BillAttachmentSchema).default([]),
       }),
     )
