@@ -4,8 +4,9 @@
 
 The portfolio module powers the public landing page for LifeOS. It stores one
 profile document in the shared `content` collection, renders the public
-portfolio at `/`, exposes the same public view through `/portfolio`, and links
-active resume uploads through the `/resume` viewer.
+portfolio at `/`, exposes a normalized public module view through `/portfolio`,
+and links active resume uploads through the `/resume` viewer from the root
+portfolio page.
 
 The admin view at `/admin/portfolio` lets the owner edit identity copy, skills,
 social links, hiring availability, and uploaded PDF resumes. The dashboard
@@ -37,16 +38,16 @@ Profile payloads are validated by `PortfolioProfileSchema` in
 | `hero_title`         | `string`              | Required public headline, 3-200 characters.                   |
 | `sub_headline`       | `string?`             | Optional supporting copy, max 500 characters.                 |
 | `bio`                | `string`              | Trimmed biography text, max 1000 characters.                  |
-| `skills`             | `string[]`            | Skill labels, each trimmed and limited to 50 characters.      |
-| `social_links`       | `{ platform, url }[]` | Platform name plus a valid URL.                               |
+| `skills`             | `string[]`            | Up to 100 skill labels, each trimmed and limited to 50 chars. |
+| `social_links`       | `{ platform, url }[]` | Required platform name, max 50 chars, plus a valid URL.       |
 | `available_for_hire` | `boolean`             | Drives hiring status badges and widget variant.               |
 
 Resume payloads are validated by `ResumeSchema`.
 
 | Field         | Type      | Notes                                      |
 | ------------- | --------- | ------------------------------------------ |
-| `filename`    | `string`  | Original uploaded PDF filename.            |
-| `content`     | `string`  | Base64 data URL for the PDF content.       |
+| `filename`    | `string`  | Required original uploaded PDF filename.   |
+| `content`     | `string`  | Required base64 data URL for PDF content.  |
 | `is_active`   | `boolean` | Only the active resume is served publicly. |
 | `uploaded_at` | `string`  | ISO datetime, defaulted on create.         |
 
@@ -59,7 +60,8 @@ Resume payloads are validated by `ResumeSchema`.
 - Resume manager for uploading PDFs up to 5MB, activating one resume, and
   deleting old files.
 - Public `PortfolioShowcase` with animated hero, social links, skills grid,
-  biography section, hiring badge, and optional resume link.
+  biography section, hiring badge, and an optional resume link when the root
+  portfolio view finds an active resume.
 - `/resume` viewer that embeds the active PDF resume served by
   `/api/portfolio/resume` with a profile-derived filename when available.
 - Dashboard widget that follows the widget contract with one hero metric
@@ -117,7 +119,8 @@ curl -L /api/portfolio/resume --output resume.pdf
 - `View.tsx` fetches the public profile and active resume for the root
   portfolio page; when a resume exists, `PortfolioShowcase` links to `/resume`.
 - `PublicView.tsx` normalizes generic public module items before rendering
-  `PortfolioShowcase`.
+  `PortfolioShowcase`; it does not fetch resume documents, so `/portfolio`
+  only shows the profile fields provided through the public module payload.
 - `PortfolioShowcase.tsx` is the shared public renderer.
 - `src/app/resume/page.tsx` hosts the resume viewer, while
   `src/app/api/portfolio/resume/route.ts` streams the active PDF.
