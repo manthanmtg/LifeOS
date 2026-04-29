@@ -1,4 +1,4 @@
-export type InterestType = "fixed" | "floating";
+type InterestType = "fixed" | "floating";
 export type RecastStrategy =
   | "keep_tenure_adjust_emi"
   | "keep_emi_adjust_tenure";

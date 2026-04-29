@@ -20,8 +20,6 @@ const THEMES = [
   "nordic-light",
 ] as const;
 
-export type ThemeName = (typeof THEMES)[number];
-
 export { THEMES };
 
 export default function ThemeProvider({
