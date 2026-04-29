@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Heart, Clock, Activity } from "lucide-react";
+import { Users, Clock } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -10,9 +10,7 @@ import {
 
 interface PeopleSummary {
   total: number;
-  favorites: number;
   staleCount: number;
-  healthScore: number;
 }
 
 export default function PeopleWidget() {
@@ -35,18 +33,6 @@ export default function PeopleWidget() {
       icon={Users}
       loading={loading}
       href="/admin/people"
-      footer={
-        summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-accent/80">
-              <Heart className="w-3 h-3" /> {summary.favorites} favorites
-            </span>
-            <span className="flex items-center gap-1.5 text-zinc-500">
-              <Activity className="w-3 h-3" /> {summary.healthScore}% health
-            </span>
-          </div>
-        )
-      }
     >
       {summary && (
         <div className="space-y-3">
