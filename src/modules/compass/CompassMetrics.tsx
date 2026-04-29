@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { GitPullRequest, Layers, Target, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { CompassTask } from "./types";
@@ -10,8 +10,14 @@ interface CompassMetricsProps {
 }
 
 export default function CompassMetrics({ tasks }: CompassMetricsProps) {
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const stats = useMemo(() => {
-    const now = new Date().getTime();
     const total = tasks.length;
     const backlog = tasks.filter((t) => t.payload.status === "backlog").length;
     const inProgress = tasks.filter(
@@ -39,7 +45,7 @@ export default function CompassMetrics({ tasks }: CompassMetricsProps) {
       p1Count,
       stuck,
     };
-  }, [tasks]);
+  }, [tasks, now]);
 
   const attentionCount = stats.p1Count + stats.stuck;
 
