@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-04-30T08:21:56.581Z",
+  "updatedAt": "2026-04-30T08:36:00.756Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -272,12 +272,12 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 1,
-      "totalCompleted": 1,
+      "totalSelected": 2,
+      "totalCompleted": 2,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-28T20:45:52.634Z",
-      "lastCompletedAt": "2026-04-28T20:48:10.665Z",
+      "lastSelectedAt": "2026-04-30T08:31:27.887Z",
+      "lastCompletedAt": "2026-04-30T08:36:00.756Z",
       "lastOutcome": "completed"
     },
     "widget_contract_enforcer.md": {

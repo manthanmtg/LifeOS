@@ -35,7 +35,7 @@ export default function RecurringExpensesPublicView({
 
   if (subs.length === 0) {
     return (
-      <div className="text-center text-zinc-500 py-20">
+      <div className="text-center text-zinc-500 py-14 px-4 border border-zinc-800 rounded-2xl bg-zinc-900/40">
         <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
         <p>No recurring expenses shared yet.</p>
       </div>
