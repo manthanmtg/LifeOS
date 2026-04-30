@@ -20,7 +20,7 @@ const STATUS_DOT_COLORS: Record<string, string> = {
   archived: "bg-zinc-700",
 };
 
-export interface IdeaCardProps {
+interface IdeaCardProps {
   idea: IdeaRecord;
   isAnyDragging: boolean;
   isPromotingId: string | null;

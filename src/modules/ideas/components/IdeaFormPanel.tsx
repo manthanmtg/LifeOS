@@ -6,7 +6,7 @@ import { IDEA_STATUS_LABELS } from "../shared";
 const STATUSES = ["raw", "exploring", "archived"] as const;
 const PRIORITIES = ["high", "medium", "low"] as const;
 
-export interface IdeaFormPanelProps {
+interface IdeaFormPanelProps {
   editingId: string | null;
   title: string;
   setTitle: (v: string) => void;
