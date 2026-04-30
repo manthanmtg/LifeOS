@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ReactNode, useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { WIDGET_MAX_HEIGHT } from "./widget-primitives";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 const COLOR_MAP: Record<string, string> = {
   accent: "var(--accent)",
@@ -124,10 +125,10 @@ export default function WidgetCard({
       {/* Main Content */}
       <div className="flex-1 relative z-10 min-h-0">
         {loading ? (
-          <div className="space-y-3 animate-pulse">
-            <div className="h-8 w-1/3 bg-zinc-800 rounded-lg" />
-            <div className="h-4 w-2/3 bg-zinc-800 rounded-md" />
-            <div className="h-4 w-1/2 bg-zinc-800 rounded-md" />
+          <div className="space-y-3">
+            <SkeletonBlock className="h-8 w-1/3" />
+            <SkeletonBlock className="h-4 w-2/3" />
+            <SkeletonBlock className="h-4 w-1/2" />
           </div>
         ) : (
           children

@@ -243,7 +243,7 @@ export default function ReadingAdminView() {
             </div>
           </div>
 
-          <ReadingMetrics items={items} />
+          <ReadingMetrics items={items} loading={loading} />
         </div>
       </div>
 
