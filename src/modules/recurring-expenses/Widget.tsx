@@ -70,6 +70,10 @@ export default function RecurringExpensesWidget() {
     if (summary.daysUntilNext === 1) return "tomorrow";
     return `in ${summary.daysUntilNext}d`;
   })();
+  const activeCount = summary?.activeCount ?? 0;
+  const totalBurn = summary?.totalBurn ?? 0;
+  const overdueCount = summary?.overdueCount ?? 0;
+  const dueSoonCount = summary?.dueSoonCount ?? 0;
 
   return (
     <WidgetCard
@@ -78,49 +82,49 @@ export default function RecurringExpensesWidget() {
       loading={loading}
       href="/admin/recurring-expenses"
       footer={
-        summary && (
+        !loading && (
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
             <span
-              className={cn(
-                summary.overdueCount > 0 ? "text-danger" : "text-zinc-500",
-              )}
+              className={cn(overdueCount > 0 ? "text-danger" : "text-zinc-500")}
             >
-              {summary.overdueCount} overdue
+              {overdueCount} overdue
             </span>
             <span className="text-zinc-800">·</span>
             <span
               className={cn(
-                summary.dueSoonCount > 0 ? "text-warning" : "text-zinc-500",
+                dueSoonCount > 0 ? "text-warning" : "text-zinc-500",
               )}
             >
-              {summary.dueSoonCount} due soon
+              {dueSoonCount} due soon
             </span>
           </div>
         )
       }
     >
-      {summary && (
-        <div className="space-y-3">
-          <WidgetStat
-            value={`${sym}${formatNumber(summary.totalBurn, format)}`}
-            label={`monthly · ${summary.activeCount} active`}
+      <div className="space-y-3">
+        <WidgetStat
+          value={`${sym}${formatNumber(totalBurn, format)}`}
+          label={`monthly · ${activeCount} active`}
+        />
+        {summary?.nextRenewal ? (
+          <WidgetHighlight
+            icon={Timer}
+            text={summary.nextRenewal.name}
+            subtext={daysLabel}
+            variant={
+              summary.daysUntilNext !== null && summary.daysUntilNext < 3
+                ? "danger"
+                : "default"
+            }
           />
-          {summary.nextRenewal ? (
-            <WidgetHighlight
-              icon={Timer}
-              text={summary.nextRenewal.name}
-              subtext={daysLabel}
-              variant={
-                summary.daysUntilNext !== null && summary.daysUntilNext < 3
-                  ? "danger"
-                  : "default"
-              }
-            />
-          ) : (
-            <WidgetHighlight icon={Timer} text="No upcoming renewals" />
-          )}
-        </div>
-      )}
+        ) : (
+          <WidgetHighlight
+            icon={Timer}
+            text="No upcoming renewals"
+            subtext="Add active subscriptions to track"
+          />
+        )}
+      </div>
     </WidgetCard>
   );
 }
