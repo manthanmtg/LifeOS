@@ -92,6 +92,8 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 - `/api/content/[id]` — GET / PUT / DELETE single item
 - `/api/system` — GET / PUT global config
 - `/api/auth/login` — POST password-based JWT login
+- `/api/auth/logout` — POST clears the auth cookie
+- `/api/widgets/summary` — GET compact per-module summaries for dashboard widgets
 - `/api/metrics` — GET / POST analytics events
 - `/api/export` / `/api/import` — Backup and restore
 
