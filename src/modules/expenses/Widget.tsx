@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Banknote, TrendingUp, TrendingDown, Tag } from "lucide-react";
+import { Banknote, TrendingUp, TrendingDown, Tag, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -20,6 +20,7 @@ interface ExpenseSummary {
 interface ExpenseSettings {
   defaultCurrency: string;
   numberFormat: NumberFormat;
+  monthlyBudget: number;
   [key: string]: unknown;
 }
 
@@ -40,6 +41,7 @@ export default function ExpensesWidget() {
   const { settings } = useModuleSettings<ExpenseSettings>("expenseSettings", {
     defaultCurrency: "USD",
     numberFormat: "western",
+    monthlyBudget: 0,
   });
   const [summary, setSummary] = useState<ExpenseSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,6 +61,9 @@ export default function ExpensesWidget() {
   const totalThisMonth = summary?.totalThisMonth ?? 0;
   const trend = summary?.trend ?? 0;
   const topCategory = summary?.topCategory ?? null;
+  const budget = settings.monthlyBudget || 0;
+  const budgetPercent = budget > 0 ? (totalThisMonth / budget) * 100 : 0;
+  const remaining = budget - totalThisMonth;
 
   return (
     <WidgetCard
@@ -83,7 +88,9 @@ export default function ExpensesWidget() {
               {Math.abs(trend).toFixed(0)}% vs last month
             </span>
           ) : (
-            <div />
+            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
+              Stable vs last month
+            </span>
           )}
         </div>
       }
@@ -93,12 +100,37 @@ export default function ExpensesWidget() {
           value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
           label="spent this month"
         />
-        {topCategory && (
+
+        {budget > 0 ? (
+          <WidgetHighlight
+            icon={Target}
+            text={`${budgetPercent.toFixed(0)}% of budget spent`}
+            subtext={
+              remaining >= 0
+                ? `${sym}${formatCurrency(remaining, "", format)} remaining`
+                : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`
+            }
+            variant={
+              budgetPercent > 90
+                ? "danger"
+                : budgetPercent > 70
+                  ? "warning"
+                  : "success"
+            }
+          />
+        ) : topCategory ? (
           <WidgetHighlight
             icon={Tag}
             text={topCategory[0]}
-            subtext="top category"
+            subtext="top spending category"
             variant="accent"
+          />
+        ) : (
+          <WidgetHighlight
+            icon={Banknote}
+            text="No expenses yet"
+            subtext="Track your first spend today"
+            variant="default"
           />
         )}
       </div>
