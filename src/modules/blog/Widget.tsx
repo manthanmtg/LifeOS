@@ -69,9 +69,17 @@ export default function BlogWidget() {
             icon={FileText}
             text={summary.latestPublishedPost.title}
             subtext={`${summary.latestPublishedPost.readingTime} min read`}
+            variant="accent"
+          />
+        ) : summary.drafts > 0 ? (
+          <WidgetHighlight
+            icon={PenLine}
+            text={`${summary.drafts} draft${summary.drafts !== 1 ? "s" : ""} ready to shape`}
+            subtext="Publish queue"
+            variant="warning"
           />
         ) : (
-          <WidgetHighlight icon={FileText} text="No published posts yet" />
+          <WidgetHighlight icon={FileText} text="No posts yet" />
         )}
       </div>
     </WidgetCard>
