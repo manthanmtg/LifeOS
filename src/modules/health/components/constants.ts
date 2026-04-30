@@ -141,3 +141,8 @@ export const BLOOD_GROUPS: BloodGroup[] = [
   "O-",
   "unknown",
 ];
+
+export const INPUT_CLASSES =
+  "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600";
+export const LABEL_CLASSES =
+  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
