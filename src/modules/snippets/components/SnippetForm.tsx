@@ -125,7 +125,7 @@ export default function SnippetForm({
           transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
           className="overflow-hidden"
         >
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6 space-y-5 shadow-2xl shadow-black/40">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6 space-y-5 shadow-2xl shadow-zinc-950/40">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -197,7 +197,7 @@ export default function SnippetForm({
                     className={cn(
                       "flex-1 rounded-xl transition-all border flex items-center justify-center gap-2 text-sm font-medium",
                       isFavorite
-                        ? "text-warning bg-warning/5 border-warning/20 shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                        ? "text-warning bg-warning/5 border-warning/20 shadow-[0_0_15px_color-mix(in_srgb,var(--color-warning)_10%,transparent)]"
                         : "text-zinc-500 bg-zinc-800/50 border-zinc-700/50 hover:border-zinc-600",
                     )}
                   >
