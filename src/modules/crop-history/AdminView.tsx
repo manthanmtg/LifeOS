@@ -169,11 +169,27 @@ export default function CropHistoryAdminView() {
     return periods.sort();
   }, [activeCropRecords, activeCrop]);
 
-  const areas = settings.sources || [];
+  const areas = useMemo(() => settings.sources || [], [settings.sources]);
 
   const totalPeriods = useMemo(
     () => new Set(records.map((r) => r.payload.schedule_period)).size,
     [records],
+  );
+
+  const handleReorderPeriods = useCallback(
+    (newOrder: string[]) => {
+      if (!activeCrop) return;
+      const updatedCrops = [...settings.crops];
+      const idx = updatedCrops.findIndex((c) => c.id === activeCrop.id);
+      if (idx !== -1) {
+        updatedCrops[idx] = {
+          ...activeCrop,
+          periodOrder: newOrder,
+        };
+        updateSettings({ crops: updatedCrops });
+      }
+    },
+    [activeCrop, settings.crops, updateSettings]
   );
 
   if (!settingsLoaded) {
@@ -290,20 +306,7 @@ export default function CropHistoryAdminView() {
                 records={activeCropRecords}
                 schedulePeriods={schedulePeriods}
                 setActiveCropId={setActiveCropId}
-                onReorderPeriods={(newOrder) => {
-                  if (!activeCrop) return;
-                  const updatedCrops = [...settings.crops];
-                  const idx = updatedCrops.findIndex(
-                    (c) => c.id === activeCrop.id,
-                  );
-                  if (idx !== -1) {
-                    updatedCrops[idx] = {
-                      ...activeCrop,
-                      periodOrder: newOrder,
-                    };
-                    updateSettings({ crops: updatedCrops });
-                  }
-                }}
+                onReorderPeriods={handleReorderPeriods}
                 onRefresh={fetchRecords}
               />
             </div>
