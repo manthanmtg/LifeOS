@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import LoanCard from "./LoanCard";
 import { EmiLoan, ScheduleRow } from "../types";
 
@@ -28,12 +29,25 @@ export default function LoanList({
 }: LoanListProps) {
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" aria-label="Loading loans">
         {[1, 2].map((i) => (
           <div
             key={i}
-            className="w-full h-32 bg-zinc-900/50 border border-zinc-800 rounded-2xl animate-pulse"
-          />
+            className="w-full border border-zinc-800 rounded-2xl bg-zinc-900/50 p-4 animate-pulse"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-3 flex-1">
+                <SkeletonBlock className="h-5 w-1/2" />
+                <SkeletonBlock className="h-3 w-3/4" />
+                <SkeletonBlock className="h-3 w-1/3" />
+              </div>
+              <SkeletonBlock className="h-8 w-20 rounded-full" />
+            </div>
+            <div className="mt-5 space-y-2">
+              <SkeletonBlock className="h-2 w-full rounded-full" />
+              <SkeletonBlock className="h-3 w-2/5" />
+            </div>
+          </div>
         ))}
       </div>
     );
