@@ -17,6 +17,7 @@ import type { Snippet, SnippetStats } from "./types";
 interface SnippetsMetricsProps {
   snippets: Snippet[];
   stats: SnippetStats;
+  referenceTime: number;
 }
 
 function MiniSparkline({
@@ -79,6 +80,7 @@ const cardVariants = {
 export default function SnippetsMetrics({
   snippets,
   stats,
+  referenceTime,
 }: SnippetsMetricsProps) {
   const languageDistribution = useMemo(() => {
     const langCounts: Record<string, number> = {};
@@ -104,19 +106,17 @@ export default function SnippetsMetrics({
   }, [snippets]);
 
   const recentActivity = useMemo(() => {
-    const now = new Date();
     const weeks: number[] = [0, 0, 0, 0, 0, 0];
     for (const s of snippets) {
-      const created = new Date(s.created_at);
       const weeksAgo = Math.floor(
-        (now.getTime() - created.getTime()) / (7 * 24 * 60 * 60 * 1000),
+        (referenceTime - Date.parse(s.created_at)) / (7 * 24 * 60 * 60 * 1000),
       );
       if (weeksAgo >= 0 && weeksAgo < 6) {
         weeks[5 - weeksAgo]++;
       }
     }
     return weeks;
-  }, [snippets]);
+  }, [snippets, referenceTime]);
 
   const metrics = [
     {
