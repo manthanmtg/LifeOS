@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Check, Eye, Settings2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import {
   buildDefaultCalculatorsSettings,
   CALCULATOR_CATEGORIES,
@@ -33,7 +34,7 @@ function normalizeSettings(
 }
 
 export default function CalculatorsAdminView() {
-  const { settings, updateSettings, saving } =
+  const { settings, updateSettings, saving, loaded } =
     useModuleSettings<CalculatorsModuleSettings>(
       "calculatorsSettings",
       DEFAULT_SETTINGS,
@@ -56,6 +57,14 @@ export default function CalculatorsAdminView() {
     }
     return map;
   }, []);
+
+  if (!loaded) {
+    return (
+      <div aria-label="Loading calculator settings">
+        <AdminModuleSkeleton />
+      </div>
+    );
+  }
 
   const toggleCategory = (categoryId: string) => {
     const next = !(normalized.enabledCategories[categoryId] !== false);
