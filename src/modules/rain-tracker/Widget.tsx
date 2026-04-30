@@ -43,6 +43,7 @@ export default function RainTrackerWidget() {
         last7: "0.0",
         last30: "0.0",
         latestEntryLabel: "None",
+        rainyDaysLabel: "0 rainy days",
       };
     return {
       last7: (data.last7Mm * rate).toFixed(1),
@@ -53,6 +54,7 @@ export default function RainTrackerWidget() {
             day: "numeric",
           })
         : "None",
+      rainyDaysLabel: `${data.rainyDays} rainy ${data.rainyDays === 1 ? "day" : "days"}`,
     };
   }, [data, displayUnit]);
 
@@ -72,7 +74,7 @@ export default function RainTrackerWidget() {
           <WidgetHighlight
             icon={Droplets}
             text={`Latest log ${stats.latestEntryLabel}`}
-            subtext={`${stats.last30} ${displayUnit} over ${data.rainyDays} rainy days`}
+            subtext={`${stats.last30} ${displayUnit} over ${stats.rainyDaysLabel}`}
             variant="accent"
           />
         ) : (
