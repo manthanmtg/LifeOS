@@ -43,7 +43,12 @@ export default function DocPreview({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="doc-preview-title"
+    >
       {/* Header */}
       <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10 bg-gradient-to-b from-zinc-950/80 to-transparent">
         <div className="min-w-0 flex-1 flex items-center gap-3">
@@ -57,7 +62,7 @@ export default function DocPreview({
             )}
           </div>
           <div className="min-w-0">
-            <h3 className="text-zinc-100 text-sm font-bold truncate">
+            <h3 id="doc-preview-title" className="text-zinc-100 text-sm font-bold truncate">
               {filename}
             </h3>
             <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-widest mt-0.5">
@@ -70,13 +75,16 @@ export default function DocPreview({
             href={src}
             download={filename}
             className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+            aria-label="Download document"
             title="Download"
           >
             <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </a>
           <button
             onClick={onClose}
+            autoFocus
             className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+            aria-label="Close document preview"
             title="Close (Esc)"
           >
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
