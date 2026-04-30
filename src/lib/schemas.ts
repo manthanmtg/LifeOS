@@ -7,7 +7,7 @@ export const SocialLinkSchema = z.object({
     .trim()
     .min(1, "Platform name is required (e.g., GitHub, LinkedIn)")
     .max(50),
-  url: z.string().url("Must be a valid URL"),
+  url: z.string().url("Must be a valid URL").max(500),
 });
 
 export const PortfolioProfileSchema = z.object({
@@ -71,7 +71,7 @@ export const BlogPostSchema = z.object({
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly")
     .max(200),
-  content: z.string().min(1, "Post cannot be empty"),
+  content: z.string().min(1, "Post cannot be empty").max(1000000),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   published_at: z.string().datetime().optional(),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
@@ -209,7 +209,7 @@ export const CompassTaskSchema = z.object({
     .array(
       z.object({
         label: z.string().trim().min(1).max(100),
-        url: z.string().url("Must be a valid URL"),
+        url: z.string().url("Must be a valid URL").max(500),
       }),
     )
     .default([]),
@@ -348,7 +348,7 @@ export const RainAreaSchema = z.object({
 });
 
 export const RainEntrySchema = z.object({
-  area_id: z.string().min(1, "Area is required"),
+  area_id: z.string().min(1, "Area is required").max(100),
   rainfall_amount: z.number().min(0, "Rainfall cannot be negative"),
   rainfall_unit: z.enum(["mm", "cm", "in"]).default("mm"),
   date: z.string().datetime("Must be a valid ISO date-time"),
@@ -395,7 +395,7 @@ export const AiUsageSchema = z.object({
     "other",
   ]),
   provider_config_id: z.string().optional(),
-  model: z.string().min(1, "Model name is required"),
+  model: z.string().min(1, "Model name is required").max(100),
   input_tokens: z.number().int().min(0).default(0),
   output_tokens: z.number().int().min(0).default(0),
   cache_read_tokens: z.number().int().min(0).default(0),
@@ -625,7 +625,7 @@ export const MaintenanceTaskSchema = z.object({
 export const WhiteboardNoteSchema = z.object({
   name: z.string().trim().min(1, "Whiteboard name is required").max(100),
   description: z.string().trim().max(1000).optional(),
-  tags: z.array(z.string().trim().max(50)).default([]),
+  tags: z.array(z.string().trim().max(50)).max(20).default([]),
   is_favorite: z.boolean().default(false),
   color_label: z
     .enum(["none", "red", "blue", "green", "yellow", "purple", "orange"])
