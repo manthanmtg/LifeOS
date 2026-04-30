@@ -42,6 +42,7 @@ import ProfileFormModal from "./components/ProfileFormModal";
 import HealthProfileToolbar from "./components/HealthProfileToolbar";
 import OverviewTab from "./components/OverviewTab";
 import MedicationsTab from "./components/MedicationsTab";
+import MedicationFormModal from "./components/MedicationFormModal";
 import VaccinationsTab from "./components/VaccinationsTab";
 import VisitsTab from "./components/VisitsTab";
 import LabResultsTab from "./components/LabResultsTab";
@@ -56,7 +57,6 @@ import type {
   Condition,
   ConditionStatus,
   Medication,
-  MedicationStatus,
   Vaccination,
   Visit,
   VisitType,
@@ -70,10 +70,11 @@ import type {
 import {
   PROFILE_TYPE_CONFIG,
   CONDITION_STATUS_CONFIG,
-  MEDICATION_STATUS_CONFIG,
   VISIT_TYPE_CONFIG,
   LAB_STATUS_CONFIG,
   DOC_TYPE_CONFIG,
+  INPUT_CLASSES,
+  LABEL_CLASSES,
 } from "./components/constants";
 import {
   formatDateInput,
@@ -92,10 +93,8 @@ import {
 
 // ─── Shared form styling ─────────────────────────────────────────────────────
 
-const inputCls =
-  "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600";
-const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+const inputCls = INPUT_CLASSES;
+const labelCls = LABEL_CLASSES;
 
 // ─── Portal wrapper ──────────────────────────────────────────────────────────
 
@@ -148,7 +147,6 @@ export default function HealthAdminView() {
   const [editingCondition, setEditingCondition] = useState<Condition | null>(
     null,
   );
-  const [medicationForm, setMedicationForm] = useState<Partial<Medication>>({});
   const [editingMedication, setEditingMedication] = useState<Medication | null>(
     null,
   );
@@ -379,42 +377,21 @@ export default function HealthAdminView() {
   // ─── Medications ─────────────────────────────────────────────────────────
 
   const openMedicationForm = (m?: Medication) => {
-    if (m) {
-      setEditingMedication(m);
-      setMedicationForm({
-        ...m,
-        start_date: formatDateInput(m.start_date),
-        end_date: formatDateInput(m.end_date),
-        refill_date: formatDateInput(m.refill_date),
-      });
-    } else {
-      setEditingMedication(null);
-      setMedicationForm({ status: "active" });
-    }
+    setEditingMedication(m || null);
     setShowSubForm("medication");
   };
 
-  const saveMedication = async () => {
-    if (!medicationForm.name?.trim()) {
-      showToast("Medication name is required", "error");
-      return;
-    }
+  const saveMedication = async (formData: Medication) => {
     const record: Medication = {
+      ...formData,
       id: editingMedication?.id || uuid(),
-      name: medicationForm.name || "",
-      dosage: medicationForm.dosage || undefined,
-      prescribed_by: medicationForm.prescribed_by || undefined,
-      start_date: medicationForm.start_date
-        ? toISODate(medicationForm.start_date)
+      start_date: formData.start_date
+        ? toISODate(formData.start_date)
         : undefined,
-      end_date: medicationForm.end_date
-        ? toISODate(medicationForm.end_date)
+      end_date: formData.end_date ? toISODate(formData.end_date) : undefined,
+      refill_date: formData.refill_date
+        ? toISODate(formData.refill_date)
         : undefined,
-      refill_date: medicationForm.refill_date
-        ? toISODate(medicationForm.refill_date)
-        : undefined,
-      status: (medicationForm.status as MedicationStatus) || "active",
-      notes: medicationForm.notes || undefined,
     };
     await saveSubRecord("medications", record, editingMedication);
   };
@@ -950,136 +927,33 @@ export default function HealthAdminView() {
             onAdd={() => openMedicationForm()}
             onEdit={openMedicationForm}
             onDelete={(id) => deleteSubRecord("medications", id)}
-            renderModal={renderModal(
-              `${editingMedication ? "Edit" : "Add"} Medication`,
-              "medication",
-              saveMedication,
-              <>
-                <div>
-                  <label className={labelCls}>Name *</label>
-                  <input
-                    type="text"
-                    value={medicationForm.name || ""}
-                    onChange={(e) =>
-                      setMedicationForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                    placeholder="e.g., Metformin"
-                    className={inputCls}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelCls}>Dosage</label>
-                    <input
-                      type="text"
-                      value={medicationForm.dosage || ""}
-                      onChange={(e) =>
-                        setMedicationForm((f) => ({
-                          ...f,
-                          dosage: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., 500mg twice daily"
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Status</label>
-                    <select
-                      value={medicationForm.status || "active"}
-                      onChange={(e) =>
-                        setMedicationForm((f) => ({
-                          ...f,
-                          status: e.target.value as MedicationStatus,
-                        }))
-                      }
-                      className={inputCls}
-                    >
-                      {Object.entries(MEDICATION_STATUS_CONFIG).map(
-                        ([k, v]) => (
-                          <option key={k} value={k}>
-                            {v.label}
-                          </option>
+            renderModal={
+              <MedicationFormModal
+                key={
+                  showSubForm === "medication"
+                    ? editingMedication?.id || "new"
+                    : "closed"
+                }
+                open={showSubForm === "medication"}
+                onClose={() => setShowSubForm(null)}
+                onSave={saveMedication}
+                initialData={
+                  editingMedication
+                    ? {
+                        ...editingMedication,
+                        start_date: formatDateInput(
+                          editingMedication.start_date,
                         ),
-                      )}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls}>Prescribed By</label>
-                  <input
-                    type="text"
-                    value={medicationForm.prescribed_by || ""}
-                    onChange={(e) =>
-                      setMedicationForm((f) => ({
-                        ...f,
-                        prescribed_by: e.target.value,
-                      }))
-                    }
-                    placeholder="Doctor name"
-                    className={inputCls}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className={labelCls}>Start Date</label>
-                    <input
-                      type="date"
-                      value={medicationForm.start_date || ""}
-                      onChange={(e) =>
-                        setMedicationForm((f) => ({
-                          ...f,
-                          start_date: e.target.value,
-                        }))
+                        end_date: formatDateInput(editingMedication.end_date),
+                        refill_date: formatDateInput(
+                          editingMedication.refill_date,
+                        ),
                       }
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>End Date</label>
-                    <input
-                      type="date"
-                      value={medicationForm.end_date || ""}
-                      onChange={(e) =>
-                        setMedicationForm((f) => ({
-                          ...f,
-                          end_date: e.target.value,
-                        }))
-                      }
-                      className={inputCls}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Refill Date</label>
-                    <input
-                      type="date"
-                      value={medicationForm.refill_date || ""}
-                      onChange={(e) =>
-                        setMedicationForm((f) => ({
-                          ...f,
-                          refill_date: e.target.value,
-                        }))
-                      }
-                      className={inputCls}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls}>Notes</label>
-                  <textarea
-                    value={medicationForm.notes || ""}
-                    onChange={(e) =>
-                      setMedicationForm((f) => ({
-                        ...f,
-                        notes: e.target.value,
-                      }))
-                    }
-                    rows={2}
-                    className={cn(inputCls, "resize-none")}
-                  />
-                </div>
-              </>,
-            )}
+                    : null
+                }
+                saving={saving}
+              />
+            }
           />
         )}
 

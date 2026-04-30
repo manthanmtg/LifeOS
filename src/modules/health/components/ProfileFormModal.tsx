@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BLOOD_GROUPS } from "./constants";
+import { BLOOD_GROUPS, INPUT_CLASSES, LABEL_CLASSES } from "./constants";
 import { formatDateInput, toISODate } from "./helpers";
 import type {
   HealthProfile,
@@ -14,11 +14,6 @@ import type {
   BloodGroup,
   Gender,
 } from "./types";
-
-const inputCls =
-  "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600";
-const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface ProfileFormModalProps {
   open: boolean;
@@ -119,7 +114,7 @@ export default function ProfileFormModal({
 
               {/* Name */}
               <div>
-                <label className={labelCls}>Name *</label>
+                <label className={LABEL_CLASSES}>Name *</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -127,14 +122,14 @@ export default function ProfileFormModal({
                     setFormData((f) => ({ ...f, name: e.target.value }))
                   }
                   placeholder="Full name"
-                  className={inputCls}
+                  className={INPUT_CLASSES}
                 />
               </div>
 
               {/* Type / Relation / Gender */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelCls}>Type</label>
+                  <label className={LABEL_CLASSES}>Type</label>
                   <select
                     value={formData.type}
                     onChange={(e) =>
@@ -143,7 +138,7 @@ export default function ProfileFormModal({
                         type: e.target.value as ProfileType,
                       }))
                     }
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   >
                     <option value="self">Self</option>
                     <option value="family">Family</option>
@@ -151,7 +146,7 @@ export default function ProfileFormModal({
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>Relation</label>
+                  <label className={LABEL_CLASSES}>Relation</label>
                   <input
                     type="text"
                     value={formData.relation || ""}
@@ -159,11 +154,11 @@ export default function ProfileFormModal({
                       setFormData((f) => ({ ...f, relation: e.target.value }))
                     }
                     placeholder="e.g., Mother"
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Gender</label>
+                  <label className={LABEL_CLASSES}>Gender</label>
                   <select
                     value={formData.gender || ""}
                     onChange={(e) =>
@@ -174,7 +169,7 @@ export default function ProfileFormModal({
                           | undefined,
                       }))
                     }
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   >
                     <option value="">—</option>
                     <option value="male">Male</option>
@@ -187,7 +182,7 @@ export default function ProfileFormModal({
               {/* Date of Birth / Blood Group */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>Date of Birth</label>
+                  <label className={LABEL_CLASSES}>Date of Birth</label>
                   <input
                     type="date"
                     value={formatDateInput(formData.date_of_birth)}
@@ -199,11 +194,11 @@ export default function ProfileFormModal({
                           : undefined,
                       }))
                     }
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   />
                 </div>
                 <div>
-                  <label className={labelCls}>Blood Group</label>
+                  <label className={LABEL_CLASSES}>Blood Group</label>
                   <select
                     value={formData.blood_group}
                     onChange={(e) =>
@@ -212,7 +207,7 @@ export default function ProfileFormModal({
                         blood_group: e.target.value as BloodGroup,
                       }))
                     }
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   >
                     {BLOOD_GROUPS.map((bg) => (
                       <option key={bg} value={bg}>
@@ -225,7 +220,7 @@ export default function ProfileFormModal({
 
               {/* Emergency Contact */}
               <div>
-                <label className={labelCls}>Emergency Contact</label>
+                <label className={LABEL_CLASSES}>Emergency Contact</label>
                 <input
                   type="text"
                   value={formData.emergency_contact || ""}
@@ -236,13 +231,13 @@ export default function ProfileFormModal({
                     }))
                   }
                   placeholder="Phone or name"
-                  className={inputCls}
+                  className={INPUT_CLASSES}
                 />
               </div>
 
               {/* Insurance Info */}
               <div>
-                <label className={labelCls}>Insurance Info</label>
+                <label className={LABEL_CLASSES}>Insurance Info</label>
                 <input
                   type="text"
                   value={formData.insurance_info || ""}
@@ -253,13 +248,13 @@ export default function ProfileFormModal({
                     }))
                   }
                   placeholder="Policy number or details"
-                  className={inputCls}
+                  className={INPUT_CLASSES}
                 />
               </div>
 
               {/* Allergies */}
               <div>
-                <label className={labelCls}>Allergies</label>
+                <label className={LABEL_CLASSES}>Allergies</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {formData.allergies.map((a, i) => (
                     <span
@@ -297,7 +292,7 @@ export default function ProfileFormModal({
                       }
                     }}
                     placeholder="Type and press Enter"
-                    className={inputCls}
+                    className={INPUT_CLASSES}
                   />
                   <button
                     onClick={() => {
@@ -318,7 +313,7 @@ export default function ProfileFormModal({
 
               {/* Notes */}
               <div>
-                <label className={labelCls}>Notes</label>
+                <label className={LABEL_CLASSES}>Notes</label>
                 <textarea
                   value={formData.notes || ""}
                   onChange={(e) =>
@@ -326,7 +321,7 @@ export default function ProfileFormModal({
                   }
                   rows={2}
                   placeholder="General notes..."
-                  className={cn(inputCls, "resize-none")}
+                  className={cn(INPUT_CLASSES, "resize-none")}
                 />
               </div>
             </div>
