@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, ChevronRight, Plus, LayoutGrid, List } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface TodoHeaderProps {
@@ -19,14 +20,14 @@ export default function TodoHeader({
       <div className="flex items-center justify-between">
         <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1">
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => (window.location.href = "/admin")}
+            <Link
+              href="/admin"
               aria-label="Back to Admin Portal"
               className="text-sm font-bold text-zinc-500 hover:text-accent px-2 py-1 rounded-lg hover:bg-accent/5 transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
             >
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Portal</span>
-            </button>
+            </Link>
             <ChevronRight className="w-4 h-4 text-zinc-700 shrink-0" />
             <span className="text-lg font-black text-zinc-100 bg-zinc-800/50 px-3 py-1 rounded-xl">
               Tasks
