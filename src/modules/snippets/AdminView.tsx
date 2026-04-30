@@ -30,6 +30,7 @@ export default function SnippetsAdminView() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [statsReferenceTime] = useState(() => Date.now());
   const [processingAction, setProcessingAction] = useState<{
     id: string;
     action: "delete" | "favorite";
@@ -152,9 +153,7 @@ export default function SnippetsAdminView() {
         if (a.payload.is_favorite !== b.payload.is_favorite) {
           return a.payload.is_favorite ? -1 : 1;
         }
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        return Date.parse(b.created_at) - Date.parse(a.created_at);
       });
   }, [snippets, langFilter, favoritesOnly, searchQuery]);
 
@@ -172,11 +171,9 @@ export default function SnippetsAdminView() {
           )
         : 0;
 
-    // Use a stable reference for 'now' to avoid unnecessary re-renders if this was in a component
-    const nowTime = Date.now();
-    const weekAgo = nowTime - 7 * 24 * 60 * 60 * 1000;
+    const weekAgo = statsReferenceTime - 7 * 24 * 60 * 60 * 1000;
     const recentCount = snippets.filter(
-      (s) => new Date(s.created_at).getTime() >= weekAgo,
+      (s) => Date.parse(s.created_at) >= weekAgo,
     ).length;
 
     const allTags = snippets.flatMap((s) => s.payload.tags);
@@ -190,7 +187,7 @@ export default function SnippetsAdminView() {
       recentCount,
       tagCount,
     };
-  }, [snippets]);
+  }, [snippets, statsReferenceTime]);
 
   const languageChips = useMemo(() => {
     return [...new Set(snippets.map((s) => s.payload.language))].sort((a, b) =>
@@ -246,7 +243,11 @@ export default function SnippetsAdminView() {
             </div>
           </div>
 
-          <SnippetsMetrics snippets={snippets} stats={stats} />
+          <SnippetsMetrics
+            snippets={snippets}
+            stats={stats}
+            referenceTime={statsReferenceTime}
+          />
         </div>
       </div>
 
