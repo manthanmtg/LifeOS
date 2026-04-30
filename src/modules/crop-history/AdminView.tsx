@@ -233,11 +233,16 @@ export default function CropHistoryAdminView() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center gap-2 border-b border-zinc-800 pb-px text-sm overflow-x-auto hide-scrollbar">
+        <div
+          className="mt-6 flex items-center gap-2 border-b border-zinc-800 pb-px text-sm overflow-x-auto hide-scrollbar"
+          role="tablist"
+          aria-label="Crop history sections"
+        >
           <TabButton
             active={activeTab === "spreadsheet"}
             onClick={() => setActiveTab("spreadsheet")}
             icon={TableIcon}
+            panelId="crop-history-spreadsheet-panel"
           >
             Spreadsheet
           </TabButton>
@@ -245,6 +250,7 @@ export default function CropHistoryAdminView() {
             active={activeTab === "analytics"}
             onClick={() => setActiveTab("analytics")}
             icon={BarChart3}
+            panelId="crop-history-analytics-panel"
           >
             Analytics
           </TabButton>
@@ -252,6 +258,7 @@ export default function CropHistoryAdminView() {
             active={activeTab === "settings"}
             onClick={() => setActiveTab("settings")}
             icon={Settings}
+            panelId="crop-history-settings-panel"
           >
             Settings
           </TabButton>
@@ -259,6 +266,7 @@ export default function CropHistoryAdminView() {
             active={activeTab === "docs"}
             onClick={() => setActiveTab("docs")}
             icon={BookOpen}
+            panelId="crop-history-docs-panel"
           >
             Docs
           </TabButton>
@@ -274,45 +282,58 @@ export default function CropHistoryAdminView() {
           transition={{ duration: 0.15 }}
         >
           {activeTab === "spreadsheet" && (
-            <SpreadsheetTab
-              activeCrop={activeCrop}
-              crops={settings.crops}
-              areas={areas}
-              records={activeCropRecords}
-              schedulePeriods={schedulePeriods}
-              setActiveCropId={setActiveCropId}
-              onReorderPeriods={(newOrder) => {
-                if (!activeCrop) return;
-                const updatedCrops = [...settings.crops];
-                const idx = updatedCrops.findIndex(
-                  (c) => c.id === activeCrop.id,
-                );
-                if (idx !== -1) {
-                  updatedCrops[idx] = { ...activeCrop, periodOrder: newOrder };
-                  updateSettings({ crops: updatedCrops });
-                }
-              }}
-              onRefresh={fetchRecords}
-            />
+            <div id="crop-history-spreadsheet-panel" role="tabpanel">
+              <SpreadsheetTab
+                activeCrop={activeCrop}
+                crops={settings.crops}
+                areas={areas}
+                records={activeCropRecords}
+                schedulePeriods={schedulePeriods}
+                setActiveCropId={setActiveCropId}
+                onReorderPeriods={(newOrder) => {
+                  if (!activeCrop) return;
+                  const updatedCrops = [...settings.crops];
+                  const idx = updatedCrops.findIndex(
+                    (c) => c.id === activeCrop.id,
+                  );
+                  if (idx !== -1) {
+                    updatedCrops[idx] = {
+                      ...activeCrop,
+                      periodOrder: newOrder,
+                    };
+                    updateSettings({ crops: updatedCrops });
+                  }
+                }}
+                onRefresh={fetchRecords}
+              />
+            </div>
           )}
 
           {activeTab === "analytics" && (
-            <AnalyticsTab
-              crops={settings.crops}
-              allRecords={records}
-              sources={areas}
-            />
+            <div id="crop-history-analytics-panel" role="tabpanel">
+              <AnalyticsTab
+                crops={settings.crops}
+                allRecords={records}
+                sources={areas}
+              />
+            </div>
           )}
 
           {activeTab === "settings" && (
-            <SettingsTab
-              settings={settings}
-              updateSettings={updateSettings}
-              saving={settingsSaving}
-            />
+            <div id="crop-history-settings-panel" role="tabpanel">
+              <SettingsTab
+                settings={settings}
+                updateSettings={updateSettings}
+                saving={settingsSaving}
+              />
+            </div>
           )}
 
-          {activeTab === "docs" && <DocsTab />}
+          {activeTab === "docs" && (
+            <div id="crop-history-docs-panel" role="tabpanel">
+              <DocsTab />
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -324,23 +345,29 @@ function TabButton({
   active,
   onClick,
   icon: Icon,
+  panelId,
 }: {
   children: React.ReactNode;
   active: boolean;
   onClick: () => void;
   icon: LucideIcon;
+  panelId: string;
 }) {
   return (
     <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      aria-controls={panelId}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 hover:bg-zinc-800/50 rounded-t-lg transition-colors -mb-px border-b-2 whitespace-nowrap",
+        "flex items-center gap-2 px-4 py-2 hover:bg-zinc-800/50 rounded-t-lg transition-colors -mb-px border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900",
         active
           ? "border-success text-success"
           : "border-transparent text-zinc-400",
       )}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-4 h-4" aria-hidden="true" />
       {children}
     </button>
   );
