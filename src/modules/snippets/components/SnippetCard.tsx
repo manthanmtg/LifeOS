@@ -86,7 +86,7 @@ export default function SnippetCard({
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-black/20"
+      className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden group hover:border-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-950/20"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
