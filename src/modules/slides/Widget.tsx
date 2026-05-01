@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { Presentation, Globe, Layers } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -22,7 +22,7 @@ interface DeckSummary {
   } | null;
 }
 
-export default function SlidesWidget() {
+const SlidesWidget = memo(function SlidesWidget() {
   const [summary, setSummary] = useState<DeckSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,4 +69,6 @@ export default function SlidesWidget() {
       </div>
     </WidgetCard>
   );
-}
+});
+
+export default SlidesWidget;
