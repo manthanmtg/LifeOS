@@ -31,6 +31,7 @@ export default function PortfolioShowcase({
   const skills = profile.skills || [];
   const displayName =
     profile.full_name?.trim() || profile.hero_title?.trim() || "Life OS";
+  const primaryContactUrl = socialLinks[0]?.url;
 
   return (
     <div className="flex-1 relative overflow-hidden pb-10">
@@ -187,20 +188,21 @@ export default function PortfolioShowcase({
               collaborate on a high-impact project, I&apos;m always open to
               talking.
             </p>
-            <div className="pt-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  const firstLink = socialLinks[0]?.url;
-                  if (firstLink) window.open(firstLink, "_blank");
-                }}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-zinc-50 text-zinc-950 font-bold text-sm shadow-2xl shadow-white/10"
-              >
-                Get in Touch
-                <ExternalLink className="w-4 h-4" />
-              </motion.button>
-            </div>
+            {primaryContactUrl && (
+              <div className="pt-4">
+                <motion.a
+                  href={primaryContactUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-zinc-50 text-zinc-950 font-bold text-sm shadow-2xl shadow-zinc-50/10"
+                >
+                  Get in Touch
+                  <ExternalLink className="w-4 h-4" />
+                </motion.a>
+              </div>
+            )}
           </div>
         </motion.div>
       </section>

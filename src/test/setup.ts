@@ -98,6 +98,7 @@ vi.mock("framer-motion", () => {
             layout,
             layoutId,
             whileHover,
+            whileInView,
             whileTap,
             whileFocus,
             drag,
@@ -119,6 +120,7 @@ vi.mock("framer-motion", () => {
           void layout;
           void layoutId;
           void whileHover;
+          void whileInView;
           void whileTap;
           void whileFocus;
           void drag;
