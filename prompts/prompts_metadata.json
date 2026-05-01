@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-01T16:48:33.843Z",
+  "updatedAt": "2026-05-01T18:49:33.904Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -76,12 +76,12 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 7,
-      "totalCompleted": 7,
+      "totalSelected": 8,
+      "totalCompleted": 8,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-29T22:45:53.596Z",
-      "lastCompletedAt": "2026-04-29T22:48:49.517Z",
+      "lastSelectedAt": "2026-05-01T18:46:06.868Z",
+      "lastCompletedAt": "2026-05-01T18:49:33.904Z",
       "lastOutcome": "completed"
     },
     "lint_and_purity_doctor_prompt.md": {
