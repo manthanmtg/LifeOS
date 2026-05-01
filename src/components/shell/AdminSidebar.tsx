@@ -226,7 +226,7 @@ export default function AdminSidebar() {
                 <button
                   onClick={() => setMobileOpen(false)}
                   aria-label="Close navigation menu"
-                  className="p-1 text-zinc-500 hover:text-zinc-300 shrink-0"
+                  className="p-2 -mr-2 flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300 shrink-0 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
