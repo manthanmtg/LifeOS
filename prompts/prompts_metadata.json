@@ -151,11 +151,11 @@
       "category": "performance",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 5,
+      "totalSelected": 6,
       "totalCompleted": 4,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-04-30T04:17:47.527Z",
+      "lastSelectedAt": "2026-05-01T04:16:01.105Z",
       "lastCompletedAt": "2026-04-29T14:34:28.168Z",
       "lastOutcome": "selected"
     },
