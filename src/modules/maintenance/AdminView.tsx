@@ -117,7 +117,7 @@ const CATEGORY_ICONS: Record<Category, LucideIcon> = {
 };
 
 const CATEGORY_COLORS: Record<Category, string> = {
-  home: "bg-blue-500/15 text-blue-400 border-blue-500/20",
+  home: "bg-accent/15 text-accent border-accent/20",
   appliance: "bg-warning/15 text-warning border-warning/20",
   vehicle: "bg-accent/15 text-accent border-accent/20",
   electronics: "bg-accent/15 text-accent border-accent/20",
@@ -1125,7 +1125,7 @@ export default function MaintenanceAdminView() {
                       >
                         <span
                           className={cn(
-                            "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all",
+                            "absolute top-0.5 w-5 h-5 bg-zinc-50 rounded-full shadow-sm transition-all",
                             form.is_recurring ? "left-[22px]" : "left-0.5",
                           )}
                         />
@@ -1375,7 +1375,7 @@ export default function MaintenanceAdminView() {
                       >
                         <span
                           className={cn(
-                            "absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all",
+                            "absolute top-0.5 w-5 h-5 bg-zinc-50 rounded-full shadow-sm transition-all",
                             form.reminder_enabled ? "left-[22px]" : "left-0.5",
                           )}
                         />
