@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Copy, ShoppingBag, Trash2 } from "lucide-react";
 import { ShoppingListDocument } from "../types";
@@ -12,13 +13,13 @@ interface ListCardProps {
   onDelete: (listId: string) => void;
 }
 
-export default function ListCard({
+const ListCard = ({
   list,
   onOpen,
   onDuplicate,
   onDelete,
-}: ListCardProps) {
-  const summary = summarizeList(list.payload);
+}: ListCardProps) => {
+  const summary = useMemo(() => summarizeList(list.payload), [list.payload]);
 
   return (
     <motion.article
@@ -93,3 +94,5 @@ export default function ListCard({
     </motion.article>
   );
 }
+
+export default memo(ListCard);
