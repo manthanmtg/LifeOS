@@ -56,7 +56,7 @@ export default function BillsWidget() {
       href="/admin/bills"
       footer={
         stats && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5">
                 <FolderOpen className="w-3 h-3" /> {stats.folderCount} folders
