@@ -94,8 +94,13 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 - `/api/auth/login` — POST password-based JWT login
 - `/api/auth/logout` — POST clears the auth cookie
 - `/api/widgets/summary` — GET compact per-module summaries for dashboard widgets
+- `/api/module-info/[slug]` — GET module info markdown for admin module guidance
+- `/api/portfolio/resume` — GET public resume PDF content from portfolio data
 - `/api/metrics` — GET / POST analytics events
+- `/api/db-stats` — GET database collection stats for admin diagnostics
 - `/api/export` / `/api/import` — Backup and restore
+- `/api/bills/*` — Bill, folder, move, and attachment operations backed by `content`
+- `/api/ai-usage/*` — Provider, sync, limits, and debug operations backed by `content`
 
 ### Auth & Middleware
 
