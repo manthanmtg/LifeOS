@@ -56,7 +56,7 @@ export default function LoginPage() {
                 key="custom-icon"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-14 h-14 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center mb-4 shadow-lg"
+                className="w-14 h-14 rounded-2xl border border-zinc-50/10 bg-zinc-50/5 backdrop-blur-sm flex items-center justify-center mb-4 shadow-lg"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={siteIcon} alt="" className="w-9 h-9 object-contain" />
@@ -66,7 +66,7 @@ export default function LoginPage() {
                 key="lock-icon"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-14 h-14 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center mb-4"
+                className="w-14 h-14 bg-zinc-50/10 rounded-2xl border border-zinc-50/20 flex items-center justify-center mb-4"
               >
                 <Lock className="w-6 h-6 text-zinc-300" />
               </motion.div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium py-3 rounded-lg text-sm transition-colors"
+            className="w-full bg-zinc-100 hover:bg-zinc-50 text-zinc-950 font-medium py-3 rounded-lg text-sm transition-colors"
           >
             Enter Command Center
           </button>
