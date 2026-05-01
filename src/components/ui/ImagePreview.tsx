@@ -24,7 +24,7 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-label={alt || "Image preview"}
