@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { trackEvent } from "@/lib/analytics";
 
 export default function MetricsTracker() {
   const pathname = usePathname();
@@ -31,6 +30,7 @@ export default function MetricsTracker() {
         activeModule = pathParts[0];
       }
 
+      const { trackEvent } = await import("@/lib/analytics");
       await trackEvent({
         module: activeModule,
         action: isFirstLoad.current ? "session_start" : "page_view",
