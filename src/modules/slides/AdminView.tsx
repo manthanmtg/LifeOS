@@ -405,6 +405,7 @@ export default function SlidesAdminView() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="My Presentation"
+                maxLength={200}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 autoFocus
                 disabled={isSubmitting}
@@ -424,6 +425,7 @@ export default function SlidesAdminView() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder="Brief description..."
+                maxLength={1000}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40 resize-y"
                 disabled={isSubmitting}
               />
@@ -527,6 +529,7 @@ export default function SlidesAdminView() {
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
                 placeholder="Author name"
+                maxLength={100}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />
@@ -545,6 +548,7 @@ export default function SlidesAdminView() {
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="e.g. JavaScript, Design"
+                maxLength={100}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />
@@ -563,6 +567,7 @@ export default function SlidesAdminView() {
                 value={folder}
                 onChange={(e) => setFolder(e.target.value)}
                 placeholder="e.g. Work, Courses"
+                maxLength={100}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />
@@ -581,6 +586,7 @@ export default function SlidesAdminView() {
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="react, design, tutorial"
+                maxLength={1038}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />
@@ -599,6 +605,7 @@ export default function SlidesAdminView() {
                 value={thumbnailUrl}
                 onChange={(e) => setThumbnailUrl(e.target.value)}
                 placeholder="https://..."
+                maxLength={500}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
                 disabled={isSubmitting}
               />

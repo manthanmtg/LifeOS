@@ -6,6 +6,7 @@ import {
   EmiLoanSchema,
   IdeaSchema,
   PersonSchema,
+  DeckSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -171,6 +172,24 @@ describe("schemas", () => {
       };
 
       const result = PersonSchema.safeParse(person);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("DeckSchema", () => {
+    it("rejects loose deck text and thumbnail fields", () => {
+      const deck = {
+        title: "x".repeat(201),
+        description: "x".repeat(1001),
+        tags: ["x".repeat(51)],
+        author: "x".repeat(101),
+        topic: "x".repeat(101),
+        folder: "x".repeat(101),
+        thumbnail_url: "not-a-url",
+      };
+
+      const result = DeckSchema.safeParse(deck);
 
       expect(result.success).toBe(false);
     });

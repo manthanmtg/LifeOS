@@ -789,20 +789,20 @@ export const HealthProfileSchema = z.object({
 
 // --- 22. DECKS ---
 export const DeckSchema = z.object({
-  title: z.string().min(1, "Deck title is required"),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, "Deck title is required").max(200),
+  description: z.string().trim().max(1000).optional(),
   format: z
     .enum(["html", "pdf", "pptx", "google_slides", "reveal_js", "url"])
     .default("url"),
   visibility: z.enum(["public", "private", "link_only"]).default("private"),
-  tags: z.array(z.string()).default([]),
-  author: z.string().optional(),
-  topic: z.string().optional(),
-  folder: z.string().optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
+  author: z.string().trim().max(100).optional(),
+  topic: z.string().trim().max(100).optional(),
+  folder: z.string().trim().max(100).optional(),
   deck_url: z.string().optional(),
-  file_name: z.string().optional(),
-  file_size: z.number().optional(),
-  thumbnail_url: z.string().optional(),
+  file_name: z.string().trim().max(255).optional(),
+  file_size: z.number().int().min(0).optional(),
+  thumbnail_url: z.string().url().max(500).optional(),
   embed_enabled: z.boolean().default(false),
 });
 
