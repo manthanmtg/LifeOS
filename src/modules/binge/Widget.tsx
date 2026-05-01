@@ -78,7 +78,10 @@ export default function BingeWidget() {
             }
           />
         ) : (
-          <WidgetHighlight icon={Tv} text="Nothing queued up" />
+          <WidgetHighlight
+            icon={Tv}
+            text={summary.total > 0 ? "No active watch" : "Nothing queued up"}
+          />
         )}
       </div>
     </WidgetCard>
