@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
@@ -200,10 +201,12 @@ export default function AdminSidebar() {
               <div className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-3 min-w-0">
                   {config?.site_icon ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={config.site_icon}
                       alt=""
+                      width={32}
+                      height={32}
+                      unoptimized
                       className="w-8 h-8 rounded-lg object-contain shrink-0"
                     />
                   ) : (
@@ -273,10 +276,12 @@ export default function AdminSidebar() {
         <div className="p-6">
           <div className="flex items-center gap-3 min-w-0">
             {config?.site_icon ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={config.site_icon}
                 alt=""
+                width={32}
+                height={32}
+                unoptimized
                 className="w-8 h-8 rounded-lg object-contain shrink-0"
               />
             ) : (

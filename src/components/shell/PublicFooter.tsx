@@ -6,12 +6,17 @@ import { getRenderableSocialLinks, type SocialLink } from "./footer-links";
 
 export default function PublicFooter() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
   const renderableSocialLinks = useMemo(
     () => getRenderableSocialLinks(socialLinks),
     [socialLinks],
   );
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setCurrentYear(new Date().getFullYear());
+    }, 0);
     fetch("/api/content?module_type=portfolio_profile")
       .then((r) => r.json())
       .then((d) => {
@@ -20,6 +25,7 @@ export default function PublicFooter() {
         }
       })
       .catch(() => {});
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -43,7 +49,7 @@ export default function PublicFooter() {
             ))}
           </nav>
         )}
-        <p>&copy; {new Date().getFullYear()} Life OS</p>
+        <p>&copy; {currentYear ?? ""} Life OS</p>
       </div>
     </footer>
   );
