@@ -48,6 +48,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { module_type, is_public, payload } = body;
 
+    if (is_public !== undefined && typeof is_public !== "boolean") {
+      return ApiError("is_public must be a boolean", 400);
+    }
+
     if (!module_type || typeof module_type !== "string" || module_type === "") {
       return ApiError("module_type is required", 400);
     }

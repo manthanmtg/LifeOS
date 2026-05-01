@@ -53,3 +53,27 @@ Why this was safe:
 ## Verification
 
 - `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` - PASS
+
+## Follow-up run (2026-05-01 04:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Files:
+
+- `src/app/api/content/route.ts`
+- `src/app/api/content/[id]/route.ts`
+
+Problem:
+
+- Content create and update handlers validated module payloads but accepted any
+  supplied `is_public` value. A non-boolean value could be persisted into the
+  visibility field on authenticated writes.
+
+Fix:
+
+- Reject non-boolean `is_public` values before database writes.
+- Added regression tests for both create and update handlers.
+
+Verification:
+
+- `pnpm vitest run src/app/api/content/__tests__/route.test.ts src/app/api/content/[id]/__tests__/route.test.ts` - PASS

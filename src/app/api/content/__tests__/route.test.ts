@@ -171,6 +171,27 @@ describe("/api/content route", () => {
       expect(mockInsertOne.mock.calls[0][0].payload.status).toBe("published");
     });
 
+    it("rejects non-boolean public visibility before touching the database", async () => {
+      const response = await POST(
+        createJsonRequest({
+          module_type: "blog_post",
+          is_public: "true",
+          payload: {
+            title: "Published post",
+            slug: "published-post",
+            content: "Body",
+          },
+        }),
+      );
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toMatchObject({
+        success: false,
+        error: "is_public must be a boolean",
+      });
+      expect(mockInsertOne).not.toHaveBeenCalled();
+    });
+
     it("rejects missing module type before touching the database", async () => {
       const response = await POST(
         createJsonRequest({ payload: { title: "Missing module" } }),

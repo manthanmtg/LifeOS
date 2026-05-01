@@ -58,6 +58,10 @@ export async function PUT(
     const body = await request.json();
     const { is_public, payload } = body;
 
+    if (is_public !== undefined && typeof is_public !== "boolean") {
+      return ApiError("is_public must be a boolean", 400);
+    }
+
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
