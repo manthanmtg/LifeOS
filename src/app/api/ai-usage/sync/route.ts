@@ -1,6 +1,7 @@
 import { getDb } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import { ApiSuccess, ApiError } from "@/lib/api-response";
+import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
+import { z } from "zod";
 import { ContentDocument } from "@/lib/types";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
@@ -365,8 +366,15 @@ export async function POST(request: Request) {
     if (!isAdmin) return ApiError("Unauthorized", 401);
 
     const body = await request.json().catch(() => ({}));
-    const targetId = body.provider_id;
-    const syncDays = Math.min(body.days || 30, 90);
+    const schema = z.object({
+      provider_id: z.string().optional(),
+      days: z.number().min(1).max(90).optional().default(30),
+    });
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) return ApiValidationError(parsed.error.format());
+
+    const targetId = parsed.data.provider_id;
+    const syncDays = parsed.data.days;
 
     const db = await getDb();
     const providersColl = db.collection("ai_providers");

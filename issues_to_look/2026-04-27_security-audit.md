@@ -77,3 +77,20 @@ Fix:
 Verification:
 
 - `pnpm vitest run src/app/api/content/__tests__/route.test.ts src/app/api/content/[id]/__tests__/route.test.ts` - PASS
+
+## Follow-up run (2026-05-01 16:35 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Files:
+- `src/app/api/ai-usage/sync/route.ts`
+
+Problem:
+- The `POST` route extracted `provider_id` and `days` from `request.json()` directly without Zod schema validation, allowing potentially malformed types (e.g. strings where numbers were expected) to be processed before hitting database logic.
+
+Fix:
+- Added inline Zod schema validation (`z.object({...}).safeParse`) for the request body.
+- Return standard `ApiValidationError` if the payload structure is invalid.
+
+Verification:
+- `pnpm check` - PASS
