@@ -405,9 +405,9 @@ export const AiUsageSchema = z.object({
   currency: z.string().length(3).default("USD"),
   date: z.string().datetime("Must be a valid ISO date-time"),
   bucket_width: z.enum(["1d", "1h"]).default("1d"),
-  api_key_label: z.string().optional(),
-  session_label: z.string().optional(),
-  notes: z.string().optional(),
+  api_key_label: z.string().trim().max(100).optional(),
+  session_label: z.string().trim().max(100).optional(),
+  notes: z.string().trim().max(2000).optional(),
   synced: z.boolean().default(false),
 });
 

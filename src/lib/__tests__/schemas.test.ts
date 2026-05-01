@@ -7,6 +7,7 @@ import {
   IdeaSchema,
   PersonSchema,
   DeckSchema,
+  AiUsageSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -190,6 +191,25 @@ describe("schemas", () => {
       };
 
       const result = DeckSchema.safeParse(deck);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("AiUsageSchema", () => {
+    it("rejects overlong optional label and notes fields", () => {
+      const usage = {
+        provider: "openai",
+        model: "gpt-5.4",
+        cost: 0,
+        currency: "USD",
+        date: new Date().toISOString(),
+        api_key_label: "x".repeat(101),
+        session_label: "x".repeat(101),
+        notes: "x".repeat(2001),
+      };
+
+      const result = AiUsageSchema.safeParse(usage);
 
       expect(result.success).toBe(false);
     });
