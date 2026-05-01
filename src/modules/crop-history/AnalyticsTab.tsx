@@ -46,17 +46,23 @@ const COLORS = [
   "#e879f9",
 ];
 
-const formatINR = (val: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(val);
+const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
 
-const formatNum = (val: number, decimals = 1) =>
-  new Intl.NumberFormat("en-IN", { maximumFractionDigits: decimals }).format(
-    val,
-  );
+const formatINR = (val: number) => INR_FORMATTER.format(val);
+
+const NUM_FORMATTERS: Record<number, Intl.NumberFormat> = {};
+const formatNum = (val: number, decimals = 1) => {
+  if (!NUM_FORMATTERS[decimals]) {
+    NUM_FORMATTERS[decimals] = new Intl.NumberFormat("en-IN", {
+      maximumFractionDigits: decimals,
+    });
+  }
+  return NUM_FORMATTERS[decimals].format(val);
+};
 
 interface AnalyticsTabProps {
   crops: CropConfig[];
