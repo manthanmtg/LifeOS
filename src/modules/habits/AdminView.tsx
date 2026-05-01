@@ -172,7 +172,7 @@ export default function HabitsAdminView() {
     <div className="space-y-5">
       {/* Header */}
       <motion.div
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0"
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
