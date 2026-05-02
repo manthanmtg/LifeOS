@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import {
   STATUSES,
   STATUS_LABELS,
+  parseNonNegativeIntegerField,
+  parseOptionalPositiveIntegerField,
   toDateInputValue,
   toISODate,
   type Book,
@@ -78,10 +80,26 @@ export default function BookForm({
         return;
       }
 
-      const totalPagesNum = totalPages
-        ? Number.parseInt(totalPages, 10)
-        : undefined;
-      const currentPageNum = currentPage ? Number.parseInt(currentPage, 10) : 0;
+      const totalPagesResult = parseOptionalPositiveIntegerField(
+        totalPages,
+        "Total pages",
+      );
+      if (totalPagesResult.error) {
+        setFormError(totalPagesResult.error);
+        return;
+      }
+
+      const currentPageResult = parseNonNegativeIntegerField(
+        currentPage,
+        "Current page",
+      );
+      if (currentPageResult.error) {
+        setFormError(currentPageResult.error);
+        return;
+      }
+
+      const totalPagesNum = totalPagesResult.value;
+      const currentPageNum = currentPageResult.value ?? 0;
 
       if (
         Number.isFinite(totalPagesNum) &&
