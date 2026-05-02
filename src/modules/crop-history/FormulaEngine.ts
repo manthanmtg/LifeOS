@@ -297,43 +297,6 @@ export function evaluateFormula(
 }
 
 /**
- * Legacy simple evaluator (flat context). Kept for any edge-case usage.
- */
-export function evaluateSimpleFormula(
-  formula: string,
-  context: Record<string, number>,
-): number | null {
-  if (!formula) return null;
-  try {
-    let expression = formula;
-    const variables = Object.keys(context).sort((a, b) => b.length - a.length);
-    for (const variable of variables) {
-      const value = context[variable];
-      const numValue = value === undefined || isNaN(value) ? 0 : value;
-      const regex = new RegExp(`\\b${variable}\\b`, "g");
-      expression = expression.replace(regex, numValue.toString());
-    }
-    return evaluateArithmetic(expression);
-  } catch {
-    return null;
-  }
-}
-
-// --- Utility: build a FormulaContext from raw data ---
-export function buildFormulaContext(
-  areaIds: string[],
-  sourceData: Record<string, Record<string, number>>, // areaId -> fieldId -> value
-  summaryData: Record<string, number>,
-): FormulaContext {
-  return {
-    areaValues: sourceData,
-    summaryValues: summaryData,
-    calculatedValues: {},
-    areaIds,
-  };
-}
-
-/**
  * Evaluate all calculated fields for a period in order, returning the full context.
  * Each calculated field can reference previous ones.
  */

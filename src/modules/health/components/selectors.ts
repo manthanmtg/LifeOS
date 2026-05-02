@@ -280,14 +280,6 @@ export function getMedicationCounts(profile: HealthProfile): {
   };
 }
 
-export function getVaccinationDueCount(profile: HealthProfile): number {
-  return profile.payload.vaccinations.filter((vaccination) => {
-    if (!vaccination.next_due) return false;
-    const status = getDueStatus(vaccination.next_due);
-    return status === "overdue" || status === "warning";
-  }).length;
-}
-
 export function getSortedLabGroups(
   profile: HealthProfile,
 ): Array<[string, LabResult[]]> {
@@ -346,12 +338,4 @@ export function getLatestVisit(profile: HealthProfile): Visit | null {
   return getProfileOverviewSnapshot(profile).latestVisit;
 }
 
-export function getLatestLabResult(profile: HealthProfile): LabResult | null {
-  return getProfileOverviewSnapshot(profile).latestLabResult;
-}
 
-export function getLatestMeasurement(
-  profile: HealthProfile,
-): Measurement | null {
-  return getProfileOverviewSnapshot(profile).latestMeasurement;
-}
