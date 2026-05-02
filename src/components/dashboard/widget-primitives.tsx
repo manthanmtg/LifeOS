@@ -79,7 +79,10 @@ export const WidgetHighlight = memo(function WidgetHighlight({
   return (
     <div className={cn("p-2.5 rounded-xl border", styles[variant])}>
       <div className="flex items-center gap-2 min-w-0">
-        <Icon className={cn("w-3.5 h-3.5 shrink-0", iconStyles[variant])} />
+        <Icon
+          aria-hidden="true"
+          className={cn("w-3.5 h-3.5 shrink-0", iconStyles[variant])}
+        />
         <p className="text-[13px] text-zinc-300 font-medium line-clamp-1 leading-snug">
           {text}
         </p>
@@ -123,7 +126,10 @@ export const WidgetMiniStats = memo(function WidgetMiniStats({
             className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-2"
           >
             {stat.icon && (
-              <stat.icon className={cn("w-3 h-3 mb-1", TEXT_COLOR[color])} />
+              <stat.icon
+                aria-hidden="true"
+                className={cn("w-3 h-3 mb-1", TEXT_COLOR[color])}
+              />
             )}
             <p
               className={cn(
@@ -158,7 +164,10 @@ export const WidgetList = memo(function WidgetList({
           className="flex items-center gap-2.5 p-2 bg-zinc-950/40 border border-zinc-800/40 rounded-lg"
         >
           {item.icon && (
-            <item.icon className="w-3 h-3 text-zinc-600 shrink-0" />
+            <item.icon
+              aria-hidden="true"
+              className="w-3 h-3 text-zinc-600 shrink-0"
+            />
           )}
           <span className="text-[11px] text-zinc-300 truncate font-medium">
             {item.label}
