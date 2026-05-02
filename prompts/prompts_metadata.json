@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-02T14:49:15.231Z",
+  "updatedAt": "2026-05-02T16:10:00.000Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -287,12 +287,12 @@
       "category": "feature-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 5,
-      "totalCompleted": 5,
+      "totalSelected": 6,
+      "totalCompleted": 6,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-02T14:46:06.571Z",
-      "lastCompletedAt": "2026-05-02T14:49:15.231Z",
+      "lastSelectedAt": "2026-05-02T16:00:00.000Z",
+      "lastCompletedAt": "2026-05-02T16:10:00.000Z",
       "lastOutcome": "completed"
     },
     "widget_enhancer.md": {
@@ -311,7 +311,7 @@
       "lastOutcome": "completed"
     },
     "zod_schema_tightener.md": {
-      "id": "zod-schema-tightener",
+      "id": "zod_schema_tightener.md",
       "file": "zod_schema_tightener.md",
       "title": "Zod Schema Tightener",
       "category": "verification",

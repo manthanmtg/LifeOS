@@ -197,6 +197,27 @@ export async function GET(request: Request) {
       });
     }
 
+    if (module_type === "analytics") {
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
+      const yesterday = new Date(Date.now() - 86400000)
+        .toISOString()
+        .split("T")[0];
+
+      const metricsColl = db.collection("metrics");
+      const todayCount = await metricsColl.countDocuments({
+        timestamp: { $gte: today },
+      });
+      const yesterdayCount = await metricsColl.countDocuments({
+        timestamp: { $gte: yesterday, $lt: today },
+      });
+
+      return ApiSuccess({
+        todayCount,
+        yesterdayCount,
+      });
+    }
+
     if (module_type === "whiteboard_note") {
       const docs = (await contentColl
         .find(
