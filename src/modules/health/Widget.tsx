@@ -75,11 +75,14 @@ export default function HealthWidget() {
         </div>
       ) : (
         !loading && (
-          <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <HeartPulse className="w-8 h-8 text-zinc-700" />
-            <p className="text-[11px] text-zinc-600 font-medium">
-              No health data
-            </p>
+          <div className="space-y-3">
+            <WidgetStat value={0} label="profiles tracked" />
+            <WidgetHighlight
+              icon={HeartPulse}
+              text="No health data"
+              subtext="Set up your first health profile"
+              variant="default"
+            />
           </div>
         )
       )}
