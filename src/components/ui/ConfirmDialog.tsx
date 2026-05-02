@@ -98,7 +98,7 @@ export default function ConfirmDialog({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-800 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                  className="flex-1 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-800 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   {cancelLabel}
                 </button>
@@ -109,7 +109,7 @@ export default function ConfirmDialog({
                     onConfirm();
                     onClose();
                   }}
-                  className={`flex-1 px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
+                  className={`flex-1 px-4 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
                     variant === "danger"
                       ? "bg-danger text-zinc-50 hover:bg-danger-muted shadow-danger/20 focus-visible:ring-danger"
                       : "bg-warning text-zinc-900 hover:bg-warning-muted shadow-warning/20 focus-visible:ring-warning"
