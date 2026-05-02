@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BarChart3, ArrowUp, ArrowDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { BarChart3, ArrowUp, ArrowDown, Activity } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import { WidgetStat } from "@/components/dashboard/widget-primitives";
-
-interface MetricEvent {
-  timestamp: string;
-}
+import {
+  WidgetStat,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
 
 export default function AnalyticsWidget() {
   const [todayCount, setTodayCount] = useState(0);
@@ -16,25 +14,16 @@ export default function AnalyticsWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/metrics?days=2")
+    const ac = new AbortController();
+    fetch("/api/widgets/summary?module_type=analytics", { signal: ac.signal })
       .then((r) => r.json())
       .then((d) => {
-        const events = d.data || [];
-        const today = new Date().toISOString().split("T")[0];
-        const yesterday = new Date(Date.now() - 86400000)
-          .toISOString()
-          .split("T")[0];
-        setTodayCount(
-          events.filter((e: MetricEvent) => e.timestamp.startsWith(today))
-            .length,
-        );
-        setYesterdayCount(
-          events.filter((e: MetricEvent) => e.timestamp.startsWith(yesterday))
-            .length,
-        );
+        setTodayCount(d.data?.todayCount ?? 0);
+        setYesterdayCount(d.data?.yesterdayCount ?? 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => ac.abort();
   }, []);
 
   const trend = todayCount - yesterdayCount;
@@ -45,29 +34,28 @@ export default function AnalyticsWidget() {
       icon={BarChart3}
       loading={loading}
       href="/admin/analytics"
-      footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          {trend !== 0 ? (
-            <span
-              className={cn(
-                "flex items-center gap-1",
-                trend > 0 ? "text-success" : "text-danger",
-              )}
-            >
-              {trend > 0 ? (
-                <ArrowUp className="w-3 h-3" />
-              ) : (
-                <ArrowDown className="w-3 h-3" />
-              )}
-              {Math.abs(trend)} vs yesterday
-            </span>
-          ) : (
-            <span className="text-zinc-500">Stability maintained</span>
-          )}
-        </div>
-      }
     >
-      <WidgetStat value={todayCount} label="engagements today" />
+      <div className="space-y-3">
+        <WidgetStat value={todayCount} label="engagements today" />
+
+        {trend !== 0 ? (
+          <WidgetHighlight
+            icon={trend > 0 ? ArrowUp : ArrowDown}
+            text={`${Math.abs(trend)} ${trend > 0 ? "more" : "fewer"} than yesterday`}
+            subtext={
+              trend > 0 ? "Engagement is climbing" : "Activity dip detected"
+            }
+            variant={trend > 0 ? "success" : "warning"}
+          />
+        ) : (
+          <WidgetHighlight
+            icon={Activity}
+            text="Steady as she goes"
+            subtext="Same activity as yesterday"
+            variant="default"
+          />
+        )}
+      </div>
     </WidgetCard>
   );
 }
