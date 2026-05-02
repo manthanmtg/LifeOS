@@ -68,7 +68,7 @@ export default function LoginPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 className="w-14 h-14 bg-zinc-50/10 rounded-2xl border border-zinc-50/20 flex items-center justify-center mb-4"
               >
-                <Lock className="w-6 h-6 text-zinc-300" />
+                <Lock className="w-6 h-6 text-zinc-300" aria-hidden="true" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -87,16 +87,28 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
+            <label
+              htmlFor="admin-password"
+              className="mb-2 block text-xs font-semibold uppercase tracking-wider text-zinc-500"
+            >
+              Admin password
+            </label>
             <input
+              id="admin-password"
               type="password"
               placeholder="Admin Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-describedby={error ? "login-error" : undefined}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-700 transition-all"
             />
           </div>
 
-          {error && <p className="text-danger text-sm">{error}</p>}
+          {error && (
+            <p id="login-error" role="alert" className="text-danger text-sm">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
