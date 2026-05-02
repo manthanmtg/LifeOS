@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   filterPeople,
+  getBirthdayDisplay,
   getBirthdayDetails,
   getPeopleCounts,
   getPeopleSummary,
@@ -105,5 +106,12 @@ describe("people insights", () => {
 
     expect(details?.daysUntil).toBe(5);
     expect(details?.isUpcoming).toBe(true);
+  });
+
+  it("formats birthday labels with the current age", () => {
+    expect(getBirthdayDisplay("1992-04-25", now)).toEqual({
+      formatted: "25 April",
+      age: 33,
+    });
   });
 });
