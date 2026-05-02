@@ -576,8 +576,8 @@ export const VehicleSchema = z.object({
 
 // --- 19. MAINTENANCE LOG ---
 export const MaintenanceTaskSchema = z.object({
-  name: z.string().min(1, "Task name is required"),
-  description: z.string().optional(),
+  name: z.string().trim().min(1, "Task name is required").max(200),
+  description: z.string().trim().max(1000).optional(),
   category: z
     .enum([
       "home",
@@ -599,7 +599,10 @@ export const MaintenanceTaskSchema = z.object({
   last_completed: z.string().optional(), // ISO date
   next_due: z.string().optional(), // ISO date (auto-calculated for recurring tasks)
   estimated_cost: z.number().min(0).optional(), // only relevant for managed service_type
-  currency: z.string().length(3).default("INR"),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
+    .default("INR"),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   status: z
     .enum(["upcoming", "overdue", "completed", "skipped"])
@@ -612,13 +615,13 @@ export const MaintenanceTaskSchema = z.object({
         id: z.string().default(() => crypto.randomUUID()),
         completed_at: z.string().datetime(), // ISO date
         cost: z.number().min(0).optional(),
-        notes: z.string().optional(),
-        vendor: z.string().optional(),
+        notes: z.string().trim().max(2000).optional(),
+        vendor: z.string().trim().max(200).optional(),
       }),
     )
     .default([]),
-  tags: z.array(z.string()).default([]),
-  notes: z.string().optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
+  notes: z.string().trim().max(5000).optional(),
 });
 
 // --- 21. WHITEBOARD ---

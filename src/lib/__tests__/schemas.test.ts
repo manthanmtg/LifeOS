@@ -8,6 +8,7 @@ import {
   PersonSchema,
   DeckSchema,
   AiUsageSchema,
+  MaintenanceTaskSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -210,6 +211,33 @@ describe("schemas", () => {
       };
 
       const result = AiUsageSchema.safeParse(usage);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("MaintenanceTaskSchema", () => {
+    it("rejects loose maintenance text fields and tags", () => {
+      const task = {
+        name: "Water heater service",
+        category: "home",
+        service_type: "managed",
+        currency: "INR",
+        priority: "medium",
+        status: "upcoming",
+        history: [
+          {
+            id: crypto.randomUUID(),
+            completed_at: new Date().toISOString(),
+            vendor: "x".repeat(201),
+            notes: "x".repeat(2001),
+          },
+        ],
+        tags: ["", "x".repeat(51)],
+        notes: "x".repeat(5001),
+      };
+
+      const result = MaintenanceTaskSchema.safeParse(task);
 
       expect(result.success).toBe(false);
     });
