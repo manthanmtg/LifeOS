@@ -104,11 +104,11 @@ export default function WidgetCard({
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 relative z-10">
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
+      <div className="flex items-center justify-between gap-3 mb-4 relative z-10 min-w-0">
+        <span className="min-w-0 truncate text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
           {title}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {headerAction}
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
