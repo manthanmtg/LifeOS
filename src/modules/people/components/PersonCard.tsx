@@ -108,12 +108,12 @@ export default function PersonCard({
                 onToggleFavorite(person);
               }}
               className={cn(
-                "p-1 rounded-lg transition-all shrink-0",
+                "p-2 rounded-lg transition-all shrink-0",
                 is_favorite ? "text-accent" : "text-zinc-700 hover:text-accent",
               )}
             >
               <Heart
-                className={cn("w-3.5 h-3.5", is_favorite && "fill-current")}
+                className={cn("w-4 h-4", is_favorite && "fill-current")}
               />
             </button>
           </div>
@@ -154,9 +154,9 @@ export default function PersonCard({
                 e.stopPropagation();
                 onQuickLog(person, act.type);
               }}
-              className="p-1.5 text-zinc-600 rounded-lg hover:text-accent hover:bg-accent/10 transition-all active:scale-90"
+              className="p-2.5 text-zinc-600 rounded-lg hover:text-accent hover:bg-accent/10 transition-all active:scale-90"
             >
-              <act.icon className="w-3.5 h-3.5" />
+              <act.icon className="w-4 h-4" />
             </button>
           ))}
         </div>
