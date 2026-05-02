@@ -32,6 +32,7 @@ import {
 } from "../types";
 import PersonDocuments from "./PersonDocuments";
 import {
+  getBirthdayDisplay,
   getBirthdayDetails,
   getDaysSinceDate,
   getDerivedLastContacted,
@@ -51,30 +52,6 @@ interface PersonProfileProps {
   ) => Promise<void>;
   onUpdateInteractions: (interactions: Interaction[]) => Promise<void>;
   onUpdateDocuments: (person: Person, docs: PersonDocument[]) => Promise<void>;
-}
-
-function getBirthdayDisplay(birthday: string): {
-  formatted: string;
-  age: number | null;
-} {
-  const date = new Date(birthday + "T00:00:00");
-  if (isNaN(date.getTime())) return { formatted: birthday, age: null };
-
-  const month = date.toLocaleDateString(undefined, { month: "long" });
-  const day = date.getDate();
-  const year = date.getFullYear();
-
-  const today = new Date();
-  let age = today.getFullYear() - year;
-  const monthDiff = today.getMonth() - date.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) {
-    age--;
-  }
-
-  return {
-    formatted: `${day} ${month}`,
-    age: age >= 0 ? age : null,
-  };
 }
 
 const inputCls =
@@ -127,6 +104,10 @@ export default function PersonProfile({
   );
   const birthdayDetails = useMemo(
     () => getBirthdayDetails(birthday),
+    [birthday],
+  );
+  const birthdayDisplay = useMemo(
+    () => (birthday ? getBirthdayDisplay(birthday) : null),
     [birthday],
   );
   const interactionRows = useMemo(
@@ -361,9 +342,9 @@ export default function PersonProfile({
                 </span>
                 <div className="flex items-center gap-2">
                   <Cake className="w-3 h-3 text-zinc-500" />
-                  {birthday ? (
+                  {birthdayDisplay ? (
                     <span className="text-xs font-semibold text-zinc-300">
-                      {getBirthdayDisplay(birthday).formatted}
+                      {birthdayDisplay.formatted}
                       {birthdayDetails?.ageTurning !== null &&
                         birthdayDetails?.ageTurning !== undefined && (
                           <span className="ml-1.5 rounded-md border border-zinc-700/50 bg-zinc-800 px-1.5 py-0.5 text-[10px] font-bold text-zinc-400">

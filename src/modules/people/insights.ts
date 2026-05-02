@@ -17,6 +17,11 @@ export interface BirthdayDetails {
   isUpcoming: boolean;
 }
 
+export interface BirthdayDisplay {
+  formatted: string;
+  age: number | null;
+}
+
 export interface PersonSummary {
   total: number;
   favorites: number;
@@ -80,6 +85,29 @@ export function getBirthdayDetails(
     ageTurning,
     isThisMonth: raw.getMonth() === now.getMonth(),
     isUpcoming: daysUntil >= 0 && daysUntil <= UPCOMING_BIRTHDAY_WINDOW_DAYS,
+  };
+}
+
+export function getBirthdayDisplay(
+  birthday: string,
+  now = new Date(),
+): BirthdayDisplay {
+  const date = new Date(`${birthday}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return { formatted: birthday, age: null };
+
+  const month = date.toLocaleDateString(undefined, { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  let age = now.getFullYear() - year;
+  const monthDiff = now.getMonth() - date.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < day)) {
+    age--;
+  }
+
+  return {
+    formatted: `${day} ${month}`,
+    age: age >= 0 ? age : null,
   };
 }
 
