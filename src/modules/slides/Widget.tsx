@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useEffect } from "react";
-import { Presentation, Globe, Layers } from "lucide-react";
+import { Presentation } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -42,18 +42,6 @@ const SlidesWidget = memo(function SlidesWidget() {
       icon={Presentation}
       loading={loading}
       href="/admin/slides"
-      footer={
-        summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-success/80">
-              <Globe className="w-3 h-3" /> {summary.publicDecks} public
-            </span>
-            <span className="flex items-center gap-1.5 text-accent/80">
-              <Layers className="w-3 h-3" /> {summary.uniqueTopics} topics
-            </span>
-          </div>
-        )
-      }
     >
       <div className="space-y-3">
         <WidgetStat value={summary?.total ?? 0} label="decks uploaded" />
