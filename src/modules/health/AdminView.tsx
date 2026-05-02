@@ -33,6 +33,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import ImageCropper from "@/components/ui/ImageCropper";
 import ImagePreview from "@/components/ui/ImagePreview";
 import DocPreview from "@/components/ui/DocPreview";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 // Sub-components
 import HealthMetrics from "./components/HealthMetrics";
@@ -743,40 +744,7 @@ export default function HealthAdminView() {
 
   // ─── Render: Loading ─────────────────────────────────────────────────────
 
-  if (loading) {
-    return (
-      <div className="animate-fade-in-up space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <div className="h-8 w-48 bg-zinc-800 rounded-lg animate-pulse" />
-            <div className="h-4 w-72 bg-zinc-800/60 rounded-md animate-pulse" />
-          </div>
-          <div className="h-10 w-32 bg-zinc-800 rounded-lg animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4 animate-pulse"
-            >
-              <div className="h-6 w-1/2 bg-zinc-800 rounded" />
-              <div className="h-4 w-3/4 bg-zinc-800/60 rounded" />
-              <div className="h-4 w-1/3 bg-zinc-800/40 rounded" />
-            </div>
-          ))}
-        </div>
-
-        {cropFileState && (
-          <ImageCropper
-            imageSrc={cropFileState.url}
-            mimeType={cropFileState.type}
-            onClose={closeCropper}
-            onCropComplete={handleCropComplete}
-          />
-        )}
-      </div>
-    );
-  }
+  if (loading) return <AdminModuleSkeleton />;
 
   // ─── Render: Detail View ─────────────────────────────────────────────────
 
