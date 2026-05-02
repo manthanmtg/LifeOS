@@ -38,6 +38,25 @@ export default function SnippetsWidget() {
     return () => controller.abort();
   }, []);
 
+  const highlight =
+    summary.total === 0
+      ? {
+          text: "No snippets yet",
+          subtext: "Save reusable code as you go",
+          variant: "default" as const,
+        }
+      : summary.favorites > 0
+        ? {
+            text: `${summary.favorites} starred across ${summary.languageCount} languages`,
+            subtext: "Favorites stay easy to find",
+            variant: "accent" as const,
+          }
+        : {
+            text: `${summary.languageCount} languages collected`,
+            subtext: "Star key snippets for faster recall",
+            variant: "default" as const,
+          };
+
   return (
     <WidgetCard
       title="Snippets"
@@ -49,11 +68,9 @@ export default function SnippetsWidget() {
         <WidgetStat value={summary.total} label="code snippets" />
         <WidgetHighlight
           icon={Star}
-          text={
-            summary.favorites > 0
-              ? `${summary.favorites} starred across ${summary.languageCount} languages`
-              : `${summary.languageCount} languages collected`
-          }
+          text={highlight.text}
+          subtext={highlight.subtext}
+          variant={highlight.variant}
         />
       </div>
     </WidgetCard>
