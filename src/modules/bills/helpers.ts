@@ -1,4 +1,4 @@
-import type { Bill, BillFolder, FolderNode } from "./types";
+import type { Bill, BillFolder } from "./types";
 
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -12,23 +12,6 @@ export function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-export function buildFolderTree(
-  folders: BillFolder[],
-  bills: Bill[],
-  parentId?: string,
-): FolderNode[] {
-  return folders
-    .filter((f) => (f.payload.parent_id ?? undefined) === parentId)
-    .map((f) => {
-      const children = buildFolderTree(folders, bills, f._id);
-      const directCount = bills.filter(
-        (b) => b.payload.folder_id === f._id,
-      ).length;
-      const descendantCount = children.reduce((sum, n) => sum + n.billCount, 0);
-      return { ...f, children, billCount: directCount + descendantCount };
-    });
 }
 
 export function getBillsForFolder(
