@@ -20,6 +20,11 @@ describe("ImagePreview", () => {
     expect(source).toContain('aria-label="Close image preview"');
   });
 
+  it("exposes the backdrop close target as a named button", () => {
+    expect(source).toContain('type="button"');
+    expect(source).toContain('aria-label="Close image preview backdrop"');
+  });
+
   it("keeps icon-only controls at least 44px for touch input", () => {
     expect(source.match(/min-h-11 min-w-11/g) ?? []).toHaveLength(2);
   });

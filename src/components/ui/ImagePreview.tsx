@@ -29,8 +29,15 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
       aria-modal="true"
       aria-label={alt || "Image preview"}
     >
+      <button
+        type="button"
+        className="absolute inset-0 z-0 cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+        onClick={onClose}
+        aria-label="Close image preview backdrop"
+      />
+
       {/* Header / Controls */}
-      <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10">
+      <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-20">
         <div className="min-w-0 flex-1">
           {alt && (
             <p className="text-zinc-400 text-sm font-medium truncate pr-4">
@@ -61,25 +68,21 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
       </div>
 
       {/* Image Container */}
-      <div
-        className="relative w-full h-full flex items-center justify-center p-4 sm:p-8"
-        onClick={onClose}
-      >
+      <div className="relative z-10 w-full h-full flex items-center justify-center p-4 sm:p-8 pointer-events-none">
         <div className="relative w-full h-full max-w-full max-h-[85vh]">
           <Image
             src={src}
             alt={alt || "Image Preview"}
             fill
             unoptimized
-            className="object-contain rounded-lg shadow-2xl animate-in zoom-in duration-300"
-            onClick={(e) => e.stopPropagation()}
+            className="object-contain rounded-lg shadow-2xl animate-in zoom-in duration-300 pointer-events-auto"
           />
         </div>
       </div>
 
       {/* Footer Info / Tip */}
-      <div className="absolute bottom-6 text-zinc-500 text-[10px] sm:text-xs font-medium uppercase tracking-widest text-center w-full">
-        Click anywhere to close
+      <div className="absolute bottom-6 z-10 text-zinc-500 text-[10px] sm:text-xs font-medium uppercase tracking-widest text-center w-full pointer-events-none">
+        Click backdrop to close
       </div>
     </div>,
     document.body,
