@@ -69,6 +69,33 @@ export interface BookshelfStats {
   monthlyCompletions: number[];
 }
 
+export function parseOptionalPositiveIntegerField(
+  input: string,
+  label: string,
+) {
+  const trimmed = input.trim();
+  if (!trimmed) return { value: undefined };
+
+  const value = Number(trimmed);
+  if (!Number.isInteger(value) || value <= 0) {
+    return { error: `${label} must be a positive whole number` };
+  }
+
+  return { value };
+}
+
+export function parseNonNegativeIntegerField(input: string, label: string) {
+  const trimmed = input.trim();
+  if (!trimmed) return { value: 0 };
+
+  const value = Number(trimmed);
+  if (!Number.isInteger(value) || value < 0) {
+    return { error: `${label} must be zero or a positive whole number` };
+  }
+
+  return { value };
+}
+
 export function toDateInputValue(iso?: string): string {
   if (!iso) return "";
   const date = new Date(iso);
