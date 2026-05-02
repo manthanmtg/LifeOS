@@ -50,9 +50,13 @@ export default function TemplateWidget() {
       signal: ac.signal,
     })
       .then((r) => r.json())
-      .then((d) => setData(d.data ?? null))
+      .then((d) => {
+        if (!ac.signal.aborted) setData(d.data ?? null);
+      })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
   }, []);
 
