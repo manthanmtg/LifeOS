@@ -483,8 +483,7 @@ export default function MaintenanceAdminView() {
     try {
       await fetch(`/api/content/${id}`, { method: "DELETE" });
       await fetchTasks();
-    } catch {
-    }
+    } catch {}
     setDeletingId(null);
   };
 
@@ -970,6 +969,7 @@ export default function MaintenanceAdminView() {
                       <input
                         type="text"
                         value={form.name}
+                        maxLength={200}
                         onChange={(e) =>
                           setForm((f) => ({ ...f, name: e.target.value }))
                         }
@@ -983,6 +983,7 @@ export default function MaintenanceAdminView() {
                       </label>
                       <textarea
                         value={form.description || ""}
+                        maxLength={1000}
                         onChange={(e) =>
                           setForm((f) => ({
                             ...f,
@@ -1390,6 +1391,7 @@ export default function MaintenanceAdminView() {
                       <input
                         type="text"
                         value={tagInput}
+                        maxLength={1018}
                         onChange={(e) => setTagInput(e.target.value)}
                         placeholder="filter, seasonal, annual"
                         className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
@@ -1420,6 +1422,7 @@ export default function MaintenanceAdminView() {
                       </label>
                       <textarea
                         value={form.notes || ""}
+                        maxLength={5000}
                         onChange={(e) =>
                           setForm((f) => ({ ...f, notes: e.target.value }))
                         }
@@ -1565,6 +1568,7 @@ export default function MaintenanceAdminView() {
                     <input
                       type="text"
                       value={completionVendor}
+                      maxLength={200}
                       onChange={(e) => setCompletionVendor(e.target.value)}
                       placeholder="Who did it?"
                       className="w-full px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-all"
@@ -1577,6 +1581,7 @@ export default function MaintenanceAdminView() {
                   </label>
                   <textarea
                     value={completionNotes}
+                    maxLength={2000}
                     onChange={(e) => setCompletionNotes(e.target.value)}
                     placeholder="Any remarks..."
                     rows={2}
