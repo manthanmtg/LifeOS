@@ -221,7 +221,7 @@ export default function PersonProfile({
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 transition-all"
+        className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-200 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 transition-all"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back
       </button>
@@ -292,7 +292,7 @@ export default function PersonProfile({
                 <button
                   onClick={() => onToggleFavorite(person)}
                   className={cn(
-                    "p-2 rounded-xl transition-all border",
+                    "p-2.5 rounded-xl transition-all border",
                     is_favorite
                       ? "bg-accent/15 border-accent/30 text-accent"
                       : "bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:text-zinc-200",
@@ -304,13 +304,13 @@ export default function PersonProfile({
                 </button>
                 <button
                   onClick={() => onEdit(person)}
-                  className="p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-accent hover:bg-accent/10 transition-all"
+                  className="p-2.5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-accent hover:bg-accent/10 transition-all"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onDelete(person._id)}
-                  className="p-2 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-danger hover:bg-danger/10 transition-all"
+                  className="p-2.5 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 hover:text-danger hover:bg-danger/10 transition-all"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
