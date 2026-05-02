@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Wrench, AlertTriangle, Clock } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -15,7 +15,7 @@ interface MaintenanceSummary {
   completedThisMonth: number;
 }
 
-export default function MaintenanceWidget() {
+export default memo(function MaintenanceWidget() {
   const [summary, setSummary] = useState<MaintenanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,9 +27,11 @@ export default function MaintenanceWidget() {
       .then((r) => r.json())
       .then((d) => {
         setSummary(d.data ?? null);
+        setLoading(false);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+      });
     return () => ac.abort();
   }, []);
 
@@ -76,4 +78,4 @@ export default function MaintenanceWidget() {
       )}
     </WidgetCard>
   );
-}
+});
