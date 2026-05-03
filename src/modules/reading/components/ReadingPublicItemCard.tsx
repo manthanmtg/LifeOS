@@ -18,11 +18,12 @@ export function ReadingPublicItemCard({ item }: ReadingPublicItemCardProps) {
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
       href={item.payload.url}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center gap-4 hover:border-zinc-700 transition-colors group",
+        "bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 flex items-center gap-4 transition-all hover:border-zinc-700/50 hover:shadow-2xl hover:shadow-black/40 group",
         item.payload.is_read && "opacity-65",
       )}
     >
