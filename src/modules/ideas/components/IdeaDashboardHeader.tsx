@@ -31,7 +31,7 @@ function StatCard({
   }[tone];
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5">
+    <div className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-zinc-700 hover:bg-zinc-900/60">
       <p className="text-xs text-zinc-500">{label}</p>
       <p className={cn("text-lg font-semibold", toneClass)}>{value}</p>
     </div>
