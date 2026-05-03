@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/mongodb";
-import { ContentDocument } from "@/lib/types";
+import { ContentDocument, SystemConfig } from "@/lib/types";
 import { ApiSuccess, ApiError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
@@ -7,6 +7,8 @@ import { getIdeaMetrics, getIdeaSpotlight } from "@/modules/ideas/insights";
 import type { IdeaRecord } from "@/modules/ideas/shared";
 import { getPeopleSummary, toPersonDocument } from "@/modules/people/insights";
 import type { PersonPayload } from "@/modules/people/types";
+import { getCropHistorySummary } from "@/modules/crop-history/insights";
+import type { CropRecord, ModuleSettings as CropSettings } from "@/modules/crop-history/AdminView";
 import { computeMetrics } from "@/modules/habits/components/types";
 import type { Habit } from "@/modules/habits/components/types";
 import { z } from "zod";
@@ -663,6 +665,19 @@ export async function GET(request: Request) {
           nextRenewal,
           daysUntilNext,
         };
+        break;
+      }
+
+      case "crop_history": {
+        const systemColl = db.collection<SystemConfig>("system");
+        const config = await systemColl.findOne({
+          _id: "global",
+        });
+        const settings = (config?.cropHistorySettings || {
+          crops: [],
+          sources: [],
+        }) as CropSettings;
+        summary = getCropHistorySummary(docs as CropRecord[], settings);
         break;
       }
 
