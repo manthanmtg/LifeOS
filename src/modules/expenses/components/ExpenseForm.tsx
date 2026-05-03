@@ -529,7 +529,7 @@ export default function ExpenseForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 px-6 bg-zinc-800 hover:bg-zinc-750 text-zinc-400 hover:text-zinc-50 font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all"
+              className="flex-1 py-4 px-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all"
             >
               Cancel
             </button>

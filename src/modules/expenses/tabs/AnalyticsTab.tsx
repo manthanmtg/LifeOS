@@ -36,20 +36,20 @@ import {
 import { cn } from "@/lib/utils";
 
 const CHART_COLORS = [
-  "#3b82f6",
-  "#f97316",
-  "#a855f7",
-  "#eab308",
-  "#ec4899",
-  "#06b6d4",
-  "#22c55e",
-  "#f43f5e",
-  "#6366f1",
-  "#14b8a6",
+  "var(--color-accent)",
+  "var(--color-warning)",
+  "var(--color-success)",
+  "var(--color-danger)",
+  "var(--color-zinc-400)",
+  "var(--color-accent-hover)",
+  "var(--color-warning-muted)",
+  "var(--color-success-muted)",
+  "var(--color-danger-muted)",
+  "var(--color-zinc-500)",
 ];
 
-const INCOME_COLOR = "#10b981";
-const EXPENSE_COLOR = "#f43f5e";
+const INCOME_COLOR = "var(--color-success)";
+const EXPENSE_COLOR = "var(--color-danger)";
 
 export default function AnalyticsTab({
   expenses,
@@ -365,29 +365,37 @@ export default function AnalyticsTab({
                     </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="#27272a"
+                      stroke="var(--color-zinc-800)"
                       vertical={false}
                     />
                     <XAxis
                       dataKey="name"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: "#71717a", fontSize: 11, fontWeight: 900 }}
+                      tick={{
+                        fill: "var(--color-zinc-500)",
+                        fontSize: 11,
+                        fontWeight: 900,
+                      }}
                       dy={10}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: "#71717a", fontSize: 10, fontWeight: 700 }}
+                      tick={{
+                        fill: "var(--color-zinc-500)",
+                        fontSize: 10,
+                        fontWeight: 700,
+                      }}
                       tickFormatter={(val) =>
                         `${sym}${val > 1000 ? (val / 1000).toFixed(0) + "k" : val}`
                       }
                     />
                     <ReTooltip
                       contentStyle={{
-                        backgroundColor: "#09090b",
+                        backgroundColor: "var(--color-zinc-950)",
                         borderRadius: "24px",
-                        border: "1px solid #27272a",
+                        border: "1px solid var(--color-zinc-800)",
                         padding: "20px",
                       }}
                       itemStyle={{

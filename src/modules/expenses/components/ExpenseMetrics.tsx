@@ -209,7 +209,7 @@ export default function ExpenseMetrics({
               transition={{ duration: 1, ease: "easeOut" }}
             >
               <motion.div
-                className="absolute inset-0 bg-white/20"
+                className="absolute inset-0 bg-zinc-50/20"
                 animate={{ x: ["-100%", "100%"] }}
                 transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
               />
