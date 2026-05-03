@@ -206,9 +206,10 @@ export default function IdeaFormPanel({
             onChange={(e) => setTagsInput(e.target.value)}
             placeholder="ai, workflow, startup"
             disabled={isSubmitting}
+            aria-describedby="idea-tags-hint"
             className={inputClass}
           />
-          <p className="mt-1 text-xs text-zinc-500">
+          <p id="idea-tags-hint" className="mt-1 text-xs text-zinc-500">
             Separate tags with commas to keep related concepts easy to find.
           </p>
         </div>
