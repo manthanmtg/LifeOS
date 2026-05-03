@@ -202,7 +202,7 @@ export default function DashboardTab({
           whileTap={{ scale: 0.98 }}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-xl">
+            <div className="p-2 bg-zinc-50/20 rounded-xl">
               <Plus className="w-5 h-5 stroke-[3]" />
             </div>
             <span className="font-black text-xs uppercase tracking-[0.1em]">
