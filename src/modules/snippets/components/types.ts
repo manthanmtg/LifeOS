@@ -45,8 +45,6 @@ export const LANGUAGES = [
   "other",
 ] as const;
 
-export type Language = (typeof LANGUAGES)[number];
-
 export const SNIPPET_DEFAULTS: SnippetSettings = {
   defaultLanguage: "javascript",
   languages: [...LANGUAGES],
