@@ -273,21 +273,12 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 8,
-<<<<<<< HEAD
       "totalCompleted": 8,
       "totalNoop": 0,
       "totalFailed": 0,
       "lastSelectedAt": "2026-05-03T15:22:08.717Z",
       "lastCompletedAt": "2026-05-03T15:22:25.163Z",
       "lastOutcome": "completed"
-=======
-      "totalCompleted": 7,
-      "totalNoop": 0,
-      "totalFailed": 0,
-      "lastSelectedAt": "2026-05-03T15:22:08.717Z",
-      "lastCompletedAt": "2026-05-03T15:20:25.000Z",
-      "lastOutcome": "selected"
->>>>>>> c442e5d (chore(prompts): track selected visual polish prompt)
     },
     "widget_contract_enforcer.md": {
       "id": "widget-contract-enforcer",
