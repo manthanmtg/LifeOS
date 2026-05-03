@@ -111,7 +111,7 @@ export function getBirthdayDisplay(
   };
 }
 
-export function getLastInteraction(interactions: Interaction[] = []) {
+function getLastInteraction(interactions: Interaction[] = []) {
   return interactions
     .slice()
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];

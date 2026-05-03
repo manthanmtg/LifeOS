@@ -34,7 +34,7 @@ export function formatPostDate(value?: string): string {
   });
 }
 
-export function stripMarkdown(content: string): string {
+function stripMarkdown(content: string): string {
   return content
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
@@ -100,7 +100,7 @@ export function parseHeadingOutline(content: string): BlogHeading[] {
   return headings;
 }
 
-export function getPostTimestamp(post: BlogPost): number {
+function getPostTimestamp(post: BlogPost): number {
   return new Date(post.payload.published_at || post.created_at).getTime();
 }
 

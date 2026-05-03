@@ -109,7 +109,7 @@ export const CURR_SYM: Record<string, string> = {
   BRL: "R$",
 };
 
-export const CATEGORY_COLORS: Record<string, string> = {
+const CATEGORY_COLORS: Record<string, string> = {
   Housing: "bg-accent/15 text-accent border-accent/20",
   Food: "bg-warning/15 text-warning border-warning/20",
   Transportation: "bg-accent/15 text-accent border-accent/20",
