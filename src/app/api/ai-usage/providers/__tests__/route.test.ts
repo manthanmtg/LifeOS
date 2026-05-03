@@ -26,6 +26,14 @@ function createRequest(body: unknown) {
   });
 }
 
+function createRawRequest(body: string) {
+  return new Request("http://localhost/api/ai-usage/providers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
+}
+
 function validProvider(overrides: Record<string, unknown> = {}) {
   return {
     name: "OpenAI Admin",
@@ -141,6 +149,15 @@ describe("/api/ai-usage/providers", () => {
       admin_api_key: { _errors: ["Admin API key is required"] },
       monthly_budget: { _errors: expect.any(Array) },
     });
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid POST JSON before database access", async () => {
+    const response = await POST(createRawRequest("{"));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("Bad request");
     expect(getDb).not.toHaveBeenCalled();
   });
 

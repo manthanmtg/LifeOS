@@ -38,7 +38,13 @@ export async function POST(request: Request) {
     const isAdmin = token ? !!(await verifyToken(token)) : false;
     if (!isAdmin) return ApiError("Unauthorized", 401);
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return ApiError("Bad request", 400);
+    }
+
     const parsed = AiProviderConfigSchema.safeParse(body);
     if (!parsed.success) {
       return ApiValidationError(parsed.error.format());
