@@ -99,3 +99,14 @@ Import validation touches backup compatibility, migration behavior, and failure 
 Result:
 
 - `pnpm check` passed.
+
+## Follow-up run (2026-05-03)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Resolved a narrow validation/status leak in `POST /api/import`: malformed JSON
+now returns the existing `Invalid backup format` 400 response before database
+access instead of falling through to the generic import failure path.
+
+The broader backup content revalidation finding above remains open because it
+requires a separate compatibility and migration test plan.
