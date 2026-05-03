@@ -54,52 +54,57 @@ export default function BookshelfAdminView() {
 
   // Compute stats with monthly completions for sparklines
   const stats: BookshelfStats = useMemo(() => {
+    let reading = 0;
+    let completed = 0;
+    let wantToRead = 0;
+    let abandoned = 0;
+    let ratingSum = 0;
+    let ratedCount = 0;
+    let totalPagesRead = 0;
+
+    const now = new Date();
+    // Precompute the last 6 months boundaries to bucket completed books
+    const monthBoundaries = Array.from({ length: 6 }, (_, i) => {
+      const idx = 5 - i;
+      return {
+        start: new Date(now.getFullYear(), now.getMonth() - idx, 1),
+        end: new Date(now.getFullYear(), now.getMonth() - idx + 1, 0),
+        count: 0,
+      };
+    });
+
+    for (const b of books) {
+      const status = b.payload.status;
+      if (status === "reading") reading++;
+      else if (status === "completed") {
+        completed++;
+        totalPagesRead += b.payload.total_pages || 0;
+
+        if (b.payload.finished_at) {
+          const d = new Date(b.payload.finished_at);
+          for (const m of monthBoundaries) {
+            if (d >= m.start && d <= m.end) {
+              m.count++;
+              break;
+            }
+          }
+        }
+      } else if (status === "want_to_read") wantToRead++;
+      else if (status === "abandoned") abandoned++;
+
+      if (b.payload.rating) {
+        ratingSum += b.payload.rating;
+        ratedCount++;
+      }
+    }
+
     const total = books.length;
-    const reading = books.filter((b) => b.payload.status === "reading").length;
-    const completed = books.filter(
-      (b) => b.payload.status === "completed",
-    ).length;
-    const wantToRead = books.filter(
-      (b) => b.payload.status === "want_to_read",
-    ).length;
-    const abandoned = books.filter(
-      (b) => b.payload.status === "abandoned",
-    ).length;
     const goal = Number(settings.yearlyGoal || 0);
     const goalProgress = goal > 0 ? Math.min(100, (completed / goal) * 100) : 0;
-
-    const ratedBooks = books.filter((b) => b.payload.rating);
-    const avgRating =
-      ratedBooks.length > 0
-        ? ratedBooks.reduce((sum, b) => sum + (b.payload.rating || 0), 0) /
-          ratedBooks.length
-        : 0;
-
-    const completedBooks = books.filter(
-      (b) => b.payload.status === "completed",
-    );
-    const totalPagesRead = completedBooks.reduce(
-      (sum, b) => sum + (b.payload.total_pages || 0),
-      0,
-    );
-    const avgPagesPerBook =
-      completedBooks.length > 0 ? totalPagesRead / completedBooks.length : 0;
+    const avgRating = ratedCount > 0 ? ratingSum / ratedCount : 0;
+    const avgPagesPerBook = completed > 0 ? totalPagesRead / completed : 0;
     const completionRate = total > 0 ? (completed / total) * 100 : 0;
-
-    // Monthly completions for sparkline (last 6 months)
-    const monthlyCompletions: number[] = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-      const count = books.filter((b) => {
-        if (b.payload.status !== "completed" || !b.payload.finished_at)
-          return false;
-        const d = new Date(b.payload.finished_at);
-        return d >= monthStart && d <= monthEnd;
-      }).length;
-      monthlyCompletions.push(count);
-    }
+    const monthlyCompletions = monthBoundaries.map((m) => m.count);
 
     return {
       total,
@@ -139,11 +144,7 @@ export default function BookshelfAdminView() {
         case "rating":
           return dir * ((a.payload.rating || 0) - (b.payload.rating || 0));
         default:
-          return (
-            dir *
-            (new Date(a.created_at).getTime() -
-              new Date(b.created_at).getTime())
-          );
+          return dir * a.created_at.localeCompare(b.created_at);
       }
     });
 
