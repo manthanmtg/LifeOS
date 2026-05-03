@@ -16,8 +16,13 @@ function isPlainObjectArray(arr: unknown): arr is Record<string, unknown>[] {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    if (!body.data || typeof body.data !== "object") {
+    const body = await req.json().catch(() => null);
+    if (
+      !body ||
+      typeof body !== "object" ||
+      !body.data ||
+      typeof body.data !== "object"
+    ) {
       return ApiError("Invalid backup format", 400);
     }
 
