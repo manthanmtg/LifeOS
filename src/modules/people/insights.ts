@@ -3,11 +3,11 @@ import type { Interaction, Person, PersonPayload, Relationship } from "./types";
 
 export type PeopleFilterType = "all" | "favorites" | "upcoming" | "stale";
 
-export const STALE_CONTACT_DAYS = 90;
-export const RECENT_CONTACT_DAYS = 14;
-export const UPCOMING_BIRTHDAY_WINDOW_DAYS = 30;
+const STALE_CONTACT_DAYS = 90;
+const RECENT_CONTACT_DAYS = 14;
+const UPCOMING_BIRTHDAY_WINDOW_DAYS = 30;
 
-export interface BirthdayDetails {
+interface BirthdayDetails {
   month: number;
   day: number;
   nextBirthday: string;
@@ -17,7 +17,7 @@ export interface BirthdayDetails {
   isUpcoming: boolean;
 }
 
-export interface BirthdayDisplay {
+interface BirthdayDisplay {
   formatted: string;
   age: number | null;
 }
