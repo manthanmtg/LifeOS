@@ -104,7 +104,9 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 ### Auth & Middleware
 
-`src/proxy.ts` is the Next.js middleware. It protects `/admin/*` routes and non-GET `/api/content` requests using JWT tokens (jose library) stored in `lifeos_token` HTTP-only cookie. GET requests to `/api/content` are public.
+`src/proxy.ts` is the Next.js middleware. It protects `/admin/*`, admin-only API families (`/api/system`, `/api/ai-usage`, `/api/export`, `/api/import`, `/api/db-stats`, `/api/widgets`, `/api/module-info`, `/api/bills`), GET analytics, and non-GET `/api/content` requests using JWT tokens (jose library) stored in the `lifeos_token` HTTP-only cookie. GET requests to `/api/content` remain public.
+
+The middleware also redirects authenticated users from `/` to `/admin` unless `?public=1` is present, redirects authenticated `/admin/login` visits to `/admin`, and validates same-origin `Origin` headers on non-GET/non-HEAD `/api/*` requests as CSRF protection.
 
 ### Key Files
 
