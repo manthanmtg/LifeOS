@@ -17,6 +17,9 @@ interface ReadingFiltersProps {
   allUniqueTags: string[];
 }
 
+const filterButtonBase =
+  "px-3 py-1.5 rounded-lg text-xs border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
+
 export function ReadingFilters({
   searchQuery,
   setSearchQuery,
@@ -30,7 +33,7 @@ export function ReadingFilters({
   allUniqueTags,
 }: ReadingFiltersProps) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3">
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/55 backdrop-blur-sm p-4 space-y-3 shadow-sm shadow-zinc-950/40">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -40,7 +43,7 @@ export function ReadingFilters({
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Search title, domain, notes"
             aria-label="Search reading queue"
-            className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
+            className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 hover:border-zinc-700 transition-colors"
           />
         </div>
 
@@ -54,7 +57,7 @@ export function ReadingFilters({
               key={item.key}
               onClick={() => setStatusFilter(item.key)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs border transition-all",
+                filterButtonBase,
                 statusFilter === item.key
                   ? "bg-accent/15 border-accent/35 text-accent font-medium"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -69,7 +72,7 @@ export function ReadingFilters({
           <button
             onClick={() => setTypeFilter("all")}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-all",
+              filterButtonBase,
               typeFilter === "all"
                 ? "bg-accent/15 border-accent/35 text-accent font-medium"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -82,7 +85,7 @@ export function ReadingFilters({
               key={item}
               onClick={() => setTypeFilter(item)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs capitalize border transition-all",
+                filterButtonBase + " capitalize",
                 typeFilter === item
                   ? "bg-accent/15 border-accent/35 text-accent font-medium"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -104,7 +107,7 @@ export function ReadingFilters({
             <button
               onClick={() => setTagFilter("all")}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-xs border transition-all",
+                filterButtonBase + " px-2.5 py-1",
                 tagFilter === "all"
                   ? "bg-accent/15 border-accent/35 text-accent font-medium"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -117,7 +120,7 @@ export function ReadingFilters({
                 key={tag}
                 onClick={() => setTagFilter(tag)}
                 className={cn(
-                  "px-2.5 py-1 rounded-lg text-xs border transition-all",
+                  filterButtonBase + " px-2.5 py-1",
                   tagFilter === tag
                     ? "bg-accent/15 border-accent/35 text-accent font-medium"
                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
