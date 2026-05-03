@@ -83,6 +83,7 @@ export default function WhiteboardWidget() {
             icon={summary.latest.is_favorite ? Star : PenLine}
             text={summary.latest.name}
             subtext={summary.latest.is_favorite ? "favorite" : "last edited"}
+            variant={summary.latest.is_favorite ? "warning" : "default"}
           />
         ) : (
           <WidgetHighlight icon={PenLine} text="No boards yet" />
