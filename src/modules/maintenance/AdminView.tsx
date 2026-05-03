@@ -412,6 +412,13 @@ export default function MaintenanceAdminView() {
     setShowForm(true);
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setFilterCategory("all");
+    setFilterPriority("all");
+    setFilterStatus("all");
+  };
+
   const saveTask = async () => {
     if (!form.name.trim()) return;
     setSaving(true);
@@ -692,7 +699,11 @@ export default function MaintenanceAdminView() {
 
       {/* ── Task Grid ──────────────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <EmptyState hasAnyTasks={tasks.length > 0} onAdd={openNew} />
+        <EmptyState
+          hasAnyTasks={tasks.length > 0}
+          onAdd={openNew}
+          onClearFilters={clearFilters}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((task) => {
@@ -1922,9 +1933,11 @@ function FilterSelect({
 function EmptyState({
   hasAnyTasks,
   onAdd,
+  onClearFilters,
 }: {
   hasAnyTasks: boolean;
   onAdd: () => void;
+  onClearFilters: () => void;
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -1941,7 +1954,14 @@ function EmptyState({
           ? "Try adjusting your search or filter criteria."
           : "Track recurring maintenance for your home, vehicles, appliances, and more. Never miss a service date again."}
       </p>
-      {!hasAnyTasks && (
+      {hasAnyTasks ? (
+        <button
+          onClick={onClearFilters}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-800 text-zinc-200 font-medium text-sm hover:bg-zinc-700 transition-colors"
+        >
+          <X className="w-4 h-4" /> Clear filters
+        </button>
+      ) : (
         <button
           onClick={onAdd}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 font-medium text-sm hover:bg-zinc-200 transition-colors"
