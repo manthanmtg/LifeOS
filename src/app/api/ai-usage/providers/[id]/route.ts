@@ -54,7 +54,12 @@ export async function PUT(
     const id = (await params).id;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return ApiError("Bad request", 400);
+    }
+
+    const bodyObj = body as Record<string, unknown>;
     const db = await getDb();
     const coll = db.collection("ai_providers");
 
@@ -66,23 +71,27 @@ export async function PUT(
       updated_at: new Date().toISOString(),
     };
 
-    if (body.name !== undefined) updateData.name = body.name;
-    if (body.provider !== undefined) updateData.provider = body.provider;
-    if (body.is_active !== undefined) updateData.is_active = body.is_active;
+    if (bodyObj.name !== undefined) updateData.name = bodyObj.name;
+    if (bodyObj.provider !== undefined) updateData.provider = bodyObj.provider;
+    if (bodyObj.is_active !== undefined)
+      updateData.is_active = bodyObj.is_active;
     if (
-      body.admin_api_key !== undefined &&
-      body.admin_api_key.trim() &&
-      !body.admin_api_key.includes("...")
+      typeof bodyObj.admin_api_key === "string" &&
+      bodyObj.admin_api_key.trim() &&
+      !bodyObj.admin_api_key.includes("...")
     ) {
-      updateData.admin_api_key = body.admin_api_key;
+      updateData.admin_api_key = bodyObj.admin_api_key;
     }
-    if (body.plan !== undefined) updateData.plan = body.plan || undefined;
-    if (body.monthly_budget !== undefined)
-      updateData.monthly_budget = body.monthly_budget || undefined;
-    if (body.organization_name !== undefined)
-      updateData.organization_name = body.organization_name || undefined;
-    if (body.last_synced_at !== undefined)
-      updateData.last_synced_at = body.last_synced_at;
+    if (bodyObj.plan !== undefined)
+      updateData.plan = (bodyObj.plan as string | undefined) || undefined;
+    if (bodyObj.monthly_budget !== undefined)
+      updateData.monthly_budget =
+        (bodyObj.monthly_budget as string | number | undefined) || undefined;
+    if (bodyObj.organization_name !== undefined)
+      updateData.organization_name =
+        (bodyObj.organization_name as string | undefined) || undefined;
+    if (bodyObj.last_synced_at !== undefined)
+      updateData.last_synced_at = bodyObj.last_synced_at;
 
     // Validate the merged result
     const merged = { ...existing, ...updateData };
