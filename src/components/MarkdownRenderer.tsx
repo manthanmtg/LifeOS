@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,9 @@ interface Props {
   className?: string;
 }
 
-export default function MarkdownRenderer({ content, className }: Props) {
+const REMARK_PLUGINS = [remarkGfm];
+
+export default memo(function MarkdownRenderer({ content, className }: Props) {
   return (
     <div
       className={cn(
@@ -24,7 +27,8 @@ export default function MarkdownRenderer({ content, className }: Props) {
         className,
       )}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{content}</ReactMarkdown>
     </div>
   );
-}
+});
+
