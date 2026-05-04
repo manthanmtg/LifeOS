@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import "@excalidraw/excalidraw/index.css";
 import {
   Plus,
-  Trash2,
-  Edit3,
   X,
   PenLine,
   ArrowLeft,
@@ -16,23 +14,28 @@ import {
   Star,
   Globe,
   Lock,
-  Copy,
   Tag,
   ArrowUpDown,
-  Shapes,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
-import WhiteboardPreview from "./WhiteboardPreview";
-import { SkeletonBlock } from "@/components/ui/Skeletons";
+import WhiteboardCard from "./WhiteboardCard";
+import { SkeletonBlock, AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import {
   toExcalidrawAppState,
   toExcalidrawElements,
   toExcalidrawFiles,
 } from "./types";
 import type { ExcalidrawApi, ExcalidrawAppState } from "./types";
+import {
+  type ColorLabel,
+  type SortOption,
+  type ContentDoc,
+  relativeTime,
+  formatDateTime,
+} from "./utils";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -47,76 +50,6 @@ const Excalidraw = dynamic(
     ),
   },
 );
-
-type ColorLabel =
-  | "none"
-  | "red"
-  | "blue"
-  | "green"
-  | "yellow"
-  | "purple"
-  | "orange";
-type SortOption = "updated" | "created" | "name" | "favorites";
-
-interface ContentDoc {
-  _id: string;
-  module_type: string;
-  is_public: boolean;
-  payload: {
-    name: string;
-    description?: string;
-    tags: string[];
-    is_favorite: boolean;
-    color_label: ColorLabel;
-    elements: Record<string, unknown>[];
-    app_state: Record<string, unknown>;
-    files: Record<string, unknown>;
-  };
-  created_at: string;
-  updated_at: string;
-}
-
-const COLOR_LABELS: { value: ColorLabel; dot: string; label: string }[] = [
-  { value: "none", dot: "bg-zinc-600", label: "None" },
-  { value: "red", dot: "bg-danger", label: "Red" },
-  { value: "blue", dot: "bg-accent", label: "Blue" },
-  { value: "green", dot: "bg-success", label: "Green" },
-  { value: "yellow", dot: "bg-warning", label: "Yellow" },
-  { value: "purple", dot: "bg-zinc-500", label: "Purple" },
-  { value: "orange", dot: "bg-zinc-400", label: "Orange" },
-];
-
-const COLOR_BORDER: Record<string, string> = {
-  none: "",
-  red: "border-l-danger/60",
-  blue: "border-l-accent/60",
-  green: "border-l-success/60",
-  yellow: "border-l-warning/60",
-  purple: "border-l-zinc-500/60",
-  orange: "border-l-zinc-400/60",
-};
-
-function relativeTime(dateStr: string, now: number): string {
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString();
-}
-
-import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 export default function WhiteboardAdminView() {
   const [now] = useState(() => Date.now());
@@ -931,215 +864,24 @@ export default function WhiteboardAdminView() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
-            {filteredBoards.map((board) => {
-              const isRenaming = renamingId === board._id;
-              const elementCount = board.payload.elements?.length || 0;
-              const updatedMeta = boardUpdatedMeta.get(board._id);
-              const colorBorder =
-                COLOR_BORDER[board.payload.color_label || "none"];
-
-              return (
-                <motion.div
-                  key={board._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  onClick={() => !isRenaming && openBoard(board)}
-                  className={cn(
-                    "group relative rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 transition-all cursor-pointer",
-                    "hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 hover:scale-[1.01]",
-                    colorBorder && `border-l-[3px] ${colorBorder}`,
-                  )}
-                >
-                  {/* Top badges */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
-                    {board.payload.is_favorite && (
-                      <div
-                        className="p-1 rounded-md bg-warning/15"
-                        title="Favorite"
-                      >
-                        <Star
-                          className="w-3 h-3 text-warning"
-                          fill="currentColor"
-                        />
-                      </div>
-                    )}
-                    {board.is_public && (
-                      <div
-                        className="p-1 rounded-md bg-success/15"
-                        title="Public"
-                      >
-                        <Globe className="w-3 h-3 text-success" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Hover actions */}
-                  <div
-                    className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => toggleFavorite(board)}
-                      className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-warning/20 text-zinc-400 hover:text-warning transition-colors"
-                      title="Favorite"
-                    >
-                      <Star
-                        className="w-3.5 h-3.5"
-                        fill={
-                          board.payload.is_favorite ? "currentColor" : "none"
-                        }
-                      />
-                    </button>
-                    <button
-                      onClick={() => toggleVisibility(board)}
-                      className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-success/20 text-zinc-400 hover:text-success transition-colors"
-                      title={board.is_public ? "Make private" : "Make public"}
-                    >
-                      {board.is_public ? (
-                        <Globe className="w-3.5 h-3.5" />
-                      ) : (
-                        <Lock className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => duplicateBoard(board)}
-                      className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
-                      title="Duplicate"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </button>
-                    {/* Color label picker */}
-                    <div className="relative group/color">
-                      <button
-                        className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
-                        title="Color label"
-                      >
-                        <div
-                          className={cn(
-                            "w-3.5 h-3.5 rounded-full border border-zinc-600",
-                            COLOR_LABELS.find(
-                              (c) => c.value === board.payload.color_label,
-                            )?.dot || "bg-zinc-600",
-                          )}
-                        />
-                      </button>
-                      <div className="absolute right-0 top-full mt-1 hidden group-hover/color:flex bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl p-2 gap-1.5 z-50">
-                        {COLOR_LABELS.map((c) => (
-                          <button
-                            key={c.value}
-                            onClick={() => setColorLabel(board, c.value)}
-                            className={cn(
-                              "w-5 h-5 rounded-full transition-all",
-                              c.dot,
-                              board.payload.color_label === c.value
-                                ? "ring-2 ring-zinc-50/40 scale-110"
-                                : "hover:scale-110 opacity-70 hover:opacity-100",
-                            )}
-                            title={c.label}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setRenamingId(board._id);
-                        setRenameValue(board.payload.name);
-                      }}
-                      className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
-                      title="Rename"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(board)}
-                      className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-danger/20 text-zinc-400 hover:text-danger transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Canvas preview */}
-                  <div className="h-36 rounded-xl bg-zinc-950/60 border border-zinc-800/50 mb-4 flex items-center justify-center overflow-hidden">
-                    <WhiteboardPreview
-                      elements={board.payload.elements}
-                      files={board.payload.files}
-                    />
-                  </div>
-
-                  {/* Name */}
-                  {isRenaming ? (
-                    <div
-                      className="flex gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="text"
-                        value={renameValue}
-                        onChange={(e) => setRenameValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleRename(board._id);
-                          if (e.key === "Escape") {
-                            setRenamingId(null);
-                            setRenameValue("");
-                          }
-                        }}
-                        autoFocus
-                        className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-accent/50"
-                      />
-                      <button
-                        onClick={() => handleRename(board._id)}
-                        className="p-1.5 rounded-lg bg-zinc-50 text-zinc-950 hover:bg-zinc-200"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <h3 className="font-semibold text-zinc-100 truncate">
-                      {board.payload.name}
-                    </h3>
-                  )}
-
-                  {/* Description */}
-                  {board.payload.description && (
-                    <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">
-                      {board.payload.description}
-                    </p>
-                  )}
-
-                  {/* Tags + meta row */}
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                      {board.payload.tags.slice(0, 3).map((t) => (
-                        <span
-                          key={t}
-                          className="px-2 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded-md font-medium"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                      {board.payload.tags.length > 3 && (
-                        <span className="text-[10px] text-zinc-600">
-                          +{board.payload.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] text-zinc-600 shrink-0">
-                      {elementCount > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Shapes className="w-3 h-3" /> {elementCount}
-                        </span>
-                      )}
-                      <span title={updatedMeta?.title}>
-                        {updatedMeta?.relative}
-                      </span>{" "}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {filteredBoards.map((board) => (
+              <WhiteboardCard
+                key={board._id}
+                board={board}
+                isRenaming={renamingId === board._id}
+                renameValue={renameValue}
+                setRenameValue={setRenameValue}
+                handleRename={handleRename}
+                setRenamingId={setRenamingId}
+                openBoard={openBoard}
+                toggleFavorite={toggleFavorite}
+                toggleVisibility={toggleVisibility}
+                duplicateBoard={duplicateBoard}
+                setColorLabel={setColorLabel}
+                setDeleteTarget={setDeleteTarget}
+                updatedMeta={boardUpdatedMeta.get(board._id)}
+              />
+            ))}
           </AnimatePresence>
         </div>
       )}
