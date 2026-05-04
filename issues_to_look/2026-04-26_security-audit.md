@@ -181,3 +181,16 @@ Resolved a narrow baseline browser hardening gap by adding
 Verification:
 
 - `pnpm vitest run src/test/security-headers.test.ts` - PASS
+
+## Follow-up run (2026-05-04 20:46 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Resolved a narrow validation-status gap in public metrics ingestion:
+malformed JSON submitted to `POST /api/metrics` now returns the standard
+validation error response before database or cookie work instead of falling
+through to the generic server-error path.
+
+Verification:
+
+- `pnpm vitest run src/app/api/metrics/__tests__/route.test.ts` - PASS
