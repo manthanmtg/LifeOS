@@ -142,6 +142,44 @@ describe("schemas", () => {
       const result = EmiLoanSchema.safeParse(loan);
       expect(result.success).toBe(true);
     });
+
+    it("rejects overlong EMI supporting text fields", () => {
+      const loan = {
+        title: "Home Loan",
+        principal: 5000000,
+        tenure_months: 240,
+        annual_interest_rate: 8.5,
+        monthly_emi: 43391,
+        interest_type: "floating",
+        start_date: new Date().toISOString(),
+        rate_adjustments: [
+          {
+            effective_date: new Date().toISOString(),
+            annual_interest_rate: 8.75,
+            note: "x".repeat(2001),
+          },
+        ],
+        payments: [
+          {
+            date: new Date().toISOString(),
+            amount: 43391,
+            kind: "emi",
+            note: "x".repeat(2001),
+          },
+        ],
+        documents: [
+          {
+            type: "other",
+            title: "x".repeat(201),
+            url: "https://example.com/loan.pdf",
+          },
+        ],
+      };
+
+      const result = EmiLoanSchema.safeParse(loan);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("PersonSchema", () => {
