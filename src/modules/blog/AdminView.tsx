@@ -676,10 +676,10 @@ export default function BlogAdminView() {
               key={item}
               onClick={() => setStatusFilter(item)}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors",
+                "rounded-xl border px-3 py-1.5 text-xs font-medium capitalize transition-colors",
                 statusFilter === item
-                  ? "bg-accent/15 text-accent"
-                  : "bg-zinc-800 text-zinc-500 hover:text-zinc-300",
+                  ? "border-accent/40 bg-accent/15 text-accent"
+                  : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300",
               )}
             >
               {item}
