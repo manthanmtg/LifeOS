@@ -257,7 +257,7 @@ export const EmiLoanSchema = z.object({
       z.object({
         effective_date: z.string().datetime("Must be a valid ISO date-time"),
         annual_interest_rate: z.number().min(0),
-        note: z.string().optional(),
+        note: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
@@ -268,7 +268,7 @@ export const EmiLoanSchema = z.object({
         date: z.string().datetime("Must be a valid ISO date-time"),
         amount: z.number().positive(),
         kind: z.enum(["emi", "prepayment"]),
-        note: z.string().optional(),
+        note: z.string().trim().max(2000).optional(),
         receipt_url: z.string().url().optional(),
       }),
     )
@@ -280,7 +280,7 @@ export const EmiLoanSchema = z.object({
         type: z
           .enum(["sanction_letter", "noc", "interest_certificate", "other"])
           .default("other"),
-        title: z.string().min(1),
+        title: z.string().trim().min(1).max(200),
         url: z.string().url(),
         issued_at: z.string().datetime().optional(),
         added_at: z
