@@ -169,3 +169,15 @@ Fix:
 Verification:
 
 - `pnpm check` - PASS
+
+## Follow-up run (2026-05-04 18:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Resolved a narrow baseline browser hardening gap by adding
+`Cross-Origin-Opener-Policy: same-origin` to the global headers in
+`next.config.ts`.
+
+Verification:
+
+- `pnpm vitest run src/test/security-headers.test.ts` - PASS
