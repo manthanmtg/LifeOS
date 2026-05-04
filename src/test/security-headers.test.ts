@@ -22,6 +22,7 @@ describe("next security headers", () => {
               key: "Permissions-Policy",
               value: "camera=(), microphone=(), geolocation=()",
             },
+            { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           ]),
         }),
       ]),
