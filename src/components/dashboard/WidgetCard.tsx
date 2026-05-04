@@ -83,7 +83,7 @@ export default function WidgetCard({
       ref={cardRef}
       style={{ maxHeight: WIDGET_MAX_HEIGHT }}
       className={cn(
-        "relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between h-full transition-all group",
+        "relative overflow-hidden bg-zinc-900/50 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-5 flex flex-col justify-between h-full transition-all group",
         href &&
           "hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 hover:scale-[1.01]",
         showOverflow && "ring-2 ring-danger/60",
