@@ -9,7 +9,7 @@ autonomousSafe: true
 
 ## Objective
 
-Pick **one random module or core directory** and ensure its documentation is accurate and complete. One module per run — documentation improves incrementally over time.
+Pick **one random module or core directory** and ensure its local documentation is accurate and complete. One target per run — documentation improves incrementally over time without rewriting global agent policy.
 
 ## No-Op Protocol
 
@@ -31,7 +31,8 @@ Pick **one random module or core directory** and ensure its documentation is acc
   - **Overview**: What the module does.
   - **Data Schema**: Key fields in the `payload` as defined by Zod.
   - **Features**: List of metrics, actions, and "Smart" capabilities.
-- **Architecture Updates**: Update global docs like `AGENTS.md` if new patterns or core utilities are introduced.
+- **Core Directory READMEs**: Create or update a focused `README.md` in the selected core directory when the code clearly exposes stable helper APIs, contracts, or usage patterns.
+- **Global Docs Drift**: If `AGENTS.md`, the root `README.md`, or another global policy doc appears stale, log the finding in `issues_to_look/` instead of editing it during this autonomous run.
 - **Example Usage**: Provide clear, copy-pasteable examples for component usage or API interaction.
 
 ### 3. Style & Tone
