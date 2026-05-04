@@ -31,13 +31,13 @@ export default function ScheduleTable({
         <div className="flex items-center gap-2">
           <button
             onClick={onExportCSV}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all text-xs font-bold"
+            className="flex items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-900/70 px-3 py-1.5 text-xs font-bold text-zinc-400 shadow-sm shadow-zinc-950/30 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <Download className="w-3.5 h-3.5" /> CSV
           </button>
           <button
             onClick={onPrintPDF}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all text-xs font-bold"
+            className="flex items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-900/70 px-3 py-1.5 text-xs font-bold text-zinc-400 shadow-sm shadow-zinc-950/30 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <Printer className="w-3.5 h-3.5" /> PDF
           </button>
