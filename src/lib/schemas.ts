@@ -369,12 +369,12 @@ export const ResumeSchema = z.object({
 
 // --- 16. AI USAGE TRACKER ---
 export const AiProviderConfigSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().trim().min(1, "Name is required").max(100),
   provider: z.enum(["openai", "anthropic"]),
-  admin_api_key: z.string().min(1, "Admin API key is required"),
-  plan: z.string().optional(),
+  admin_api_key: z.string().trim().min(1, "Admin API key is required").max(500),
+  plan: z.string().trim().max(100).optional(),
   monthly_budget: z.number().min(0).optional(),
-  organization_name: z.string().optional(),
+  organization_name: z.string().trim().max(200).optional(),
   is_active: z.boolean().default(true),
   last_synced_at: z.string().datetime().optional(),
 });
