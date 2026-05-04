@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Banknote, TrendingUp, TrendingDown, Tag, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -37,7 +37,7 @@ const CURR_SYM: Record<string, string> = {
   BRL: "R$",
 };
 
-export default function ExpensesWidget() {
+export default memo(function ExpensesWidget() {
   const { settings } = useModuleSettings<ExpenseSettings>("expenseSettings", {
     defaultCurrency: "USD",
     numberFormat: "western",
@@ -136,4 +136,4 @@ export default function ExpensesWidget() {
       </div>
     </WidgetCard>
   );
-}
+});
