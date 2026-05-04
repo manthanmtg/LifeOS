@@ -219,6 +219,19 @@ describe("Metrics API Route", () => {
       expect(mockInsertOne).not.toHaveBeenCalled();
     });
 
+    it("returns validation errors for malformed JSON", async () => {
+      const req = new NextRequest(new URL("http://localhost/api/metrics"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{",
+      });
+
+      const response = await POST(req);
+
+      expect(response.status).toBe(400);
+      expect(mockInsertOne).not.toHaveBeenCalled();
+    });
+
     it("generates consistent session_id for same user on same day", () => {
       // This is a bit tricky to test because it uses new Date().toISOString().slice(0, 10)
       // but the hash logic is internal.
