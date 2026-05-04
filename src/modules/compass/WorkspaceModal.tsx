@@ -86,6 +86,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
   const [newComment, setNewComment] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   // Bulk Import state
   const [isImporting, setIsImporting] = useState(false);
@@ -247,16 +248,27 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
 
   // --- Links ---
   const addLink = () => {
-    if (!newLinkUrl.trim()) return;
+    const url = newLinkUrl.trim();
+    if (!url) return;
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      setLinkError("Enter a valid URL.");
+      return;
+    }
+
     updateField("links", [
       ...payload.links,
       {
-        url: newLinkUrl.trim(),
-        label: newLinkLabel.trim() || new URL(newLinkUrl.trim()).hostname,
+        url,
+        label: newLinkLabel.trim() || parsedUrl.hostname,
       },
     ]);
     setNewLinkUrl("");
     setNewLinkLabel("");
+    setLinkError(null);
   };
 
   const removeLink = (index: number) => {
@@ -742,17 +754,33 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   <input
                     type="url"
                     value={newLinkUrl}
-                    onChange={(e) => setNewLinkUrl(e.target.value)}
+                    onChange={(e) => {
+                      setNewLinkUrl(e.target.value);
+                      setLinkError(null);
+                    }}
                     placeholder="https://..."
+                    aria-invalid={linkError ? "true" : "false"}
+                    aria-describedby={
+                      linkError ? "compass-link-error" : undefined
+                    }
                     className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-accent/40"
                   />
                   <button
                     onClick={addLink}
+                    aria-label="Add link"
                     className="px-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 border border-zinc-700"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
+                {linkError && (
+                  <p
+                    id="compass-link-error"
+                    className="text-xs font-medium text-danger"
+                  >
+                    {linkError}
+                  </p>
+                )}
               </div>
             </div>
           </div>
