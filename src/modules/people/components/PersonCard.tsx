@@ -28,8 +28,6 @@ const RELATIONSHIP_STYLES: Record<string, string> = {
 interface PersonCardProps {
   person: Person;
   onView: (person: Person) => void;
-  onEdit: (person: Person) => void;
-  onDelete: (id: string) => void;
   onToggleFavorite: (person: Person) => void;
   onQuickLog: (person: Person, type: InteractionType) => void;
 }
