@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Bot, TrendingUp, TrendingDown, Cpu } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  Bot,
+  TrendingUp,
+  TrendingDown,
+  Server,
+  type LucideIcon,
+} from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -15,8 +20,15 @@ interface AiUsageSummary {
   totalThisMonth: number;
   trend: number;
   topProvider: [string, number] | null;
-  totalTokens: number;
   thisMonthLength: number;
+}
+
+type HighlightVariant = "default" | "accent" | "success" | "danger";
+
+interface HighlightDetail {
+  icon: LucideIcon;
+  text: string;
+  variant: HighlightVariant;
 }
 
 export default function AiUsageWidget() {
@@ -31,28 +43,40 @@ export default function AiUsageWidget() {
       .finally(() => setLoading(false));
   }, []);
 
-  const {
-    totalCount,
-    totalThisMonth,
-    trend,
-    topProvider,
-    totalTokens,
-    thisMonthLength,
-  } = useMemo(() => {
-    if (!summary) {
-      return {
-        totalCount: 0,
-        totalThisMonth: 0,
-        trend: 0,
-        topProvider: null,
-        totalTokens: 0,
-        thisMonthLength: 0,
-      };
-    }
-    return summary;
-  }, [summary]);
+  const { totalCount, totalThisMonth, trend, topProvider, thisMonthLength } =
+    useMemo(() => {
+      if (!summary) {
+        return {
+          totalCount: 0,
+          totalThisMonth: 0,
+          trend: 0,
+          topProvider: null,
+          thisMonthLength: 0,
+        };
+      }
+      return summary;
+    }, [summary]);
 
   const accentColor = trend > 0 ? "danger" : trend < 0 ? "success" : "accent";
+  const highlight: HighlightDetail =
+    trend !== 0
+      ? {
+          icon: trend > 0 ? TrendingUp : TrendingDown,
+          text: `${trend > 0 ? "Up" : "Down"} ${Math.abs(trend).toFixed(0)}% vs last month`,
+          variant: accentColor,
+        }
+      : topProvider
+        ? {
+            icon: Server,
+            text: `Top provider: ${topProvider[0]}`,
+            variant: "accent",
+          }
+        : {
+            icon: Bot,
+            text:
+              totalCount === 0 ? "No usage tracked yet" : "No usage this month",
+            variant: "default",
+          };
 
   return (
     <WidgetCard
@@ -61,49 +85,17 @@ export default function AiUsageWidget() {
       loading={loading}
       href="/admin/ai-usage"
       accentColor={accentColor}
-      footer={
-        <div className="flex items-center justify-between">
-          {trend !== 0 ? (
-            <span
-              className={cn(
-                "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
-                trend > 0 ? "text-danger" : "text-success",
-              )}
-            >
-              {trend > 0 ? (
-                <TrendingUp className="w-3 h-3" />
-              ) : (
-                <TrendingDown className="w-3 h-3" />
-              )}
-              {Math.abs(trend).toFixed(0)}% vs last month
-            </span>
-          ) : (
-            <div />
-          )}
-          {topProvider && (
-            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-              Top: {topProvider[0]}
-            </span>
-          )}
-        </div>
-      }
     >
       <div className="space-y-3">
         <WidgetStat
           value={`$${formatNumber(totalThisMonth, "western", 2)}`}
           label={`this month · ${thisMonthLength} calls`}
         />
-        {totalCount === 0 ? (
-          <WidgetHighlight icon={Bot} text="No usage tracked yet" />
-        ) : totalTokens > 0 ? (
-          <WidgetHighlight
-            icon={Cpu}
-            text={`${formatNumber(totalTokens / 1000, "western", 1)}K tokens used`}
-            variant="accent"
-          />
-        ) : (
-          <WidgetHighlight icon={Bot} text="No usage this month" />
-        )}
+        <WidgetHighlight
+          icon={highlight.icon}
+          text={highlight.text}
+          variant={highlight.variant}
+        />
       </div>
     </WidgetCard>
   );
