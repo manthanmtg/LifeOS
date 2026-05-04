@@ -57,137 +57,147 @@ export default function PersonCard({
       exit={{ opacity: 0, scale: 0.97 }}
       onClick={() => onView(person)}
       className={cn(
-        "group bg-zinc-900/40 border p-4 rounded-xl transition-all cursor-pointer",
+        "group relative overflow-hidden bg-zinc-900/40 border p-4 rounded-xl transition-all cursor-pointer",
         isStale
           ? "border-warning/15 hover:border-warning/30"
           : isHot
             ? "border-success/15 hover:border-success/30"
             : "border-zinc-800/50 hover:border-accent/30",
-        "hover:bg-zinc-900/60",
+        "hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-lg hover:shadow-black/20",
       )}
     >
-      <div className="flex items-start gap-3">
-        {/* Avatar */}
-        <div className="relative shrink-0">
-          {person.payload.profile_pic ? (
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
-              <Image
-                src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
-                alt={name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ) : avatar_url ? (
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
-              <Image
-                src={avatar_url}
-                alt={name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center">
-              <span className="text-sm font-bold text-zinc-500">{name[0]}</span>
-            </div>
-          )}
-          {isHot && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-zinc-900" />
-          )}
-        </div>
+      {/* Background Decoration */}
+      <div
+        className={cn(
+          "absolute -top-10 -right-10 w-20 h-20 rounded-full blur-2xl opacity-0 transition-opacity group-hover:opacity-10",
+          isStale ? "bg-warning" : isHot ? "bg-success" : "bg-accent",
+        )}
+      />
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold text-zinc-100 truncate group-hover:text-accent transition-colors">
-              {name}
-            </h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(person);
-              }}
-              className={cn(
-                "p-2 rounded-lg transition-all shrink-0",
-                is_favorite ? "text-accent" : "text-zinc-700 hover:text-accent",
-              )}
-            >
-              <Heart
-                className={cn("w-4 h-4", is_favorite && "fill-current")}
-              />
-            </button>
+      <div className="relative z-10">
+        <div className="flex items-start gap-3">
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            {person.payload.profile_pic ? (
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
+                <Image
+                  src={`data:${person.payload.profile_pic.content_type};base64,${person.payload.profile_pic.data}`}
+                  alt={name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : avatar_url ? (
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-zinc-700/50">
+                <Image
+                  src={avatar_url}
+                  alt={name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center">
+                <span className="text-sm font-bold text-zinc-500">{name[0]}</span>
+              </div>
+            )}
+            {isHot && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-zinc-900" />
+            )}
           </div>
 
-          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold text-zinc-100 truncate group-hover:text-accent transition-colors">
+                {name}
+              </h3>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(person);
+                }}
+                className={cn(
+                  "p-2 rounded-lg transition-all shrink-0",
+                  is_favorite ? "text-accent" : "text-zinc-700 hover:text-accent",
+                )}
+              >
+                <Heart
+                  className={cn("w-4 h-4", is_favorite && "fill-current")}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              <span
+                className={cn(
+                  "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
+                  RELATIONSHIP_STYLES[relationship] ||
+                    "bg-zinc-800 text-zinc-500 border-zinc-700",
+                )}
+              >
+                {relationship}
+              </span>
+              {company && (
+                <span className="text-[10px] text-zinc-500 font-medium flex items-center gap-1 truncate">
+                  <Building2 className="w-3 h-3 shrink-0" />
+                  {company}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick actions + last seen */}
+        <div className="mt-3 pt-3 border-t border-zinc-800/30 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            {(
+              [
+                { type: "call", icon: Phone },
+                { type: "message", icon: MessageSquare },
+                { type: "meeting", icon: Video },
+              ] as const
+            ).map((act) => (
+              <button
+                key={act.type}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onQuickLog(person, act.type);
+                }}
+                className="p-2.5 text-zinc-600 rounded-lg hover:text-accent hover:bg-accent/10 transition-all active:scale-90"
+              >
+                <act.icon className="w-4 h-4" />
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Clock
+              className={cn(
+                "w-3 h-3",
+                days === null
+                  ? "text-zinc-700"
+                  : isStale
+                    ? "text-warning"
+                    : isHot
+                      ? "text-success"
+                      : "text-zinc-600",
+              )}
+            />
             <span
               className={cn(
-                "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
-                RELATIONSHIP_STYLES[relationship] ||
-                  "bg-zinc-800 text-zinc-500 border-zinc-700",
+                "text-[10px] font-medium",
+                days === null
+                  ? "text-zinc-700"
+                  : isStale
+                    ? "text-warning"
+                    : isHot
+                      ? "text-success"
+                      : "text-zinc-600",
               )}
             >
-              {relationship}
+              {days === null ? "New" : days === 0 ? "Today" : `${days}d ago`}
             </span>
-            {company && (
-              <span className="text-[10px] text-zinc-500 font-medium flex items-center gap-1 truncate">
-                <Building2 className="w-3 h-3 shrink-0" />
-                {company}
-              </span>
-            )}
           </div>
-        </div>
-      </div>
-
-      {/* Quick actions + last seen */}
-      <div className="mt-3 pt-3 border-t border-zinc-800/30 flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          {(
-            [
-              { type: "call", icon: Phone },
-              { type: "message", icon: MessageSquare },
-              { type: "meeting", icon: Video },
-            ] as const
-          ).map((act) => (
-            <button
-              key={act.type}
-              onClick={(e) => {
-                e.stopPropagation();
-                onQuickLog(person, act.type);
-              }}
-              className="p-2.5 text-zinc-600 rounded-lg hover:text-accent hover:bg-accent/10 transition-all active:scale-90"
-            >
-              <act.icon className="w-4 h-4" />
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <Clock
-            className={cn(
-              "w-3 h-3",
-              days === null
-                ? "text-zinc-700"
-                : isStale
-                  ? "text-warning"
-                  : isHot
-                    ? "text-success"
-                    : "text-zinc-600",
-            )}
-          />
-          <span
-            className={cn(
-              "text-[10px] font-medium",
-              days === null
-                ? "text-zinc-700"
-                : isStale
-                  ? "text-warning"
-                  : isHot
-                    ? "text-success"
-                    : "text-zinc-600",
-            )}
-          >
-            {days === null ? "New" : days === 0 ? "Today" : `${days}d ago`}
-          </span>
         </div>
       </div>
     </motion.div>
