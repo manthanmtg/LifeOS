@@ -323,11 +323,6 @@ export default function PeopleAdminView() {
                       setSelectedPerson(p);
                       setView("profile");
                     }}
-                    onEdit={(p) => {
-                      setEditingPerson(p);
-                      setShowForm(true);
-                    }}
-                    onDelete={handleDelete}
                     onToggleFavorite={handleToggleFavorite}
                     onQuickLog={handleQuickLog}
                   />
