@@ -15,6 +15,7 @@ interface HealthSummary {
   activeConditionCount: number;
   upcomingVacCount: number;
   latestVisit: { date: string; type: string } | null;
+  profiles?: Array<{ name: string; type: string; alertCount: number }>;
 }
 
 export default function HealthWidget() {
@@ -32,6 +33,11 @@ export default function HealthWidget() {
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
+
+  const attentionProfile =
+    summary?.profiles
+      ?.filter((profile) => profile.alertCount > 0)
+      .sort((a, b) => b.alertCount - a.alertCount)[0] ?? null;
 
   return (
     <WidgetCard
@@ -67,9 +73,17 @@ export default function HealthWidget() {
             label={summary.alertCount > 0 ? "need attention" : "all clear"}
           />
           <WidgetHighlight
-            icon={Pill}
-            text={`${summary.activeMedCount} meds · ${summary.activeConditionCount} conditions`}
-            subtext={`${summary.total} profile${summary.total !== 1 ? "s" : ""} tracked`}
+            icon={attentionProfile ? HeartPulse : Pill}
+            text={
+              attentionProfile
+                ? `${attentionProfile.name} needs attention`
+                : `${summary.activeMedCount} meds · ${summary.activeConditionCount} conditions`
+            }
+            subtext={
+              attentionProfile
+                ? `${attentionProfile.alertCount} alert${attentionProfile.alertCount !== 1 ? "s" : ""} on this profile`
+                : `${summary.total} profile${summary.total !== 1 ? "s" : ""} tracked`
+            }
             variant={summary.alertCount > 0 ? "danger" : "default"}
           />
         </div>
