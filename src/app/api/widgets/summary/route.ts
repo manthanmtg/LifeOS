@@ -8,7 +8,10 @@ import type { IdeaRecord } from "@/modules/ideas/shared";
 import { getPeopleSummary, toPersonDocument } from "@/modules/people/insights";
 import type { PersonPayload } from "@/modules/people/types";
 import { getCropHistorySummary } from "@/modules/crop-history/insights";
-import type { CropRecord, ModuleSettings as CropSettings } from "@/modules/crop-history/AdminView";
+import type {
+  CropRecord,
+  ModuleSettings as CropSettings,
+} from "@/modules/crop-history/AdminView";
 import { computeMetrics } from "@/modules/habits/components/types";
 import type { Habit } from "@/modules/habits/components/types";
 import { z } from "zod";
@@ -325,7 +328,11 @@ export async function GET(request: Request) {
         "payload.format": 1,
         created_at: 1,
       },
-      expense: { "payload.date": 1, "payload.amount": 1, "payload.category": 1 },
+      expense: {
+        "payload.date": 1,
+        "payload.amount": 1,
+        "payload.category": 1,
+      },
       todo: {
         "payload.completed": 1,
         "payload.title": 1,
@@ -1093,14 +1100,15 @@ export async function GET(request: Request) {
           const dDate = new Date(p.date);
           const dMonth = dDate.getMonth();
           const dYear = dDate.getFullYear();
+          const requestCount = p.num_requests || 1;
 
           if (dMonth === thisMonth && dYear === thisYear) {
             totalThisMonth += p.cost || 0;
             totalTokens += (p.input_tokens || 0) + (p.output_tokens || 0);
-            thisMonthLength++;
+            thisMonthLength += requestCount;
             if (p.provider) {
               providerCounts[p.provider] =
-                (providerCounts[p.provider] || 0) + 1;
+                (providerCounts[p.provider] || 0) + requestCount;
             }
           } else if (dMonth === lastMonth && dYear === lastYear) {
             totalLastMonth += p.cost || 0;
