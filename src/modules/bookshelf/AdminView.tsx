@@ -207,6 +207,8 @@ export default function BookshelfAdminView() {
             <div className="flex items-center gap-2 md:pt-1">
               <button
                 onClick={() => setShowSettings((prev) => !prev)}
+                aria-label="Bookshelf settings"
+                title="Bookshelf settings"
                 className={cn(
                   "px-3 py-2.5 rounded-xl text-sm transition-colors",
                   showSettings

@@ -58,7 +58,14 @@ function ReadingProgress({
         </span>
         <span className="font-medium tabular-nums">{progress.toFixed(0)}%</span>
       </div>
-      <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+      <div
+        className="h-1.5 rounded-full bg-zinc-800 overflow-hidden"
+        role="progressbar"
+        aria-valuenow={current}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-label="Reading progress"
+      >
         <motion.div
           className="h-full bg-accent rounded-full"
           initial={{ width: 0 }}
@@ -72,7 +79,11 @@ function ReadingProgress({
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div
+      className="flex items-center gap-0.5"
+      role="img"
+      aria-label={`${rating} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
