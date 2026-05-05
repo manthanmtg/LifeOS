@@ -27,11 +27,3 @@ export const ApiValidationError = (details: unknown) => {
 export const ApiNotFound = (message = "Resource not found") => {
   return ApiError(message, 404);
 };
-
-export const ApiUnauthorized = (message = "Unauthorized") => {
-  return ApiError(message, 401);
-};
-
-export const ApiForbidden = (message = "Forbidden") => {
-  return ApiError(message, 403);
-};

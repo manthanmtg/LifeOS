@@ -4,8 +4,6 @@ import {
   ApiError,
   ApiValidationError,
   ApiNotFound,
-  ApiUnauthorized,
-  ApiForbidden,
 } from "../api-response";
 
 describe("api-response", () => {
@@ -54,16 +52,6 @@ describe("api-response", () => {
     it("ApiNotFound returns 404", () => {
       const response = ApiNotFound();
       expect(response.status).toBe(404);
-    });
-
-    it("ApiUnauthorized returns 401", () => {
-      const response = ApiUnauthorized();
-      expect(response.status).toBe(401);
-    });
-
-    it("ApiForbidden returns 403", () => {
-      const response = ApiForbidden();
-      expect(response.status).toBe(403);
     });
   });
 });
