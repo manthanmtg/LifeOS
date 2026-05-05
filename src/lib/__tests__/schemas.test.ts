@@ -9,6 +9,7 @@ import {
   DeckSchema,
   AiUsageSchema,
   MaintenanceTaskSchema,
+  HealthProfileSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -276,6 +277,21 @@ describe("schemas", () => {
       };
 
       const result = MaintenanceTaskSchema.safeParse(task);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("HealthProfileSchema", () => {
+    it("rejects loose health profile notes and tags", () => {
+      const profile = {
+        name: "Jane Doe",
+        type: "self",
+        notes: "x".repeat(5001),
+        tags: ["", "x".repeat(51)],
+      };
+
+      const result = HealthProfileSchema.safeParse(profile);
 
       expect(result.success).toBe(false);
     });
