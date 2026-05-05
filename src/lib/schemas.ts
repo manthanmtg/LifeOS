@@ -786,8 +786,8 @@ export const HealthProfileSchema = z.object({
       }),
     )
     .default([]),
-  notes: z.string().optional(),
-  tags: z.array(z.string()).default([]),
+  notes: z.string().trim().max(5000).optional(),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 // --- 22. DECKS ---
