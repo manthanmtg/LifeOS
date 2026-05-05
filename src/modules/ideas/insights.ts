@@ -36,6 +36,10 @@ function getIdeaPriorityRank(priority: string): number {
   }
 }
 
+function isIdeaReviewCandidate(idea: IdeaRecord): boolean {
+  return IDEA_REVIEW_STATUSES.has(idea.payload.status);
+}
+
 export function normalizeIdeaCategories(categories: string[]): string[] {
   const seen = new Set<string>();
   const normalized: string[] = [];
@@ -83,10 +87,7 @@ export function getIdeaMetrics(ideas: IdeaRecord[]): IdeaMetrics {
         acc.highPriority += 1;
       }
 
-      if (
-        idea.payload.status !== "archived" &&
-        idea.payload.priority === "high"
-      ) {
+      if (isIdeaReviewCandidate(idea)) {
         acc.reviewCount += 1;
       }
 
@@ -142,7 +143,7 @@ export function getIdeaReviewQueue(
   limit = 3,
 ): IdeaRecord[] {
   return [...ideas]
-    .filter((idea) => IDEA_REVIEW_STATUSES.has(idea.payload.status))
+    .filter(isIdeaReviewCandidate)
     .sort((a, b) => {
       const priorityDiff =
         getIdeaPriorityRank(a.payload.priority) -

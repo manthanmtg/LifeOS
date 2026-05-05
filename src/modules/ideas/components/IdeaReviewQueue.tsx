@@ -24,7 +24,7 @@ export default function IdeaReviewQueue({
         </div>
         {reviewCount > reviewQueue.length ? (
           <span className="text-xs text-zinc-500">
-            {reviewCount - reviewQueue.length} more high-priority idea
+            {reviewCount - reviewQueue.length} more review candidate
             {reviewCount - reviewQueue.length === 1 ? "" : "s"}
           </span>
         ) : null}
