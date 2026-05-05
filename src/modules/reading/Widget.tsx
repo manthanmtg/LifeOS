@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { BookOpen, ArrowUpCircle, Sparkles, Inbox } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import { cn } from "@/lib/utils";
 import {
   WidgetStat,
   WidgetHighlight,
@@ -30,11 +29,15 @@ export default function ReadingWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=reading_item")
+    const controller = new AbortController();
+    fetch("/api/widgets/summary?module_type=reading_item", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((data) => setSummary(data.data || EMPTY_SUMMARY))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   return (
@@ -45,37 +48,24 @@ export default function ReadingWidget() {
       href="/admin/reading"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-accent/60" /> {summary.readCount}{" "}
-            absorbed
+          <span className="flex items-center gap-1.5 text-success/80">
+            <Sparkles className="w-3 h-3" /> {summary.readCount} absorbed
           </span>
           <span>{summary.typeCount} types</span>
         </div>
       }
     >
       <div className="space-y-3">
-        <div className="flex items-end justify-between gap-4">
-          <WidgetStat value={summary.unreadCount} label="in queue" />
-          <div className="flex flex-col items-end pb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">
-              High Priority
-            </span>
-            <span
-              className={cn(
-                "text-lg font-semibold",
-                summary.highPriorityCount > 0 ? "text-danger" : "text-zinc-500",
-              )}
-            >
-              {summary.highPriorityCount}
-            </span>
-          </div>
-        </div>
+        <WidgetStat value={summary.unreadCount} label="in queue" />
+
         {summary.topPriority ? (
           <WidgetHighlight
             icon={ArrowUpCircle}
             text={summary.topPriority.title}
             variant="danger"
-            subtext="Up next"
+            subtext={`${summary.highPriorityCount} high priority ${
+              summary.highPriorityCount === 1 ? "item" : "items"
+            }`}
           />
         ) : (
           <WidgetHighlight
