@@ -51,7 +51,7 @@ function ReadingProgress({
   const progress = Math.min(100, (current / total) * 100);
 
   return (
-    <div className="mt-auto pt-2">
+    <div className="mt-auto pt-2 relative z-10">
       <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-1">
         <span className="tabular-nums">
           {current}/{total} pages
@@ -59,7 +59,7 @@ function ReadingProgress({
         <span className="font-medium tabular-nums">{progress.toFixed(0)}%</span>
       </div>
       <div
-        className="h-1.5 rounded-full bg-zinc-800 overflow-hidden"
+        className="h-1.5 rounded-full bg-zinc-950/50 border border-zinc-800/50 overflow-hidden"
         role="progressbar"
         aria-valuenow={current}
         aria-valuemin={0}
@@ -136,8 +136,19 @@ export default function BookCard({
       animate="visible"
       exit="exit"
       layout
-      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 hover:border-zinc-700 transition-colors group relative overflow-hidden"
+      className="bg-zinc-900/50 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 flex flex-col gap-3 hover:border-zinc-700/80 hover:shadow-xl hover:shadow-black/20 transition-all group relative overflow-hidden"
     >
+      {/* Background Decoration */}
+      <div
+        className={cn(
+          "absolute -top-12 -right-12 w-24 h-24 rounded-full blur-3xl opacity-0 transition-opacity group-hover:opacity-10",
+          payload.status === "reading" && "bg-warning",
+          payload.status === "completed" && "bg-success",
+          payload.status === "want_to_read" && "bg-accent",
+          payload.status === "abandoned" && "bg-zinc-500",
+        )}
+      />
+
       {/* Subtle gradient accent based on status */}
       <div
         className={cn(
@@ -151,9 +162,9 @@ export default function BookCard({
         )}
       />
 
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 relative z-10">
         {/* Cover */}
-        <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+        <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
           {payload.cover_url ? (
             <div className="relative w-full h-full">
               <Image
@@ -220,7 +231,7 @@ export default function BookCard({
 
       {/* Date info */}
       {(finishedDate || startedDate) && (
-        <div className="flex items-center gap-1.5 text-[10px] text-zinc-600">
+        <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 relative z-10">
           <Calendar className="w-3 h-3" />
           {payload.status === "completed" && finishedDate
             ? `Finished ${finishedDate}`
@@ -237,14 +248,14 @@ export default function BookCard({
 
       {/* Summary */}
       {payload.summary && (
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed relative z-10">
           {payload.summary}
         </p>
       )}
 
       {/* Tags */}
       {payload.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-auto">
+        <div className="flex flex-wrap gap-1.5 mt-auto relative z-10">
           {payload.tags.slice(0, 4).map((tag) => (
             <span
               key={tag}
