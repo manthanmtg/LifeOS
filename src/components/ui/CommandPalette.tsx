@@ -188,7 +188,7 @@ export default function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-zinc-950/50 backdrop-blur-sm z-[100]"
             aria-hidden="true"
           />
           <motion.div
