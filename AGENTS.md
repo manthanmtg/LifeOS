@@ -32,6 +32,12 @@ When executing files from `prompts/`, read `prompts/README.md` first and treat i
 
 Life OS is a Next.js 16 App Router application — a "shell" that dynamically renders a public portfolio and a private admin dashboard. It uses React 19, MongoDB, Tailwind CSS v4, Zod v4, and Framer Motion v12.
 
+The admin dashboard includes several core shell features:
+
+- **Command Palette** (`src/components/ui/CommandPalette.tsx`) — Accessible via `Cmd+K` (or `Ctrl+K`), allows quick navigation to any module, the dashboard, or settings.
+- **Zen Mode** (`src/components/ZenMode.tsx`) — A distraction-free mode that can be toggled to hide/show UI elements.
+- **Global Module Search** (`src/components/shell/GlobalModuleSearch.tsx`) — Integrated into the sidebar for quickly filtering modules.
+
 ### Polymorphic Data Layer
 
 All module data lives in a **single MongoDB `content` collection** using a discriminator pattern:
@@ -113,6 +119,9 @@ The middleware also redirects authenticated users from `/` to `/admin` unless `?
 - `src/lib/mongodb.ts` — Cached MongoClient singleton (global in dev for HMR)
 - `src/lib/types.ts` — Shared TypeScript interfaces and ContentDocument structure
 - `src/lib/schemas.ts` — Zod schemas and the `SchemaRegistry` for module payload validation
+- `src/components/ui/CommandPalette.tsx` — Global command palette (Cmd+K)
+- `src/components/ZenMode.tsx` — Zen mode provider and toggle
+- `src/components/shell/GlobalModuleSearch.tsx` — Sidebar module search
 - `src/lib/auth.ts` — JWT sign/verify with jose
 - `src/lib/api-response.ts` — `ApiSuccess`, `ApiError`, `ApiValidationError` helpers
 - `src/lib/utils.ts` — `cn()` class merge utility
