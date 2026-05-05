@@ -26,6 +26,45 @@ export interface SnippetStats {
   tagCount: number;
 }
 
+export function getSnippetStats(
+  snippets: Snippet[],
+  referenceTime: number,
+): SnippetStats {
+  const total = snippets.length;
+  const weekAgo = referenceTime - 7 * 24 * 60 * 60 * 1000;
+  const languages = new Set<string>();
+  const tags = new Set<string>();
+  let favorites = 0;
+  let totalLines = 0;
+  let recentCount = 0;
+
+  for (const snippet of snippets) {
+    languages.add(snippet.payload.language);
+    totalLines += snippet.payload.code.split("\n").length;
+
+    if (snippet.payload.is_favorite) {
+      favorites += 1;
+    }
+
+    if (Date.parse(snippet.created_at) >= weekAgo) {
+      recentCount += 1;
+    }
+
+    for (const tag of snippet.payload.tags) {
+      tags.add(tag);
+    }
+  }
+
+  return {
+    total,
+    favorites,
+    languages: languages.size,
+    averageLength: total > 0 ? Math.round(totalLines / total) : 0,
+    recentCount,
+    tagCount: tags.size,
+  };
+}
+
 export const LANGUAGES = [
   "javascript",
   "typescript",

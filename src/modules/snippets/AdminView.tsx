@@ -6,8 +6,12 @@ import { Plus, Settings, Code, Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
-import type { Snippet, SnippetStats } from "./components/types";
-import { SNIPPET_DEFAULTS, LANGUAGES } from "./components/types";
+import type { Snippet } from "./components/types";
+import {
+  SNIPPET_DEFAULTS,
+  LANGUAGES,
+  getSnippetStats,
+} from "./components/types";
 import SnippetsMetrics from "./components/SnippetsMetrics";
 import SnippetsFilters from "./components/SnippetsFilters";
 import SnippetCard from "./components/SnippetCard";
@@ -157,37 +161,10 @@ export default function SnippetsAdminView() {
       });
   }, [snippets, langFilter, favoritesOnly, searchQuery]);
 
-  const stats: SnippetStats = useMemo(() => {
-    const total = snippets.length;
-    const favorites = snippets.filter((s) => s.payload.is_favorite).length;
-    const languages = new Set(snippets.map((s) => s.payload.language)).size;
-    const averageLength =
-      total > 0
-        ? Math.round(
-            snippets.reduce(
-              (sum, s) => sum + s.payload.code.split("\n").length,
-              0,
-            ) / total,
-          )
-        : 0;
-
-    const weekAgo = statsReferenceTime - 7 * 24 * 60 * 60 * 1000;
-    const recentCount = snippets.filter(
-      (s) => Date.parse(s.created_at) >= weekAgo,
-    ).length;
-
-    const allTags = snippets.flatMap((s) => s.payload.tags);
-    const tagCount = new Set(allTags).size;
-
-    return {
-      total,
-      favorites,
-      languages,
-      averageLength,
-      recentCount,
-      tagCount,
-    };
-  }, [snippets, statsReferenceTime]);
+  const stats = useMemo(
+    () => getSnippetStats(snippets, statsReferenceTime),
+    [snippets, statsReferenceTime],
+  );
 
   const languageChips = useMemo(() => {
     return [...new Set(snippets.map((s) => s.payload.language))].sort((a, b) =>
