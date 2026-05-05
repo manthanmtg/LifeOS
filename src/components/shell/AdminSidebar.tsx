@@ -189,7 +189,7 @@ export default function AdminSidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+              className="lg:hidden fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-[60]"
             />
             <motion.div
               initial={{ x: -280 }}
