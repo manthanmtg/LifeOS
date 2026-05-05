@@ -317,8 +317,82 @@ export async function GET(request: Request) {
       });
     }
 
+    const PROJECTIONS: Record<string, Record<string, number>> = {
+      deck: {
+        "payload.visibility": 1,
+        "payload.topic": 1,
+        "payload.title": 1,
+        "payload.format": 1,
+        created_at: 1,
+      },
+      expense: { "payload.date": 1, "payload.amount": 1, "payload.category": 1 },
+      todo: {
+        "payload.completed": 1,
+        "payload.title": 1,
+        "payload.completed_at": 1,
+        created_at: 1,
+        updated_at: 1,
+      },
+      reading_item: {
+        "payload.type": 1,
+        "payload.is_read": 1,
+        "payload.priority": 1,
+        "payload.title": 1,
+      },
+      rain_entry: { "payload.date": 1, "payload.rainfall_amount": 1 },
+      blog_post: {
+        "payload.status": 1,
+        "payload.published_at": 1,
+        "payload.estimated_reading_time": 1,
+        "payload.content": 1,
+        "payload.title": 1,
+        created_at: 1,
+      },
+      compass_task: { "payload.status": 1, "payload.priority": 1 },
+      maintenance_task: {
+        "payload.status": 1,
+        "payload.next_due": 1,
+        "payload.history": 1,
+      },
+      recurring_expense: {
+        "payload.is_active": 1,
+        "payload.cost": 1,
+        "payload.billing_cycle": 1,
+        "payload.next_renewal_date": 1,
+        "payload.enable_reminders": 1,
+        "payload.name": 1,
+      },
+      book: {
+        "payload.status": 1,
+        "payload.rating": 1,
+        "payload.total_pages": 1,
+        "payload.current_page": 1,
+        "payload.title": 1,
+        "payload.author": 1,
+        created_at: 1,
+      },
+      ai_usage: {
+        "payload.date": 1,
+        "payload.cost": 1,
+        "payload.input_tokens": 1,
+        "payload.output_tokens": 1,
+        "payload.provider": 1,
+      },
+      vehicle: {
+        "payload.insurance_expiry": 1,
+        "payload.pollution_certificate_expiry": 1,
+        "payload.next_service_due": 1,
+        "payload.service_records": 1,
+        "payload.fuel_logs": 1,
+      },
+      bill: { "payload.attachments": 1, created_at: 1 },
+    };
+
     const docs = (await contentColl
-      .find({ module_type, is_public: false })
+      .find(
+        { module_type, is_public: false },
+        { projection: PROJECTIONS[module_type] || {} },
+      )
       .toArray()) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     let summary: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
