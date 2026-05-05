@@ -450,6 +450,57 @@ describe("GET /api/widgets/summary", () => {
     });
   });
 
+  it("returns request-weighted summary for ai_usage module", async () => {
+    mockCollection().toArray.mockResolvedValue([
+      {
+        payload: {
+          provider: "openai",
+          input_tokens: 100,
+          output_tokens: 50,
+          num_requests: 4,
+          cost: 1.5,
+          date: "2026-04-12T00:00:00.000Z",
+        },
+      },
+      {
+        payload: {
+          provider: "anthropic",
+          input_tokens: 200,
+          output_tokens: 25,
+          num_requests: 2,
+          cost: 0.5,
+          date: "2026-04-20T00:00:00.000Z",
+        },
+      },
+      {
+        payload: {
+          provider: "anthropic",
+          input_tokens: 50,
+          output_tokens: 10,
+          num_requests: 7,
+          cost: 4,
+          date: "2026-03-18T00:00:00.000Z",
+        },
+      },
+    ]);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=ai_usage",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data).toEqual({
+      totalCount: 3,
+      totalThisMonth: 2,
+      trend: -50,
+      topProvider: ["openai", 4],
+      totalTokens: 375,
+      thisMonthLength: 6,
+    });
+  });
+
   it("returns basic summary for unknown module type", async () => {
     mockCollection().toArray.mockResolvedValue([{ _id: "1" }, { _id: "2" }]);
 
