@@ -83,7 +83,7 @@ export const WidgetHighlight = memo(function WidgetHighlight({
           aria-hidden="true"
           className={cn("w-3.5 h-3.5 shrink-0", iconStyles[variant])}
         />
-        <p className="text-[13px] text-zinc-300 font-medium line-clamp-1 leading-snug">
+        <p className="min-w-0 text-[13px] text-zinc-300 font-medium line-clamp-1 leading-snug">
           {text}
         </p>
       </div>
