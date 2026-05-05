@@ -87,7 +87,10 @@ export const BlogPostSchema = z.object({
 export const RecurringExpenseSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   cost: z.number().positive("Cost must be greater than 0"),
-  currency: z.string().length(3).default("USD"),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
+    .default("USD"),
   billing_cycle: z.enum(["monthly", "yearly", "weekly", "daily", "quarterly"]),
   next_renewal_date: z.string().datetime("Must be a valid ISO Date"),
   category: z.string().trim().min(1, "Category is required").max(100),
@@ -225,7 +228,10 @@ export const EmiLoanSchema = z.object({
     .max(200)
     .optional(),
   category: z.string().min(1, "Category is required").default("Loan"),
-  currency: z.string().length(3).default("INR"),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
+    .default("INR"),
 
   principal: z.number().positive("Loan amount must be greater than 0"),
   tenure_months: z
@@ -348,7 +354,7 @@ export const RainAreaSchema = z.object({
 });
 
 export const RainEntrySchema = z.object({
-  area_id: z.string().min(1, "Area is required").max(100),
+  area_id: z.string().trim().min(1, "Area is required").max(100),
   rainfall_amount: z.number().min(0, "Rainfall cannot be negative"),
   rainfall_unit: z.enum(["mm", "cm", "in"]).default("mm"),
   date: z.string().datetime("Must be a valid ISO date-time"),
@@ -813,7 +819,10 @@ export const BillSchema = z.object({
   name: z.string().trim().min(1, "Bill name is required").max(200),
   bill_date: z.string().datetime("Must be a valid ISO date-time"),
   amount: z.number().nonnegative("Amount cannot be negative").optional(),
-  currency: z.string().length(3).default("INR"),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
+    .default("INR"),
   description: z.string().trim().max(1000).optional(),
   notes: z.string().trim().max(5000).optional(),
   folder_id: z.string().optional(),
@@ -835,9 +844,9 @@ export const SystemUpdateSchema = z
   .object({
     active_theme: z.string().optional(),
     color_mode: z.enum(["light", "dark"]).optional(),
-    site_title: z.string().optional(),
-    site_icon: z.string().optional(),
-    bio: z.string().optional(),
+    site_title: z.string().trim().max(100).optional(),
+    site_icon: z.string().trim().max(200).optional(),
+    bio: z.string().trim().max(1000).optional(),
     moduleRegistry: z
       .record(
         z.string(),
@@ -852,13 +861,13 @@ export const SystemUpdateSchema = z
   .catchall(z.any());
 
 export const MetricEventSchema = z.object({
-  path: z.string().max(200).default("/"),
-  module: z.string().max(100).default("core"),
-  action: z.string().max(50).default("view"),
-  label: z.string().max(200).nullable().optional(),
+  path: z.string().trim().min(1).max(200).default("/"),
+  module: z.string().trim().min(1).max(100).default("core"),
+  action: z.string().trim().min(1).max(50).default("view"),
+  label: z.string().trim().max(200).nullable().optional(),
   value: z.number().nullable().optional(),
   metadata: z.record(z.string(), z.any()).default({}),
-  referrer: z.string().max(500).nullable().optional(),
+  referrer: z.string().trim().max(500).nullable().optional(),
   device_type: z
     .enum(["mobile", "tablet", "desktop", "unknown"])
     .default("unknown"),
