@@ -55,7 +55,7 @@ export async function PUT(
       return ApiError("Invalid ID", 400);
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { is_public, payload } = body;
 
     if (is_public !== undefined && typeof is_public !== "boolean") {

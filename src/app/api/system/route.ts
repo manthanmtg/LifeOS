@@ -24,7 +24,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const parsed = SystemUpdateSchema.safeParse(body);
 
     if (!parsed.success) {

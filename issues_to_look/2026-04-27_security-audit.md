@@ -94,3 +94,27 @@ Fix:
 
 Verification:
 - `pnpm check` - PASS
+## Follow-up run (2026-05-06)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Files:
+- `src/app/api/bills/route.ts`
+- `src/app/api/bills/[id]/route.ts`
+- `src/app/api/bills/[id]/move/route.ts`
+- `src/app/api/bills/[id]/attachments/route.ts`
+- `src/app/api/bills/folders/route.ts`
+- `src/app/api/bills/folders/[id]/route.ts`
+- `src/app/api/bills/folders/[id]/move/route.ts`
+- `src/app/api/content/route.ts`
+- `src/app/api/content/[id]/route.ts`
+- `src/app/api/system/route.ts`
+
+Problem:
+- These mutating routes called `await request.json()` directly without catching JSON parsing errors. Malformed JSON request bodies would throw an error that bubbled up to the generic `catch` block, resulting in a generic 500 Internal Server Error (and a logged internal error) rather than a 400 Bad Request / Validation error.
+
+Fix:
+- Updated the calls to `await request.json().catch(() => ({}))` to gracefully handle malformed JSON and allow the subsequent Zod `safeParse` logic to correctly identify and reject the invalid shape with a standard `ApiValidationError`.
+
+Verification:
+- `pnpm check` - PASS
