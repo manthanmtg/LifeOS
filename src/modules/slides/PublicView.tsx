@@ -58,9 +58,9 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
 
                 {/* Play overlay */}
                 {item.payload.deck_url && (
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 backdrop-blur rounded-full p-3 border border-white/20">
-                      <Play className="w-5 h-5 text-zinc-50 fill-white" />
+                  <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-50/10 backdrop-blur rounded-full p-3 border border-zinc-50/20">
+                      <Play className="w-5 h-5 text-zinc-50 fill-zinc-50" />
                     </div>
                   </div>
                 )}

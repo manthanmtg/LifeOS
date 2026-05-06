@@ -131,7 +131,7 @@ export default function BillDetail({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
           onClick={onClose}
         />
 
@@ -247,7 +247,7 @@ export default function BillDetail({
                           alt={att.filename}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                        <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors flex items-center justify-center">
                           <Eye className="w-5 h-5 text-zinc-50 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </button>
@@ -364,7 +364,7 @@ export default function BillDetail({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md"
+                className="fixed inset-0 z-[100] bg-zinc-950/90 backdrop-blur-md"
                 onClick={() => setPreviewAttachment(null)}
               >
                 {/* Fixed top bar */}

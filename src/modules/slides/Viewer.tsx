@@ -148,7 +148,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className={cn(
-        "fixed inset-0 z-[100] flex flex-col bg-black overflow-hidden",
+        "fixed inset-0 z-[100] flex flex-col bg-zinc-950 overflow-hidden",
         isFullscreen ? "cursor-none" : "p-4 md:p-12",
       )}
       onClick={handleMouseClick}
@@ -162,7 +162,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-8 left-8 right-8 flex items-center justify-between z-30 pointer-events-none"
           >
-            <div className="bg-white/5 backdrop-blur-2xl rounded-2xl px-6 py-4 border border-white/10 pointer-events-auto">
+            <div className="bg-zinc-50/5 backdrop-blur-2xl rounded-2xl px-6 py-4 border border-zinc-50/10 pointer-events-auto">
               <h2 className="text-zinc-50 font-medium text-xl tracking-tight">
                 {current.payload.title}
               </h2>
@@ -179,7 +179,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                   e.stopPropagation();
                   toggleFullscreen();
                 }}
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-zinc-50/50 hover:text-zinc-50 transition-all hover:bg-white/10"
+                className="p-4 rounded-2xl bg-zinc-50/5 backdrop-blur-2xl border border-zinc-50/10 text-zinc-50/50 hover:text-zinc-50 transition-all hover:bg-zinc-50/10"
                 title="Fullscreen (F)"
               >
                 {isFullscreen ? (
@@ -193,7 +193,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                   e.stopPropagation();
                   onClose();
                 }}
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 text-zinc-50/50 hover:text-danger transition-all hover:bg-white/10"
+                className="p-4 rounded-2xl bg-zinc-50/5 backdrop-blur-2xl border border-zinc-50/10 text-zinc-50/50 hover:text-danger transition-all hover:bg-zinc-50/10"
                 title="Close (Esc)"
               >
                 <X className="w-6 h-6" />
@@ -206,8 +206,8 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
       {/* Main Content */}
       <div
         className={cn(
-          "relative flex-1 rounded-3xl overflow-hidden bg-black shadow-2xl transition-all duration-500",
-          isFullscreen ? "rounded-none" : "border border-white/5",
+          "relative flex-1 rounded-3xl overflow-hidden bg-zinc-950 shadow-2xl transition-all duration-500",
+          isFullscreen ? "rounded-none" : "border border-zinc-50/5",
         )}
       >
         <AnimatePresence custom={direction} mode="wait">
@@ -232,7 +232,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                 );
               }
               return (
-                <div className="w-full h-full flex items-center justify-center bg-black">
+                <div className="w-full h-full flex items-center justify-center bg-zinc-950">
                   <iframe
                     src={src.type === "src" ? src.value : undefined}
                     srcDoc={src.type === "srcDoc" ? src.value : undefined}
@@ -253,7 +253,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
         <div className="absolute inset-y-0 right-0 w-1/2 cursor-e-resize z-10 pointer-events-none" />
 
         {/* Subtle Progress Indicator */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 z-20">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-50/5 z-20">
           <motion.div
             className="h-full bg-accent shadow-[0_0_20px_rgba(var(--accent-rgb),0.5)]"
             initial={{ width: 0 }}
@@ -264,7 +264,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
 
         {/* Subtle Counter */}
         {total > 0 && (
-          <div className="absolute bottom-8 right-8 px-4 py-2 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full text-[10px] text-zinc-50/40 z-20 tabular-nums uppercase tracking-widest">
+          <div className="absolute bottom-8 right-8 px-4 py-2 bg-zinc-50/5 backdrop-blur-2xl border border-zinc-50/10 rounded-full text-[10px] text-zinc-50/40 z-20 tabular-nums uppercase tracking-widest">
             {currentIndex + 1} / {total}
           </div>
         )}
@@ -277,7 +277,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-zinc-50/20 text-[10px] pointer-events-none select-none uppercase tracking-widest bg-black/40 backdrop-blur-xl px-4 py-2 rounded-full border border-white/5"
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-zinc-50/20 text-[10px] pointer-events-none select-none uppercase tracking-widest bg-zinc-950/40 backdrop-blur-xl px-4 py-2 rounded-full border border-zinc-50/5"
           >
             Click sides to navigate · ESC to exit
           </motion.div>

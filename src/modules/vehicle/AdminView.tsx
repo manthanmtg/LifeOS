@@ -1212,7 +1212,7 @@ export default function VehicleAdminView() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setShowServiceForm(false)}
-                      className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                      className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -1514,7 +1514,7 @@ export default function VehicleAdminView() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setShowFuelForm(false)}
-                      className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                      className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -1831,7 +1831,7 @@ export default function VehicleAdminView() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       onClick={() => setShowDocForm(false)}
-                      className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                      className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -2201,7 +2201,7 @@ export default function VehicleAdminView() {
                   setShowVehicleForm(false);
                   setEditingVehicle(null);
                 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}

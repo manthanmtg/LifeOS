@@ -1864,7 +1864,7 @@ function ModalOverlay({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 overflow-y-auto overscroll-contain"
+      className="fixed inset-0 bg-zinc-950/70 backdrop-blur-md z-50 overflow-y-auto overscroll-contain"
     >
       <div className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10">
         {children}

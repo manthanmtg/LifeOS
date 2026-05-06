@@ -138,7 +138,7 @@ export default function IdeaDetailsModal({
           <motion.button
             type="button"
             aria-label="Close idea details"
-            className="absolute inset-0 h-full w-full bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 h-full w-full bg-zinc-950/70 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
