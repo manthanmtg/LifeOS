@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+const CalendarDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00.000Z`);
+
+    return (
+      !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+    );
+  }, "Must be a valid calendar date");
+
 // --- 1. PORTFOLIO & IDENTITY ---
 export const SocialLinkSchema = z.object({
   platform: z
@@ -435,7 +446,7 @@ export const PersonSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   company: z.string().trim().max(100).optional(),
   role: z.string().trim().max(100).optional(),
-  birthday: z.string().optional(), // YYYY-MM-DD
+  birthday: CalendarDateSchema.optional(),
   avatar_url: z.string().url().optional().or(z.literal("")),
   profile_pic: z
     .object({
@@ -457,7 +468,7 @@ export const PersonSchema = z.object({
   interactions: z
     .array(
       z.object({
-        date: z.string(), // ISO date
+        date: CalendarDateSchema,
         type: z
           .enum([
             "call",
@@ -473,7 +484,7 @@ export const PersonSchema = z.object({
       }),
     )
     .default([]),
-  last_contacted: z.string().optional(), // ISO date
+  last_contacted: CalendarDateSchema.optional(),
   is_favorite: z.boolean().default(false),
   documents: z
     .array(
