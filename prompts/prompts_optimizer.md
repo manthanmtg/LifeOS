@@ -5,6 +5,7 @@ category: prompt-maintenance
 enabled: true
 autonomousSafe: true
 ---
+
 # Prompts Optimizer - Autonomous Prompt Maintenance Agent
 
 ## Objective
@@ -69,6 +70,7 @@ Include the prompt issue, evidence, proposed fix, and why you held back. Then st
 
 - Run `git diff --check`.
 - If markdown formatting or trailing whitespace problems are introduced, fix them.
+- Run `pnpm check` per the shared prompt run contract before recording a terminal outcome.
 
 ### 6. Commit
 
