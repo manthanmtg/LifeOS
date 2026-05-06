@@ -18,6 +18,21 @@ interface Profile {
   };
 }
 
+function toProfilePayload(value: unknown): Profile["payload"] | null {
+  if (!value || typeof value !== "object") return null;
+
+  const payload = value as Partial<Profile["payload"]>;
+  if (!payload.hero_title || !Array.isArray(payload.skills)) return null;
+
+  return {
+    full_name: payload.full_name,
+    hero_title: payload.hero_title,
+    sub_headline: payload.sub_headline,
+    skills: payload.skills,
+    available_for_hire: Boolean(payload.available_for_hire),
+  };
+}
+
 export default function PortfolioWidget() {
   const [profile, setProfile] = useState<Profile["payload"] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +40,7 @@ export default function PortfolioWidget() {
   useEffect(() => {
     fetch("/api/widgets/summary?module_type=portfolio_profile")
       .then((r) => r.json())
-      .then((d) => setProfile(d.data || null))
+      .then((d) => setProfile(toProfilePayload(d.data)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
