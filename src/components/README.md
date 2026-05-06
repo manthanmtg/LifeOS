@@ -16,11 +16,11 @@ These components are the building blocks for all modules' `Widget.tsx` exports o
 
 ### `/shell` (The Application Frame)
 Structural components that form the outer layout of the app.
-- Includes `AdminSidebar`, `AdminHeader`, `GlobalModuleSearch`, and layout wrappers. These manage navigation and global state like search.
+- Includes `AdminSidebar`, `AdminHeader`, `PublicHeader`, `PublicFooter`, `GlobalModuleSearch`, and layout wrappers. These manage navigation and global state like search.
 
 ### `/ui` (Atomic Elements)
 Reusable, standalone UI components.
-- Buttons, Dialogs (`ConfirmDialog`), Inputs (`Switch`), loading states (`Skeletons`), and utilities (`CommandPalette`, `Toast`).
+- Buttons, Dialogs (`ConfirmDialog`), Inputs (`Switch`), loading states (`Skeletons`), file previewing (`ImagePreview`, `ImageCropper`, `DocPreview`), and utilities (`CommandPalette`, `Toast`).
 
 ### `/analytics`
 - **`MetricsTracker.tsx`**: Shared analytics primitives to track engagement across the application.
@@ -29,6 +29,49 @@ Reusable, standalone UI components.
 - **`ZenMode.tsx`**: A global provider that hides distracting UI elements when triggered via `Cmd/Ctrl + Shift + Z`.
 - **`MarkdownRenderer.tsx`**: Standardized markdown rendering with `react-markdown` and `remark-gfm`, styled to match the dark theme via Tailwind typography plugin.
 - **`ThemeProvider.tsx`**: Manages the application's color theme.
+
+## Example Usage
+
+### Dashboard Widget
+
+A strict, valid example of combining dashboard primitives into a module widget.
+
+```tsx
+import { Wallet } from "lucide-react";
+import WidgetCard from "@/components/dashboard/WidgetCard";
+import {
+  WidgetStat,
+  WidgetMiniStats,
+  WidgetHighlight,
+} from "@/components/dashboard/widget-primitives";
+
+export function MyFinanceWidget({ loading, data }: { loading: boolean; data?: any }) {
+  return (
+    <WidgetCard
+      title="Finances"
+      icon={Wallet}
+      href="/admin/finance"
+      loading={loading}
+      accentColor="success"
+    >
+      <div className="space-y-4">
+        <WidgetStat value="$4,250" label="Current Balance" />
+        <WidgetMiniStats
+          stats={[
+            { value: "$1,200", label: "Income", color: "success" },
+            { value: "$300", label: "Expenses", color: "danger" },
+          ]}
+        />
+        <WidgetHighlight
+          icon={Wallet}
+          text="Budget on track"
+          variant="success"
+        />
+      </div>
+    </WidgetCard>
+  );
+}
+```
 
 ## Design Philosophy
 
