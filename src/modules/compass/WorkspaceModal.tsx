@@ -263,7 +263,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm animate-fade-in-up">
       <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden">
         {/* Header Actions */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 shrink-0">
@@ -772,7 +772,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
       </div>
       {/* Import Modal */}
       {isImporting && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-fade-in">
           <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-lg overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
               <h3 className="text-sm font-bold text-zinc-50 flex items-center gap-2">

@@ -49,7 +49,7 @@ export function DeckPreview({ deck, className }: DeckPreviewProps) {
           />
         </div>
         {/* Visual overlay to ensure pointer events are blocked and add a subtle polish */}
-        <div className="absolute inset-0 z-10 bg-black/5 pointer-events-none" />
+        <div className="absolute inset-0 z-10 bg-zinc-950/5 pointer-events-none" />
       </div>
     </div>
   );

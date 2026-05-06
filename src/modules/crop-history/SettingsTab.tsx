@@ -1259,7 +1259,7 @@ export function SettingsTab({
                               </span>
                             )}
                             <span className="text-zinc-600">=</span>
-                            <code className="text-xs text-zinc-400 font-mono bg-black/20 px-2 py-0.5 rounded">
+                            <code className="text-xs text-zinc-400 font-mono bg-zinc-950/20 px-2 py-0.5 rounded">
                               {f.formula}
                             </code>
                             <span
@@ -1595,7 +1595,7 @@ export function SettingsTab({
                             {f.format}
                           </span>
                         </div>
-                        <code className="text-[10px] text-accent/40 mt-1.5 block font-mono bg-black/20 p-1.5 rounded">
+                        <code className="text-[10px] text-accent/40 mt-1.5 block font-mono bg-zinc-950/20 p-1.5 rounded">
                           {f.formula}
                         </code>
                       </div>

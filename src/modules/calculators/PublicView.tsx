@@ -322,7 +322,7 @@ export default function CalculatorsPublicView({
       {activeCalculator && (
         <div className="fixed inset-0 z-50 px-4 py-6 sm:px-6 sm:py-8">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
             onClick={() => setActiveCalculatorId(null)}
           />
 

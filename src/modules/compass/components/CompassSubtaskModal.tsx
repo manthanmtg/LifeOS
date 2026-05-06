@@ -34,7 +34,7 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
   }, [isAddingComment]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-fade-in">
       <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-3xl h-[80vh] overflow-hidden flex flex-col">
         {/* Subtask Header */}
         <div className="px-6 py-4 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between shrink-0">

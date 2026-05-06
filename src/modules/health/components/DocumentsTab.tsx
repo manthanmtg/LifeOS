@@ -150,7 +150,7 @@ export default function DocumentsTab({
                               <div className="scale-[0.4] origin-top opacity-60 group-hover/att:opacity-100 transition-opacity pointer-events-none">
                                 <PdfThumbnail base64Data={att.data} />
                               </div>
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-center pb-1">
+                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent flex items-end justify-center pb-1">
                                 <FileText className="w-3.5 h-3.5 text-zinc-400" />
                               </div>
                             </div>
@@ -165,10 +165,10 @@ export default function DocumentsTab({
                                   className="object-cover opacity-60 group-hover/att:opacity-100 transition-all duration-300"
                                 />
                               </div>
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/att:opacity-100 transition-opacity" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 to-transparent opacity-0 group-hover/att:opacity-100 transition-opacity" />
                             </>
                           )}
-                          <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/60 backdrop-blur-sm opacity-0 group-hover/att:opacity-100 transition-all scale-75 group-hover/att:scale-100">
+                          <div className="absolute top-1.5 right-1.5 p-1 rounded-md bg-zinc-950/60 backdrop-blur-sm opacity-0 group-hover/att:opacity-100 transition-all scale-75 group-hover/att:scale-100">
                             <Eye className="w-3 h-3 text-zinc-50" />
                           </div>
                         </div>
