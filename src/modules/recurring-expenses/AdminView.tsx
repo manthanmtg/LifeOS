@@ -121,8 +121,22 @@ interface RecurringExpense {
   };
 }
 
+interface VisibleRecurringExpense {
+  expense: RecurringExpense;
+  daysUntilRenewal: number;
+  renewalDateLabel: string;
+}
+
+function renewalTimestamp(date: string): number {
+  return new Date(date).getTime();
+}
+
 function daysUntil(date: string, now: number): number {
-  return Math.ceil((new Date(date).getTime() - now) / (1000 * 60 * 60 * 24));
+  return Math.ceil((renewalTimestamp(date) - now) / (1000 * 60 * 60 * 24));
+}
+
+function formatRenewalDate(date: string): string {
+  return new Date(date).toLocaleDateString();
 }
 
 function monthlyEquivalent(cost: number, cycle: string): number {
@@ -224,7 +238,8 @@ interface SortableRecurringExpenseCardProps {
   onEdit: (s: RecurringExpense) => void;
   onDelete: (id: string) => void;
   isProcessingId: string | null;
-  now: number;
+  daysUntilRenewal: number;
+  renewalDateLabel: string;
 }
 
 function SortableRecurringExpenseCard({
@@ -240,7 +255,8 @@ function SortableRecurringExpenseCard({
   onEdit,
   onDelete,
   isProcessingId,
-  now,
+  daysUntilRenewal,
+  renewalDateLabel,
 }: SortableRecurringExpenseCardProps) {
   const {
     attributes,
@@ -256,15 +272,14 @@ function SortableRecurringExpenseCard({
     transition,
   };
 
-  const days = daysUntil(s.payload.next_renewal_date, now);
   const state = renewalState(
-    days,
+    daysUntilRenewal,
     renewalWarningDays,
     s.payload.enable_reminders !== false,
   );
   const monthly = monthlyEquivalent(s.payload.cost, s.payload.billing_cycle);
   const annual = monthly * 12;
-  const progress = renewalProgress(days, s.payload.billing_cycle);
+  const progress = renewalProgress(daysUntilRenewal, s.payload.billing_cycle);
 
   return (
     <div
@@ -352,7 +367,7 @@ function SortableRecurringExpenseCard({
               disabled={isProcessingId === s._id}
               className={cn(
                 "p-1 transition-colors disabled:opacity-50",
-                days <= 0
+                daysUntilRenewal <= 0
                   ? "text-accent hover:text-accent-hover"
                   : "text-zinc-500 hover:text-zinc-300",
               )}
@@ -444,7 +459,7 @@ function SortableRecurringExpenseCard({
         </span>
         <span className="text-zinc-500 inline-flex items-center gap-1">
           <CalendarDays className="w-3 h-3" />
-          {new Date(s.payload.next_renewal_date).toLocaleDateString()}
+          {renewalDateLabel}
         </span>
       </div>
     </div>
@@ -477,7 +492,8 @@ function DragPreviewCard({ s, sym }: { s: RecurringExpense; sym: string }) {
 }
 
 export default function RecurringExpensesAdminView() {
-  const now = useMemo(() => Date.now(), []);
+  const [now] = useState(() => Date.now());
+  const [todayIso] = useState(() => new Date().toISOString().slice(0, 10));
   const {
     settings,
     updateSettings,
@@ -509,9 +525,7 @@ export default function RecurringExpensesAdminView() {
   const [name, setName] = useState("");
   const [cost, setCost] = useState("");
   const [billingCycle, setBillingCycle] = useState<string>("monthly");
-  const [nextRenewal, setNextRenewal] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [nextRenewal, setNextRenewal] = useState(todayIso);
   const [category, setCategory] = useState<string>(
     settings.categories[0] || "Other",
   );
@@ -586,15 +600,15 @@ export default function RecurringExpensesAdminView() {
         case "renewal-asc":
           sorted = [...unsorted].sort(
             (a, b) =>
-              new Date(a.payload.next_renewal_date).getTime() -
-              new Date(b.payload.next_renewal_date).getTime(),
+              renewalTimestamp(a.payload.next_renewal_date) -
+              renewalTimestamp(b.payload.next_renewal_date),
           );
           break;
         case "renewal-desc":
           sorted = [...unsorted].sort(
             (a, b) =>
-              new Date(b.payload.next_renewal_date).getTime() -
-              new Date(a.payload.next_renewal_date).getTime(),
+              renewalTimestamp(b.payload.next_renewal_date) -
+              renewalTimestamp(a.payload.next_renewal_date),
           );
           break;
         case "category":
@@ -612,8 +626,8 @@ export default function RecurringExpensesAdminView() {
             if (a.payload.order !== undefined && b.payload.order !== undefined)
               return a.payload.order - b.payload.order;
             return (
-              new Date(b.payload.next_renewal_date).getTime() -
-              new Date(a.payload.next_renewal_date).getTime()
+              renewalTimestamp(b.payload.next_renewal_date) -
+              renewalTimestamp(a.payload.next_renewal_date)
             );
           });
           break;
@@ -674,7 +688,7 @@ export default function RecurringExpensesAdminView() {
     setName("");
     setCost("");
     setBillingCycle("monthly");
-    setNextRenewal(new Date().toISOString().slice(0, 10));
+    setNextRenewal(todayIso);
     setCategory(settings.categories[0] || "Other");
     setUrl("");
     setIsActive(true);
@@ -913,20 +927,32 @@ export default function RecurringExpensesAdminView() {
     }),
   };
 
-  const activeSubs = subs.filter((s) => s.payload.is_active);
-  const totalMonthlyBurn = activeSubs.reduce(
-    (sum, s) =>
-      sum + monthlyEquivalent(s.payload.cost, s.payload.billing_cycle),
-    0,
-  );
-  const totalYearlyBurn = totalMonthlyBurn * 12;
-  const upcoming = [...activeSubs]
-    .sort(
-      (a, b) =>
-        new Date(a.payload.next_renewal_date).getTime() -
-        new Date(b.payload.next_renewal_date).getTime(),
-    )
-    .slice(0, 3);
+  const recurringSummary = useMemo(() => {
+    const active = subs.filter((s) => s.payload.is_active);
+    const monthlyBurn = active.reduce(
+      (sum, s) =>
+        sum + monthlyEquivalent(s.payload.cost, s.payload.billing_cycle),
+      0,
+    );
+    const upcomingRenewals = [...active]
+      .sort(
+        (a, b) =>
+          renewalTimestamp(a.payload.next_renewal_date) -
+          renewalTimestamp(b.payload.next_renewal_date),
+      )
+      .slice(0, 3)
+      .map((expense) => ({
+        expense,
+        daysUntilRenewal: daysUntil(expense.payload.next_renewal_date, now),
+      }));
+
+    return {
+      active,
+      monthlyBurn,
+      yearlyBurn: monthlyBurn * 12,
+      upcomingRenewals,
+    };
+  }, [subs, now]);
 
   const visibleSubs = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -953,6 +979,16 @@ export default function RecurringExpensesAdminView() {
       return haystack.includes(query);
     });
   }, [subs, searchQuery, statusFilter, settings.renewalWarningDays, now]);
+
+  const visibleCards = useMemo<VisibleRecurringExpense[]>(
+    () =>
+      visibleSubs.map((expense) => ({
+        expense,
+        daysUntilRenewal: daysUntil(expense.payload.next_renewal_date, now),
+        renewalDateLabel: formatRenewalDate(expense.payload.next_renewal_date),
+      })),
+    [visibleSubs, now],
+  );
 
   if (loading) return <AdminModuleSkeleton />;
 
@@ -998,7 +1034,7 @@ export default function RecurringExpensesAdminView() {
             <p className="text-lg font-semibold text-zinc-50">
               {sym}
               {formatNumber(
-                totalMonthlyBurn,
+                recurringSummary.monthlyBurn,
                 settings.numberFormat as "western" | "indian",
               )}
             </p>
@@ -1008,7 +1044,7 @@ export default function RecurringExpensesAdminView() {
             <p className="text-lg font-semibold text-zinc-50">
               {sym}
               {formatNumber(
-                totalYearlyBurn,
+                recurringSummary.yearlyBurn,
                 settings.numberFormat as "western" | "indian",
               )}
             </p>
@@ -1016,21 +1052,21 @@ export default function RecurringExpensesAdminView() {
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2.5">
             <p className="text-xs text-zinc-500">Active Expenses</p>
             <p className="text-lg font-semibold text-zinc-300">
-              {activeSubs.length}
+              {recurringSummary.active.length}
             </p>
           </div>
         </div>
-        {upcoming.length > 0 && (
+        {recurringSummary.upcomingRenewals.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {upcoming.map((item) => (
+            {recurringSummary.upcomingRenewals.map((item) => (
               <div
-                key={item._id}
+                key={item.expense._id}
                 className="px-3 py-1.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-xs text-zinc-300"
               >
-                {item.payload.name} ·{" "}
-                {daysUntil(item.payload.next_renewal_date, now) <= 0
+                {item.expense.payload.name} ·{" "}
+                {item.daysUntilRenewal <= 0
                   ? "due"
-                  : `${daysUntil(item.payload.next_renewal_date, now)}d`}
+                  : `${item.daysUntilRenewal}d`}
               </div>
             ))}
           </div>
@@ -1478,14 +1514,14 @@ export default function RecurringExpensesAdminView() {
           onDragCancel={() => setActiveDragId(null)}
         >
           <SortableContext
-            items={visibleSubs.map((s) => s._id)}
+            items={visibleCards.map((item) => item.expense._id)}
             strategy={rectSortingStrategy}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleSubs.map((s) => (
+              {visibleCards.map((item) => (
                 <SortableRecurringExpenseCard
-                  key={s._id}
-                  s={s}
+                  key={item.expense._id}
+                  s={item.expense}
                   sym={sym}
                   renewalWarningDays={settings.renewalWarningDays}
                   isAnyDragging={activeDragId !== null}
@@ -1497,7 +1533,8 @@ export default function RecurringExpensesAdminView() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   isProcessingId={isProcessingId}
-                  now={now}
+                  daysUntilRenewal={item.daysUntilRenewal}
+                  renewalDateLabel={item.renewalDateLabel}
                 />
               ))}
             </div>
