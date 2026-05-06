@@ -11,6 +11,10 @@ const CalendarDateSchema = z
     );
   }, "Must be a valid calendar date");
 
+const CurrencyCodeSchema = z
+  .string()
+  .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code");
+
 // --- 1. PORTFOLIO & IDENTITY ---
 export const SocialLinkSchema = z.object({
   platform: z
@@ -46,10 +50,7 @@ export const PortfolioProfileSchema = z.object({
 // --- 2. EXPENSE TRACKER ---
 export const ExpenseSchema = z.object({
   amount: z.number().positive("Amount must be greater than 0"),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
-    .default("USD"),
+  currency: CurrencyCodeSchema.default("USD"),
   description: z
     .string()
     .trim()
@@ -522,15 +523,20 @@ export const VehicleSchema = z.object({
     .default("petrol"),
   odometer_reading: z.number().min(0).default(0),
   odometer_unit: z.enum(["km", "mi"]).default("km"),
-  insurance_expiry: z.string().optional(), // ISO date
-  pollution_certificate_expiry: z.string().optional(), // ISO date
-  next_service_due: z.string().optional(), // ISO date
-  next_service_odometer: z.number().optional(),
+  insurance_expiry: z.string().datetime().optional(),
+  pollution_certificate_expiry: z.string().datetime().optional(),
+  next_service_due: z.string().datetime().optional(),
+  next_service_odometer: z.number().min(0).optional(),
   service_records: z
     .array(
       z.object({
-        id: z.string().default(() => crypto.randomUUID()),
-        date: z.string(), // ISO date
+        id: z
+          .string()
+          .trim()
+          .min(1)
+          .max(100)
+          .default(() => crypto.randomUUID()),
+        date: z.string().datetime("Must be a valid ISO date-time"),
         type: z
           .enum([
             "routine",
@@ -544,34 +550,44 @@ export const VehicleSchema = z.object({
             "other",
           ])
           .default("routine"),
-        description: z.string().min(1),
-        odometer: z.number().optional(),
+        description: z.string().trim().min(1).max(500),
+        odometer: z.number().min(0).optional(),
         cost: z.number().min(0).optional(),
-        currency: z.string().length(3).default("INR"),
-        garage: z.string().optional(),
-        notes: z.string().optional(),
+        currency: CurrencyCodeSchema.default("INR"),
+        garage: z.string().trim().max(200).optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
   fuel_logs: z
     .array(
       z.object({
-        id: z.string().default(() => crypto.randomUUID()),
-        date: z.string(),
+        id: z
+          .string()
+          .trim()
+          .min(1)
+          .max(100)
+          .default(() => crypto.randomUUID()),
+        date: z.string().datetime("Must be a valid ISO date-time"),
         quantity: z.number().positive(),
         fuel_unit: z.enum(["liters", "gallons"]).default("liters"),
         cost: z.number().min(0),
-        currency: z.string().length(3).default("INR"),
-        odometer: z.number().optional(),
+        currency: CurrencyCodeSchema.default("INR"),
+        odometer: z.number().min(0).optional(),
         full_tank: z.boolean().default(true),
-        station: z.string().optional(),
+        station: z.string().trim().max(200).optional(),
       }),
     )
     .default([]),
   documents: z
     .array(
       z.object({
-        id: z.string().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .trim()
+          .min(1)
+          .max(100)
+          .default(() => crypto.randomUUID()),
         type: z
           .enum([
             "insurance",
@@ -582,13 +598,13 @@ export const VehicleSchema = z.object({
             "other",
           ])
           .default("other"),
-        title: z.string().min(1),
-        expiry_date: z.string().optional(),
-        notes: z.string().optional(),
+        title: z.string().trim().min(1).max(200),
+        expiry_date: z.string().datetime().optional(),
+        notes: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
-  notes: z.string().optional(),
+  notes: z.string().trim().max(5000).optional(),
 });
 
 // --- 19. MAINTENANCE LOG ---

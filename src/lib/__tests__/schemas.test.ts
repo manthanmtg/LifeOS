@@ -10,6 +10,7 @@ import {
   AiUsageSchema,
   MaintenanceTaskSchema,
   HealthProfileSchema,
+  VehicleSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -311,6 +312,44 @@ describe("schemas", () => {
       };
 
       const result = HealthProfileSchema.safeParse(profile);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("VehicleSchema", () => {
+    it("rejects loose vehicle record details and dates", () => {
+      const vehicle = {
+        name: "Commuter",
+        service_records: [
+          {
+            date: "next week",
+            description: "   ",
+            currency: "inr",
+            garage: "x".repeat(201),
+            notes: "x".repeat(2001),
+          },
+        ],
+        fuel_logs: [
+          {
+            date: "today",
+            quantity: 20,
+            cost: 1500,
+            currency: "rs.",
+            station: "x".repeat(201),
+          },
+        ],
+        documents: [
+          {
+            title: "   ",
+            expiry_date: "tomorrow",
+            notes: "x".repeat(2001),
+          },
+        ],
+        notes: "x".repeat(5001),
+      };
+
+      const result = VehicleSchema.safeParse(vehicle);
 
       expect(result.success).toBe(false);
     });

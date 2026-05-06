@@ -1280,6 +1280,7 @@ export default function VehicleAdminView() {
                           <input
                             type="text"
                             value={serviceForm.description || ""}
+                            maxLength={500}
                             onChange={(e) =>
                               setServiceForm((f) => ({
                                 ...f,
@@ -1340,6 +1341,7 @@ export default function VehicleAdminView() {
                           <input
                             type="text"
                             value={serviceForm.garage || ""}
+                            maxLength={200}
                             onChange={(e) =>
                               setServiceForm((f) => ({
                                 ...f,
@@ -1356,6 +1358,7 @@ export default function VehicleAdminView() {
                           </label>
                           <textarea
                             value={serviceForm.notes || ""}
+                            maxLength={2000}
                             onChange={(e) =>
                               setServiceForm((f) => ({
                                 ...f,
@@ -1659,6 +1662,7 @@ export default function VehicleAdminView() {
                             <input
                               type="text"
                               value={fuelForm.station || ""}
+                              maxLength={200}
                               onChange={(e) =>
                                 setFuelForm((f) => ({
                                   ...f,
@@ -1893,6 +1897,7 @@ export default function VehicleAdminView() {
                           <input
                             type="text"
                             value={docForm.title || ""}
+                            maxLength={200}
                             onChange={(e) =>
                               setDocForm((f) => ({
                                 ...f,
@@ -1909,6 +1914,7 @@ export default function VehicleAdminView() {
                           </label>
                           <textarea
                             value={docForm.notes || ""}
+                            maxLength={2000}
                             onChange={(e) =>
                               setDocForm((f) => ({
                                 ...f,
@@ -2472,6 +2478,7 @@ export default function VehicleAdminView() {
                     </label>
                     <textarea
                       value={formData.notes || ""}
+                      maxLength={5000}
                       onChange={(e) =>
                         setFormData((f) => ({ ...f, notes: e.target.value }))
                       }
