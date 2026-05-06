@@ -86,6 +86,21 @@ describe("/api/ai-usage/debug", () => {
     expect(getDb).not.toHaveBeenCalled();
   });
 
+  it("rejects malformed POST JSON before database access", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/ai-usage/debug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{",
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe("Validation failed");
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
   it("masks inner errors in POST responses", async () => {
     vi.mocked(getDb).mockResolvedValue({
       collection: vi.fn().mockReturnValue({
