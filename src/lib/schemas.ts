@@ -666,9 +666,9 @@ export const WhiteboardNoteSchema = z.object({
   color_label: z
     .enum(["none", "red", "blue", "green", "yellow", "purple", "orange"])
     .default("none"),
-  elements: z.any().default([]),
-  app_state: z.any().default({}),
-  files: z.any().default({}),
+  elements: z.unknown().default([]),
+  app_state: z.unknown().default({}),
+  files: z.unknown().default({}),
 });
 
 // --- 20. HEALTH PROFILES ---
@@ -885,7 +885,7 @@ export const SystemUpdateSchema = z
     orderingStrategy: z.enum(["custom", "name", "visits"]).optional(),
     visitSortScope: z.enum(["admin", "public", "all"]).optional(),
   })
-  .catchall(z.any());
+  .catchall(z.unknown());
 
 export const MetricEventSchema = z.object({
   path: z.string().trim().min(1).max(200).default("/"),
@@ -893,7 +893,7 @@ export const MetricEventSchema = z.object({
   action: z.string().trim().min(1).max(50).default("view"),
   label: z.string().trim().max(200).nullable().optional(),
   value: z.number().nullable().optional(),
-  metadata: z.record(z.string(), z.any()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   referrer: z.string().trim().max(500).nullable().optional(),
   device_type: z
     .enum(["mobile", "tablet", "desktop", "unknown"])
