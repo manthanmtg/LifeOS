@@ -16,7 +16,7 @@ const CurrencyCodeSchema = z
   .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code");
 
 // --- 1. PORTFOLIO & IDENTITY ---
-export const SocialLinkSchema = z.object({
+const SocialLinkSchema = z.object({
   platform: z
     .string()
     .trim()
@@ -341,7 +341,7 @@ export const TodoSchema = z.object({
 });
 
 // --- 14. SHOPPING LIST MODULE ---
-export const ShoppingItemSchema = z.object({
+const ShoppingItemSchema = z.object({
   id: z.string().uuid().or(z.string()),
   name: z.string().trim().min(1, "Item name is required").max(100),
   quantity: z.string().trim().max(50).optional(),
@@ -358,7 +358,7 @@ export const ShoppingListSchema = z.object({
 });
 
 // --- 12. RAIN TRACKER ---
-export const RainAreaSchema = z.object({
+const RainAreaSchema = z.object({
   name: z.string().trim().min(1, "Area name is required").max(100),
   location: z.string().trim().max(200).optional(),
   description: z.string().trim().max(1000).optional(),
@@ -375,7 +375,7 @@ export const RainEntrySchema = z.object({
 });
 
 // --- 15. PORTFOLIO RESUME ---
-export const ResumeSchema = z.object({
+const ResumeSchema = z.object({
   filename: z.string().min(1, "Filename is required"),
   content: z.string().min(1, "Resume content is required"), // Base64 PDF data
   is_active: z.boolean().default(false),
@@ -672,7 +672,7 @@ export const WhiteboardNoteSchema = z.object({
 });
 
 // --- 20. HEALTH PROFILES ---
-export const BillAttachmentSchema = z.object({
+const BillAttachmentSchema = z.object({
   id: z.string().min(1),
   filename: z.string().min(1),
   content_type: z.string().min(1),
