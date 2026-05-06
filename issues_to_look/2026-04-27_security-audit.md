@@ -83,22 +83,54 @@ Verification:
 Selected prompt: `prompts/security_enhancer.md`
 
 Files:
+
 - `src/app/api/ai-usage/sync/route.ts`
 
 Problem:
+
 - The `POST` route extracted `provider_id` and `days` from `request.json()` directly without Zod schema validation, allowing potentially malformed types (e.g. strings where numbers were expected) to be processed before hitting database logic.
 
 Fix:
+
 - Added inline Zod schema validation (`z.object({...}).safeParse`) for the request body.
 - Return standard `ApiValidationError` if the payload structure is invalid.
 
 Verification:
+
 - `pnpm check` - PASS
+
+## Follow-up run (2026-05-06 06:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Files:
+
+- `src/app/api/ai-usage/debug/route.ts`
+- `src/app/api/ai-usage/debug/__tests__/route.test.ts`
+
+Problem:
+
+- The development-only debug POST route used Zod validation, but malformed JSON
+  still threw before `safeParse()` and fell through to the generic 500 `Test
+failed` response.
+
+Fix:
+
+- Parse malformed JSON as an empty payload so the existing Zod validation path
+  returns the standard validation error before database access.
+- Added a regression test for malformed JSON.
+
+Verification:
+
+- `pnpm vitest run src/app/api/ai-usage/debug/__tests__/route.test.ts` - PASS
+- `pnpm check` - PASS
+
 ## Follow-up run (2026-05-06)
 
 Selected prompt: `prompts/security_enhancer.md`
 
 Files:
+
 - `src/app/api/bills/route.ts`
 - `src/app/api/bills/[id]/route.ts`
 - `src/app/api/bills/[id]/move/route.ts`
@@ -111,10 +143,13 @@ Files:
 - `src/app/api/system/route.ts`
 
 Problem:
+
 - These mutating routes called `await request.json()` directly without catching JSON parsing errors. Malformed JSON request bodies would throw an error that bubbled up to the generic `catch` block, resulting in a generic 500 Internal Server Error (and a logged internal error) rather than a 400 Bad Request / Validation error.
 
 Fix:
+
 - Updated the calls to `await request.json().catch(() => ({}))` to gracefully handle malformed JSON and allow the subsequent Zod `safeParse` logic to correctly identify and reject the invalid shape with a standard `ApiValidationError`.
 
 Verification:
+
 - `pnpm check` - PASS
