@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const isAdmin = token ? !!(await verifyToken(token)) : false;
     if (!isAdmin) return ApiError("Unauthorized", 401);
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { payload } = body;
 
     const parsed = BillFolderSchema.safeParse(payload);

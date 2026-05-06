@@ -48,7 +48,7 @@ export async function PUT(
     const { id } = await params;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
 
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { payload } = body;
 
     const db = await getDb();
