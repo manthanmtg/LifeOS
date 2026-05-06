@@ -216,6 +216,25 @@ describe("schemas", () => {
 
       expect(result.success).toBe(false);
     });
+
+    it("rejects malformed person date fields", () => {
+      const person = {
+        name: "Jane Doe",
+        relationship: "friend",
+        birthday: "01/31/1990",
+        interactions: [
+          {
+            date: "yesterday",
+            type: "message",
+          },
+        ],
+        last_contacted: "2026-02-30",
+      };
+
+      const result = PersonSchema.safeParse(person);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("DeckSchema", () => {
