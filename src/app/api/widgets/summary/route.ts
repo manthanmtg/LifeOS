@@ -400,9 +400,9 @@ export async function GET(request: Request) {
         { module_type, is_public: false },
         { projection: PROJECTIONS[module_type] || {} },
       )
-      .toArray()) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+      .toArray()) as ContentDocument<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    let summary: any = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
+    let summary: Record<string, unknown> = {};
     const nowRef = Date.now();
 
     switch (module_type) {
@@ -758,7 +758,10 @@ export async function GET(request: Request) {
           crops: [],
           sources: [],
         }) as CropSettings;
-        summary = getCropHistorySummary(docs as CropRecord[], settings);
+        summary = getCropHistorySummary(
+          docs as unknown as CropRecord[],
+          settings,
+        ) as unknown as Record<string, unknown>;
         break;
       }
 
@@ -894,7 +897,9 @@ export async function GET(request: Request) {
       }
 
       case "habit": {
-        summary = computeMetrics(docs as Habit[]);
+        summary = computeMetrics(
+          docs as unknown as Habit[],
+        ) as unknown as Record<string, unknown>;
         break;
       }
 
@@ -1027,10 +1032,10 @@ export async function GET(request: Request) {
         summary = getPeopleSummary(
           docs.map((doc) =>
             toPersonDocument(
-              doc as ContentDocument<PersonPayload> & { _id: string },
+              doc as unknown as ContentDocument<PersonPayload> & { _id: string },
             ),
           ),
-        );
+        ) as unknown as Record<string, unknown>;
         break;
       }
 
@@ -1134,7 +1139,7 @@ export async function GET(request: Request) {
       }
 
       case "portfolio_profile": {
-        summary = docs[0]?.payload || null;
+        summary = (docs[0]?.payload || {}) as Record<string, unknown>;
         break;
       }
 
