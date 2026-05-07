@@ -50,7 +50,7 @@ function ZenModeController({
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-zinc-800 text-zinc-400 text-xs px-3 py-1.5 rounded-full border border-zinc-700 animate-fade-in-up">
+    <div className="fixed bottom-4 left-4 right-4 z-50 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-center text-xs text-zinc-400 animate-fade-in-up sm:left-auto sm:w-fit">
       Zen Mode · <kbd className="font-mono text-accent">⌘⇧Z</kbd> to exit
     </div>
   );
