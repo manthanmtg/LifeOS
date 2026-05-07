@@ -1,6 +1,6 @@
 import { moduleRegistry } from "@/registry";
 
-export interface ModuleVisibility {
+interface ModuleVisibility {
   enabled: boolean;
   isPublic: boolean;
 }
