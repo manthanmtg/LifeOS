@@ -74,18 +74,19 @@ export default function ReadingPublicView({
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
-        <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-warning/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-3xl border border-zinc-800/60 bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-8 shadow-2xl shadow-black/20">
+        <div className="absolute -top-20 -right-10 h-64 w-64 rounded-full bg-accent/20 blur-[80px] animate-pulse" />
+        <div className="absolute -bottom-20 left-1/4 h-60 w-60 rounded-full bg-warning/10 blur-[80px]" />
 
-        <div className="relative space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">
-            My reading queue and curated references.
+        <div className="relative space-y-6">
+          <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-50 leading-tight max-w-2xl">
+            My reading queue and <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4">curated references.</span>
           </h2>
 
           <ReadingMetrics items={readings} />
         </div>
       </div>
+
 
       <ReadingFilters
         searchQuery={searchQuery}
