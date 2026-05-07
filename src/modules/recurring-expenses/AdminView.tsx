@@ -296,8 +296,8 @@ function SortableRecurringExpenseCard({
       <div
         className={cn("absolute top-0 left-0 right-0 h-0.5", state.lineClass)}
       />
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-2">
           <button
             type="button"
             aria-label={`Drag ${s.payload.name}`}
@@ -313,8 +313,8 @@ function SortableRecurringExpenseCard({
           >
             <GripVertical className="w-4 h-4" />
           </button>
-          <div>
-            <p className="text-sm font-semibold text-zinc-50">
+          <div className="min-w-0">
+            <p className="break-words text-sm font-semibold text-zinc-50">
               {s.payload.name}
             </p>
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
@@ -334,14 +334,14 @@ function SortableRecurringExpenseCard({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center justify-end gap-1 sm:flex-nowrap sm:shrink-0">
           {s.payload.url && (
             <Tooltip content="Open URL">
               <a
                 href={s.payload.url}
                 target="_blank"
                 rel="noopener"
-                className="p-1 text-zinc-500 hover:text-zinc-300"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 sm:min-h-0 sm:min-w-0"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
@@ -351,7 +351,7 @@ function SortableRecurringExpenseCard({
             <button
               onClick={() => onDeRenew(s)}
               disabled={isProcessingId === s._id}
-              className="p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
               aria-label="Previous billing cycle"
             >
               {isProcessingId === s._id ? (
@@ -366,7 +366,7 @@ function SortableRecurringExpenseCard({
               onClick={() => onRenew(s)}
               disabled={isProcessingId === s._id}
               className={cn(
-                "p-1 transition-colors disabled:opacity-50",
+                "inline-flex min-h-11 min-w-11 items-center justify-center p-1 transition-colors disabled:opacity-50 sm:min-h-0 sm:min-w-0",
                 daysUntilRenewal <= 0
                   ? "text-accent hover:text-accent-hover"
                   : "text-zinc-500 hover:text-zinc-300",
@@ -384,7 +384,7 @@ function SortableRecurringExpenseCard({
             <button
               onClick={() => onDuplicate(s)}
               disabled={isProcessingId === s._id}
-              className="p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
               aria-label="Duplicate expense"
             >
               {isProcessingId === s._id ? (
@@ -398,7 +398,7 @@ function SortableRecurringExpenseCard({
             <button
               onClick={() => onEdit(s)}
               disabled={isProcessingId === s._id}
-              className="p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
               aria-label="Edit expense"
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -408,7 +408,7 @@ function SortableRecurringExpenseCard({
             <button
               onClick={() => onDelete(s._id)}
               disabled={isProcessingId === s._id}
-              className="p-1 text-zinc-500 hover:text-danger disabled:opacity-50"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-danger disabled:opacity-50 sm:min-h-0 sm:min-w-0"
               aria-label="Delete expense"
             >
               {isProcessingId === s._id ? (
