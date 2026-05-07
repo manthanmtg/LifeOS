@@ -4,6 +4,13 @@ import React, { useMemo } from "react";
 import { ReadingItem } from "../types";
 import { motion } from "framer-motion";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import {
+  Inbox,
+  BookOpen,
+  ArrowUpCircle,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 
 interface ReadingMetricsProps {
   items: ReadingItem[];
@@ -21,18 +28,25 @@ export function ReadingMetrics({ items, loading }: ReadingMetricsProps) {
     const readRate = total > 0 ? (read / total) * 100 : 0;
 
     return [
-      { label: "Total", value: total, color: "text-zinc-50" },
-      { label: "Unread", value: unread, color: "text-zinc-50" },
+      { label: "Total", value: total, color: "text-zinc-50", icon: Inbox },
+      { label: "Unread", value: unread, color: "text-zinc-50", icon: BookOpen },
       {
         label: "High Priority",
         value: highPriorityUnread,
         color: "text-danger",
+        icon: ArrowUpCircle,
       },
-      { label: "Completed", value: read, color: "text-success" },
+      {
+        label: "Completed",
+        value: read,
+        color: "text-success",
+        icon: Sparkles,
+      },
       {
         label: "Read Rate",
         value: `${readRate.toFixed(0)}%`,
-        color: "text-zinc-50",
+        color: "text-accent",
+        icon: TrendingUp,
       },
     ];
   }, [items]);
@@ -55,10 +69,13 @@ export function ReadingMetrics({ items, loading }: ReadingMetricsProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5"
+              className="rounded-xl border border-zinc-800/50 bg-zinc-950/30 backdrop-blur-sm px-3 py-2.5 hover:bg-zinc-950/50 transition-colors group relative overflow-hidden"
             >
-              <p className="text-xs text-zinc-500">{stat.label}</p>
-              <p className={`text-lg font-semibold ${stat.color}`}>
+              <stat.icon className="absolute -right-1 -bottom-1 w-8 h-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity" />
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-0.5 group-hover:text-zinc-400 transition-colors">
+                {stat.label}
+              </p>
+              <p className={`text-xl font-bold tracking-tight ${stat.color}`}>
                 {stat.value}
               </p>
             </motion.div>
@@ -66,3 +83,4 @@ export function ReadingMetrics({ items, loading }: ReadingMetricsProps) {
     </div>
   );
 }
+
