@@ -4,9 +4,9 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 
 ## Commands
 
-- `pnpm dev` — Start dev server
+- `pnpm dev` — Start dev server on `http://localhost:3091`
 - `pnpm build` — Production build (includes memory fix)
-- `pnpm start` — Start production server
+- `pnpm start` — Start production server on `http://localhost:3091`
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
 - `pnpm typecheck` — Run TypeScript type checking (includes memory fix)
 - `pnpm test` — Run tests using Vitest
@@ -174,7 +174,7 @@ After making UI changes, use the **Playwright MCP** to visually verify that noth
 
 ### Prerequisites
 
-- The app must be running locally on `http://localhost:3512`
+- The app must be running locally on `http://localhost:3091`
 - A valid `.env.local` with `MONGODB_URI`, `ADMIN_PASSWORD`, and `JWT_SECRET`
 
 ### Step-by-Step
@@ -182,19 +182,19 @@ After making UI changes, use the **Playwright MCP** to visually verify that noth
 1. **Start the dev server** (if not already running):
 
    ```bash
-   pnpm dev -p 3512
+   pnpm dev
    ```
 
    Wait until you see `✓ Ready` in the output.
 
 2. **Navigate to the page under test** using Playwright MCP's `browser_navigate`:
-   - Public home: `http://localhost:3512`
-   - Admin dashboard: `http://localhost:3512/admin`
-   - Specific module: `http://localhost:3512/admin/<module-slug>`
-   - Public blog: `http://localhost:3512/blog`
+   - Public home: `http://localhost:3091`
+   - Admin dashboard: `http://localhost:3091/admin`
+   - Specific module: `http://localhost:3091/admin/<module-slug>`
+   - Public blog: `http://localhost:3091/blog`
 
 3. **Log in** (for admin pages):
-   - Navigate to `http://localhost:3512/admin` — it will redirect to the login page.
+   - Navigate to `http://localhost:3091/admin` — it will redirect to the login page.
    - Use `browser_type` to fill in the admin password from `.env.local` and submit.
    - Alternatively, navigate to the login page and complete the auth flow.
 

@@ -142,8 +142,8 @@ JWT_SECRET=some-long-random-secret-string
 pnpm dev
 ```
 
-- **Public site:** http://localhost:3000
-- **Admin login:** http://localhost:3000/login
+- **Public site:** http://localhost:3091
+- **Admin login:** http://localhost:3091/login
 
 > 💡 First run auto-seeds the database with default config.
 
