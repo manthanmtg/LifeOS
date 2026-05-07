@@ -42,6 +42,30 @@ describe("ZenModeProvider", () => {
     expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
   });
 
+  it("keeps the zen mode indicator constrained on mobile screens", () => {
+    vi.useFakeTimers();
+
+    render(
+      <ZenModeProvider>
+        <div>Content</div>
+      </ZenModeProvider>,
+    );
+
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
+
+    fireZenShortcut();
+
+    expect(screen.getByText(/Zen Mode/).closest("div")).toHaveClass(
+      "left-4",
+      "right-4",
+      "text-center",
+      "sm:left-auto",
+      "sm:w-fit",
+    );
+  });
+
   it("removes the keyboard listener on unmount", () => {
     vi.useFakeTimers();
     const removeSpy = vi.spyOn(window, "removeEventListener");
