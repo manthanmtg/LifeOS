@@ -18,8 +18,9 @@ describe("PortfolioWidget", () => {
 
     render(React.createElement(PortfolioWidget));
 
+    expect(await screen.findByText("No profile yet")).toBeInTheDocument();
     expect(
-      await screen.findByText("No profile yet. Set one up."),
+      await screen.findByText("Set up your first portfolio profile"),
     ).toBeInTheDocument();
   });
 });

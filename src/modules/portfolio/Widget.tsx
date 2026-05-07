@@ -79,7 +79,17 @@ export default function PortfolioWidget() {
           />
         </div>
       ) : (
-        <p className="text-sm text-zinc-500">No profile yet. Set one up.</p>
+        !loading && (
+          <div className="space-y-3">
+            <WidgetStat value={0} label="skills" />
+            <WidgetHighlight
+              icon={User}
+              text="No profile yet"
+              subtext="Set up your first portfolio profile"
+              variant="default"
+            />
+          </div>
+        )
       )}
     </WidgetCard>
   );
