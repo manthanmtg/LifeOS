@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wheat, TrendingUp, TrendingDown, CalendarDays } from "lucide-react";
+import { Wheat, TrendingUp, TrendingDown } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -46,17 +46,6 @@ export default function CropHistoryWidget() {
       loading={loading}
       href="/admin/crop-history"
       accentColor="success"
-      footer={
-        summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <span className="flex items-center gap-1">
-              <CalendarDays className="w-3 h-3" />
-              {summary.totalPeriods} periods recorded
-            </span>
-            <span>{summary.totalCrops} crops</span>
-          </div>
-        )
-      }
     >
       <div className="space-y-3">
         {summary && summary.latestRevenue > 0 ? (
