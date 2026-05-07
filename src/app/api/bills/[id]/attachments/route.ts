@@ -59,12 +59,6 @@ export async function POST(
     const db = await getDb();
     const contentColl = db.collection<ContentDocument<BillPayload>>("content");
 
-    const existing = await contentColl.findOne({
-      _id: new ObjectId(id),
-      module_type: "bill",
-    });
-    if (!existing) return ApiNotFound();
-
     const attachment: BillAttachment = {
       id: crypto.randomUUID(),
       filename,
@@ -74,18 +68,15 @@ export async function POST(
       uploaded_at: new Date().toISOString(),
     };
 
-    const currentAttachments: BillAttachment[] =
-      (existing.payload as BillPayload).attachments ?? [];
-
-    await contentColl.updateOne(
-      { _id: new ObjectId(id) },
+    const updateResult = await contentColl.updateOne(
+      { _id: new ObjectId(id), module_type: "bill" },
       {
-        $set: {
-          "payload.attachments": [...currentAttachments, attachment],
-          updated_at: new Date().toISOString(),
-        },
+        $push: { "payload.attachments": attachment } as object,
+        $set: { updated_at: new Date().toISOString() },
       },
     );
+
+    if (updateResult.matchedCount === 0) return ApiNotFound();
 
     return ApiSuccess(attachment, 201);
   } catch (error) {
