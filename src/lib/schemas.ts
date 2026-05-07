@@ -835,7 +835,7 @@ export const DeckSchema = z.object({
   author: z.string().trim().max(100).optional(),
   topic: z.string().trim().max(100).optional(),
   folder: z.string().trim().max(100).optional(),
-  deck_url: z.string().optional(),
+  deck_url: z.string().url().optional(),
   file_name: z.string().trim().max(255).optional(),
   file_size: z.number().int().min(0).optional(),
   thumbnail_url: z.string().url().max(500).optional(),
