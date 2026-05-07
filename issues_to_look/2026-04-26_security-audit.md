@@ -194,3 +194,15 @@ through to the generic server-error path.
 Verification:
 
 - `pnpm vitest run src/app/api/metrics/__tests__/route.test.ts` - PASS
+
+## Follow-up run (2026-05-07 18:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Resolved a narrow browser hardening gap by adding
+`Cross-Origin-Resource-Policy: same-origin` to the global headers in
+`next.config.ts`, matching the existing same-origin opener policy.
+
+Verification:
+
+- `pnpm vitest run src/test/security-headers.test.ts` - PASS
