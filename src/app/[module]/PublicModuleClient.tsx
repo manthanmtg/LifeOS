@@ -12,10 +12,28 @@ import { PublicModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
 /* ── Module-specific public views ─────────────────────────────── */
 function ViewLoadingFallback() {
   return (
-    <div className="space-y-3">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <SkeletonBlock key={i} className="h-20 rounded-xl" />
-      ))}
+    <div className="space-y-4 animate-pulse">
+      <div className="space-y-2 mb-8">
+        <SkeletonBlock className="h-8 w-1/4 rounded-lg" />
+        <SkeletonBlock className="h-4 w-1/2 opacity-50" />
+      </div>
+      <div className="grid grid-cols-1 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="p-6 bg-zinc-900/40 border border-zinc-800/50 rounded-2xl flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4 flex-1">
+              <div className="w-12 h-12 rounded-xl bg-zinc-800/50 flex-shrink-0" />
+              <div className="space-y-3 flex-1">
+                <SkeletonBlock className="h-4 w-2/5" />
+                <SkeletonBlock className="h-3 w-1/4 opacity-50" />
+              </div>
+            </div>
+            <SkeletonBlock className="h-6 w-16 rounded-lg opacity-30" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
