@@ -35,15 +35,24 @@ export default function BillCard({
       animate={{ opacity: 1, y: 0 }}
       draggable
       onDragStart={onDragStart}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${bill.payload.name}`}
       className="group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl overflow-hidden cursor-pointer hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5 transition-all flex flex-col h-full"
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       {firstImage ? (
         <div className="h-28 sm:h-32 w-full bg-zinc-800/50 overflow-hidden shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`data:${firstImage.content_type};base64,${firstImage.data!}`}
-            alt=""
+            alt={bill.payload.name}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
           />
         </div>
@@ -81,6 +90,7 @@ export default function BillCard({
               e.stopPropagation();
               onEdit(bill);
             }}
+            aria-label={`Edit ${bill.payload.name}`}
             title="Edit"
             className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-accent rounded-lg hover:bg-accent/10 transition-all shrink-0"
           >

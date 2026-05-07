@@ -57,6 +57,9 @@ export default function FolderCard({
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open folder ${folder.payload.name}`}
       className={cn(
         "relative group rounded-2xl border transition-all cursor-pointer overflow-hidden backdrop-blur-md",
         isDragOver
@@ -65,6 +68,12 @@ export default function FolderCard({
       )}
       onClick={() => {
         if (!editing) onClick();
+      }}
+      onKeyDown={(e) => {
+        if (!editing && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
       }}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -98,6 +107,7 @@ export default function FolderCard({
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 onBlur={handleRenameSubmit}
+                aria-label="Folder name"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRenameSubmit();
                   if (e.key === "Escape") {
@@ -109,6 +119,7 @@ export default function FolderCard({
               />
               <button
                 onClick={handleRenameSubmit}
+                aria-label="Confirm rename"
                 className="p-1.5 text-success hover:bg-success/10 rounded-lg transition-colors"
               >
                 <Check className="w-4 h-4" />
@@ -144,6 +155,7 @@ export default function FolderCard({
                 e.stopPropagation();
                 setShowMenu((v) => !v);
               }}
+              aria-label="More options"
               className="p-2 rounded-xl text-zinc-600 opacity-0 group-hover:opacity-100 hover:text-zinc-200 hover:bg-zinc-800 transition-all"
             >
               <MoreHorizontal className="w-4 h-4" />

@@ -36,7 +36,7 @@ export default function BillsHeader({
     <div className="flex flex-col gap-6 mb-8">
       {/* Top Bar: Breadcrumb + Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar py-1">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar py-1">
           {breadcrumb.map((crumb, i) => (
             <div
               key={crumb.id ?? "root"}
@@ -52,6 +52,7 @@ export default function BillsHeader({
               ) : (
                 <button
                   onClick={() => onNavigate(crumb.id)}
+                  aria-label={crumb.id === null ? "Portal Home" : `Go to ${crumb.name}`}
                   className="text-sm font-bold text-zinc-500 hover:text-accent px-2 py-1 rounded-lg hover:bg-accent/5 transition-all flex items-center gap-1.5"
                 >
                   {crumb.id === null ? (
@@ -95,6 +96,7 @@ export default function BillsHeader({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search bills by name, description, tags..."
+            aria-label="Search bills"
             className="w-full bg-zinc-950/30 border-none rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-accent/20 transition-all"
           />
         </div>
@@ -102,6 +104,7 @@ export default function BillsHeader({
         <div className="flex items-center gap-1 bg-zinc-950/30 p-1 rounded-xl shrink-0">
           <button
             onClick={() => onViewModeChange("grid")}
+            aria-label="Grid view"
             className={cn(
               "p-2 rounded-lg transition-all",
               viewMode === "grid"
@@ -113,6 +116,7 @@ export default function BillsHeader({
           </button>
           <button
             onClick={() => onViewModeChange("list")}
+            aria-label="List view"
             className={cn(
               "p-2 rounded-lg transition-all",
               viewMode === "list"
