@@ -239,6 +239,22 @@ describe("schemas", () => {
   });
 
   describe("DeckSchema", () => {
+    it("rejects malformed deck URLs while allowing uploaded data URLs", () => {
+      const invalid = DeckSchema.safeParse({
+        title: "Quarterly planning",
+        deck_url: "not-a-url",
+      });
+
+      const uploaded = DeckSchema.safeParse({
+        title: "Uploaded deck",
+        format: "html",
+        deck_url: "data:text/html;base64,PGgxPkhlbGxvPC9oMT4=",
+      });
+
+      expect(invalid.success).toBe(false);
+      expect(uploaded.success).toBe(true);
+    });
+
     it("rejects loose deck text and thumbnail fields", () => {
       const deck = {
         title: "x".repeat(201),
