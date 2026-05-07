@@ -48,6 +48,7 @@ function MiniSparkline({
       viewBox={`0 0 ${width} ${height}`}
       className="w-20 h-7"
       preserveAspectRatio="none"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -203,7 +204,14 @@ export default function BookshelfMetrics({
                 {stats.completed}/{stats.goal}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+            <div
+              className="h-2 rounded-full bg-zinc-800 overflow-hidden"
+              role="progressbar"
+              aria-valuenow={stats.completed}
+              aria-valuemin={0}
+              aria-valuemax={stats.goal}
+              aria-label="Yearly books completed goal progress"
+            >
               <motion.div
                 className="h-full bg-accent rounded-full"
                 initial={{ width: 0 }}

@@ -103,9 +103,14 @@ export default function BookshelfFilters({
       </div>
 
       {/* Status filter chips */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div
+        className="flex items-center gap-2 flex-wrap"
+        role="group"
+        aria-label="Filter books by status"
+      >
         <button
           onClick={() => onStatusFilterChange("all")}
+          aria-pressed={statusFilter === "all"}
           className={cn(
             "px-3 py-1.5 rounded-lg text-xs border transition-all duration-200",
             statusFilter === "all"
@@ -119,6 +124,7 @@ export default function BookshelfFilters({
           <button
             key={item}
             onClick={() => onStatusFilterChange(item)}
+            aria-pressed={statusFilter === item}
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs border transition-all duration-200",
               statusFilter === item
