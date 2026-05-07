@@ -5,7 +5,7 @@ import { PublicModuleSkeleton } from "@/components/ui/Skeletons";
 export default function PublicModuleLoading() {
   return (
     <div className="min-h-screen flex flex-col">
-      <PublicHeader initialUserName="Loading..." />
+      <PublicHeader />
       <PublicModuleSkeleton />
       <PublicFooter />
     </div>
