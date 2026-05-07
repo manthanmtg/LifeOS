@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckSquare, ListTodo } from "lucide-react";
+import { CheckSquare, ListTodo, Sparkles } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -37,8 +37,11 @@ export default function TodoWidget() {
         summary && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1.5 text-success/80">
-              <CheckSquare className="w-3 h-3" />
+              <Sparkles className="w-3 h-3" />
               {summary.doneCount} completed
+            </span>
+            <span className="text-zinc-500">
+              {summary.activeCount + summary.doneCount} total
             </span>
           </div>
         )
