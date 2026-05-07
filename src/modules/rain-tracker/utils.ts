@@ -9,6 +9,7 @@ import type {
   RainFilters,
   RainFilterPreset,
   RainSettings,
+  RainSource,
   RainUnit,
 } from "./types";
 
@@ -28,6 +29,11 @@ export const QUICK_FILTER_PRESETS: Array<{
   { id: "last30", label: "Last 30d" },
   { id: "heavy", label: "Heavy rain" },
   { id: "sensor", label: "Sensor" },
+];
+export const RAIN_SOURCE_OPTIONS: RainSource[] = [
+  "manual",
+  "sensor",
+  "imported",
 ];
 
 export const CONVERSION_TO_MM: Record<RainUnit, number> = {
@@ -52,6 +58,12 @@ export function getDefaultEntryDateTime(now = new Date()) {
 
 export function parseDateInputToISO(dateOnly: string, timeOnly = "00:00") {
   return new Date(`${dateOnly}T${timeOnly}`).toISOString();
+}
+
+export function coerceRainSource(value: unknown): RainSource {
+  return RAIN_SOURCE_OPTIONS.includes(value as RainSource)
+    ? (value as RainSource)
+    : "manual";
 }
 
 export function formatRainValue(mmValue: number, unit: RainUnit, digits = 2) {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildRainAreaPortfolioSummary,
   buildRainAnalytics,
+  coerceRainSource,
   getVisibleRainEntries,
   matchesRainFilters,
 } from "../utils";
@@ -166,5 +167,12 @@ describe("rain tracker utils", () => {
     expect(summary.last7Total).toBe(0);
     expect(summary.wettestArea?.value).toBe("North Field");
     expect(summary.staleAreaCount).toBe(2);
+  });
+
+  it("coerces unknown rain entry sources to manual", () => {
+    expect(coerceRainSource("sensor")).toBe("sensor");
+    expect(coerceRainSource("imported")).toBe("imported");
+    expect(coerceRainSource("unexpected")).toBe("manual");
+    expect(coerceRainSource(undefined)).toBe("manual");
   });
 });
