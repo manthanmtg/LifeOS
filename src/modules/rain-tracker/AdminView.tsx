@@ -10,10 +10,17 @@ import { AreaSidebar } from "./components/AreaSidebar";
 import { RainEntriesPanel } from "./components/RainEntriesPanel";
 import { RainOverview } from "./components/RainOverview";
 import { RainTrackerPreferences } from "./components/RainTrackerPreferences";
-import type { RainArea, RainEntry, RainFilters, RainSettings } from "./types";
+import type {
+  RainArea,
+  RainEntry,
+  RainFilters,
+  RainSettings,
+  RainSource,
+} from "./types";
 import {
   buildRainAreaPortfolioSummary,
   buildRainAnalytics,
+  coerceRainSource,
   CONVERSION_FROM_MM,
   CONVERSION_TO_MM,
   DEFAULT_RAIN_SETTINGS,
@@ -75,7 +82,7 @@ export default function RainTrackerAdminView() {
   const [entryDate, setEntryDate] = useState(defaultEntryDateTime.date);
   const [entryTime, setEntryTime] = useState(defaultEntryDateTime.time);
   const [entryNotes, setEntryNotes] = useState("");
-  const [entrySource, setEntrySource] = useState("manual");
+  const [entrySource, setEntrySource] = useState<RainSource>("manual");
   const [entryFormError, setEntryFormError] = useState("");
   const [isSavingEntry, setIsSavingEntry] = useState(false);
 
@@ -216,7 +223,7 @@ export default function RainTrackerAdminView() {
       setEntryDate(isoDate.slice(0, 10));
       setEntryTime(isoDate.slice(11, 16));
       setEntryNotes(entry.payload.notes || "");
-      setEntrySource(entry.payload.source || "manual");
+      setEntrySource(coerceRainSource(entry.payload.source));
       setEditingEntryId(entry._id);
       setEntryFormError("");
       setShowEntryForm(true);
@@ -575,7 +582,9 @@ export default function RainTrackerAdminView() {
               onEntryAmountChange={setEntryAmount}
               onEntryDateChange={setEntryDate}
               onEntryTimeChange={setEntryTime}
-              onEntrySourceChange={setEntrySource}
+              onEntrySourceChange={(value) =>
+                setEntrySource(coerceRainSource(value))
+              }
               onEntryNotesChange={setEntryNotes}
               onEditEntry={openEditEntry}
               onDeleteEntry={handleDeleteEntry}
