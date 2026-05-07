@@ -303,3 +303,32 @@ export function PortfolioSkeleton() {
     </div>
   );
 }
+
+/** Skeleton for finance/ledger-style lists (expenses, transactions) */
+export function FinanceListSkeleton({ length = 5 }: { length?: number }) {
+  return (
+    <div className="divide-y divide-zinc-800/30">
+      {Array.from({ length }).map((_, i) => (
+        <div
+          key={i}
+          className="p-4 flex items-center justify-between animate-pulse"
+        >
+          <div className="flex items-center gap-4 flex-1">
+            <div className="w-11 h-11 rounded-2xl bg-zinc-800/50 flex-shrink-0" />
+            <div className="space-y-2 flex-1">
+              <SkeletonBlock className="h-4 w-1/3" />
+              <div className="flex gap-2">
+                <SkeletonBlock className="h-2 w-12" />
+                <SkeletonBlock className="h-2 w-16" />
+              </div>
+            </div>
+          </div>
+          <div className="text-right space-y-2">
+            <SkeletonBlock className="h-5 w-20 ml-auto" />
+            <SkeletonBlock className="h-2 w-12 ml-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
