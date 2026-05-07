@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Tv, Star, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -27,16 +27,20 @@ const EMPTY_SUMMARY: BingeSummary = {
   latest: null,
 };
 
-export default function BingeWidget() {
+export default memo(function BingeWidget() {
   const [summary, setSummary] = useState<BingeSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=binge_item")
+    const controller = new AbortController();
+    fetch("/api/widgets/summary?module_type=binge_item", {
+      signal: controller.signal,
+    })
       .then((res) => res.json())
       .then((data) => setSummary(data.data || EMPTY_SUMMARY))
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   return (
@@ -71,6 +75,7 @@ export default function BingeWidget() {
           <WidgetHighlight
             icon={Play}
             text={summary.latest.title}
+            variant="accent"
             subtext={
               summary.latest.current_season
                 ? `S${summary.latest.current_season}${summary.latest.current_episode ? ` · E${summary.latest.current_episode}` : ""}`
@@ -86,4 +91,4 @@ export default function BingeWidget() {
       </div>
     </WidgetCard>
   );
-}
+});

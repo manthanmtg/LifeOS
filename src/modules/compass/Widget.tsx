@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { AlertCircle, Map, CheckCircle } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -15,7 +15,7 @@ interface CompassSummary {
   reviewCount: number;
 }
 
-export default function CompassWidget() {
+export default memo(function CompassWidget() {
   const [summary, setSummary] = useState<CompassSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,4 +78,4 @@ export default function CompassWidget() {
       </div>
     </WidgetCard>
   );
-}
+});

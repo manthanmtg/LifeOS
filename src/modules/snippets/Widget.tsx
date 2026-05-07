@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Code, Star } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -20,7 +20,7 @@ const EMPTY_SUMMARY: SnippetSummary = {
   languageCount: 0,
 };
 
-export default function SnippetsWidget() {
+export default memo(function SnippetsWidget() {
   const [summary, setSummary] = useState<SnippetSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
 
@@ -75,4 +75,4 @@ export default function SnippetsWidget() {
       </div>
     </WidgetCard>
   );
-}
+});

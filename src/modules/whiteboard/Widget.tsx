@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, memo } from "react";
 import { PenLine, Star, Globe } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -19,13 +19,16 @@ interface WhiteboardSummary {
   } | null;
 }
 
-export default function WhiteboardWidget() {
+export default memo(function WhiteboardWidget() {
   const [summary, setSummary] = useState<WhiteboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadedAtMs, setLoadedAtMs] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=whiteboard_note")
+    const controller = new AbortController();
+    fetch("/api/widgets/summary?module_type=whiteboard_note", {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((d) => {
         setLoadedAtMs(Date.now());
@@ -33,6 +36,7 @@ export default function WhiteboardWidget() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   const daysAgo = useMemo(() => {
@@ -91,4 +95,4 @@ export default function WhiteboardWidget() {
       </div>
     </WidgetCard>
   );
-}
+});
