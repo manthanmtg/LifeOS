@@ -162,7 +162,7 @@ describe("POST /api/bills/[id]/attachments", () => {
 
   it("returns 404 when the target bill does not exist", async () => {
     mockAdminCookie();
-    mockFindOne.mockResolvedValue(null);
+    mockUpdateOne.mockResolvedValue({ matchedCount: 0 });
 
     const response = await POST(
       createJsonRequest({
@@ -176,31 +176,15 @@ describe("POST /api/bills/[id]/attachments", () => {
 
     expect(response.status).toBe(404);
     expect(body.error).toBe("Resource not found");
-    expect(mockFindOne).toHaveBeenCalledWith({
-      _id: expect.any(ObjectId),
-      module_type: "bill",
-    });
-    expect(mockUpdateOne).not.toHaveBeenCalled();
+    expect(mockUpdateOne).toHaveBeenCalledWith(
+      { _id: expect.any(ObjectId), module_type: "bill" },
+      expect.any(Object),
+    );
   });
 
   it("appends the uploaded attachment to existing bill attachments", async () => {
     mockAdminCookie();
-    mockFindOne.mockResolvedValue({
-      _id: billId,
-      module_type: "bill",
-      payload: {
-        attachments: [
-          {
-            id: "existing",
-            filename: "old.pdf",
-            content_type: "application/pdf",
-            data: "old-data",
-            size: 6,
-            uploaded_at: "2026-05-01T00:00:00.000Z",
-          },
-        ],
-      },
-    });
+    mockUpdateOne.mockResolvedValue({ matchedCount: 1 });
 
     const response = await POST(
       createJsonRequest({
@@ -223,22 +207,10 @@ describe("POST /api/bills/[id]/attachments", () => {
     });
     expect(mockCollection).toHaveBeenCalledWith("content");
     expect(mockUpdateOne).toHaveBeenCalledWith(
-      { _id: expect.any(ObjectId) },
+      { _id: expect.any(ObjectId), module_type: "bill" },
       {
-        $set: {
-          "payload.attachments": [
-            {
-              id: "existing",
-              filename: "old.pdf",
-              content_type: "application/pdf",
-              data: "old-data",
-              size: 6,
-              uploaded_at: "2026-05-01T00:00:00.000Z",
-            },
-            body.data,
-          ],
-          updated_at: "2026-05-07T12:00:00.000Z",
-        },
+        $push: { "payload.attachments": body.data },
+        $set: { updated_at: "2026-05-07T12:00:00.000Z" },
       },
     );
   });
