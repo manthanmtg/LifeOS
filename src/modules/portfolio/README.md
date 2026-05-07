@@ -66,6 +66,9 @@ Resume payloads are validated by `ResumeSchema`.
   `/api/portfolio/resume` with a profile-derived filename when available.
 - Dashboard widget that follows the widget contract with one hero metric
   (`skills.length`) and one highlight row (`hero_title` and `sub_headline`).
+  It reads the compact payload from
+  `/api/widgets/summary?module_type=portfolio_profile` instead of fetching the
+  full collection.
 
 ## Data Flow
 
@@ -75,7 +78,8 @@ flowchart LR
   ContentAPI --> Content["content collection"]
   Content --> PublicHome["/"]
   Content --> PublicModule["/portfolio"]
-  Content --> Widget["/admin bento widget"]
+  Content --> WidgetSummary["/api/widgets/summary"]
+  WidgetSummary --> Widget["/admin bento widget"]
   Content --> ResumePage["/resume"]
   ResumePage --> ResumeAPI["/api/portfolio/resume"]
   Content --> ResumeAPI
@@ -124,5 +128,5 @@ curl -L /api/portfolio/resume --output resume.pdf
 - `PortfolioShowcase.tsx` is the shared public renderer.
 - `src/app/resume/page.tsx` hosts the resume viewer, while
   `src/app/api/portfolio/resume/route.ts` streams the active PDF.
-- `Widget.tsx` fetches `portfolio_profile` and renders the constrained bento
-  tile.
+- `Widget.tsx` fetches the `portfolio_profile` widget summary and renders the
+  constrained bento tile.
