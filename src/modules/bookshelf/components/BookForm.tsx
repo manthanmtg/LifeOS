@@ -222,6 +222,7 @@ export default function BookForm({
                 key={qs.status}
                 type="button"
                 onClick={() => setStatus(qs.status)}
+                aria-pressed={status === qs.status}
                 className={cn(
                   "px-3 py-1 rounded-lg text-xs border transition-all",
                   status === qs.status
