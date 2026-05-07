@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Library, BookOpen, Star, TrendingUp } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -63,12 +62,7 @@ export default function BookshelfWidget() {
         </div>
       }
     >
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-        className="space-y-3"
-      >
+      <div className="space-y-3">
         <WidgetStat
           value={total}
           label={`${summary?.completedCount ?? 0} completed`}
@@ -86,7 +80,7 @@ export default function BookshelfWidget() {
             variant="default"
           />
         )}
-      </motion.div>
+      </div>
     </WidgetCard>
   );
 }
