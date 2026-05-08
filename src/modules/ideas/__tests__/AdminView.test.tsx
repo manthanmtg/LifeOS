@@ -105,4 +105,29 @@ describe("IdeasAdminView", () => {
 
     expect(screen.getByLabelText(/filter by category/i)).toHaveValue("all");
   });
+
+  it("shows a capture-focused empty state when there are no ideas", async () => {
+    global.fetch = vi.fn().mockImplementation((url) => {
+      if (url === "/api/system") {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: {} }),
+        });
+      }
+      if (typeof url === "string" && url.includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [] }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    render(<IdeasAdminView />);
+
+    expect(
+      await screen.findByText(/no ideas captured yet/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/no ideas match/i)).not.toBeInTheDocument();
+  });
 });

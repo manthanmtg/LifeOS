@@ -707,7 +707,11 @@ export default function IdeasAdminView() {
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 py-14 text-center text-zinc-500">
             <Lightbulb className="mx-auto mb-3 h-10 w-10 opacity-30" />
-            <p>No ideas match the current filters.</p>
+            <p>
+              {ideas.length === 0 && !hasActiveFilters
+                ? "No ideas captured yet."
+                : "No ideas match the current filters."}
+            </p>
             {hasActiveFilters ? (
               <button
                 type="button"
@@ -715,6 +719,14 @@ export default function IdeasAdminView() {
                 className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-50"
               >
                 Reset filters
+              </button>
+            ) : ideas.length === 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                className="mt-4 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-zinc-50 transition-colors hover:bg-accent-hover"
+              >
+                New Idea
               </button>
             ) : null}
           </div>
