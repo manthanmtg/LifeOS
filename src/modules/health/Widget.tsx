@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { HeartPulse, Pill, Calendar, Syringe } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -18,7 +18,7 @@ interface HealthSummary {
   profiles?: Array<{ name: string; type: string; alertCount: number }>;
 }
 
-export default function HealthWidget() {
+export default memo(function HealthWidget() {
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,10 +34,13 @@ export default function HealthWidget() {
     return () => ac.abort();
   }, []);
 
-  const attentionProfile =
-    summary?.profiles
-      ?.filter((profile) => profile.alertCount > 0)
-      .sort((a, b) => b.alertCount - a.alertCount)[0] ?? null;
+  const attentionProfile = useMemo(
+    () =>
+      summary?.profiles
+        ?.filter((profile) => profile.alertCount > 0)
+        .sort((a, b) => b.alertCount - a.alertCount)[0] ?? null,
+    [summary],
+  );
 
   return (
     <WidgetCard
@@ -102,4 +105,4 @@ export default function HealthWidget() {
       )}
     </WidgetCard>
   );
-}
+});
