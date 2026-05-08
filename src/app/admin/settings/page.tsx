@@ -32,6 +32,7 @@ import {
   Trash2,
 } from "lucide-react";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import { moduleRegistry } from "@/registry";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
@@ -1649,11 +1650,11 @@ export default function SettingsPage() {
                 <div className="p-6 overflow-y-auto flex-1">
                   {infoLoading ? (
                     <div className="space-y-4 animate-pulse">
-                      <div className="h-6 w-1/3 bg-zinc-800 rounded" />
-                      <div className="h-4 w-full bg-zinc-800 rounded" />
-                      <div className="h-4 w-2/3 bg-zinc-800 rounded" />
-                      <div className="h-4 w-full bg-zinc-800 rounded" />
-                      <div className="h-4 w-1/2 bg-zinc-800 rounded" />
+                      <SkeletonBlock className="h-6 w-1/3 rounded" />
+                      <SkeletonBlock className="h-4 w-full rounded" />
+                      <SkeletonBlock className="h-4 w-2/3 rounded" />
+                      <SkeletonBlock className="h-4 w-full rounded" />
+                      <SkeletonBlock className="h-4 w-1/2 rounded" />
                     </div>
                   ) : (
                     <MarkdownRenderer content={infoContent} />
