@@ -42,10 +42,11 @@ export const PortfolioProfileSchema = z.object({
     .trim()
     .min(3, "Title must be at least 3 characters")
     .max(200),
-  sub_headline: z.string().trim().max(500).optional(),
+  sub_headline: z.string().trim().min(1).max(500).optional(),
   bio: z
     .string()
     .trim()
+    .min(1)
     .max(1000, "Bio is getting too long! Keep it under 1000 characters."),
   skills: z.array(z.string().trim().max(50)).max(100),
   social_links: z.array(SocialLinkSchema),
@@ -96,6 +97,7 @@ export const BlogPostSchema = z.object({
   estimated_reading_time: z.number().int().optional(),
   seo_description: z
     .string()
+    .trim()
     .max(160, "SEO description limit is 160 characters")
     .optional(),
 });
@@ -104,10 +106,7 @@ export const BlogPostSchema = z.object({
 export const RecurringExpenseSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   cost: z.number().positive("Cost must be greater than 0"),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
-    .default("USD"),
+  currency: CurrencyCodeSchema.default("USD"),
   billing_cycle: z.enum(["monthly", "yearly", "weekly", "daily", "quarterly"]),
   next_renewal_date: z.string().datetime("Must be a valid ISO Date"),
   category: z.string().trim().min(1, "Category is required").max(100),
@@ -120,9 +119,9 @@ export const RecurringExpenseSchema = z.object({
 
 // --- 5. READING QUEUE ---
 export const ReadingItemSchema = z.object({
-  url: z.string().url("Must be a valid URL"),
+  url: z.string().url("Must be a valid URL").max(2048),
   title: z.string().trim().min(1, "Title is required").max(500),
-  source_domain: z.string().trim().max(200).optional(),
+  source_domain: z.string().trim().min(1).max(200).optional(),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   type: z.string().trim().min(1).max(50).default("article"),
   is_read: z.boolean().default(false),
@@ -153,9 +152,9 @@ export const BookSchema = z.object({
 // --- 7. IDEA DUMP ---
 export const IdeaSchema = z.object({
   title: z.string().trim().min(1, "Idea title is required").max(200),
-  description: z.string().trim().max(1000).optional(),
-  notes: z.string().trim().max(5000).optional(),
-  category: z.string().trim().max(50).optional(),
+  description: z.string().trim().min(1).max(1000).optional(),
+  notes: z.string().trim().min(1).max(5000).optional(),
+  category: z.string().trim().min(1).max(50).optional(),
   status: z.enum(["raw", "exploring", "archived"]).default("raw"),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
@@ -244,11 +243,8 @@ export const EmiLoanSchema = z.object({
     .min(1, "Bank / financier name is required")
     .max(200)
     .optional(),
-  category: z.string().min(1, "Category is required").default("Loan"),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
-    .default("INR"),
+  category: z.string().trim().min(1, "Category is required").max(100).default("Loan"),
+  currency: CurrencyCodeSchema.default("INR"),
 
   principal: z.number().positive("Loan amount must be greater than 0"),
   tenure_months: z
@@ -381,8 +377,8 @@ export const RainEntrySchema = z.object({
 
 // --- 15. PORTFOLIO RESUME ---
 const ResumeSchema = z.object({
-  filename: z.string().min(1, "Filename is required"),
-  content: z.string().min(1, "Resume content is required"), // Base64 PDF data
+  filename: z.string().trim().min(1, "Filename is required").max(255),
+  content: z.string().min(1, "Resume content is required").max(10485760), // Base64 PDF data, 10MB limit
   is_active: z.boolean().default(false),
   uploaded_at: z
     .string()
@@ -418,14 +414,14 @@ export const AiUsageSchema = z.object({
     "other",
   ]),
   provider_config_id: z.string().optional(),
-  model: z.string().min(1, "Model name is required").max(100),
+  model: z.string().trim().min(1, "Model name is required").max(100),
   input_tokens: z.number().int().min(0).default(0),
   output_tokens: z.number().int().min(0).default(0),
   cache_read_tokens: z.number().int().min(0).default(0),
   cache_write_tokens: z.number().int().min(0).default(0),
   num_requests: z.number().int().min(0).default(0),
   cost: z.number().min(0, "Cost cannot be negative"),
-  currency: z.string().length(3).default("USD"),
+  currency: CurrencyCodeSchema.default("USD"),
   date: z.string().datetime("Must be a valid ISO date-time"),
   bucket_width: z.enum(["1d", "1h"]).default("1d"),
   api_key_label: z.string().trim().max(100).optional(),
@@ -637,10 +633,7 @@ export const MaintenanceTaskSchema = z.object({
   last_completed: IsoCalendarDateOrDateTimeSchema.optional(),
   next_due: IsoCalendarDateOrDateTimeSchema.optional(),
   estimated_cost: z.number().min(0).optional(), // only relevant for managed service_type
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
-    .default("INR"),
+  currency: CurrencyCodeSchema.default("INR"),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   status: z
     .enum(["upcoming", "overdue", "completed", "skipped"])
@@ -851,12 +844,9 @@ export const BillSchema = z.object({
   name: z.string().trim().min(1, "Bill name is required").max(200),
   bill_date: z.string().datetime("Must be a valid ISO date-time"),
   amount: z.number().nonnegative("Amount cannot be negative").optional(),
-  currency: z
-    .string()
-    .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code")
-    .default("INR"),
-  description: z.string().trim().max(1000).optional(),
-  notes: z.string().trim().max(5000).optional(),
+  currency: CurrencyCodeSchema.default("INR"),
+  description: z.string().trim().min(1).max(1000).optional(),
+  notes: z.string().trim().min(1).max(5000).optional(),
   folder_id: z.string().optional(),
   attachments: z.array(BillAttachmentSchema).max(50).default([]),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
@@ -874,10 +864,10 @@ export const BillFolderSchema = z.object({
 // --- 23. SYSTEM CONFIG ---
 export const SystemUpdateSchema = z
   .object({
-    active_theme: z.string().optional(),
+    active_theme: z.string().trim().min(1).max(100).optional(),
     color_mode: z.enum(["light", "dark"]).optional(),
-    site_title: z.string().trim().max(100).optional(),
-    site_icon: z.string().trim().max(200).optional(),
+    site_title: z.string().trim().min(1).max(100).optional(),
+    site_icon: z.string().trim().min(1).max(200).optional(),
     bio: z.string().trim().max(1000).optional(),
     moduleRegistry: z
       .record(
