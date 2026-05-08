@@ -851,13 +851,14 @@ export async function GET(request: Request) {
           }
         }
 
-        const folderDocs = await contentColl
-          .find({ module_type: "bill_folder", is_public: false })
-          .toArray();
+        const folderCount = await contentColl.countDocuments({
+          module_type: "bill_folder",
+          is_public: false,
+        });
 
         summary = {
           total: docs.length,
-          folderCount: folderDocs.length,
+          folderCount,
           totalAttachments,
           recentBill,
         };
@@ -1032,7 +1033,9 @@ export async function GET(request: Request) {
         summary = getPeopleSummary(
           docs.map((doc) =>
             toPersonDocument(
-              doc as unknown as ContentDocument<PersonPayload> & { _id: string },
+              doc as unknown as ContentDocument<PersonPayload> & {
+                _id: string;
+              },
             ),
           ),
         ) as unknown as Record<string, unknown>;
