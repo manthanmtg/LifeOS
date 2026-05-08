@@ -15,6 +15,11 @@ const CurrencyCodeSchema = z
   .string()
   .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code");
 
+const IsoCalendarDateOrDateTimeSchema = z.union([
+  CalendarDateSchema,
+  z.string().datetime("Must be a valid ISO date-time"),
+]);
+
 // --- 1. PORTFOLIO & IDENTITY ---
 const SocialLinkSchema = z.object({
   platform: z
@@ -629,8 +634,8 @@ export const MaintenanceTaskSchema = z.object({
     .default("home"),
   service_type: z.enum(["self", "managed"]).default("self"),
   frequency_months: z.number().int().positive().optional(), // recurring interval
-  last_completed: z.string().optional(), // ISO date
-  next_due: z.string().optional(), // ISO date (auto-calculated for recurring tasks)
+  last_completed: IsoCalendarDateOrDateTimeSchema.optional(),
+  next_due: IsoCalendarDateOrDateTimeSchema.optional(),
   estimated_cost: z.number().min(0).optional(), // only relevant for managed service_type
   currency: z
     .string()

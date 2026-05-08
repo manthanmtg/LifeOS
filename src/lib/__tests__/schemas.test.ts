@@ -292,6 +292,40 @@ describe("schemas", () => {
   });
 
   describe("MaintenanceTaskSchema", () => {
+    it("rejects malformed maintenance schedule dates", () => {
+      const task = {
+        name: "Water heater service",
+        category: "home",
+        service_type: "managed",
+        currency: "INR",
+        priority: "medium",
+        status: "upcoming",
+        last_completed: "last Friday",
+        next_due: "soon",
+      };
+
+      const result = MaintenanceTaskSchema.safeParse(task);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts date-only maintenance schedule dates from form inputs", () => {
+      const task = {
+        name: "Water heater service",
+        category: "home",
+        service_type: "managed",
+        currency: "INR",
+        priority: "medium",
+        status: "upcoming",
+        last_completed: "2026-04-01",
+        next_due: "2026-07-01",
+      };
+
+      const result = MaintenanceTaskSchema.safeParse(task);
+
+      expect(result.success).toBe(true);
+    });
+
     it("rejects loose maintenance text fields and tags", () => {
       const task = {
         name: "Water heater service",
