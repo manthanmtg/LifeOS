@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -2314,7 +2314,7 @@ export default function AiUsageAdminView() {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function StatCard({
+const StatCard = memo(function StatCard({
   label,
   value,
   sub,
@@ -2346,9 +2346,9 @@ function StatCard({
       {sub && <p className="text-[10px] text-zinc-600 mt-1">{sub}</p>}
     </div>
   );
-}
+});
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+const EmptyState = memo(function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="text-center py-20 space-y-6">
       <div className="relative mx-auto w-fit">
@@ -2389,8 +2389,8 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       </div>
     </div>
   );
-}
+});
 
-function EmptyChart({ text }: { text: string }) {
+const EmptyChart = memo(function EmptyChart({ text }: { text: string }) {
   return <p className="text-zinc-600 text-sm text-center py-8">{text}</p>;
-}
+});
