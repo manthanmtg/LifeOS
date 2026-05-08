@@ -275,7 +275,7 @@ function evaluateArithmetic(expression: string): number | null {
  * Supports: SUM(field), AVG(field), WEIGHTED_AVG(val, weight), MIN(field), MAX(field), COUNT()
  * Plus: total_<field>, summary field names, calculated field names, and arithmetic.
  */
-export function evaluateFormula(
+function evaluateFormula(
   formula: string,
   ctx: FormulaContext,
 ): number | null {
