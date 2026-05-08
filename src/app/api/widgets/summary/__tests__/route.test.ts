@@ -46,6 +46,7 @@ describe("GET /api/widgets/summary", () => {
   let mockDb: any;
   let mockFind: any;
   let mockSort: any;
+  let mockCountDocuments: any;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -53,9 +54,11 @@ describe("GET /api/widgets/summary", () => {
     vi.clearAllMocks();
     mockFind = vi.fn().mockReturnThis();
     mockSort = vi.fn().mockReturnThis();
+    mockCountDocuments = vi.fn().mockResolvedValue(0);
     mockCollection = vi.fn().mockReturnValue({
       find: mockFind,
       sort: mockSort,
+      countDocuments: mockCountDocuments,
       toArray: vi.fn().mockResolvedValue([]),
     });
     mockDb = { collection: mockCollection };
@@ -379,11 +382,9 @@ describe("GET /api/widgets/summary", () => {
         created_at: new Date().toISOString(),
       },
     ];
-    const mockFolders = [{ _id: "f1" }];
 
-    mockCollection()
-      .toArray.mockResolvedValueOnce(mockBills) // for bills
-      .mockResolvedValueOnce(mockFolders); // for bill_folders
+    mockCollection().toArray.mockResolvedValueOnce(mockBills);
+    mockCountDocuments.mockResolvedValueOnce(1);
 
     const request = createRequest(
       "http://localhost/api/widgets/summary?module_type=bill",
@@ -395,6 +396,10 @@ describe("GET /api/widgets/summary", () => {
     expect(data.total).toBe(1);
     expect(data.folderCount).toBe(1);
     expect(data.totalAttachments).toBe(2);
+    expect(mockCountDocuments).toHaveBeenCalledWith({
+      module_type: "bill_folder",
+      is_public: false,
+    });
   });
 
   it("returns summary for book module", async () => {
