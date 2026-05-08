@@ -148,7 +148,7 @@ export function BlogListSkeleton() {
 
         {/* Search */}
         <SkeletonBlock className="h-10 w-full rounded-xl mb-3" />
-        <div className="flex gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonBlock key={i} className="h-7 w-16 rounded-full" />
           ))}
