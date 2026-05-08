@@ -35,6 +35,22 @@ describe("AnalyticsAdminView", () => {
     expect(screen.getByText(/OS Analytics/i)).toBeDefined();
   });
 
+  it("shows an admin skeleton while metrics are loading", () => {
+    global.fetch = vi.fn().mockImplementation(
+      () =>
+        new Promise(() => {
+          // Keep the initial metrics request pending so the loading state is observable.
+        }),
+    );
+
+    render(<AnalyticsAdminView />);
+
+    expect(
+      screen.getByRole("status", { name: /loading analytics/i }),
+    ).toBeDefined();
+    expect(screen.queryByText(/OS Analytics/i)).toBeNull();
+  });
+
   it("aggregates device data in display order", () => {
     const deviceData = getDeviceData([
       { device_type: "mobile" },

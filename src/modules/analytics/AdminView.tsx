@@ -18,6 +18,7 @@ import {
   FileText,
   Link2,
 } from "lucide-react";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import {
   XAxis,
@@ -323,6 +324,14 @@ export default function AnalyticsAdminView() {
   }, [metrics, dateRange, selectedModule, trafficSource, metricType]);
 
   const trend = stats.todayActions - stats.yesterdayActions;
+
+  if (loading && metrics.length === 0) {
+    return (
+      <div role="status" aria-label="Loading analytics">
+        <AdminModuleSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in space-y-8 pb-12">
