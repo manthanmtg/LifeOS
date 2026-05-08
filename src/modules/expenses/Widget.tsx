@@ -10,6 +10,7 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 import { formatCurrency, type NumberFormat } from "@/lib/formatters";
+import { CURR_SYM } from "./components/types";
 
 interface ExpenseSummary {
   totalThisMonth: number;
@@ -23,19 +24,6 @@ interface ExpenseSettings {
   monthlyBudget: number;
   [key: string]: unknown;
 }
-
-const CURR_SYM: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  INR: "₹",
-  JPY: "¥",
-  AUD: "A$",
-  CAD: "C$",
-  CHF: "CHF",
-  CNY: "¥",
-  BRL: "R$",
-};
 
 export default memo(function ExpensesWidget() {
   const { settings } = useModuleSettings<ExpenseSettings>("expenseSettings", {
