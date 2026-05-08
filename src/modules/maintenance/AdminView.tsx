@@ -180,37 +180,38 @@ function formatDate(iso?: string): string {
   });
 }
 
-function computeStatus(task: MaintenancePayload): Status {
+function computeStatus(task: MaintenancePayload, now: Date): Status {
   if (task.status === "completed" || task.status === "skipped")
     return task.status;
   if (!task.next_due) return "upcoming";
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
   const due = new Date(task.next_due);
   due.setHours(0, 0, 0, 0);
-  if (due < now) return "overdue";
+  if (due < today) return "overdue";
   return "upcoming";
 }
 
-function daysUntilDue(next_due?: string): number | null {
+function daysUntilDue(next_due: string | undefined, now: Date): number | null {
   if (!next_due) return null;
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
   const due = new Date(next_due);
   due.setHours(0, 0, 0, 0);
-  return Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 function dueProgressPercent(
-  last_completed?: string,
-  next_due?: string,
+  last_completed: string | undefined,
+  next_due: string | undefined,
+  now: Date,
 ): number {
   if (!last_completed || !next_due) return 0;
   const start = new Date(last_completed).getTime();
   const end = new Date(next_due).getTime();
-  const now = Date.now();
+  const current = now.getTime();
   if (end <= start) return 100;
-  const pct = ((now - start) / (end - start)) * 100;
+  const pct = ((current - start) / (end - start)) * 100;
   return Math.min(100, Math.max(0, pct));
 }
 
@@ -254,6 +255,7 @@ const EMPTY_FORM: MaintenancePayload = {
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 export default function MaintenanceAdminView() {
+  const [now] = useState(() => new Date());
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -311,14 +313,13 @@ export default function MaintenanceAdminView() {
   const enrichedTasks = useMemo(() => {
     return tasks.map((t) => ({
       ...t,
-      payload: { ...t.payload, status: computeStatus(t.payload) },
+      payload: { ...t.payload, status: computeStatus(t.payload, now) },
     }));
-  }, [tasks]);
+  }, [tasks, now]);
 
   // ── Stats ─────────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
-    const now = new Date();
     const thirtyDays = new Date(now);
     thirtyDays.setDate(thirtyDays.getDate() + 30);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -348,7 +349,7 @@ export default function MaintenanceAdminView() {
       dueSoon,
       completedThisMonth,
     };
-  }, [enrichedTasks]);
+  }, [enrichedTasks, now]);
 
   // ── Filtered list ─────────────────────────────────────────────────────
 
@@ -709,8 +710,8 @@ export default function MaintenanceAdminView() {
           {filtered.map((task) => {
             const p = task.payload;
             const CatIcon = CATEGORY_ICONS[p.category];
-            const days = daysUntilDue(p.next_due);
-            const progress = dueProgressPercent(p.last_completed, p.next_due);
+            const days = daysUntilDue(p.next_due, now);
+            const progress = dueProgressPercent(p.last_completed, p.next_due, now);
 
             return (
               <motion.div
@@ -1610,7 +1611,7 @@ export default function MaintenanceAdminView() {
                             addMonths(
                               completionDate
                                 ? new Date(completionDate).toISOString()
-                                : todayISO(),
+                                : now.toISOString(),
                               completingTask.payload.frequency_months,
                             ),
                           )}
