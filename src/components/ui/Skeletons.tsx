@@ -227,7 +227,7 @@ export function PublicModuleSkeleton() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-10 animate-pulse">
           <SkeletonBlock className="h-8 w-48 mb-2" />
-          <SkeletonBlock className="h-4 w-72" />
+          <SkeletonBlock className="h-4 w-72 max-w-full" />
         </div>
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
