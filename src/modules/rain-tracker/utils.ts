@@ -30,7 +30,7 @@ export const QUICK_FILTER_PRESETS: Array<{
   { id: "heavy", label: "Heavy rain" },
   { id: "sensor", label: "Sensor" },
 ];
-export const RAIN_SOURCE_OPTIONS: RainSource[] = [
+const RAIN_SOURCE_OPTIONS: RainSource[] = [
   "manual",
   "sensor",
   "imported",
@@ -66,11 +66,11 @@ export function coerceRainSource(value: unknown): RainSource {
     : "manual";
 }
 
-export function formatRainValue(mmValue: number, unit: RainUnit, digits = 2) {
+function formatRainValue(mmValue: number, unit: RainUnit, digits = 2) {
   return Number((mmValue * CONVERSION_FROM_MM[unit]).toFixed(digits));
 }
 
-export function formatRainAmount(mmValue: number, unit: RainUnit, digits = 2) {
+function formatRainAmount(mmValue: number, unit: RainUnit, digits = 2) {
   return formatRainValue(mmValue, unit, digits).toFixed(digits);
 }
 
