@@ -26,11 +26,11 @@ export default memo(function MaintenanceWidget() {
     })
       .then((r) => r.json())
       .then((d) => {
-        setSummary(d.data ?? null);
-        setLoading(false);
+        if (!ac.signal.aborted) setSummary(d.data ?? null);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch(() => {})
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
       });
     return () => ac.abort();
   }, []);
