@@ -84,12 +84,10 @@ export default memo(function ExpensesWidget() {
       }
     >
       <div className="space-y-3">
-        <div className="[&>p:first-child]:break-all [&>p:first-child]:text-3xl min-[380px]:[&>p:first-child]:text-4xl sm:[&>p:first-child]:break-normal">
-          <WidgetStat
-            value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
-            label="spent this month"
-          />
-        </div>
+        <WidgetStat
+          value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
+          label="spent this month"
+        />
 
         {budget > 0 ? (
           <WidgetHighlight
