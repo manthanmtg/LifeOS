@@ -8,6 +8,7 @@ import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
+import { cn } from "@/lib/utils";
 
 interface VehicleSummary {
   total: number;
@@ -38,7 +39,14 @@ export default function VehicleWidget() {
         summary &&
         summary.total > 0 && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-warning/80">
+            <span
+              className={cn(
+                "flex items-center gap-1.5",
+                summary.fuelCostThisMonth > 0
+                  ? "text-warning/80"
+                  : "text-zinc-500",
+              )}
+            >
               <Fuel className="w-3 h-3" />
               {summary.fuelCostThisMonth > 0
                 ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
