@@ -15,7 +15,7 @@ interface ResumeData {
 }
 
 function formatUploadDate(iso: string) {
-  return new Date(iso).toLocaleDateString();
+  return iso.split("T")[0] || "Unknown date";
 }
 
 export function ResumeManager({
@@ -190,9 +190,12 @@ export function ResumeManager({
                   <p className="text-sm font-medium text-zinc-300 truncate">
                     {res.payload.filename}
                   </p>
-                  <p className="text-[10px] text-zinc-500">
+                  <time
+                    dateTime={res.payload.uploaded_at}
+                    className="text-[10px] text-zinc-500"
+                  >
                     {formatUploadDate(res.payload.uploaded_at)}
-                  </p>
+                  </time>
                 </div>
               </div>
               <div className="flex items-center gap-1">
