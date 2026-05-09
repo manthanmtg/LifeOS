@@ -7,26 +7,26 @@ import type { TodoDocument } from "../types";
 
 interface TodoMetricsProps {
   todos: TodoDocument[];
+  currentDate: Date;
 }
 
-export default function TodoMetrics({ todos }: TodoMetricsProps) {
+export default function TodoMetrics({ todos, currentDate }: TodoMetricsProps) {
   const stats = useMemo(() => {
     const total = todos.length;
     const completed = todos.filter((t) => t.payload.completed).length;
     const focusScore = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-    const now = new Date();
-    const todayStr = now.toDateString();
+    const todayStr = currentDate.toDateString();
     const overdue = todos.filter((t) => {
       if (t.payload.completed || !t.payload.due_date) return false;
       return (
-        new Date(t.payload.due_date) < now &&
+        new Date(t.payload.due_date) < currentDate &&
         new Date(t.payload.due_date).toDateString() !== todayStr
       );
     }).length;
 
     // Velocity: completed in last 7 days
-    const sevenDaysAgo = new Date();
+    const sevenDaysAgo = new Date(currentDate);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const velocity = todos.filter((t) => {
       if (!t.payload.completed || !t.payload.completed_at) return false;
@@ -34,7 +34,7 @@ export default function TodoMetrics({ todos }: TodoMetricsProps) {
     }).length;
 
     return { focusScore, overdue, velocity };
-  }, [todos]);
+  }, [todos, currentDate]);
 
   const cards = [
     {

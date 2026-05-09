@@ -31,6 +31,7 @@ export default function TodoAdminView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<TodoSortType>("recent");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [currentDate, setCurrentDate] = useState(() => new Date());
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,6 +86,14 @@ export default function TodoAdminView() {
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSaveTodo = async (payload: TodoPayload) => {
     try {
@@ -240,8 +249,7 @@ export default function TodoAdminView() {
   };
 
   const filteredTodos = useMemo(() => {
-    const now = new Date();
-    const todayStr = now.toDateString();
+    const todayStr = currentDate.toDateString();
 
     return todos
       .filter((t) => {
@@ -256,7 +264,7 @@ export default function TodoAdminView() {
           ? new Date(t.payload.due_date)
           : null;
         const isToday = dueDate && dueDate.toDateString() === todayStr;
-        const isOverdue = dueDate && dueDate < now && !isCompleted;
+        const isOverdue = dueDate && dueDate < currentDate && !isCompleted;
         const isHigh = t.payload.priority === "high";
 
         switch (activeFilter) {
@@ -299,11 +307,10 @@ export default function TodoAdminView() {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
       });
-  }, [todos, searchQuery, activeFilter, sortBy]);
+  }, [todos, searchQuery, activeFilter, sortBy, currentDate]);
 
   const counts = useMemo(() => {
-    const now = new Date();
-    const todayStr = now.toDateString();
+    const todayStr = currentDate.toDateString();
 
     return {
       todo: todos.filter((t) => !t.payload?.completed).length,
@@ -325,7 +332,7 @@ export default function TodoAdminView() {
         return (
           !t.payload?.completed &&
           dueDate &&
-          dueDate < now &&
+          dueDate < currentDate &&
           dueDate.toDateString() !== todayStr
         );
       }).length,
@@ -333,7 +340,7 @@ export default function TodoAdminView() {
         (t) => !t.payload?.completed && t.payload?.priority === "high",
       ).length,
     };
-  }, [todos]);
+  }, [todos, currentDate]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
@@ -346,7 +353,7 @@ export default function TodoAdminView() {
         onViewModeChange={setViewMode}
       />
 
-      <TodoMetrics todos={todos} />
+      <TodoMetrics todos={todos} currentDate={currentDate} />
 
       <QuickAddTodo onAdd={handleQuickAdd} isSaving={isSaving} />
 
