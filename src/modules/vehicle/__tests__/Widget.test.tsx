@@ -21,7 +21,7 @@ describe("VehicleWidget", () => {
 
     render(<VehicleWidget />);
 
-    const fuelState = await screen.findByText("No fuel logs");
+    const fuelState = await screen.findByText("No logs");
     expect(fuelState).toHaveClass("text-zinc-500");
     expect(fuelState).not.toHaveClass("text-warning/80");
   });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Car, AlertTriangle, Fuel, Wrench } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -50,12 +49,12 @@ export default function VehicleWidget() {
               <Fuel className="w-3 h-3" />
               {summary.fuelCostThisMonth > 0
                 ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
-                : "No fuel logs"}
+                : "No logs"}
             </span>
             {summary.latestService && (
-              <span className="flex items-center gap-1.5 text-zinc-500">
-                <Wrench className="w-3 h-3" />
-                {summary.latestService.description.slice(0, 18)}
+              <span className="flex items-center gap-1.5 text-zinc-500 max-w-[120px]">
+                <Wrench className="w-3 h-3 shrink-0" />
+                <span className="truncate">{summary.latestService.description}</span>
               </span>
             )}
           </div>
@@ -63,12 +62,7 @@ export default function VehicleWidget() {
       }
     >
       {summary && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           <WidgetStat
             value={summary.total > 0 ? summary.alertCount : 0}
             label={
@@ -100,7 +94,7 @@ export default function VehicleWidget() {
               variant="success"
             />
           )}
-        </motion.div>
+        </div>
       )}
     </WidgetCard>
   );
