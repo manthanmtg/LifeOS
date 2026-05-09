@@ -449,9 +449,11 @@ export default function PersonDocuments({
                 </motion.div>
               ))
             : !showAddForm && (
-                <div className="py-6 flex flex-col items-center text-center">
-                  <FolderOpen className="w-8 h-8 text-zinc-800 mb-2" />
-                  <p className="text-xs text-zinc-600">No documents yet</p>
+                <div className="flex flex-col items-center rounded-xl border border-dashed border-zinc-800/60 bg-zinc-950/20 px-4 py-6 text-center">
+                  <FolderOpen className="mb-2 h-8 w-8 text-zinc-700" />
+                  <p className="text-xs font-medium text-zinc-500">
+                    No documents yet
+                  </p>
                 </div>
               )}
         </div>
