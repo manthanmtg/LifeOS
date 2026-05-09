@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-
 export const CATEGORIES = [
   "home",
   "appliance",
@@ -55,14 +53,4 @@ export interface MaintenanceTask {
   payload: MaintenancePayload;
   created_at: string;
   updated_at: string;
-}
-
-export interface StatCardProps {
-  label: string;
-  value: number;
-  icon: LucideIcon;
-  color: string;
-  bgColor: string;
-  highlight?: boolean;
-  sublabel?: string;
 }
