@@ -1,4 +1,4 @@
-export interface ModuleConfig {
+interface ModuleConfig {
   name: string;
   icon: string;
   defaultPublic: boolean;

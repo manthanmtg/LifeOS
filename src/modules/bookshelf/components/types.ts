@@ -7,7 +7,7 @@ export const STATUSES = [
 
 export type BookStatus = (typeof STATUSES)[number];
 
-export interface BookPayload {
+interface BookPayload {
   title: string;
   author: string;
   isbn?: string;

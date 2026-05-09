@@ -28,7 +28,7 @@ export interface Bill {
   updated_at: string;
 }
 
-export interface BillFolderPayload {
+interface BillFolderPayload {
   name: string;
   parent_id?: string;
   color?: string;
