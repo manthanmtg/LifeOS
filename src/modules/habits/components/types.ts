@@ -5,7 +5,7 @@ export interface HabitCompletion {
   count: number;
 }
 
-export interface HabitPayload {
+interface HabitPayload {
   name: string;
   description?: string;
   frequency: string;
@@ -27,7 +27,7 @@ export interface HabitSettings {
   [key: string]: unknown;
 }
 
-export interface StreakInfo {
+interface StreakInfo {
   current: number;
   longest: number;
 }
