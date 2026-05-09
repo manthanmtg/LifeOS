@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import {
   Plus,
   Trash2,
@@ -11,24 +10,11 @@ import {
   Search,
   Filter,
   Wrench,
-  Home,
-  Car,
-  Cpu,
-  Droplets,
-  Zap,
-  Wind,
-  Leaf,
-  Sparkles,
-  Shield,
-  CreditCard,
-  HelpCircle,
   Clock,
   AlertTriangle,
   CheckCircle2,
   Calendar,
-  ChevronDown,
   History,
-  Cog,
   Tag,
   Bell,
   BellOff,
@@ -39,216 +25,40 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-const CATEGORIES = [
-  "home",
-  "appliance",
-  "vehicle",
-  "electronics",
-  "plumbing",
-  "electrical",
-  "hvac",
-  "garden",
-  "cleaning",
-  "insurance",
-  "subscription",
-  "other",
-] as const;
-type Category = (typeof CATEGORIES)[number];
-
-const PRIORITIES = ["high", "medium", "low"] as const;
-type Priority = (typeof PRIORITIES)[number];
-
-type Status = "upcoming" | "overdue" | "completed" | "skipped";
-type ServiceType = "self" | "managed";
-
-interface HistoryEntry {
-  id: string;
-  completed_at: string;
-  cost?: number;
-  notes?: string;
-  vendor?: string;
-}
-
-interface MaintenancePayload {
-  name: string;
-  description?: string;
-  category: Category;
-  service_type: ServiceType;
-  frequency_months?: number;
-  last_completed?: string;
-  next_due?: string;
-  estimated_cost?: number;
-  currency: string;
-  priority: Priority;
-  status: Status;
-  is_recurring: boolean;
-  reminder_enabled: boolean;
-  history: HistoryEntry[];
-  tags: string[];
-  notes?: string;
-}
-
-interface MaintenanceTask {
-  _id: string;
-  payload: MaintenancePayload;
-  created_at: string;
-  updated_at: string;
-}
-
-// ─── Constants ──────────────────────────────────────────────────────────────
-
-const CATEGORY_ICONS: Record<Category, LucideIcon> = {
-  home: Home,
-  appliance: Cog,
-  vehicle: Car,
-  electronics: Cpu,
-  plumbing: Droplets,
-  electrical: Zap,
-  hvac: Wind,
-  garden: Leaf,
-  cleaning: Sparkles,
-  insurance: Shield,
-  subscription: CreditCard,
-  other: HelpCircle,
-};
-
-const CATEGORY_COLORS: Record<Category, string> = {
-  home: "bg-accent/15 text-accent border-accent/20",
-  appliance: "bg-warning/15 text-warning border-warning/20",
-  vehicle: "bg-accent/15 text-accent border-accent/20",
-  electronics: "bg-accent/15 text-accent border-accent/20",
-  plumbing: "bg-accent/15 text-accent border-accent/20",
-  electrical: "bg-warning/15 text-warning border-warning/20",
-  hvac: "bg-success/15 text-success border-success/20",
-  garden: "bg-success/15 text-success border-success/20",
-  cleaning: "bg-danger/15 text-danger border-danger/20",
-  insurance: "bg-accent/15 text-accent border-accent/20",
-  subscription: "bg-accent/15 text-accent border-accent/20",
-  other: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
-};
-
-const STATUS_STYLES: Record<Status, string> = {
-  overdue: "bg-danger/15 text-danger border-danger/20",
-  upcoming: "bg-success/15 text-success border-success/20",
-  completed: "bg-success/15 text-success border-success/20",
-  skipped: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20",
-};
-
-const PRIORITY_DOT: Record<Priority, string> = {
-  high: "bg-danger",
-  medium: "bg-warning",
-  low: "bg-success",
-};
-
-const CURR_SYM: Record<string, string> = {
-  USD: "$",
-  EUR: "\u20ac",
-  GBP: "\u00a3",
-  INR: "\u20b9",
-  JPY: "\u00a5",
-  AUD: "A$",
-  CAD: "C$",
-  CHF: "CHF",
-  CNY: "\u00a5",
-  BRL: "R$",
-};
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function formatFrequency(months?: number): string {
-  if (!months) return "One-time";
-  if (months === 1) return "Every month";
-  if (months === 2) return "Every 2 months";
-  if (months === 3) return "Every quarter";
-  if (months === 6) return "Every 6 months";
-  if (months === 12) return "Every year";
-  if (months === 24) return "Every 2 years";
-  return `Every ${months} months`;
-}
-
-function formatDate(iso?: string): string {
-  if (!iso) return "--";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function computeStatus(task: MaintenancePayload, now: Date): Status {
-  if (task.status === "completed" || task.status === "skipped")
-    return task.status;
-  if (!task.next_due) return "upcoming";
-  const today = new Date(now);
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(task.next_due);
-  due.setHours(0, 0, 0, 0);
-  if (due < today) return "overdue";
-  return "upcoming";
-}
-
-function daysUntilDue(next_due: string | undefined, now: Date): number | null {
-  if (!next_due) return null;
-  const today = new Date(now);
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(next_due);
-  due.setHours(0, 0, 0, 0);
-  return Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function dueProgressPercent(
-  last_completed: string | undefined,
-  next_due: string | undefined,
-  now: Date,
-): number {
-  if (!last_completed || !next_due) return 0;
-  const start = new Date(last_completed).getTime();
-  const end = new Date(next_due).getTime();
-  const current = now.getTime();
-  if (end <= start) return 100;
-  const pct = ((current - start) / (end - start)) * 100;
-  return Math.min(100, Math.max(0, pct));
-}
-
-function addMonths(dateStr: string, months: number): string {
-  const d = new Date(dateStr);
-  d.setMonth(d.getMonth() + months);
-  return d.toISOString();
-}
-
-function todayISO(): string {
-  return new Date().toISOString();
-}
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-// ─── Default form state ─────────────────────────────────────────────────────
-
-const EMPTY_FORM: MaintenancePayload = {
-  name: "",
-  description: "",
-  category: "home",
-  service_type: "self",
-  frequency_months: undefined,
-  last_completed: undefined,
-  next_due: undefined,
-  estimated_cost: undefined,
-  currency: "INR",
-  priority: "medium",
-  status: "upcoming",
-  is_recurring: true,
-  reminder_enabled: true,
-  history: [],
-  tags: [],
-  notes: "",
-};
+import {
+  CATEGORIES,
+  PRIORITIES,
+} from "./types";
+import type {
+  Category,
+  Priority,
+  Status,
+  MaintenanceTask,
+  MaintenancePayload,
+  HistoryEntry,
+} from "./types";
+import {
+  CATEGORY_ICONS,
+  PRIORITY_DOT,
+  CURR_SYM,
+  EMPTY_FORM,
+} from "./constants";
+import {
+  formatDate,
+  computeStatus,
+  addMonths,
+  todayISO,
+  capitalize,
+} from "./helpers";
+import { TaskCard } from "./components/TaskCard";
+import {
+  StatCard,
+  ModalOverlay,
+  ModalSection,
+  FilterSelect,
+  EmptyState,
+} from "./components/MaintenanceUI";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -707,228 +517,17 @@ export default function MaintenanceAdminView() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((task) => {
-            const p = task.payload;
-            const CatIcon = CATEGORY_ICONS[p.category];
-            const days = daysUntilDue(p.next_due, now);
-            const progress = dueProgressPercent(p.last_completed, p.next_due, now);
-
-            return (
-              <motion.div
-                key={task._id}
-                layout
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col gap-4 group hover:border-zinc-700 transition-all"
-              >
-                {/* Top row: name + priority */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div
-                      className={cn(
-                        "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
-                        CATEGORY_COLORS[p.category],
-                      )}
-                    >
-                      <CatIcon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-semibold text-zinc-100 truncate">
-                        {p.name}
-                      </h3>
-                      {p.description && (
-                        <p className="text-xs text-zinc-500 mt-0.5 line-clamp-1">
-                          {p.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full",
-                        PRIORITY_DOT[p.priority],
-                      )}
-                      title={`${p.priority} priority`}
-                    />
-                  </div>
-                </div>
-
-                {/* Badges */}
-                <div className="flex flex-wrap gap-1.5">
-                  <span
-                    className={cn(
-                      "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
-                      CATEGORY_COLORS[p.category],
-                    )}
-                  >
-                    {p.category}
-                  </span>
-                  <span
-                    className={cn(
-                      "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
-                      STATUS_STYLES[p.status],
-                    )}
-                  >
-                    {p.status}
-                  </span>
-                  <span
-                    className={cn(
-                      "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
-                      p.service_type === "managed"
-                        ? "bg-accent/15 text-accent border-accent/20"
-                        : "bg-zinc-500/10 text-zinc-400 border-zinc-700",
-                    )}
-                  >
-                    {p.service_type || "self"}
-                  </span>
-                  {p.is_recurring && p.frequency_months && (
-                    <span className="px-2 py-0.5 text-[10px] font-medium text-zinc-500 bg-zinc-800/50 rounded-md border border-zinc-800">
-                      {formatFrequency(p.frequency_months)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Overdue banner with Log Completion */}
-                {p.status === "overdue" && (
-                  <button
-                    onClick={() => openMarkComplete(task)}
-                    className="w-full flex items-center gap-2 p-3 rounded-xl border border-danger/20 bg-danger/10 text-danger text-xs font-medium hover:bg-danger/15 transition-colors"
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                    <span className="flex-1 text-left">
-                      {days !== null ? `${Math.abs(days)}d overdue` : "Overdue"}{" "}
-                      — tap to log completion
-                    </span>
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  </button>
-                )}
-
-                {/* Dates */}
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between text-zinc-500">
-                    <span>Last completed</span>
-                    <span className="text-zinc-300 font-medium">
-                      {formatDate(p.last_completed)}
-                    </span>
-                  </div>
-                  {p.status !== "overdue" && (
-                    <div className="flex items-center justify-between text-zinc-500">
-                      <span>Next due</span>
-                      <span
-                        className={cn(
-                          "font-medium",
-                          days !== null && days <= 30
-                            ? "text-warning"
-                            : "text-zinc-300",
-                        )}
-                      >
-                        {formatDate(p.next_due)}
-                        {days !== null && (
-                          <span className="ml-1 text-[10px] opacity-70">
-                            ({days === 0 ? "today" : `in ${days}d`})
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  {p.service_type === "managed" &&
-                    p.estimated_cost !== undefined &&
-                    p.estimated_cost > 0 && (
-                      <div className="flex items-center justify-between text-zinc-500">
-                        <span>Est. cost</span>
-                        <span className="text-zinc-300 font-medium">
-                          {CURR_SYM[p.currency] || p.currency}{" "}
-                          {p.estimated_cost.toLocaleString("en-IN")}
-                        </span>
-                      </div>
-                    )}
-                </div>
-
-                {/* Progress bar */}
-                {p.is_recurring &&
-                  p.last_completed &&
-                  p.next_due &&
-                  p.status !== "overdue" && (
-                    <div className="space-y-1">
-                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all duration-500",
-                            progress >= 100
-                              ? "bg-danger"
-                              : progress >= 75
-                                ? "bg-warning"
-                                : "bg-success",
-                          )}
-                          style={{ width: `${Math.min(progress, 100)}%` }}
-                        />
-                      </div>
-                      <p className="text-[10px] text-zinc-600 text-right">
-                        {Math.round(progress)}% of cycle elapsed
-                      </p>
-                    </div>
-                  )}
-
-                {/* Tags */}
-                {p.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {p.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-1.5 py-0.5 text-[10px] text-zinc-500 bg-zinc-800/50 rounded border border-zinc-800"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-2 border-t border-zinc-800/50">
-                  {p.status !== "completed" && p.status !== "overdue" && (
-                    <button
-                      onClick={() => openMarkComplete(task)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-success/10 text-success hover:bg-success/20 border border-success/20 transition-colors"
-                    >
-                      <Check className="w-3.5 h-3.5" /> Log Completion
-                    </button>
-                  )}
-                  {p.history.length > 0 && (
-                    <button
-                      onClick={() => setHistoryTask(task)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50 transition-colors"
-                    >
-                      <History className="w-3.5 h-3.5" /> {p.history.length}
-                    </button>
-                  )}
-                  <div className="flex-1" />
-                  <button
-                    onClick={() => setHistoryTask(task)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-accent hover:bg-accent/10 transition-colors"
-                    title="History"
-                  >
-                    <History className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => openEdit(task)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
-                    title="Edit"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setDeletingId(task._id)}
-                    className="p-1.5 rounded-lg text-zinc-500 hover:text-danger hover:bg-danger/10 transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
+          {filtered.map((task) => (
+            <TaskCard
+              key={task._id}
+              task={task}
+              now={now}
+              onEdit={openEdit}
+              onMarkComplete={openMarkComplete}
+              onDelete={(id) => setDeletingId(id)}
+              onShowHistory={(t) => setHistoryTask(t)}
+            />
+          ))}
         </div>
       )}
 
@@ -1792,184 +1391,6 @@ export default function MaintenanceAdminView() {
           </ModalOverlay>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── Sub-Components ─────────────────────────────────────────────────────────
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  color,
-  bgColor,
-  highlight,
-  sublabel,
-}: {
-  label: string;
-  value: number;
-  icon: LucideIcon;
-  color: string;
-  bgColor: string;
-  highlight?: boolean;
-  sublabel?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "bg-zinc-900 border rounded-2xl p-4 flex items-center gap-4 transition-colors",
-        highlight ? "border-danger/30 bg-danger/10" : "border-zinc-800",
-      )}
-    >
-      <div
-        className={cn(
-          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-          bgColor,
-        )}
-      >
-        <Icon className={cn("w-5 h-5", color)} />
-      </div>
-      <div>
-        <p
-          className={cn(
-            "text-2xl font-bold tracking-tight",
-            highlight ? "text-danger" : "text-zinc-50",
-          )}
-        >
-          {value}
-        </p>
-        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-          {label}
-          {sublabel && (
-            <span className="text-zinc-600 ml-1 normal-case font-normal italic">
-              ({sublabel})
-            </span>
-          )}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ModalOverlay({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 bg-zinc-950/70 backdrop-blur-md z-50 overflow-y-auto overscroll-contain"
-    >
-      <div className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10">
-        {children}
-      </div>
-    </motion.div>,
-    document.body,
-  );
-}
-
-function ModalSection({
-  icon: Icon,
-  title,
-  children,
-}: {
-  icon: LucideIcon;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Icon className="w-3.5 h-3.5 text-zinc-500" />
-        <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-          {title}
-        </h3>
-      </div>
-      <div className="pl-0.5">{children}</div>
-    </div>
-  );
-}
-
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-        {label}
-      </label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-sm text-zinc-200 focus:outline-none focus:border-zinc-600 transition-colors pr-8"
-        >
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({
-  hasAnyTasks,
-  onAdd,
-  onClearFilters,
-}: {
-  hasAnyTasks: boolean;
-  onAdd: () => void;
-  onClearFilters: () => void;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mb-4">
-        <Wrench className="w-8 h-8 text-zinc-600" />
-      </div>
-      <h3 className="text-lg font-semibold text-zinc-300 mb-1">
-        {hasAnyTasks
-          ? "No tasks match your filters"
-          : "No maintenance tasks yet"}
-      </h3>
-      <p className="text-sm text-zinc-500 max-w-md mb-6">
-        {hasAnyTasks
-          ? "Try adjusting your search or filter criteria."
-          : "Track recurring maintenance for your home, vehicles, appliances, and more. Never miss a service date again."}
-      </p>
-      {hasAnyTasks ? (
-        <button
-          onClick={onClearFilters}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-800 text-zinc-200 font-medium text-sm hover:bg-zinc-700 transition-colors"
-        >
-          <X className="w-4 h-4" /> Clear filters
-        </button>
-      ) : (
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 font-medium text-sm hover:bg-zinc-200 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Your First Task
-        </button>
-      )}
     </div>
   );
 }
