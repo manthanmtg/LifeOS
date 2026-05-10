@@ -31,6 +31,22 @@ interface HighlightDetail {
   variant: HighlightVariant;
 }
 
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+};
+
+function formatProviderName(provider: string) {
+  return (
+    PROVIDER_LABELS[provider.toLowerCase()] ??
+    provider
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ")
+  );
+}
+
 export default function AiUsageWidget() {
   const [summary, setSummary] = useState<AiUsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,7 +84,7 @@ export default function AiUsageWidget() {
       : topProvider
         ? {
             icon: Server,
-            text: `Top provider: ${topProvider[0]}`,
+            text: `Top provider: ${formatProviderName(topProvider[0])} · ${formatNumber(topProvider[1])} calls`,
             variant: "accent",
           }
         : {
