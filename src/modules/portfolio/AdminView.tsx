@@ -13,7 +13,7 @@ import {
   Sparkles,
   Trash2,
   UserRound,
-  } from "lucide-react";
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { ResumeManager } from "./ResumeManager";
@@ -27,7 +27,6 @@ interface PortfolioData {
   social_links: { platform: string; url: string }[];
   available_for_hire: boolean;
 }
-
 
 const EMPTY_PROFILE: PortfolioData = {
   full_name: "",
@@ -80,7 +79,6 @@ function initials(value: string) {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
-
 
 // ---------------------------------------------------------------------------
 // Main admin view
