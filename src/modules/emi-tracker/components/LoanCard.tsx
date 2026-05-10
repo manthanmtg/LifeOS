@@ -89,7 +89,7 @@ export default function LoanCard({
           </span>
         </div>
 
-        <div className="h-1.5 rounded-full bg-zinc-950/80 border border-white/[0.03] overflow-hidden">
+        <div className="h-1.5 rounded-full bg-zinc-950/80 border border-zinc-50/[0.03] overflow-hidden">
           <div
             className={cn(
               "h-full transition-all duration-700 ease-out shadow-[0_0_8px]",
@@ -101,7 +101,7 @@ export default function LoanCard({
           />
         </div>
 
-        <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+        <div className="mt-3 pt-3 border-t border-zinc-50/[0.05] flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
               Monthly EMI

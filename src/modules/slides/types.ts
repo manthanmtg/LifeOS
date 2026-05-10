@@ -40,12 +40,12 @@ export const FORMAT_LABELS: Record<string, string> = {
 };
 
 export const FORMAT_STYLES: Record<string, string> = {
-  html: "bg-orange-500/15 text-orange-300 border-orange-500/25",
+  html: "bg-warning/15 text-warning border-warning/25",
   pdf: "bg-danger/15 text-danger border-danger/25",
-  pptx: "bg-blue-500/15 text-blue-300 border-blue-500/25",
+  pptx: "bg-accent/15 text-accent border-accent/25",
   google_slides: "bg-success/15 text-success border-success/25",
-  reveal_js: "bg-purple-500/15 text-purple-300 border-purple-500/25",
-  url: "bg-cyan-500/15 text-cyan-300 border-cyan-500/25",
+  reveal_js: "bg-accent/15 text-accent border-accent/25",
+  url: "bg-success/15 text-success border-success/25",
 };
 
 export const VISIBILITY_LABELS: Record<string, string> = {
