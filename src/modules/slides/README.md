@@ -4,7 +4,7 @@ Create, preview, and manage presentation decks.
 
 The **Slides** module is designed for uploading, organizing, and presenting slides. It supports multiple presentation formats and provides an embedded full-screen viewer so presentations can be hosted or linked seamlessly within LifeOS.
 
-Admin data is loaded from `/api/content?module_type=deck`, and widget data is loaded from `/api/widgets/summary?module_type=deck`.
+Admin data is loaded from `/api/content?module_type=deck`, and widget data is loaded from `/api/widgets/summary?module_type=deck`. Public rendering uses the module route with only documents where `is_public` is true.
 
 ## Features
 
@@ -14,26 +14,30 @@ Admin data is loaded from `/api/content?module_type=deck`, and widget data is lo
 - **Visibility Control**: Set deck visibility to `public`, `private`, or `link_only` to control who can view the presentation.
 - **Dashboard Widget**: Shows the total number of decks uploaded and highlights the latest deck with its format.
 - **Public Grid**: Showcase public decks in an interactive grid with live previews and an easy "Present" action to open the embedded viewer.
+- **Smart Previewing**: Prefer `thumbnail_url` when present, otherwise render a scaled iframe preview from `deck_url` or decoded uploaded HTML.
+- **Viewer Controls**: Navigate with arrow keys, space, edge clicks, or fullscreen mode while the overlay hides after inactivity.
 
 ## Data Schema
 
-The `payload` shape is represented by `DeckItem` in `src/modules/slides/types.ts`.
+The `payload` shape is represented by `DeckItem` in `src/modules/slides/types.ts` and validated by `DeckSchema` in `src/lib/schemas.ts`.
 
 | Field             | Type                                                                       | Description                                        |
 | ----------------- | -------------------------------------------------------------------------- | -------------------------------------------------- |
-| `title`           | `string`                                                                   | The title of the presentation deck.                |
-| `description`     | `string` (optional)                                                        | A brief summary of the deck.                       |
-| `format`          | `"html" \| "pdf" \| "pptx" \| "google_slides" \| "reveal_js" \| "url"`       | The presentation format.                           |
-| `visibility`      | `"public" \| "private" \| "link_only"`                                     | The access control level for the deck.             |
-| `tags`            | `string[]`                                                                 | An array of tags for filtering.                    |
-| `author`          | `string` (optional)                                                        | The creator or presenter of the deck.              |
-| `topic`           | `string` (optional)                                                        | The broader topic category.                        |
-| `folder`          | `string` (optional)                                                        | Folder name for organizational grouping.           |
-| `deck_url`        | `string` (optional)                                                        | The URL linking to the deck or the embedded source.|
-| `file_name`       | `string` (optional)                                                        | Name of the uploaded file, if applicable.          |
-| `file_size`       | `number` (optional)                                                        | Size of the uploaded file in bytes.                |
-| `thumbnail_url`   | `string` (optional)                                                        | A URL pointing to the deck's cover image.          |
-| `embed_enabled`   | `boolean`                                                                  | Whether the deck can be natively embedded/viewed.  |
+| `title`           | `string`                                                                   | Required deck title, trimmed and capped at 200 characters. |
+| `description`     | `string` (optional)                                                        | Optional summary, trimmed and capped at 1,000 characters. |
+| `format`          | `"html" \| "pdf" \| "pptx" \| "google_slides" \| "reveal_js" \| "url"`       | Presentation format; defaults to `url`.            |
+| `visibility`      | `"public" \| "private" \| "link_only"`                                     | Payload-level access label; defaults to `private`. |
+| `tags`            | `string[]`                                                                 | Up to 20 trimmed tags, each capped at 50 characters. |
+| `author`          | `string` (optional)                                                        | Creator or presenter, capped at 100 characters.    |
+| `topic`           | `string` (optional)                                                        | Topic category, capped at 100 characters.          |
+| `folder`          | `string` (optional)                                                        | Folder name, capped at 100 characters.             |
+| `deck_url`        | `string` (optional)                                                        | URL or uploaded data URL used by previews and the viewer. |
+| `file_name`       | `string` (optional)                                                        | Uploaded file name, capped at 255 characters.      |
+| `file_size`       | `number` (optional)                                                        | Non-negative uploaded file size in bytes.          |
+| `thumbnail_url`   | `string` (optional)                                                        | Cover image URL, capped at 500 characters.         |
+| `embed_enabled`   | `boolean`                                                                  | Whether the admin view exposes embed-code copying; defaults to false. |
+
+`visibility` is stored in the module payload, while public API routing depends on the top-level content document `is_public` flag. The admin form keeps them in sync for `public` and `private` states.
 
 ## Registration
 
@@ -41,6 +45,7 @@ The `payload` shape is represented by `DeckItem` in `src/modules/slides/types.ts
 - **Content type**: `deck`
 - **Icon**: `Presentation`
 - **Default visibility**: private
+- **Schema registry key**: `deck`
 
 ## Example Usage
 
