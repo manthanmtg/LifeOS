@@ -97,6 +97,7 @@ export default function ConfirmDialog({
               <div className="flex items-center gap-3 w-full pt-2">
                 <button
                   type="button"
+                  autoFocus
                   onClick={onClose}
                   className="flex-1 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-800 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
@@ -104,7 +105,6 @@ export default function ConfirmDialog({
                 </button>
                 <button
                   type="button"
-                  autoFocus
                   onClick={() => {
                     onConfirm();
                     onClose();
