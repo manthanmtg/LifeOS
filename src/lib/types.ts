@@ -19,8 +19,7 @@ export interface SystemConfig {
       public: [number, number, number, number];
     }
   >;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any; // Allow for module-specific settings (e.g., expenseSettings)
+  [key: string]: unknown; // Allow for module-specific settings (e.g., expenseSettings)
 }
 
 export interface BlogPostPayload {
