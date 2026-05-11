@@ -12,7 +12,7 @@ export interface IdeaMetrics {
   topCategory: string | null;
 }
 
-export interface IdeaFilterState {
+interface IdeaFilterState {
   searchQuery: string;
   statusFilter: string;
   priorityFilter: string;

@@ -56,17 +56,17 @@ export interface RainEntryListItem {
   timeLabel: string;
 }
 
-export interface RainChartPoint {
+interface RainChartPoint {
   name: string;
   displayAmount: number;
 }
 
-export interface RainDailyPoint {
+interface RainDailyPoint {
   day: string;
   amount: number;
 }
 
-export interface RainInsight {
+interface RainInsight {
   label: string;
   value: string;
   sublabel: string;
