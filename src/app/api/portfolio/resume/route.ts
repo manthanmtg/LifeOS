@@ -10,6 +10,7 @@ export async function GET() {
     const resumeDoc = await contentColl.findOne({
       module_type: "portfolio_resume",
       "payload.is_active": true,
+      is_public: true,
     });
 
     if (!resumeDoc || !resumeDoc.payload) {
@@ -28,6 +29,7 @@ export async function GET() {
     // 2. Try to find the profile to get the full name for the filename
     const profileDoc = await contentColl.findOne({
       module_type: "portfolio_profile",
+      is_public: true,
     });
 
     let filename = "resume.pdf";
