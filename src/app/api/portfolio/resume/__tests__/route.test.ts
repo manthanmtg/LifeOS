@@ -45,8 +45,14 @@ describe("GET /api/portfolio/resume", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("application/pdf");
-    expect(response.headers.get("Content-Disposition")).toBe('inline; filename="john_doe_resume.pdf"');
-    
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'inline; filename="john_doe_resume.pdf"',
+    );
+    expect(mockFindOne).toHaveBeenNthCalledWith(2, {
+      module_type: "portfolio_profile",
+      is_public: true,
+    });
+
     const buffer = await response.arrayBuffer();
     expect(Buffer.from(buffer).toString()).toBe("Hello World");
   });
@@ -59,6 +65,18 @@ describe("GET /api/portfolio/resume", () => {
     expect(response.status).toBe(404);
     const text = await response.text();
     expect(text).toBe("Active resume not found");
+  });
+
+  it("only looks up active resumes marked public", async () => {
+    mockFindOne.mockResolvedValue(null);
+
+    await GET();
+
+    expect(mockFindOne).toHaveBeenCalledWith({
+      module_type: "portfolio_resume",
+      "payload.is_active": true,
+      is_public: true,
+    });
   });
 
   it("returns 404 if resume content is missing", async () => {
@@ -86,14 +104,14 @@ describe("GET /api/portfolio/resume", () => {
         content: "data:application/pdf;base64,SGVsbG8gV29ybGQ=",
       },
     };
-    mockFindOne
-      .mockResolvedValueOnce(mockResume)
-      .mockResolvedValueOnce(null); // Profile not found
+    mockFindOne.mockResolvedValueOnce(mockResume).mockResolvedValueOnce(null); // Profile not found
 
     const response = await GET();
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("Content-Disposition")).toBe('inline; filename="resume.pdf"');
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'inline; filename="resume.pdf"',
+    );
   });
 
   it("uses filename from resume payload if profile is not found but filename exists in resume", async () => {
@@ -105,14 +123,14 @@ describe("GET /api/portfolio/resume", () => {
         filename: "custom_resume.pdf",
       },
     };
-    mockFindOne
-      .mockResolvedValueOnce(mockResume)
-      .mockResolvedValueOnce(null); // Profile not found
+    mockFindOne.mockResolvedValueOnce(mockResume).mockResolvedValueOnce(null); // Profile not found
 
     const response = await GET();
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("Content-Disposition")).toBe('inline; filename="custom_resume.pdf"');
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'inline; filename="custom_resume.pdf"',
+    );
   });
 
   it("returns 500 if resume content is invalid (missing comma)", async () => {
