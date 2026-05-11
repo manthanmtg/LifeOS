@@ -45,6 +45,13 @@ Pick **one random module or core directory** and ensure its local documentation 
 
 - **Link Check**: Ensure all file links and cross-references are valid.
 - **Accuracy**: Double-check that types and descriptions match the actual code.
+- **Formatting**: Run `git diff --check` to catch markdown whitespace issues.
+- **Regression Check**: Run `pnpm check` per the shared prompt run contract.
+
+### 5. Commit
+
+- Commit with a message like: `docs(portfolio): document module payload contract`.
+- In the commit body, list the selected documentation target and the prompt file that drove the run.
 
 ## Issue Cleanup
 
