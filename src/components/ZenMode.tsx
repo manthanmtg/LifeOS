@@ -23,7 +23,6 @@ function ZenModeController({
   wrapperRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const [zen, setZen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   const toggle = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Z") {
@@ -33,19 +32,17 @@ function ZenModeController({
   }, []);
 
   useEffect(() => {
-    const id = setTimeout(() => setMounted(true), 0);
     window.addEventListener("keydown", toggle);
     return () => {
-      clearTimeout(id);
       window.removeEventListener("keydown", toggle);
     };
   }, [toggle]);
 
   useEffect(() => {
-    wrapperRef.current?.classList.toggle("zen-mode", mounted && zen);
-  }, [mounted, wrapperRef, zen]);
+    wrapperRef.current?.classList.toggle("zen-mode", zen);
+  }, [wrapperRef, zen]);
 
-  if (!mounted || !zen) {
+  if (!zen) {
     return null;
   }
 
