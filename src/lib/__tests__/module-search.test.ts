@@ -19,9 +19,28 @@ const modules: AdminModuleItem[] = [
     tags: ["tasks", "checklist", "productivity"],
     icon: "CheckSquare",
   },
+  {
+    key: "ai-usage",
+    href: "/admin/ai-usage",
+    name: "AI Usage",
+    description: "Track provider costs and token limits.",
+    tags: ["ai", "providers", "budget"],
+    icon: "Bot",
+  },
 ];
 
 describe("module-search", () => {
+  it("returns every module in registry order for a blank query", () => {
+    const results = getModuleSearchResults(modules, "   ");
+
+    expect(results.map((result) => result.item.key)).toEqual([
+      "expenses",
+      "todo",
+      "ai-usage",
+    ]);
+    expect(results.map((result) => result.score)).toEqual([3, 2, 1]);
+  });
+
   it("scores direct name matches ahead of tag matches", () => {
     const results = getModuleSearchResults(modules, "exp");
 
@@ -36,6 +55,26 @@ describe("module-search", () => {
     expect(taskResults[0]?.item.key).toBe("todo");
   });
 
+  it("matches hyphenated module slugs as searchable words", () => {
+    const results = getModuleSearchResults(modules, "usage");
+
+    expect(results[0]?.item.key).toBe("ai-usage");
+  });
+
+  it("requires every query token to match the same module", () => {
+    const results = getModuleSearchResults(modules, "budget provider");
+
+    expect(results).toHaveLength(1);
+    expect(results[0]?.item.key).toBe("ai-usage");
+  });
+
+  it("supports subsequence matches without marking substring highlights", () => {
+    const results = getModuleSearchResults(modules, "tsk");
+
+    expect(results[0]?.item.key).toBe("todo");
+    expect(results[0]?.matchedTags).toEqual([{ tag: "tasks", matches: [] }]);
+  });
+
   it("returns no results when every token cannot be matched", () => {
     expect(getModuleSearchResults(modules, "ghost query")).toHaveLength(0);
   });
@@ -44,6 +83,18 @@ describe("module-search", () => {
     expect(highlightText("Expenses", [{ start: 0, end: 3 }])).toEqual([
       { text: "Exp", highlighted: true },
       { text: "enses", highlighted: false },
+    ]);
+  });
+
+  it("omits empty highlight fragments around adjacent ranges", () => {
+    expect(
+      highlightText("Budget", [
+        { start: 0, end: 3 },
+        { start: 3, end: 6 },
+      ]),
+    ).toEqual([
+      { text: "Bud", highlighted: true },
+      { text: "get", highlighted: true },
     ]);
   });
 });
