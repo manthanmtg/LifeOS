@@ -1,4 +1,4 @@
-export type CalculatorCategoryId =
+type CalculatorCategoryId =
   | "core"
   | "debt"
   | "tax"
@@ -6,14 +6,14 @@ export type CalculatorCategoryId =
   | "conversion"
   | "utilities";
 
-export type CalculatorInputKind = "number" | "select" | "textarea";
+type CalculatorInputKind = "number" | "select" | "textarea";
 
-export interface CalculatorInputOption {
+interface CalculatorInputOption {
   label: string;
   value: string;
 }
 
-export interface CalculatorInputDefinition {
+interface CalculatorInputDefinition {
   key: string;
   label: string;
   kind: CalculatorInputKind;

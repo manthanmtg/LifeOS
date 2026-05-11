@@ -19,7 +19,7 @@ export const PRIORITIES = ["high", "medium", "low"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 
 export type Status = "upcoming" | "overdue" | "completed" | "skipped";
-export type ServiceType = "self" | "managed";
+type ServiceType = "self" | "managed";
 
 export interface HistoryEntry {
   id: string;
