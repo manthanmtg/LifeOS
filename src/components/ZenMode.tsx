@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { memo, useState, useEffect, useCallback, useRef } from "react";
 
 export default function ZenModeProvider({
   children,
@@ -17,7 +17,7 @@ export default function ZenModeProvider({
   );
 }
 
-function ZenModeController({
+const ZenModeController = memo(function ZenModeController({
   wrapperRef,
 }: {
   wrapperRef: React.RefObject<HTMLDivElement | null>;
@@ -51,4 +51,4 @@ function ZenModeController({
       Zen Mode · <kbd className="font-mono text-accent">⌘⇧Z</kbd> to exit
     </div>
   );
-}
+});
