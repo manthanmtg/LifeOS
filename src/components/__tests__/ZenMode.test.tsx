@@ -1,11 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { act } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import ZenModeProvider from "../ZenMode";
 
 describe("ZenModeProvider", () => {
-  it("waits for mount before rendering the zen mode indicator", () => {
-    vi.useFakeTimers();
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("keeps the zen mode indicator hidden without scheduling a mount timer", () => {
+    const timeoutSpy = vi.spyOn(window, "setTimeout");
 
     render(
       <ZenModeProvider>
@@ -14,26 +19,15 @@ describe("ZenModeProvider", () => {
     );
 
     expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
-
-    act(() => {
-      vi.runOnlyPendingTimers();
-    });
-
-    expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
+    expect(timeoutSpy).not.toHaveBeenCalled();
   });
 
   it("toggles zen mode with the keyboard shortcut", () => {
-    vi.useFakeTimers();
-
     render(
       <ZenModeProvider>
         <div>Content</div>
       </ZenModeProvider>,
     );
-
-    act(() => {
-      vi.runOnlyPendingTimers();
-    });
 
     fireZenShortcut();
     expect(screen.getByText(/Zen Mode/)).toBeInTheDocument();
@@ -43,17 +37,11 @@ describe("ZenModeProvider", () => {
   });
 
   it("keeps the zen mode indicator constrained on mobile screens", () => {
-    vi.useFakeTimers();
-
     render(
       <ZenModeProvider>
         <div>Content</div>
       </ZenModeProvider>,
     );
-
-    act(() => {
-      vi.runOnlyPendingTimers();
-    });
 
     fireZenShortcut();
 
