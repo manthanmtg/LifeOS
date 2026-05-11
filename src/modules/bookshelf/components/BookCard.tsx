@@ -203,13 +203,13 @@ export default function BookCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
           <button
             onClick={() => onEdit(book)}
             disabled={isDeleting}
             aria-label="Edit book"
             title="Edit book"
-            className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
@@ -218,7 +218,7 @@ export default function BookCard({
             disabled={isDeleting}
             aria-label="Delete book"
             title="Delete book"
-            className="p-1.5 rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
           >
             {isDeleting ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
