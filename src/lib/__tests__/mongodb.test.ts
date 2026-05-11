@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from "vitest";
 import { MongoClient } from "mongodb";
 
 // Mock mongodb module
@@ -9,7 +8,7 @@ vi.mock("mongodb", () => {
     db: vi.fn().mockReturnValue("mock_db"),
   };
   return {
-    MongoClient: vi.fn().mockImplementation(function (this: any) {
+    MongoClient: vi.fn().mockImplementation(function (this: unknown) {
       return mClient;
     }),
     ServerApiVersion: { v1: "1" },
@@ -41,9 +40,9 @@ describe("mongodb.ts", () => {
 
   it("connects to mongodb successfully in development", async () => {
     process.env.MONGODB_URI = "mongodb://localhost:27017";
-    (process.env as any).NODE_ENV = "development";
+    Object.assign(process.env, { NODE_ENV: "development" });
     // Ensure we don't have a cached global from another test
-    delete (global as any)._mongoClientPromise;
+    delete (global as Record<string, unknown>)._mongoClientPromise;
 
     const { getDb } = await import("../mongodb");
     const db = await getDb();
@@ -54,7 +53,7 @@ describe("mongodb.ts", () => {
 
   it("connects to mongodb successfully in production", async () => {
     process.env.MONGODB_URI = "mongodb://localhost:27017";
-    (process.env as any).NODE_ENV = "production";
+    Object.assign(process.env, { NODE_ENV: "production" });
 
     const { getDb } = await import("../mongodb");
     const db = await getDb("testdb");
@@ -65,9 +64,9 @@ describe("mongodb.ts", () => {
 
   it("uses global client in development to avoid multiple connections", async () => {
     process.env.MONGODB_URI = "mongodb://localhost:27017";
-    (process.env as any).NODE_ENV = "development";
+    Object.assign(process.env, { NODE_ENV: "development" });
 
-    const globalWithMongo = global as any;
+    const globalWithMongo = global as Record<string, unknown>;
     const mClient = { db: vi.fn().mockReturnValue("mock_global_db") };
     const mockPromise = Promise.resolve(mClient);
     globalWithMongo._mongoClientPromise = mockPromise;
@@ -85,14 +84,14 @@ describe("mongodb.ts", () => {
 
   it("throws a standardized error if connection fails in getDb", async () => {
     process.env.MONGODB_URI = "mongodb://localhost:27017";
-    (process.env as any).NODE_ENV = "production";
+    Object.assign(process.env, { NODE_ENV: "production" });
 
     // override the mocked connect to reject
     const mClient = {
       connect: vi.fn().mockRejectedValue(new Error("connection failed")),
       db: vi.fn(),
     };
-    (MongoClient as any).mockImplementationOnce(function (this: any) {
+    (MongoClient as unknown as Mock).mockImplementationOnce(function (this: unknown) {
       return mClient;
     });
 

@@ -1,6 +1,6 @@
 /** @vitest-environment node */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Db } from "mongodb";
 
 vi.mock("../mongodb", () => ({
   getDb: vi.fn(),
@@ -66,7 +66,7 @@ describe("ensureSystemConfig", () => {
     const mocks = createDbMocks();
 
     mocks.findOne.mockResolvedValue(null);
-    vi.mocked(getDb).mockResolvedValue(mocks.db as any);
+    vi.mocked(getDb).mockResolvedValue(mocks.db as unknown as Db);
 
     await ensureSystemConfig();
 
@@ -94,7 +94,7 @@ describe("ensureSystemConfig", () => {
         expenses: { enabled: true, isPublic: true },
       },
     });
-    vi.mocked(getDb).mockResolvedValue(mocks.db as any);
+    vi.mocked(getDb).mockResolvedValue(mocks.db as unknown as Db);
 
     await ensureSystemConfig();
 
@@ -124,7 +124,7 @@ describe("ensureSystemConfig", () => {
         blog: { enabled: false, isPublic: false },
       },
     });
-    vi.mocked(getDb).mockResolvedValue(mocks.db as any);
+    vi.mocked(getDb).mockResolvedValue(mocks.db as unknown as Db);
 
     await ensureSystemConfig();
 
@@ -141,7 +141,7 @@ describe("ensureSystemConfig", () => {
       _id: "global",
       moduleRegistry: {},
     });
-    vi.mocked(getDb).mockResolvedValue(mocks.db as any);
+    vi.mocked(getDb).mockResolvedValue(mocks.db as unknown as Db);
 
     await ensureSystemConfig();
 
@@ -176,7 +176,7 @@ describe("ensureSystemConfig", () => {
     const failure = new Error("db unavailable");
 
     mocks.findOne.mockRejectedValue(failure);
-    vi.mocked(getDb).mockResolvedValue(mocks.db as any);
+    vi.mocked(getDb).mockResolvedValue(mocks.db as unknown as Db);
 
     await expect(ensureSystemConfig()).resolves.toBeUndefined();
     expect(consoleError).toHaveBeenCalledWith(

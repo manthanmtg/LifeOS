@@ -1,6 +1,6 @@
 /** @vitest-environment node */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Db } from "mongodb";
 
 // Mocking mongodb before importing the module under test
 vi.mock("@/lib/mongodb", () => ({
@@ -42,7 +42,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    vi.mocked(getDb).mockResolvedValue(mockDb as any);
+    vi.mocked(getDb).mockResolvedValue(mockDb as unknown as Db);
 
     const result = await getTieredVisits();
 
@@ -79,7 +79,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    vi.mocked(getDb).mockResolvedValue(mockDb as any);
+    vi.mocked(getDb).mockResolvedValue(mockDb as unknown as Db);
 
     // First call - should hit DB
     await getTieredVisits();
@@ -125,7 +125,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    vi.mocked(getDb).mockResolvedValueOnce(mockDb as any);
+    vi.mocked(getDb).mockResolvedValueOnce(mockDb as unknown as Db);
 
     // First call - success
     await getTieredVisits();
@@ -171,7 +171,7 @@ describe("metrics-cache", () => {
       }),
     };
 
-    vi.mocked(getDb).mockResolvedValue(mockDb as any);
+    vi.mocked(getDb).mockResolvedValue(mockDb as unknown as Db);
 
     const result = await getTieredVisits();
 
