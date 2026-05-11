@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-11T16:49:56.262Z",
+  "updatedAt": "2026-05-11T17:44:08.408Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -16,13 +16,13 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 14,
+      "totalSelected": 15,
       "totalCompleted": 14,
       "totalNoop": 0,
-      "totalFailed": 0,
-      "lastSelectedAt": "2026-05-10T12:45:56.490Z",
-      "lastCompletedAt": "2026-05-10T12:49:15.850Z",
-      "lastOutcome": "completed"
+      "totalFailed": 1,
+      "lastSelectedAt": "2026-05-11T17:39:46.631Z",
+      "lastCompletedAt": "2026-05-11T17:44:08.408Z",
+      "lastOutcome": "failed"
     },
     "agent_docs_sync_prompt.md": {
       "id": "agent-docs-sync-prompt",

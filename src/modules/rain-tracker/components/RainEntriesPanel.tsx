@@ -142,8 +142,12 @@ export function RainEntriesPanel({
         </div>
 
         <div className="relative mt-3">
+          <label htmlFor="rain-search" className="sr-only">
+            Search entries
+          </label>
           <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-600" />
           <input
+            id="rain-search"
             value={searchQuery}
             onChange={(event) => onSearchQueryChange(event.target.value)}
             placeholder="Search by note, source, or date"
@@ -167,10 +171,14 @@ export function RainEntriesPanel({
           >
             <div className="grid gap-2 p-3 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <label
+                  htmlFor="rain-min-amount"
+                  className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                >
                   Min ({displayUnit})
                 </label>
                 <input
+                  id="rain-min-amount"
                   type="number"
                   value={filterAmountMin}
                   onChange={(event) =>
@@ -181,10 +189,14 @@ export function RainEntriesPanel({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <label
+                  htmlFor="rain-max-amount"
+                  className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                >
                   Max ({displayUnit})
                 </label>
                 <input
+                  id="rain-max-amount"
                   type="number"
                   value={filterAmountMax}
                   onChange={(event) =>
