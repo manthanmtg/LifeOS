@@ -76,8 +76,8 @@ export default function HabitCard({
       animate="visible"
       exit="exit"
       layout
-      whileHover={{ y: -2 }}
-      className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl overflow-hidden group relative transition-all hover:border-zinc-700/50 hover:shadow-2xl hover:shadow-black/40"
+      whileHover={{ y: -4 }}
+      className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl overflow-hidden group relative transition-all hover:border-zinc-700/50 hover:shadow-2xl hover:shadow-black/60"
     >
       <div
         className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl opacity-70 group-hover:opacity-100 transition-opacity"
@@ -92,11 +92,16 @@ export default function HabitCard({
             whileHover={{ scale: 1.3 }}
           />
           <div className="min-w-0">
-            <p className="text-sm font-bold tracking-tight text-zinc-100 group-hover:text-zinc-50 transition-colors">
-              {habit.payload.name}
+            <p 
+              className="text-sm font-black tracking-tight text-zinc-100 transition-colors group-hover:text-zinc-50"
+              style={{ '--hover-color': habit.payload.color } as React.CSSProperties}
+            >
+              <span className="group-hover:text-[var(--hover-color)] transition-colors">
+                {habit.payload.name}
+              </span>
             </p>
             {habit.payload.description && (
-              <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5">
+              <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5 uppercase tracking-widest">
                 {habit.payload.description}
               </p>
             )}
@@ -140,9 +145,9 @@ export default function HabitCard({
                 : "Mark habit as done today"
             }
             className={cn(
-              "px-4 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm",
+              "px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm",
               completedToday
-                ? "bg-success/20 text-success border border-success/30 shadow-success/10"
+                ? "bg-success/20 text-success border border-success/30 shadow-[0_0_15px_rgba(52,211,153,0.15)]"
                 : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 border border-zinc-700/50",
             )}
             whileHover={{ scale: 1.02 }}

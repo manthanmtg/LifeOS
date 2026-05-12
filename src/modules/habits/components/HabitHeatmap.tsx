@@ -78,18 +78,16 @@ export default function HabitHeatmap({
     : ["Sun", "", "Tue", "", "Thu", "", "Sat"];
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[600px]">
+    <div className="overflow-x-auto no-scrollbar">
+      <div className="min-w-max pb-1">
         {/* Month labels */}
-        <div className="flex ml-8 mb-1">
+        <div className="h-4 relative mb-1 ml-8">
           {monthLabels.map((m) => (
             <span
               key={`${m.label}-${m.col}`}
-              className="text-[9px] text-zinc-600 font-medium"
+              className="text-[9px] text-zinc-600 font-bold uppercase tracking-tighter absolute whitespace-nowrap"
               style={{
-                position: "relative",
                 left: `${m.col * 15}px`,
-                marginRight: "-10px",
               }}
             >
               {m.label}
@@ -99,10 +97,10 @@ export default function HabitHeatmap({
 
         <div className="flex">
           {/* Day-of-week labels */}
-          <div className="flex flex-col gap-[3px] mr-1.5 pt-0.5">
+          <div className="flex flex-col gap-[3px] mr-2 pt-0.5">
             {dayLabels.map((label, i) => (
               <div key={i} className="h-3 flex items-center justify-end">
-                <span className="text-[8px] text-zinc-600 w-6 text-right">
+                <span className="text-[8px] text-zinc-600 w-6 text-right font-medium">
                   {label}
                 </span>
               </div>
@@ -127,13 +125,15 @@ export default function HabitHeatmap({
                       title={`${date}${isCompleted ? " ✓" : ""}`}
                       aria-label={`${date}${isCompleted ? ", Completed" : ", Not completed"}${isToday ? ", Today" : ""}`}
                       className={cn(
-                        "w-3 h-3 rounded-[2px] transition-colors disabled:opacity-50",
-                        isToday && "ring-1 ring-zinc-500",
+                        "w-3 h-3 rounded-[2px] transition-all disabled:opacity-50",
+                        isToday && "ring-1 ring-zinc-500 ring-offset-1 ring-offset-zinc-950",
+                        isCompleted && "shadow-[0_0_8px_currentColor] opacity-90 hover:opacity-100",
                       )}
                       style={{
-                        backgroundColor: isCompleted ? color : "rgb(39 39 42)",
+                        backgroundColor: isCompleted ? color : "var(--zinc-800)",
+                        color: isCompleted ? color : "transparent",
                       }}
-                      whileHover={{ scale: 1.4 }}
+                      whileHover={{ scale: 1.4, zIndex: 10 }}
                       whileTap={{ scale: 0.9 }}
                     />
                   );
