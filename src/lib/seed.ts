@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getDb } from "./mongodb";
 import { SystemConfig } from "./types";
 import { moduleRegistry as appModules } from "../registry";

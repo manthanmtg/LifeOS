@@ -1,3 +1,5 @@
+import "server-only";
+
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 // Optimized options for pooling and resilience
