@@ -12,11 +12,13 @@ import {
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import type { Book, BookshelfStats } from "./types";
 
 interface BookshelfMetricsProps {
   books: Book[];
   stats: BookshelfStats;
+  loading?: boolean;
 }
 
 let sparklineIdCounter = 0;
@@ -82,8 +84,10 @@ const cardVariants = {
 export default function BookshelfMetrics({
   books,
   stats,
+  loading = false,
 }: BookshelfMetricsProps) {
   const recentActivity = useMemo(() => {
+    if (loading) return 0;
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     return books.filter(
@@ -92,7 +96,7 @@ export default function BookshelfMetrics({
         b.payload.finished_at &&
         new Date(b.payload.finished_at) >= thirtyDaysAgo,
     ).length;
-  }, [books]);
+  }, [books, loading]);
 
   const topRatedRecent = useMemo(() => {
     return books
@@ -156,6 +160,25 @@ export default function BookshelfMetrics({
           : undefined,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-3 flex flex-col gap-1.5 animate-pulse"
+            >
+              <SkeletonBlock className="h-3.5 w-3.5" />
+              <SkeletonBlock className="h-6 w-12" />
+              <SkeletonBlock className="h-3 w-16" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -12,12 +12,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import type { Snippet, SnippetStats } from "./types";
 
 interface SnippetsMetricsProps {
   snippets: Snippet[];
   stats: SnippetStats;
   referenceTime: number;
+  loading?: boolean;
 }
 
 function MiniSparkline({
@@ -81,8 +83,10 @@ export default function SnippetsMetrics({
   snippets,
   stats,
   referenceTime,
+  loading = false,
 }: SnippetsMetricsProps) {
   const languageDistribution = useMemo(() => {
+    if (loading) return [];
     const langCounts: Record<string, number> = {};
     for (const s of snippets) {
       langCounts[s.payload.language] =
@@ -91,7 +95,7 @@ export default function SnippetsMetrics({
     return Object.entries(langCounts)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5);
-  }, [snippets]);
+  }, [snippets, loading]);
 
   const topTags = useMemo(() => {
     const tagCounts: Record<string, number> = {};
@@ -172,6 +176,29 @@ export default function SnippetsMetrics({
       detail: "unique tags",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 flex flex-col gap-2 animate-pulse"
+            >
+              <div className="flex items-center justify-between">
+                <SkeletonBlock className="h-7 w-7 rounded-lg" />
+              </div>
+              <div className="space-y-2 mt-1">
+                <SkeletonBlock className="h-6 w-12" />
+                <SkeletonBlock className="h-3 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
