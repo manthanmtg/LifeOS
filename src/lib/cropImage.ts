@@ -11,7 +11,7 @@ export function getRadianAngle(degreeValue: number) {
   return (degreeValue * Math.PI) / 180;
 }
 
-export interface PixelCrop {
+interface PixelCrop {
   x: number;
   y: number;
   width: number;
