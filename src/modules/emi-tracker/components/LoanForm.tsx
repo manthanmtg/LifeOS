@@ -43,7 +43,7 @@ export default function LoanForm({
     editLoan?.payload.annual_interest_rate || 9.5,
   );
   const [emi, setEmi] = useState(editLoan?.payload.monthly_emi || 0);
-  const [startDate, setStartDate] = useState(
+  const [startDate, setStartDate] = useState(() =>
     editLoan?.payload.start_date
       ? toDateInputValue(editLoan.payload.start_date)
       : toDateInputValue(new Date().toISOString()),

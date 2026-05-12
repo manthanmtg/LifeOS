@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -148,7 +148,7 @@ export default function LoanAnalysis({
   currencySymbol,
   numberFormat,
 }: LoanAnalysisProps) {
-  const now = useMemo(() => new Date(), []);
+  const [now] = useState(() => new Date());
 
   // 1. Current Progress Metrics
   const metrics = useMemo(() => {

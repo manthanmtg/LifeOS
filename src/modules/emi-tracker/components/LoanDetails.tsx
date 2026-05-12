@@ -56,6 +56,7 @@ export default function LoanDetails({
 }: LoanDetailsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [extraMonthly, setExtraMonthly] = useState(0);
+  const [now] = useState(() => new Date());
 
   const decimals = settings.roundingDecimals;
   const numberFormat = settings.numberFormat;
@@ -76,12 +77,10 @@ export default function LoanDetails({
   }, [loan.payload, extraMonthly, schedule, decimals]);
 
   const { outstanding, nextDue } = useMemo(() => {
-    const now = new Date();
     return getOutstandingAsOf(schedule.rows, now);
-  }, [schedule]);
+  }, [schedule, now]);
 
   const { paidInterest, remainingInterest } = useMemo(() => {
-    const now = new Date();
     let paid = 0;
     schedule.rows.forEach((r) => {
       if (new Date(r.due_date) < now) paid += r.interest;
@@ -90,7 +89,7 @@ export default function LoanDetails({
       paidInterest: paid,
       remainingInterest: schedule.totals.total_interest - paid,
     };
-  }, [schedule]);
+  }, [schedule, now]);
 
   const totalPrincipal = loan.payload.principal;
   const totalInterest = schedule.totals.total_interest;

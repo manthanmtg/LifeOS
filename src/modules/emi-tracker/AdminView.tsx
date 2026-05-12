@@ -44,6 +44,7 @@ export default function EmiTrackerAdminView() {
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [now] = useState(() => new Date());
 
   const fetchLoans = useCallback(async () => {
     try {
@@ -70,7 +71,6 @@ export default function EmiTrackerAdminView() {
   );
 
   const loanCards = useMemo(() => {
-    const now = new Date();
     const filtered = loans.filter(
       (l) =>
         l.payload.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -88,11 +88,10 @@ export default function EmiTrackerAdminView() {
       );
       return { loan, outstanding, nextDue, progress };
     });
-  }, [loans, searchQuery, settings.roundingDecimals]);
+  }, [loans, now, searchQuery, settings.roundingDecimals]);
 
   const quickStats = useMemo(() => {
     const active = loans.filter((l) => l.payload.status === "active");
-    const now = new Date();
     const currencies: Record<string, number> = {};
     let nearest: { loan: EmiLoan; row: { due_date: string } } | null = null;
 
@@ -125,7 +124,7 @@ export default function EmiTrackerAdminView() {
       ),
       nearestDue: nearest,
     };
-  }, [loans, settings.roundingDecimals]);
+  }, [loans, now, settings.roundingDecimals]);
 
   const totalInterestSavedAcrossAll = useMemo(() => {
     return loans.reduce((acc, loan) => {

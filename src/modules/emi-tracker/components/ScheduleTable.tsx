@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Download, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "../lib/emi-utils";
@@ -22,6 +23,8 @@ export default function ScheduleTable({
   onExportCSV,
   onPrintPDF,
 }: ScheduleTableProps) {
+  const [todayMs] = useState(() => Date.now());
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
@@ -59,7 +62,7 @@ export default function ScheduleTable({
           </thead>
           <tbody className="divide-y divide-zinc-800/50">
             {schedule.rows.map((row) => {
-              const isPaid = new Date(row.due_date) < new Date();
+              const isPaid = new Date(row.due_date).getTime() < todayMs;
               return (
                 <tr
                   key={row.index}

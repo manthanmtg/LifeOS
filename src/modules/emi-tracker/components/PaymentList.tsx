@@ -24,7 +24,9 @@ export default function PaymentList({
   onDelete,
   isSubmitting,
 }: PaymentListProps) {
-  const [payDate, setPayDate] = useState(new Date().toISOString().slice(0, 10));
+  const [payDate, setPayDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
   const [payAmount, setPayAmount] = useState("");
   const [payKind, setPayKind] = useState<PaymentKind>("emi");
   const [payNote, setPayNote] = useState("");
