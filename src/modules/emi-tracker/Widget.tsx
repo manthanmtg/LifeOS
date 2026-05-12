@@ -23,8 +23,6 @@ interface EmiSummary {
   nearest: { title: string; due: string } | null;
 }
 
-const NOW_MS = Date.now();
-
 const CURR_SYM: Record<string, string> = {
   USD: "$",
   EUR: "€",
@@ -47,6 +45,7 @@ export default function EMITrackerWidget() {
 
   const [summary, setSummary] = useState<EmiSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [nowMs] = useState(() => Date.now());
 
   useEffect(() => {
     const dec = settings.roundingDecimals || 2;
@@ -68,7 +67,7 @@ export default function EMITrackerWidget() {
 
   const nearestDays = summary?.nearest
     ? Math.ceil(
-        (new Date(summary.nearest.due).getTime() - NOW_MS) /
+        (new Date(summary.nearest.due).getTime() - nowMs) /
           (1000 * 60 * 60 * 24),
       )
     : null;

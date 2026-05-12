@@ -18,7 +18,9 @@ export default function RateAdjustmentList({
   onDelete,
   isSubmitting,
 }: RateAdjustmentListProps) {
-  const [adjDate, setAdjDate] = useState(new Date().toISOString().slice(0, 10));
+  const [adjDate, setAdjDate] = useState(() =>
+    new Date().toISOString().slice(0, 10),
+  );
   const [adjRate, setAdjRate] = useState("");
   const [adjNote, setAdjNote] = useState("");
 
