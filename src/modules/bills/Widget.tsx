@@ -14,6 +14,7 @@ interface BillStats {
   totalAttachments: number;
   recentBill?: {
     _id: string;
+    created_at: string;
     payload: {
       name: string;
       bill_date: string;
@@ -38,7 +39,7 @@ export default function BillsWidget() {
           setDaysAgo(
             Math.floor(
               (Date.now() -
-                new Date(fetchedStats.recentBill.payload.bill_date).getTime()) /
+                new Date(fetchedStats.recentBill.created_at).getTime()) /
                 (1000 * 60 * 60 * 24),
             ),
           );
