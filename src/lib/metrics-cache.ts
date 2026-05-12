@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getDb } from "@/lib/mongodb";
 
 // In-memory cache variables
