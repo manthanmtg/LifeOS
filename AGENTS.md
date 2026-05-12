@@ -16,7 +16,7 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 - `pnpm format` — Format code with Prettier
 - `pnpm format:check` — Check formatting with Prettier
 - `pnpm check` — Run full CI check (lint, typecheck, build, test)
-- Vitest is the configured test framework
+- Vitest v4 is the configured test framework
 
 ### Agent Guidelines
 
@@ -110,7 +110,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 
 ### Auth & Middleware
 
-`src/proxy.ts` is the Next.js middleware. It protects `/admin/*`, admin-only API families (`/api/system`, `/api/ai-usage`, `/api/export`, `/api/import`, `/api/db-stats`, `/api/widgets`, `/api/module-info`, `/api/bills`), GET analytics, and non-GET `/api/content` requests using JWT tokens (jose library) stored in the `lifeos_token` HTTP-only cookie. GET requests to `/api/content` remain public.
+`src/proxy.ts` is the Next.js middleware. It protects `/admin/*`, admin-only API families (`/api/system`, `/api/ai-usage`, `/api/export`, `/api/import`, `/api/db-stats`, `/api/widgets`, `/api/maintenance`, `/api/module-info`, `/api/bills`), GET analytics, and non-GET `/api/content` requests using JWT tokens (jose library) stored in the `lifeos_token` HTTP-only cookie. GET requests to `/api/content` remain public.
 
 The middleware also redirects authenticated users from `/` to `/admin` unless `?public=1` is present, redirects authenticated `/admin/login` visits to `/admin`, and validates same-origin `Origin` headers on non-GET/non-HEAD `/api/*` requests as CSRF protection.
 
