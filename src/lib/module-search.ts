@@ -5,7 +5,7 @@ export interface MatchRange {
   end: number;
 }
 
-export interface ModuleSearchResult {
+interface ModuleSearchResult {
   item: AdminModuleItem;
   score: number;
   nameMatches: MatchRange[];
