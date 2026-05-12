@@ -303,10 +303,13 @@ function fmtCost(cost: number, currency = "USD"): string {
   return sym + cost.toFixed(4);
 }
 
-function relTime(dateStr: string): string {
+function getTimestamp(): number {
+  return new Date().getTime();
+}
+
+function relTime(dateStr: string, nowMs: number): string {
   const d = new Date(dateStr);
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
+  const diff = nowMs - d.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
@@ -361,6 +364,7 @@ export default function AiUsageAdminView() {
   // Guides
   const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState(() => getTimestamp());
 
   // ─── Data Fetching ───────────────────────────────────────────────────────
 
@@ -390,7 +394,8 @@ export default function AiUsageAdminView() {
         map[item.provider_id] = item;
       }
       setLimitsMap(map);
-    } catch {} finally {
+    } catch {
+    } finally {
       setLimitsLoading(false);
     }
   }, []);
@@ -400,6 +405,11 @@ export default function AiUsageAdminView() {
       setLoading(false),
     );
   }, [fetchEntries, fetchProviders, fetchLimits]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowMs(getTimestamp()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   // ─── Sync ────────────────────────────────────────────────────────────────
 
@@ -520,9 +530,9 @@ export default function AiUsageAdminView() {
   const dateFilteredEntries = useMemo(() => {
     if (dateRange === "all") return entries;
     const days = dateRange === "7d" ? 7 : dateRange === "30d" ? 30 : 90;
-    const cutoff = new Date(Date.now() - days * 86400000);
-    return entries.filter((e) => new Date(e.payload.date) >= cutoff);
-  }, [entries, dateRange]);
+    const cutoff = nowMs - days * 86400000;
+    return entries.filter((e) => Date.parse(e.payload.date) >= cutoff);
+  }, [entries, dateRange, nowMs]);
 
   const filteredEntries = useMemo(() => {
     let result = [...dateFilteredEntries];
@@ -1042,7 +1052,7 @@ export default function AiUsageAdminView() {
                                     ? (() => {
                                         const d = new Date(w.reset_at);
                                         if (!isNaN(d.getTime())) {
-                                          const diff = d.getTime() - Date.now();
+                                          const diff = d.getTime() - nowMs;
                                           if (diff > 0) {
                                             const s = Math.floor(diff / 1000);
                                             return s < 60
@@ -1125,7 +1135,7 @@ export default function AiUsageAdminView() {
                               {p.last_synced_at && (
                                 <span className="flex items-center gap-1">
                                   <RefreshCw className="w-3 h-3" />{" "}
-                                  {relTime(p.last_synced_at)}
+                                  {relTime(p.last_synced_at, nowMs)}
                                 </span>
                               )}
                               {p.organization_name && (
@@ -1504,7 +1514,7 @@ export default function AiUsageAdminView() {
                               {p.last_synced_at && (
                                 <span className="flex items-center gap-1">
                                   <RefreshCw className="w-3 h-3" />{" "}
-                                  {relTime(p.last_synced_at)}
+                                  {relTime(p.last_synced_at, nowMs)}
                                 </span>
                               )}
                               {p.organization_name && (

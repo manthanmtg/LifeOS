@@ -15,4 +15,13 @@ describe("ai-usage style contract", () => {
       /\b(?:red|green|emerald|amber|yellow|rose|orange|purple|cyan|sky|indigo|teal|pink|violet|fuchsia)-\d{2,3}\b/,
     );
   });
+
+  it("uses stable clock state instead of direct Date.now calls", () => {
+    const adminViewSource = readFileSync(
+      resolve(__dirname, "../AdminView.tsx"),
+      "utf8",
+    );
+
+    expect(adminViewSource).not.toContain("Date.now()");
+  });
 });
