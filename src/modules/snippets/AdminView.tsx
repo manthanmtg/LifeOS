@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Settings, Code, Search, Sparkles } from "lucide-react";
+import { Plus, Settings, Code, Search, Sparkles, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -17,6 +17,7 @@ import SnippetsFilters from "./components/SnippetsFilters";
 import SnippetCard from "./components/SnippetCard";
 import SnippetForm from "./components/SnippetForm";
 import SnippetsSettings from "./components/SnippetsSettings";
+import SnippetSkeleton from "./components/SnippetSkeleton";
 
 export default function SnippetsAdminView() {
   const {
@@ -167,10 +168,15 @@ export default function SnippetsAdminView() {
   );
 
   const languageChips = useMemo(() => {
+    if (loading) return [];
     return [...new Set(snippets.map((s) => s.payload.language))].sort((a, b) =>
       a.localeCompare(b),
     );
-  }, [snippets]);
+  }, [snippets, loading]);
+
+  if (loading && snippets.length === 0) {
+    return <AdminModuleSkeleton />;
+  }
 
   return (
     <div className="animate-fade-in-up space-y-6 pb-12">
@@ -224,6 +230,7 @@ export default function SnippetsAdminView() {
             snippets={snippets}
             stats={stats}
             referenceTime={statsReferenceTime}
+            loading={loading}
           />
         </div>
       </div>
@@ -259,7 +266,16 @@ export default function SnippetsAdminView() {
       />
 
       {/* Main Content Area */}
-      <div className="space-y-6">
+      <div className="space-y-6 relative">
+        {loading && snippets.length > 0 && (
+          <div className="absolute inset-0 bg-zinc-950/20 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-[2.5rem]">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+              <RefreshCw className="w-5 h-5 text-accent animate-spin" />
+              <span className="text-xs font-bold text-zinc-200 uppercase tracking-widest">Syncing Library</span>
+            </div>
+          </div>
+        )}
+
         <SnippetsFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -272,8 +288,8 @@ export default function SnippetsAdminView() {
           totalCount={snippets.length}
         />
 
-        {loading ? (
-          <AdminModuleSkeleton />
+        {loading && snippets.length === 0 ? (
+          <SnippetSkeleton />
         ) : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}

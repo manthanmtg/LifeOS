@@ -15,6 +15,7 @@ import type { SortField, SortDirection } from "./components/BookshelfFilters";
 import BookCard from "./components/BookCard";
 import BookForm from "./components/BookForm";
 import BookshelfSettingsPanel from "./components/BookshelfSettings";
+import BookSkeleton from "./components/BookSkeleton";
 
 export default function BookshelfAdminView() {
   const {
@@ -187,6 +188,10 @@ export default function BookshelfAdminView() {
 
   const now = useMemo(() => new Date(), []);
 
+  if (loading && books.length === 0) {
+    return <AdminModuleSkeleton />;
+  }
+
   return (
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
@@ -228,7 +233,11 @@ export default function BookshelfAdminView() {
           </div>
 
           {/* Metrics */}
-          <BookshelfMetrics books={books} stats={stats} />
+          <BookshelfMetrics
+            books={books}
+            stats={stats}
+            loading={loading && books.length === 0}
+          />
         </div>
       </div>
 
@@ -270,34 +279,45 @@ export default function BookshelfAdminView() {
       />
 
       {/* Book Grid */}
-      {loading ? (
-        <AdminModuleSkeleton />
-      ) : filtered.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"
-        >
-          <Library className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>No books found for current filters.</p>
-        </motion.div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((book, i) => (
-              <BookCard
-                key={book._id}
-                book={book}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                isDeletingId={isDeletingId}
-                index={i}
-                now={now}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
+      <div className="relative">
+        {loading && books.length > 0 && (
+          <div className="absolute inset-0 bg-zinc-950/20 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+              <Plus className="w-5 h-5 text-accent animate-spin" />
+              <span className="text-xs font-bold text-zinc-200 uppercase tracking-widest">Updating Library</span>
+            </div>
+          </div>
+        )}
+
+        {loading && books.length === 0 ? (
+          <BookSkeleton />
+        ) : filtered.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"
+          >
+            <Library className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p>No books found for current filters.</p>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((book, i) => (
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  isDeletingId={isDeletingId}
+                  index={i}
+                  now={now}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

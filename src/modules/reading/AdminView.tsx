@@ -17,7 +17,7 @@ import { ReadingItemCard } from "./components/ReadingItemCard";
 import { ReadingFilters } from "./components/ReadingFilters";
 import { PRIORITY_ORDER } from "./utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { ContentListSkeleton } from "@/components/ui/Skeletons";
+import { AdminModuleSkeleton, ContentListSkeleton } from "@/components/ui/Skeletons";
 
 export default function ReadingAdminView() {
   const {
@@ -176,6 +176,10 @@ export default function ReadingAdminView() {
       });
   }, [items, statusFilter, typeFilter, searchQuery, tagFilter]);
 
+  if (loading && items.length === 0) {
+    return <AdminModuleSkeleton />;
+  }
+
   const readNext = () => {
     const unreadHigh = items.filter(
       (i) => !i.payload.is_read && i.payload.priority === "high",
@@ -304,38 +308,49 @@ export default function ReadingAdminView() {
         allUniqueTags={allUniqueTags}
       />
 
-      {loading ? (
-        <ContentListSkeleton length={4} />
-      ) : filtered.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"
-        >
-          <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>Queue is empty for current filters.</p>
-        </motion.div>
-      ) : (
-        <div className="space-y-2">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((item) => (
-              <ReadingItemCard
-                key={item._id}
-                item={item}
-                onToggleRead={toggleRead}
-                onEdit={(item) => {
-                  setEditingItem(item);
-                  setShowForm(true);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                onDelete={handleDelete}
-                isToggling={isTogglingId === item._id}
-                isDeleting={isDeletingId === item._id}
-              />
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
+      <div className="relative">
+        {loading && items.length > 0 && (
+          <div className="absolute inset-0 bg-zinc-950/20 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-accent animate-spin" />
+              <span className="text-xs font-bold text-zinc-200 uppercase tracking-widest text-zinc-200">Refining Queue</span>
+            </div>
+          </div>
+        )}
+
+        {loading && items.length === 0 ? (
+          <ContentListSkeleton length={4} />
+        ) : filtered.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"
+          >
+            <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <p>Queue is empty for current filters.</p>
+          </motion.div>
+        ) : (
+          <div className="space-y-2">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((item) => (
+                <ReadingItemCard
+                  key={item._id}
+                  item={item}
+                  onToggleRead={toggleRead}
+                  onEdit={(item) => {
+                    setEditingItem(item);
+                    setShowForm(true);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onDelete={handleDelete}
+                  isToggling={isTogglingId === item._id}
+                  isDeleting={isDeletingId === item._id}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
