@@ -277,28 +277,39 @@ export default function AdminDashboard() {
       {!loaded ? (
         <DashboardSkeleton />
       ) : isSettingsMode ? (
-        <div className="space-y-6">
+        <section
+          aria-labelledby="dashboard-widgets-heading"
+          className="space-y-6"
+        >
           <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 flex items-start gap-4">
             <div className="p-2 bg-accent/10 rounded-lg">
               <LayoutGrid className="w-5 h-5 text-accent" />
             </div>
             <div>
-              <p className="text-sm font-bold text-zinc-200 uppercase tracking-widest">
+              <h2
+                id="dashboard-widgets-heading"
+                className="text-sm font-bold text-zinc-200 uppercase tracking-widest"
+              >
                 Layout Configuration
-              </p>
+              </h2>
               <p className="text-xs text-zinc-500 mt-1">
                 Enable or disable widgets to personalize your dashboard flow.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            aria-label="Dashboard widgets"
+            role="list"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
             {enabledModules.map((key) => {
               const config = moduleRegistry[key];
               const isEnabled = widgetRegistry[key] !== false;
               return (
                 <div
                   key={key}
+                  role="listitem"
                   className={cn(
                     "p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group",
                     isEnabled
@@ -335,7 +346,7 @@ export default function AdminDashboard() {
               );
             })}
           </div>
-        </div>
+        </section>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleWidgets.map((key, i) => {
