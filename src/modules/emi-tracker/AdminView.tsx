@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Search, Calculator } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { trackEvent } from "@/lib/analytics";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { EmiLoan, EmiTrackerSettings } from "./types";
 import {
   computeSchedule,
@@ -147,6 +148,10 @@ export default function EmiTrackerAdminView() {
       );
     }, 0);
   }, [loans, settings.roundingDecimals]);
+
+  if (loading) {
+    return <AdminModuleSkeleton />;
+  }
 
   const handleSaveLoan = async (payload: EmiLoan["payload"]) => {
     setIsSaving(true);
