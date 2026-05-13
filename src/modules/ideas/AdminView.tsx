@@ -37,7 +37,12 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import { AdminModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
 import IdeaDetailsModal from "./IdeaDetailsModal";
-import { IDEA_STATUS_LABELS, type IdeaRecord } from "./shared";
+import {
+  IDEA_STATUS_LABELS,
+  type IdeaRecord,
+  type IdeaBoardStatus,
+  type IdeaPriority,
+} from "./shared";
 import {
   DeleteZone,
   DragPreviewCard,
@@ -125,9 +130,11 @@ export default function IdeasAdminView() {
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
   const [category, setCategory] = useState("");
-  const [status, setStatus] = useState<string>(IDEAS_DEFAULTS.defaultStatus);
-  const [priority, setPriority] = useState<string>(
-    IDEAS_DEFAULTS.defaultPriority,
+  const [status, setStatus] = useState<IdeaBoardStatus>(
+    IDEAS_DEFAULTS.defaultStatus as IdeaBoardStatus,
+  );
+  const [priority, setPriority] = useState<IdeaPriority>(
+    IDEAS_DEFAULTS.defaultPriority as IdeaPriority,
   );
   const [tagsInput, setTagsInput] = useState("");
   const [formError, setFormError] = useState("");
@@ -207,8 +214,8 @@ export default function IdeasAdminView() {
   }, [fetchIdeas]);
 
   useEffect(() => {
-    setStatus(settings.defaultStatus);
-    setPriority(settings.defaultPriority);
+    setStatus(settings.defaultStatus as IdeaBoardStatus);
+    setPriority(settings.defaultPriority as IdeaPriority);
   }, [settings.defaultPriority, settings.defaultStatus]);
 
   const resetForm = useCallback(() => {
@@ -216,80 +223,97 @@ export default function IdeasAdminView() {
     setDescription("");
     setNotes("");
     setCategory("");
-    setStatus(settings.defaultStatus);
-    setPriority(settings.defaultPriority);
+    setStatus(settings.defaultStatus as IdeaBoardStatus);
+    setPriority(settings.defaultPriority as IdeaPriority);
     setTagsInput("");
     setEditingId(null);
     setFormError("");
     setShowForm(false);
   }, [settings.defaultPriority, settings.defaultStatus]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearchQuery("");
     setStatusFilter("all");
     setPriorityFilter("all");
     setCategoryFilter("all");
-  };
+  }, []);
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!title.trim()) {
-      setFormError("Title required");
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
+      if (!title.trim()) {
+        setFormError("Title required");
+        return;
+      }
 
-    const payload = {
-      title: title.trim(),
-      description: description.trim() || undefined,
-      notes: notes.trim() || undefined,
-      category: category.trim() || undefined,
-      status,
+      const payload = {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        notes: notes.trim() || undefined,
+        category: category.trim() || undefined,
+        status,
+        priority,
+        tags: tagsInput
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        promoted_to_portfolio: editingId
+          ? ideas.find((idea) => idea._id === editingId)?.payload
+              .promoted_to_portfolio
+          : false,
+      };
+
+      setIsSubmitting(true);
+      setFormError("");
+
+      try {
+        const response = editingId
+          ? await fetch(`/api/content/${editingId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ payload }),
+            })
+          : await fetch("/api/content", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                module_type: "idea",
+                is_public: false,
+                payload,
+              }),
+            });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to save idea");
+
+        resetForm();
+        await fetchIdeas();
+        showToast(editingId ? "Idea updated" : "Idea added", "success");
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to save";
+        setFormError(message);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      category,
+      description,
+      editingId,
+      fetchIdeas,
+      ideas,
+      notes,
       priority,
-      tags: tagsInput
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-      promoted_to_portfolio: editingId
-        ? ideas.find((idea) => idea._id === editingId)?.payload
-            .promoted_to_portfolio
-        : false,
-    };
+      resetForm,
+      showToast,
+      status,
+      tagsInput,
+      title,
+    ],
+  );
 
-    setIsSubmitting(true);
-    setFormError("");
-
-    try {
-      const response = editingId
-        ? await fetch(`/api/content/${editingId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ payload }),
-          })
-        : await fetch("/api/content", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              module_type: "idea",
-              is_public: false,
-              payload,
-            }),
-          });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to save idea");
-
-      resetForm();
-      await fetchIdeas();
-      showToast(editingId ? "Idea updated" : "Idea added", "success");
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to save";
-      setFormError(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleEdit = (idea: Idea) => {
+  const handleEdit = useCallback((idea: Idea) => {
     setTitle(idea.payload.title);
     setDescription(idea.payload.description || "");
     setNotes(idea.payload.notes || "");
@@ -299,37 +323,40 @@ export default function IdeasAdminView() {
     setTagsInput(idea.payload.tags.join(", "));
     setEditingId(idea._id);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleReorder = async (nextIdeas: Idea[]) => {
-    try {
-      const normalizedIdeas = normalizeIdeaBoardOrder(nextIdeas);
+  const handleReorder = useCallback(
+    async (nextIdeas: Idea[]) => {
+      try {
+        const normalizedIdeas = normalizeIdeaBoardOrder(nextIdeas);
 
-      await Promise.all(
-        normalizedIdeas.map(async (idea) => {
-          const payload = {
-            ...idea.payload,
-            order: idea.payload.order ?? 0,
-          };
+        await Promise.all(
+          normalizedIdeas.map(async (idea) => {
+            const payload = {
+              ...idea.payload,
+              order: idea.payload.order ?? 0,
+            };
 
-          const response = await fetch(`/api/content/${idea._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ payload }),
-          });
+            const response = await fetch(`/api/content/${idea._id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ payload }),
+            });
 
-          if (!response.ok) {
-            throw new Error(`Failed to persist order for ${idea._id}`);
-          }
-        }),
-      );
-    } catch (error) {
-      console.error("Failed to persist reorder:", error);
-      showToast("Could not save board order", "error");
-    }
-  };
+            if (!response.ok) {
+              throw new Error(`Failed to persist order for ${idea._id}`);
+            }
+          }),
+        );
+      } catch (error) {
+        console.error("Failed to persist reorder:", error);
+        showToast("Could not save board order", "error");
+      }
+    },
+    [showToast],
+  );
 
-  const handleUndoDelete = () => {
+  const handleUndoDelete = useCallback(() => {
     if (deleteTimeoutRef.current) {
       clearTimeout(deleteTimeoutRef.current);
       deleteTimeoutRef.current = null;
@@ -348,75 +375,81 @@ export default function IdeasAdminView() {
 
     lastDeletedIdeaRef.current = null;
     setTimeout(() => showToast("Deletion undone", "success"), 50);
-  };
+  }, [handleReorder, showToast]);
 
-  const handleDelete = async (id: string) => {
-    const ideaToDelete = ideas.find((idea) => idea._id === id);
-    if (!ideaToDelete) return;
+  const handleDelete = useCallback(
+    async (id: string) => {
+      const ideaToDelete = ideas.find((idea) => idea._id === id);
+      if (!ideaToDelete) return;
 
-    const index = ideas.findIndex((idea) => idea._id === id);
-    setIdeas((prev) => {
-      const nextIdeas = normalizeIdeaBoardOrder(
-        prev.filter((idea) => idea._id !== id),
-      );
-      void handleReorder(nextIdeas);
-      return nextIdeas;
-    });
-
-    lastDeletedIdeaRef.current = { idea: ideaToDelete, index };
-    setConfirmDeleteId(null);
-
-    if (deleteTimeoutRef.current) {
-      clearTimeout(deleteTimeoutRef.current);
-    }
-
-    deleteTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await fetch(`/api/content/${id}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Delete failed");
-        lastDeletedIdeaRef.current = null;
-      } catch (error) {
-        console.error("Delayed delete failed:", error);
-        showToast("Could not delete idea", "error");
-      }
-    }, 5000);
-
-    showToast("Idea deleted", "success", {
-      label: "Undo",
-      onClick: handleUndoDelete,
-    });
-  };
-
-  const handlePromote = async (idea: Idea) => {
-    const payload = {
-      ...idea.payload,
-      status: "archived",
-      promoted_to_portfolio: true,
-      promoted_at: new Date().toISOString(),
-    };
-
-    setIsPromotingId(idea._id);
-    try {
-      const response = await fetch(`/api/content/${idea._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload }),
+      const index = ideas.findIndex((idea) => idea._id === id);
+      setIdeas((prev) => {
+        const nextIdeas = normalizeIdeaBoardOrder(
+          prev.filter((idea) => idea._id !== id),
+        );
+        void handleReorder(nextIdeas);
+        return nextIdeas;
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Promotion failed");
 
-      await fetchIdeas();
-      showToast("Idea promoted to portfolio", "success");
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to promote";
-      showToast(message, "error");
-    } finally {
-      setIsPromotingId(null);
-    }
-  };
+      lastDeletedIdeaRef.current = { idea: ideaToDelete, index };
+      setConfirmDeleteId(null);
+
+      if (deleteTimeoutRef.current) {
+        clearTimeout(deleteTimeoutRef.current);
+      }
+
+      deleteTimeoutRef.current = setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/content/${id}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Delete failed");
+          lastDeletedIdeaRef.current = null;
+        } catch (error) {
+          console.error("Delayed delete failed:", error);
+          showToast("Could not delete idea", "error");
+        }
+      }, 5000);
+
+      showToast("Idea deleted", "success", {
+        label: "Undo",
+        onClick: handleUndoDelete,
+      });
+    },
+    [handleReorder, handleUndoDelete, ideas, showToast],
+  );
+
+  const handlePromote = useCallback(
+    async (idea: Idea) => {
+      const payload = {
+        ...idea.payload,
+        status: "archived" as const,
+        promoted_to_portfolio: true,
+        promoted_at: new Date().toISOString(),
+      };
+
+      setIsPromotingId(idea._id);
+      try {
+        const response = await fetch(`/api/content/${idea._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payload }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Promotion failed");
+
+        await fetchIdeas();
+        showToast("Idea promoted to portfolio", "success");
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to promote";
+        showToast(message, "error");
+      } finally {
+        setIsPromotingId(null);
+      }
+    },
+    [fetchIdeas, showToast],
+  );
 
   const filtered = useMemo(
     () =>

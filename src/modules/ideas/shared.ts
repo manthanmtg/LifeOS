@@ -1,11 +1,16 @@
+import type { IdeaBoardStatus } from "./dnd";
+export type { IdeaBoardStatus };
+
+export type IdeaPriority = "high" | "medium" | "low";
+
 export interface IdeaPayload {
   title: string;
   description?: string;
   notes?: string;
   category?: string;
-  status: string;
+  status: IdeaBoardStatus;
   tags: string[];
-  priority: string;
+  priority: IdeaPriority;
   promoted_to_portfolio?: boolean;
   promoted_at?: string;
   order?: number;
