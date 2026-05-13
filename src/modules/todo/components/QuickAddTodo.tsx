@@ -16,8 +16,9 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || isSaving) return;
-    await onAdd(title, priority);
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle || isSaving) return;
+    await onAdd(trimmedTitle, priority);
     setTitle("");
     setPriority("medium");
   };
