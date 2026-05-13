@@ -75,6 +75,21 @@ describe("EmiTrackerAdminView", () => {
     vi.resetAllMocks();
   });
 
+  it("does not show the empty loan prompt during the initial load", () => {
+    vi.spyOn(global, "fetch").mockImplementation(
+      () => new Promise<Response>(() => {}),
+    );
+
+    render(<EmiTrackerAdminView />);
+
+    expect(screen.queryByText(/Intelligent EMI Tracking/i)).toBeNull();
+    expect(
+      screen.queryByText(
+        /No loans yet\. Add your first loan to get started\./i,
+      ),
+    ).toBeNull();
+  });
+
   it("loads a loan into the list", async () => {
     const mockData = {
       success: true,
