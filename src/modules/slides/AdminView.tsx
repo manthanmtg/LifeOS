@@ -179,6 +179,16 @@ export default function SlidesAdminView() {
       .map((t) => t.trim())
       .filter(Boolean);
 
+    if (tags.length > 20) {
+      setFormError("Use 20 tags or fewer.");
+      return;
+    }
+
+    if (tags.some((tag) => tag.length > 50)) {
+      setFormError("Keep each tag to 50 characters or fewer.");
+      return;
+    }
+
     const finalDeckUrl = deckUrl.trim();
     const fileName = uploadedFile?.name;
     const fileSize = uploadedFile?.size;
