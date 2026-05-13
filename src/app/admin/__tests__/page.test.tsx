@@ -80,6 +80,21 @@ describe("AdminDashboard", () => {
     ).toHaveAttribute("aria-checked", "false");
   });
 
+  it("groups dashboard customization controls in a labelled list", async () => {
+    render(<AdminDashboard />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /customize dashboard/i }),
+    );
+
+    const widgetList = await screen.findByRole("list", {
+      name: /dashboard widgets/i,
+    });
+
+    expect(widgetList).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+  });
+
   it("renders the shopping list widget when enabled", async () => {
     render(<AdminDashboard />);
 
