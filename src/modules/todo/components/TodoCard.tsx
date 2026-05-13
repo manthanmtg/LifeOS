@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Check, Edit3, Trash2, Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TodoDocument, TodoPriority } from "../types";
@@ -13,6 +14,30 @@ interface TodoCardProps {
   viewMode?: "grid" | "list";
 }
 
+const priorityColors: Record<
+  TodoPriority,
+  { text: string; bg: string; border: string; shadow: string }
+> = {
+  high: {
+    text: "text-danger",
+    bg: "bg-danger/10",
+    border: "border-danger/20",
+    shadow: "shadow-danger/20",
+  },
+  medium: {
+    text: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/20",
+    shadow: "shadow-warning/20",
+  },
+  low: {
+    text: "text-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
+    shadow: "shadow-success/20",
+  },
+};
+
 export default function TodoCard({
   todo,
   onToggle,
@@ -21,32 +46,25 @@ export default function TodoCard({
   viewMode = "list",
 }: TodoCardProps) {
   const { title, due_date, priority, completed, completed_at } = todo.payload;
-
-  const priorityColors: Record<
-    TodoPriority,
-    { text: string; bg: string; border: string; shadow: string }
-  > = {
-    high: {
-      text: "text-danger",
-      bg: "bg-danger/10",
-      border: "border-danger/20",
-      shadow: "shadow-danger/20",
-    },
-    medium: {
-      text: "text-warning",
-      bg: "bg-warning/10",
-      border: "border-warning/20",
-      shadow: "shadow-warning/20",
-    },
-    low: {
-      text: "text-success",
-      bg: "bg-success/10",
-      border: "border-success/20",
-      shadow: "shadow-success/20",
-    },
-  };
-
   const colors = priorityColors[priority || "medium"];
+  const gridDueDateLabel = useMemo(
+    () =>
+      due_date
+        ? new Date(due_date).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+          })
+        : null,
+    [due_date],
+  );
+  const listDueDateLabel = useMemo(
+    () => (due_date ? new Date(due_date).toLocaleDateString() : null),
+    [due_date],
+  );
+  const completedDateLabel = useMemo(
+    () => (completed_at ? new Date(completed_at).toLocaleDateString() : null),
+    [completed_at],
+  );
 
   if (viewMode === "grid") {
     return (
@@ -131,10 +149,7 @@ export default function TodoCard({
           {due_date && (
             <span className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-800/40 px-2 py-1 rounded-lg">
               <Calendar className="w-2.5 h-2.5" />
-              {new Date(due_date).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-              })}
+              {gridDueDateLabel}
             </span>
           )}
         </div>
@@ -194,13 +209,13 @@ export default function TodoCard({
           {due_date && (
             <span className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-600 uppercase tracking-wider">
               <Calendar className="w-3 h-3" />
-              {new Date(due_date).toLocaleDateString()}
+              {listDueDateLabel}
             </span>
           )}
           {completed_at && (
             <span className="flex items-center gap-1.5 text-[9px] font-bold text-success/60 uppercase tracking-wider italic">
               <Clock className="w-3 h-3" />
-              {new Date(completed_at).toLocaleDateString()}
+              {completedDateLabel}
             </span>
           )}
         </div>
