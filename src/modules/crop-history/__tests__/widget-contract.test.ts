@@ -14,4 +14,13 @@ describe("crop history widget contract", () => {
     expect(source).not.toContain("WidgetList");
     expect(source).not.toContain("footer=");
   });
+
+  it("uses the lightweight summary endpoint without internal interactions", () => {
+    const source = readFileSync(resolve(__dirname, "../Widget.tsx"), "utf8");
+
+    expect(source).toContain("/api/widgets/summary?module_type=crop_history");
+    expect(source).not.toContain("/api/content?module_type=crop_history");
+    expect(source).not.toMatch(/<(button|input|select|textarea|a)\b/);
+    expect(source).not.toContain("window.location");
+  });
 });
