@@ -742,7 +742,7 @@ export default function SlidesAdminView() {
           {filtered.map((item) => (
             <article
               key={item._id}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 hover:border-zinc-700 transition-colors group"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 transition-all hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-800/30 group"
             >
               <div className="w-full h-32 rounded-xl bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
                 <Suspense
