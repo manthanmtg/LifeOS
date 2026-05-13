@@ -1,7 +1,11 @@
 "use client";
 
 import { RefreshCw, X } from "lucide-react";
-import { IDEA_STATUS_LABELS } from "../shared";
+import {
+  IDEA_STATUS_LABELS,
+  type IdeaBoardStatus,
+  type IdeaPriority,
+} from "../shared";
 
 const STATUSES = ["raw", "exploring", "archived"] as const;
 const PRIORITIES = ["high", "medium", "low"] as const;
@@ -16,10 +20,10 @@ interface IdeaFormPanelProps {
   setNotes: (v: string) => void;
   category: string;
   setCategory: (v: string) => void;
-  status: string;
-  setStatus: (v: string) => void;
-  priority: string;
-  setPriority: (v: string) => void;
+  status: IdeaBoardStatus;
+  setStatus: (v: IdeaBoardStatus) => void;
+  priority: IdeaPriority;
+  setPriority: (v: IdeaPriority) => void;
   tagsInput: string;
   setTagsInput: (v: string) => void;
   isSubmitting: boolean;
@@ -164,7 +168,7 @@ export default function IdeaFormPanel({
             <select
               id="idea-status"
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => setStatus(e.target.value as IdeaBoardStatus)}
               disabled={isSubmitting}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
             >
@@ -182,7 +186,7 @@ export default function IdeaFormPanel({
             <select
               id="idea-priority"
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e) => setPriority(e.target.value as IdeaPriority)}
               disabled={isSubmitting}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
             >
