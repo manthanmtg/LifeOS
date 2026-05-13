@@ -189,6 +189,7 @@ export default function BillDetail({
               </button>
               <button
                 onClick={onClose}
+                aria-label="Close details"
                 className="p-2 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 <X className="w-4 h-4" />
