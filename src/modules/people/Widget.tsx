@@ -19,12 +19,21 @@ export default function PeopleWidget() {
 
   useEffect(() => {
     const ac = new AbortController();
+    let active = true;
+
     fetch("/api/widgets/summary?module_type=person", { signal: ac.signal })
-      .then((r) => r.json())
-      .then((data) => setSummary(data.data || null))
+      .then((r) => (active ? r.json() : null))
+      .then((data) => {
+        if (active) setSummary(data?.data || null);
+      })
       .catch(() => {})
-      .finally(() => setLoading(false));
-    return () => ac.abort();
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+      ac.abort();
+    };
   }, []);
 
   return (

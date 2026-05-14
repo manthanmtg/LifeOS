@@ -31,4 +31,30 @@ describe("PeopleWidget", () => {
       expect(screen.queryByText(/health/i)).not.toBeInTheDocument();
     });
   });
+
+  it("skips summary parsing when the tile unmounts before the fetch resolves", async () => {
+    let resolveFetch: (response: { json: () => Promise<unknown> }) => void;
+    const json = vi.fn().mockResolvedValue({
+      data: {
+        total: 12,
+        staleCount: 2,
+      },
+    });
+    global.fetch = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    const { unmount } = render(<PeopleWidget />);
+
+    unmount();
+    resolveFetch!({ json });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(json).not.toHaveBeenCalled();
+  });
 });
