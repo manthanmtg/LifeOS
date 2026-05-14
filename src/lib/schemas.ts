@@ -765,7 +765,7 @@ export const HealthProfileSchema = z.object({
         diagnosis: z.string().trim().max(500).optional(),
         prescription: z.string().trim().max(2000).optional(),
         cost: z.number().min(0).optional(),
-        currency: z.string().length(3).default("INR"),
+        currency: CurrencyCodeSchema.default("INR"),
         notes: z.string().trim().max(5000).optional(),
       }),
     )
