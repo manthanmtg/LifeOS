@@ -56,7 +56,10 @@ export default function MoveFolderModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
         onClick={onClose}
       />
