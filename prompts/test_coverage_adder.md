@@ -47,8 +47,8 @@ Coverage grows like a garden. Each run plants a few seeds. Over many runs, the e
 
 ### 4. Verify
 
-- Run `pnpm test` — all tests (old + new) must pass.
-- Run `pnpm lint` — no lint issues from new test files.
+- Run the most relevant targeted test command first if one is obvious.
+- Run `pnpm check` — all tests, linting, type checking, and build verification must pass per the shared prompt run contract.
 
 ### 5. Commit
 
