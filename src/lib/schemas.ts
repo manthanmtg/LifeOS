@@ -683,7 +683,7 @@ const BillAttachmentSchema = z.object({
 });
 
 export const HealthProfileSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
+  name: z.string().trim().min(1, "Name is required").max(100),
   type: z.enum(["self", "family", "pet"]).default("self"),
   relation: z.string().trim().max(100).optional(),
   date_of_birth: z.string().datetime().optional(),
@@ -700,7 +700,7 @@ export const HealthProfileSchema = z.object({
     .optional(),
   emergency_contact: z.string().trim().max(200).optional(),
   insurance_info: z.string().trim().max(500).optional(),
-  allergies: z.array(z.string().trim().max(100)).max(50).default([]),
+  allergies: z.array(z.string().trim().min(1).max(100)).max(50).default([]),
   conditions: z
     .array(
       z.object({
