@@ -6,7 +6,6 @@ import {
   Trash2,
   Edit3,
   Bot,
-  Search,
   CalendarDays,
   DollarSign,
   Zap,
@@ -17,9 +16,7 @@ import {
   Copy,
   Check,
   Info,
-  ArrowUpDown,
   BarChart3,
-  Filter,
   Clock,
   Coins,
   Hash,
@@ -531,8 +528,6 @@ export default function AiUsageAdminView() {
     const cutoff = nowMs - days * 86400000;
     return entries.filter((e) => Date.parse(e.payload.date) >= cutoff);
   }, [entries, dateRange, nowMs]);
-
-  
 
   const stats = useMemo(() => {
     const totalCost = dateFilteredEntries.reduce(
