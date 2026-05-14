@@ -66,6 +66,11 @@ export function coerceRainSource(value: unknown): RainSource {
     : "manual";
 }
 
+function formatRainSourceLabel(value: unknown) {
+  const source = coerceRainSource(value);
+  return source.charAt(0).toUpperCase() + source.slice(1);
+}
+
 function formatRainValue(mmValue: number, unit: RainUnit, digits = 2) {
   return Number((mmValue * CONVERSION_FROM_MM[unit]).toFixed(digits));
 }
@@ -234,6 +239,7 @@ export function getVisibleRainEntries(
           entry.payload.rainfall_amount,
           displayUnit,
         ),
+        sourceLabel: formatRainSourceLabel(entry.payload.source),
         monthLabel: entryDate.toLocaleDateString(undefined, { month: "short" }),
         dayLabel: String(entryDate.getDate()),
         dateLabel: entryDate.toLocaleDateString(undefined, {
