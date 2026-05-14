@@ -23,7 +23,7 @@ export default function HabitSettingsPanel({
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="overflow-hidden"
     >
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-5">
+      <div className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-6 space-y-5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-zinc-50">Habit Settings</h2>
           {saving && (
