@@ -183,7 +183,7 @@ export async function GET(request: Request) {
     if (module_type === "snippet") {
       const snippetDocs = (await contentColl
         .find(
-          { module_type, is_public: false },
+          { module_type },
           { projection: { "payload.is_favorite": 1, "payload.language": 1 } },
         )
         .toArray()) as ContentDocument<SnippetPayload>[];
@@ -279,7 +279,7 @@ export async function GET(request: Request) {
     if (module_type === "binge_item") {
       const bingeDocs = (await contentColl
         .find(
-          { module_type, is_public: false },
+          { module_type },
           {
             projection: {
               "payload.title": 1,
@@ -397,7 +397,7 @@ export async function GET(request: Request) {
 
     const docs = (await contentColl
       .find(
-        { module_type, is_public: false },
+        { module_type },
         { projection: PROJECTIONS[module_type] || {} },
       )
       .toArray()) as ContentDocument<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -853,7 +853,6 @@ export async function GET(request: Request) {
 
         const folderCount = await contentColl.countDocuments({
           module_type: "bill_folder",
-          is_public: false,
         });
 
         summary = {

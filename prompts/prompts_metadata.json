@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-14T10:46:21.169Z",
+  "updatedAt": "2026-05-14T12:19:50.741Z",
   "description": "Prompt-suite observability metadata. Keep static identity here aligned with prompt frontmatter and update counters during random_selector runs.",
   "outcomeDefinitions": {
     "selected": "The prompt has been selected and the run has not recorded a terminal outcome yet.",
@@ -302,13 +302,13 @@
       "category": "feature-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 18,
-      "totalCompleted": 17,
+      "totalSelected": 19,
+      "totalCompleted": 18,
       "totalNoop": 1,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-13T02:45:57.760Z",
-      "lastCompletedAt": "2026-05-13T02:46:43.692Z",
-      "lastOutcome": "noop"
+      "lastSelectedAt": "2026-05-14T12:15:50.714Z",
+      "lastCompletedAt": "2026-05-14T12:19:50.741Z",
+      "lastOutcome": "completed"
     },
     "zod_schema_tightener.md": {
       "id": "zod_schema_tightener.md",
