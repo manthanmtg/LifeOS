@@ -9,9 +9,9 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 - `pnpm start` — Start production server on `http://localhost:3091`
 - `pnpm lint` — Run ESLint (`eslint` via flat config in `eslint.config.mjs`)
 - `pnpm typecheck` — Run TypeScript type checking (includes memory fix)
-- `pnpm test` — Run tests using Vitest
-- `pnpm test:watch` — Run tests in watch mode
-- `pnpm test:coverage` — Run tests with coverage report
+- `pnpm test` — Run tests using Vitest with `NODE_ENV=test`
+- `pnpm test:watch` — Run tests in watch mode with `NODE_ENV=test`
+- `pnpm test:coverage` — Run tests with coverage report under `NODE_ENV=test`
 - `pnpm test:ui` — Run tests with Vitest UI
 - `pnpm format` — Format code with Prettier
 - `pnpm format:check` — Check formatting with Prettier
