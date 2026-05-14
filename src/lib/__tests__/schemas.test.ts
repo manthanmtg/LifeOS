@@ -353,6 +353,18 @@ describe("schemas", () => {
   });
 
   describe("HealthProfileSchema", () => {
+    it("rejects blank profile names and allergy entries", () => {
+      const profile = {
+        name: "   ",
+        type: "self",
+        allergies: ["  "],
+      };
+
+      const result = HealthProfileSchema.safeParse(profile);
+
+      expect(result.success).toBe(false);
+    });
+
     it("rejects loose health profile notes and tags", () => {
       const profile = {
         name: "Jane Doe",
