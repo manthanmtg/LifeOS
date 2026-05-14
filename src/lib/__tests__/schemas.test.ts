@@ -365,6 +365,24 @@ describe("schemas", () => {
 
       expect(result.success).toBe(false);
     });
+
+    it("rejects malformed visit currency codes", () => {
+      const profile = {
+        name: "Jane Doe",
+        type: "self",
+        visits: [
+          {
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            currency: "usd",
+          },
+        ],
+      };
+
+      const result = HealthProfileSchema.safeParse(profile);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("VehicleSchema", () => {
