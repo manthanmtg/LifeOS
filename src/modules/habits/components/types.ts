@@ -1,6 +1,6 @@
 // --- Habits Module Types & Utilities ---
 
-export interface HabitCompletion {
+interface HabitCompletion {
   date: string;
   count: number;
 }
