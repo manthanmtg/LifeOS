@@ -312,7 +312,7 @@ describe("GET /api/widgets/summary", () => {
       languageCount: 2,
     });
     expect(mockFind).toHaveBeenCalledWith(
-      { module_type: "snippet", is_public: false },
+      { module_type: "snippet" },
       { projection: { "payload.is_favorite": 1, "payload.language": 1 } },
     );
   });
@@ -361,7 +361,7 @@ describe("GET /api/widgets/summary", () => {
       },
     });
     expect(mockFind).toHaveBeenCalledWith(
-      { module_type: "binge_item", is_public: false },
+      { module_type: "binge_item" },
       {
         projection: {
           "payload.title": 1,
@@ -398,7 +398,6 @@ describe("GET /api/widgets/summary", () => {
     expect(data.totalAttachments).toBe(2);
     expect(mockCountDocuments).toHaveBeenCalledWith({
       module_type: "bill_folder",
-      is_public: false,
     });
   });
 
@@ -517,6 +516,82 @@ describe("GET /api/widgets/summary", () => {
     expect(response.status).toBe(200);
     const { data } = await response.json();
     expect(data.total).toBe(2);
+  });
+
+  it("returns summary for deck module and includes public content", async () => {
+    const mockDecks = [
+      {
+        created_at: "2026-05-10T10:00:00.000Z",
+        is_public: true,
+        payload: {
+          title: "Public Deck",
+          visibility: "public",
+          format: "pdf",
+          topic: "Tech",
+        },
+      },
+      {
+        created_at: "2026-05-11T10:00:00.000Z",
+        is_public: false,
+        payload: {
+          title: "Private Deck",
+          visibility: "private",
+          format: "html",
+          topic: "Personal",
+        },
+      },
+    ];
+    mockCollection().toArray.mockResolvedValue(mockDecks);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=deck",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.total).toBe(2);
+    expect(data.publicDecks).toBe(1);
+    expect(data.latest.payload.title).toBe("Private Deck");
+    expect(mockFind).toHaveBeenCalledWith({ module_type: "deck" }, expect.any(Object));
+  });
+
+  it("returns summary for blog_post module and includes public content", async () => {
+    const mockPosts = [
+      {
+        created_at: "2026-05-10T10:00:00.000Z",
+        is_public: true,
+        payload: {
+          title: "Public Post",
+          status: "published",
+          content: "Hello world",
+        },
+      },
+      {
+        created_at: "2026-05-11T10:00:00.000Z",
+        is_public: false,
+        payload: {
+          title: "Draft Post",
+          status: "draft",
+          content: "Coming soon",
+        },
+      },
+    ];
+    mockCollection().toArray.mockResolvedValue(mockPosts);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=blog_post",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const { data } = await response.json();
+    expect(data.total).toBe(2);
+    expect(data.published).toBe(1);
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "blog_post" },
+      expect.any(Object),
+    );
   });
 
   it("returns 500 if database fails", async () => {
