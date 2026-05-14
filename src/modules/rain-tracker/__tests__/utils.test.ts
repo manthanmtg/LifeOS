@@ -133,6 +133,31 @@ describe("rain tracker utils", () => {
     expect(visible[0]?.displayAmount).toBe("8.00");
   });
 
+  it("normalizes missing source labels for visible entries", () => {
+    const visible = getVisibleRainEntries(
+      [
+        {
+          _id: "legacy-entry",
+          created_at: "2026-04-20T07:00:00.000Z",
+          payload: {
+            area_id: "area-1",
+            rainfall_amount: 4,
+            rainfall_unit: "mm",
+            date: "2026-04-20T07:00:00.000Z",
+          },
+        },
+      ],
+      "area-1",
+      filters,
+      "mm",
+      "",
+    );
+
+    expect(visible[0]).toMatchObject({
+      sourceLabel: "Manual",
+    });
+  });
+
   it("builds analytics and insights for the selected area", () => {
     const analytics = buildRainAnalytics(
       entries,

@@ -50,6 +50,7 @@ export interface RainAreaListItem {
 export interface RainEntryListItem {
   entry: RainEntry;
   displayAmount: string;
+  sourceLabel: string;
   monthLabel: string;
   dayLabel: string;
   dateLabel: string;

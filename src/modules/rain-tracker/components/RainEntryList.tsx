@@ -94,9 +94,7 @@ export function RainEntryList({
                     <Clock className="h-2.5 w-2.5" />
                     {item.dateLabel} at {item.timeLabel}
                   </span>
-                  <span className="capitalize">
-                    {item.entry.payload.source}
-                  </span>
+                  <span>{item.sourceLabel}</span>
                   {item.entry.payload.notes ? (
                     <span className="truncate">{item.entry.payload.notes}</span>
                   ) : null}
