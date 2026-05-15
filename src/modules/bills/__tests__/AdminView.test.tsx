@@ -23,6 +23,7 @@ const mockBills = [
       description: "Monthly electricity charge",
       notes: "",
       folder_id: "folder-1",
+      tags: ["utilities"],
       attachments: [],
     },
     created_at: "2026-01-15T10:00:00.000Z",
@@ -220,6 +221,21 @@ describe("BillsAdminView", () => {
 
     const searchInput = screen.getByPlaceholderText(/Search bills by name/i);
     fireEvent.change(searchInput, { target: { value: "Electricity" } });
+
+    await waitFor(() => {
+      expect(screen.getByText("Electricity Bill January")).toBeDefined();
+      expect(screen.queryByText("Internet Bill February")).toBeNull();
+    });
+  });
+
+  it("filters bills by tag", async () => {
+    render(<BillsAdminView />);
+    await waitFor(() => {
+      expect(screen.getByText("Electricity Bill January")).toBeDefined();
+    });
+
+    const searchInput = screen.getByPlaceholderText(/Search bills by name/i);
+    fireEvent.change(searchInput, { target: { value: "utilities" } });
 
     await waitFor(() => {
       expect(screen.getByText("Electricity Bill January")).toBeDefined();

@@ -147,7 +147,8 @@ export default function BillsAdminView() {
       list = list.filter(
         (b) =>
           b.payload.name.toLowerCase().includes(q) ||
-          b.payload.description?.toLowerCase().includes(q),
+          b.payload.description?.toLowerCase().includes(q) ||
+          b.payload.tags?.some((tag) => tag.toLowerCase().includes(q)),
       );
     }
     return list;
