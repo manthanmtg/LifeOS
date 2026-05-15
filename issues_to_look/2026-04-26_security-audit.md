@@ -206,3 +206,16 @@ Resolved a narrow browser hardening gap by adding
 Verification:
 
 - `pnpm vitest run src/test/security-headers.test.ts` - PASS
+
+## Follow-up run (2026-05-15 18:45 UTC)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Resolved a narrow browser hardening gap by adding
+`X-Permitted-Cross-Domain-Policies: none` to the global headers in
+`next.config.ts`.
+
+Verification:
+
+- `pnpm vitest run src/test/security-headers.test.ts` - PASS
+- `pnpm check` - PASS
