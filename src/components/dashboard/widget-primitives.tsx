@@ -29,6 +29,22 @@ const TEXT_COLOR: Record<SemanticColor, string> = {
   danger: "text-danger",
 };
 
+const HIGHLIGHT_STYLES: Record<"default" | SemanticColor, string> = {
+  default: "border-zinc-800 bg-zinc-950/50",
+  warning: "border-warning/15 bg-warning/10",
+  success: "border-success/15 bg-success/10",
+  danger: "border-danger/15 bg-danger/10",
+  accent: "border-accent/20 bg-accent/5",
+};
+
+const HIGHLIGHT_ICON_STYLES: Record<"default" | SemanticColor, string> = {
+  default: "text-zinc-500",
+  warning: "text-warning",
+  success: "text-success",
+  danger: "text-danger",
+  accent: "text-accent",
+};
+
 /** Hero number with label — the primary metric every widget must show. */
 export const WidgetStat = memo(function WidgetStat({
   value,
@@ -61,27 +77,12 @@ export const WidgetHighlight = memo(function WidgetHighlight({
   subtext?: string;
   variant?: "default" | SemanticColor;
 }) {
-  const styles: Record<string, string> = {
-    default: "border-zinc-800 bg-zinc-950/50",
-    warning: "border-warning/15 bg-warning/10",
-    success: "border-success/15 bg-success/10",
-    danger: "border-danger/15 bg-danger/10",
-    accent: "border-accent/20 bg-accent/5",
-  };
-  const iconStyles: Record<string, string> = {
-    default: "text-zinc-500",
-    warning: "text-warning",
-    success: "text-success",
-    danger: "text-danger",
-    accent: "text-accent",
-  };
-
   return (
-    <div className={cn("p-2.5 rounded-xl border", styles[variant])}>
+    <div className={cn("p-2.5 rounded-xl border", HIGHLIGHT_STYLES[variant])}>
       <div className="flex items-center gap-2 min-w-0">
         <Icon
           aria-hidden="true"
-          className={cn("w-3.5 h-3.5 shrink-0", iconStyles[variant])}
+          className={cn("w-3.5 h-3.5 shrink-0", HIGHLIGHT_ICON_STYLES[variant])}
         />
         <p className="min-w-0 text-[13px] text-zinc-300 font-medium line-clamp-1 leading-snug">
           {text}
