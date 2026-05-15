@@ -243,7 +243,12 @@ export const EmiLoanSchema = z.object({
     .min(1, "Bank / financier name is required")
     .max(200)
     .optional(),
-  category: z.string().trim().min(1, "Category is required").max(100).default("Loan"),
+  category: z
+    .string()
+    .trim()
+    .min(1, "Category is required")
+    .max(100)
+    .default("Loan"),
   currency: CurrencyCodeSchema.default("INR"),
 
   principal: z.number().positive("Loan amount must be greater than 0"),
@@ -343,7 +348,7 @@ export const TodoSchema = z.object({
 
 // --- 14. SHOPPING LIST MODULE ---
 const ShoppingItemSchema = z.object({
-  id: z.string().uuid().or(z.string()),
+  id: z.string().trim().min(1).max(100),
   name: z.string().trim().min(1, "Item name is required").max(100),
   quantity: z.string().trim().max(50).optional(),
   unit: z.string().trim().max(20).optional(),
@@ -659,7 +664,7 @@ export const MaintenanceTaskSchema = z.object({
 export const WhiteboardNoteSchema = z.object({
   name: z.string().trim().min(1, "Whiteboard name is required").max(100),
   description: z.string().trim().max(1000).optional(),
-  tags: z.array(z.string().trim().max(50)).max(20).default([]),
+  tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   is_favorite: z.boolean().default(false),
   color_label: z
     .enum(["none", "red", "blue", "green", "yellow", "purple", "orange"])

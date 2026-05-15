@@ -11,6 +11,8 @@ import {
   MaintenanceTaskSchema,
   HealthProfileSchema,
   VehicleSchema,
+  ShoppingListSchema,
+  WhiteboardNoteSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -430,6 +432,37 @@ describe("schemas", () => {
       };
 
       const result = VehicleSchema.safeParse(vehicle);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("ShoppingListSchema", () => {
+    it("rejects blank shopping item identifiers", () => {
+      const list = {
+        title: "Groceries",
+        items: [
+          {
+            id: "   ",
+            name: "Milk",
+          },
+        ],
+      };
+
+      const result = ShoppingListSchema.safeParse(list);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("WhiteboardNoteSchema", () => {
+    it("rejects blank whiteboard tags", () => {
+      const note = {
+        name: "Planning board",
+        tags: ["  "],
+      };
+
+      const result = WhiteboardNoteSchema.safeParse(note);
 
       expect(result.success).toBe(false);
     });
