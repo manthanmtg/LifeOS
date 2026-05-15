@@ -27,6 +27,14 @@ describe("formatters", () => {
       expect(formatNumber(0, "indian", 2)).toBe("0.00");
     });
 
+    it("formats negative numbers without grouping the minus sign", () => {
+      expect(formatNumber(-100, "indian", 0)).toBe("-100");
+      expect(formatNumber(-1000, "indian", 0)).toBe("-1,000");
+      expect(formatNumber(-100000, "indian", 0)).toBe("-1,00,000");
+      expect(formatNumber(-1234567.89, "indian", 2)).toBe("-12,34,567.89");
+      expect(formatNumber(-1234567.89, "western", 2)).toBe("-1,234,567.89");
+    });
+
     it("defaults to western system", () => {
       expect(formatNumber(1234567)).toBe("1,234,567");
     });
@@ -37,6 +45,13 @@ describe("formatters", () => {
       expect(formatCurrency(100, "₹", "indian")).toBe("₹100");
       expect(formatCurrency(1234567, "$", "western", 2)).toBe("$1,234,567.00");
       expect(formatCurrency(1234567, "₹", "indian", 0)).toBe("₹12,34,567");
+    });
+
+    it("preserves the sign after the currency symbol", () => {
+      expect(formatCurrency(-100, "₹", "indian")).toBe("₹-100");
+      expect(formatCurrency(-1234567.89, "$", "western", 2)).toBe(
+        "$-1,234,567.89",
+      );
     });
   });
 });
