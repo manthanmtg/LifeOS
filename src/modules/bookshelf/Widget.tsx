@@ -57,8 +57,8 @@ export default function BookshelfWidget() {
       loading={loading}
       href="/admin/bookshelf"
       footer={
-        <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-accent/80">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/12 px-2.5 py-1 text-accent/80">
             <TrendingUp className="w-3 h-3" /> {pagesLabel} pages
           </span>
           <span
