@@ -136,6 +136,7 @@ export default function SnippetForm({
                 </h2>
               </div>
               <button
+                aria-label="Close snippet form"
                 onClick={onClose}
                 className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-lg transition-colors"
               >
@@ -253,6 +254,7 @@ export default function SnippetForm({
                     </div>
                     <button
                       type="button"
+                      aria-label="Copy preview code"
                       onClick={() => navigator.clipboard.writeText(code)}
                       className="text-zinc-500 hover:text-accent transition-colors p-1"
                       title="Copy code"

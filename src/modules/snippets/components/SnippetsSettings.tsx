@@ -106,6 +106,7 @@ export default function SnippetsSettings({
                   >
                     {lang}
                     <button
+                      aria-label={`Remove ${lang} language`}
                       onClick={() =>
                         onUpdate({
                           languages: configuredLanguages.filter(
