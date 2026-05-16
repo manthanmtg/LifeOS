@@ -109,17 +109,17 @@ export default function DocumentsTab({
                     <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => onEdit(doc)}
-                        className="p-2 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-200 transition-colors"
                         title="Edit"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onDelete(doc.id)}
-                        className="p-2 rounded-xl hover:bg-danger/10 text-zinc-500 hover:text-danger transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-danger/50 text-danger transition-colors"
                         title="Delete"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
