@@ -67,9 +67,9 @@ function renderNavLinks(
             onClick={() => setMobileOpen(false)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors min-h-[44px]",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950 text-zinc-400 hover:text-zinc-200",
               isActive
-                ? "text-zinc-50 font-medium"
+                ? "text-accent font-medium"
                 : "hover:bg-zinc-900 hover:text-zinc-300",
             )}
           >
@@ -80,7 +80,13 @@ function renderNavLinks(
                 transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
               />
             )}
-            <Icon className="w-4 h-4 relative z-10" aria-hidden="true" />
+            <Icon
+              className={cn(
+                "w-4 h-4 relative z-10",
+                isActive ? "text-accent" : "text-zinc-400",
+              )}
+              aria-hidden="true"
+            />
             <span className="relative z-10">{link.name}</span>
           </Link>
         );
@@ -252,7 +258,7 @@ export default function AdminSidebar() {
                 <Link
                   href="/?public=1"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors min-h-[44px]"
+                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
                 >
                   <ExternalLink className="w-4 h-4" /> Public View
                 </Link>
@@ -261,7 +267,7 @@ export default function AdminSidebar() {
                     await fetch("/api/auth/logout", { method: "POST" });
                     window.location.href = "/";
                   }}
-                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 transition-colors min-h-[44px]"
+                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
                 >
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
@@ -314,7 +320,7 @@ export default function AdminSidebar() {
         <div className="p-4 border-t border-zinc-800 mt-auto space-y-1">
           <Link
             href="/?public=1"
-            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
           >
             <ExternalLink className="w-4 h-4" /> Public View
           </Link>
@@ -323,7 +329,7 @@ export default function AdminSidebar() {
               await fetch("/api/auth/logout", { method: "POST" });
               window.location.href = "/";
             }}
-            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 transition-colors"
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
