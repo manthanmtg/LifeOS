@@ -67,7 +67,7 @@ export default function ImageCropper({
             onClick={onClose}
             disabled={isProcessing}
             aria-label="Close image cropper"
-            className="min-h-11 min-w-11 p-2 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="min-h-11 min-w-11 p-2 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <X className="w-5 h-5 text-zinc-400" />
           </button>
@@ -105,7 +105,7 @@ export default function ImageCropper({
               onChange={(e) => {
                 setZoom(Number(e.target.value));
               }}
-              className="w-full accent-accent h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+              className="w-full accent-accent h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             />
           </div>
           <div className="flex gap-3">
@@ -113,7 +113,7 @@ export default function ImageCropper({
               type="button"
               onClick={onClose}
               disabled={isProcessing}
-              className="flex-1 px-4 py-3 rounded-xl border border-zinc-800 text-sm font-semibold text-zinc-300 hover:bg-zinc-900 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-xl border border-zinc-800 text-sm font-semibold text-zinc-300 hover:bg-zinc-900 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               Cancel
             </button>
@@ -122,7 +122,7 @@ export default function ImageCropper({
               onClick={handleSave}
               disabled={isProcessing}
               aria-label={isProcessing ? "Saving cropped photo" : undefined}
-              className="flex-[2] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent text-zinc-50 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-zinc-50/20"
+              className="flex-[2] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent text-zinc-50 text-sm font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-inner shadow-zinc-50/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-zinc-50/20 border-t-zinc-50 rounded-full animate-spin" />
