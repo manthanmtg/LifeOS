@@ -13,6 +13,7 @@ import {
   VehicleSchema,
   ShoppingListSchema,
   WhiteboardNoteSchema,
+  BillSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -463,6 +464,29 @@ describe("schemas", () => {
       };
 
       const result = WhiteboardNoteSchema.safeParse(note);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("BillSchema", () => {
+    it("rejects unsupported attachment content types", () => {
+      const bill = {
+        name: "Internet bill",
+        bill_date: new Date().toISOString(),
+        attachments: [
+          {
+            id: crypto.randomUUID(),
+            filename: "notes.txt",
+            content_type: "text/plain",
+            data: "abcd",
+            size: 4,
+            uploaded_at: new Date().toISOString(),
+          },
+        ],
+      };
+
+      const result = BillSchema.safeParse(bill);
 
       expect(result.success).toBe(false);
     });
