@@ -25,4 +25,10 @@ describe("ImageCropper", () => {
     expect(source).toContain('htmlFor="image-cropper-zoom"');
     expect(source).toContain('id="image-cropper-zoom"');
   });
+
+  it("keeps cropper controls visibly focusable for keyboard users", () => {
+    const focusRingCount = source.match(/focus-visible:ring-2/g)?.length ?? 0;
+
+    expect(focusRingCount).toBeGreaterThanOrEqual(4);
+  });
 });
