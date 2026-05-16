@@ -174,6 +174,21 @@ describe("/api/bills/[id] route", () => {
     expect(mockUpdateOne).not.toHaveBeenCalled();
   });
 
+  it("checks bill existence for updates without loading payload attachments", async () => {
+    mockAdminCookie();
+    mockFindOne.mockResolvedValue({ _id: billId });
+
+    await PUT(createJsonRequest({ payload: { name: "" } }), params);
+
+    expect(mockFindOne).toHaveBeenCalledWith(
+      {
+        _id: expect.any(ObjectId),
+        module_type: "bill",
+      },
+      { projection: { _id: 1 } },
+    );
+  });
+
   it("updates a bill with parsed payload defaults", async () => {
     mockAdminCookie();
     mockFindOne.mockResolvedValue({ _id: billId, module_type: "bill" });

@@ -47,6 +47,7 @@ export async function PUT(
 
     const { id } = await params;
     if (!ObjectId.isValid(id)) return ApiError("Invalid ID", 400);
+    const billObjectId = new ObjectId(id);
 
     const body = await request.json().catch(() => ({}));
     const { payload } = body;
@@ -54,10 +55,15 @@ export async function PUT(
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
-    const existing = await contentColl.findOne({
-      _id: new ObjectId(id),
-      module_type: "bill",
-    });
+    const existing = await contentColl.findOne(
+      {
+        _id: billObjectId,
+        module_type: "bill",
+      },
+      {
+        projection: { _id: 1 },
+      },
+    );
     if (!existing) return ApiNotFound();
 
     const parsed = BillSchema.safeParse(payload);
@@ -66,7 +72,7 @@ export async function PUT(
     }
 
     await contentColl.updateOne(
-      { _id: new ObjectId(id) },
+      { _id: billObjectId },
       { $set: { payload: parsed.data, updated_at: new Date().toISOString() } },
     );
 
