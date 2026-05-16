@@ -63,7 +63,7 @@ export default function WhiteboardCard({
       onClick={() => !isRenaming && openBoard(board)}
       className={cn(
         "group relative rounded-2xl border border-zinc-800 bg-zinc-900/60 p-5 transition-all cursor-pointer",
-        "hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 hover:scale-[1.01]",
+        "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 hover:scale-[1.01]",
         colorBorder && `border-l-[3px] ${colorBorder}`,
       )}
     >
