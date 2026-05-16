@@ -71,7 +71,7 @@ export default function TodoMetrics({ todos, currentDate }: TodoMetricsProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          className="relative group bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 p-5 rounded-[2rem] overflow-hidden hover:border-accent/20 transition-all"
+          className="relative group bg-zinc-900/40 backdrop-blur-md border border-zinc-800/40 p-5 rounded-2xl overflow-hidden shadow-sm shadow-zinc-950/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-900/60 hover:border-zinc-700/70 hover:shadow-xl hover:shadow-black/40"
         >
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
