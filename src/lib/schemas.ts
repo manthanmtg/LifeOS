@@ -675,7 +675,18 @@ export const WhiteboardNoteSchema = z.object({
 });
 
 // --- 20. HEALTH PROFILES ---
-const BillAttachmentSchema = z.object({
+const BillAttachmentContentTypeSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .refine(
+    (value) =>
+      value === "application/pdf" || /^image\/[a-z0-9.+-]+$/i.test(value),
+    "Only image files and PDFs are allowed",
+  );
+
+const GenericAttachmentSchema = z.object({
   id: z.string().min(1),
   filename: z.string().min(1),
   content_type: z.string().min(1),
@@ -685,6 +696,10 @@ const BillAttachmentSchema = z.object({
     .string()
     .datetime()
     .default(() => new Date().toISOString()),
+});
+
+const BillAttachmentSchema = GenericAttachmentSchema.extend({
+  content_type: BillAttachmentContentTypeSchema,
 });
 
 export const HealthProfileSchema = z.object({
@@ -818,7 +833,7 @@ export const HealthProfileSchema = z.object({
         title: z.string().trim().min(1).max(200),
         date: z.string().datetime().optional(),
         notes: z.string().trim().max(5000).optional(),
-        attachments: z.array(BillAttachmentSchema).default([]),
+        attachments: z.array(GenericAttachmentSchema).default([]),
       }),
     )
     .default([]),
