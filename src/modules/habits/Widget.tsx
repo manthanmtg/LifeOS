@@ -44,6 +44,12 @@ export default function HabitsWidget() {
       : summary.weeklyTrend < 0
         ? `${Math.abs(summary.weeklyTrend)}% below last week`
         : "Even with last week";
+  const highlightVariant =
+    summary.weeklyCompletionRate >= 70
+      ? "success"
+      : summary.weeklyTrend < 0
+        ? "warning"
+        : "accent";
 
   return (
     <WidgetCard
@@ -61,7 +67,7 @@ export default function HabitsWidget() {
           icon={summary.bestCurrentStreak > 0 ? Flame : TrendingUp}
           text={`${summary.weeklyCompletionRate}% weekly completion`}
           subtext={`${streakText} · ${trendLabel}`}
-          variant={summary.weeklyCompletionRate >= 70 ? "success" : "accent"}
+          variant={highlightVariant}
         />
       </div>
     </WidgetCard>
