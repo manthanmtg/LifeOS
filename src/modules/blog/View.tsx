@@ -218,7 +218,7 @@ export default function BlogView() {
                 href={`/blog/${featured.payload.slug}`}
                 className="group mb-6 block"
               >
-                <article className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/60 transition-colors hover:border-zinc-700">
+              <article className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-accent/8">
                   {featured.payload.cover_image_url && (
                     <>
                       <img
