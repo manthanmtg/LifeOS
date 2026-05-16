@@ -125,7 +125,7 @@ export default function RecurringExpensesPublicView({
         {subs.map((s) => (
           <div
             key={s._id}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 hover:border-zinc-700 transition-colors"
+            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 transition-all duration-200 hover:border-zinc-700 hover:-translate-y-0.5 hover:shadow-sm hover:shadow-zinc-950/50"
           >
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold text-zinc-50">
