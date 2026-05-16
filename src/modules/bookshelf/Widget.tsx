@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Library, BookOpen, Star, TrendingUp } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
+import { cn } from "@/lib/utils";
 import {
   WidgetStat,
   WidgetHighlight,
@@ -40,6 +41,14 @@ export default function BookshelfWidget() {
     (summary?.pagesRead ?? 0) >= 1000
       ? `${((summary?.pagesRead ?? 0) / 1000).toFixed(1)}k`
       : String(summary?.pagesRead ?? 0);
+  const ratingBadgeClass =
+    avgRating >= 4.5
+      ? "border-accent/30 bg-accent/10 text-accent/90"
+      : avgRating >= 3.5
+        ? "border-success/30 bg-success/10 text-success"
+        : avgRating > 0
+          ? "border-warning/30 bg-warning/10 text-warning"
+          : "border-zinc-700 bg-zinc-800 text-zinc-500";
 
   return (
     <WidgetCard
@@ -48,11 +57,16 @@ export default function BookshelfWidget() {
       loading={loading}
       href="/admin/bookshelf"
       footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5 text-accent/80">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-accent/80">
             <TrendingUp className="w-3 h-3" /> {pagesLabel} pages
           </span>
-          <span className="flex items-center gap-1 text-warning/80">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1",
+              ratingBadgeClass,
+            )}
+          >
             <Star
               className="w-3 h-3"
               fill={avgRating > 0 ? "currentColor" : "none"}
