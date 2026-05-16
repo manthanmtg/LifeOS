@@ -118,14 +118,14 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors"
+              className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
             >
               {link.label}
             </Link>
           ))}
           <Link
             href="/admin/login"
-            className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors font-medium"
+            className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors font-medium rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
           >
             Admin
           </Link>
@@ -139,7 +139,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
             mobileOpen ? "Close navigation menu" : "Open navigation menu"
           }
           aria-expanded={mobileOpen}
-          className="md:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-50"
+          className="md:hidden flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
         >
           {mobileOpen ? (
             <X className="w-5 h-5" />
@@ -164,7 +164,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2.5 rounded-md text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50 min-h-[44px] flex items-center"
+                  className="block px-3 py-2.5 rounded-md text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50 min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
                 >
                   {link.label}
                 </Link>
@@ -172,7 +172,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
               <Link
                 href="/admin/login"
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-md text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50 font-medium min-h-[44px] flex items-center"
+                className="block px-3 py-2.5 rounded-md text-sm text-zinc-400 hover:bg-zinc-900 hover:text-zinc-50 font-medium min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
               >
                 Admin
               </Link>
