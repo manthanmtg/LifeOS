@@ -901,6 +901,33 @@ export const MetricEventSchema = z.object({
   is_admin: z.boolean().default(false),
 });
 
+export const CalculatorProfileSchema = z
+  .object({
+    enabledCategories: z.record(z.string(), z.boolean()).default({}),
+    enabledCalculators: z.record(z.string(), z.boolean()).default({}),
+  })
+  .catchall(z.unknown());
+
+export const BingeItemSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200),
+  type: z.enum(["movie", "series", "documentary", "anime"]).default("movie"),
+  status: z
+    .enum(["to_watch", "watching", "completed", "dropped"])
+    .default("to_watch"),
+  rating: z.number().min(1).max(5).optional(),
+  notes: z.string().trim().max(5000).optional(),
+  genre: z.string().trim().max(100).optional(),
+  platform: z.string().trim().max(100).optional(),
+  year: z.number().int().min(1888).max(3000).optional(),
+  poster_url: z.string().url().max(500).optional(),
+  recommended_by: z.string().trim().max(100).optional(),
+  rewatched: z.boolean().default(false),
+  rewatch_count: z.number().int().min(0).default(0),
+  current_season: z.number().int().positive().optional(),
+  current_episode: z.number().int().positive().optional(),
+  total_seasons: z.number().int().positive().optional(),
+});
+
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
   blog_post: BlogPostSchema,
@@ -911,6 +938,8 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   idea: IdeaSchema,
   snippet: SnippetSchema,
   habit: HabitSchema,
+  calculator_profile: CalculatorProfileSchema,
+  metric: MetricEventSchema,
   compass_task: CompassTaskSchema,
   emi_loan: EmiLoanSchema,
   crop_history: CropHistorySchema,
@@ -925,6 +954,7 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   maintenance_task: MaintenanceTaskSchema,
   health_profile: HealthProfileSchema,
   whiteboard_note: WhiteboardNoteSchema,
+  binge_item: BingeItemSchema,
   deck: DeckSchema,
   bill: BillSchema,
   bill_folder: BillFolderSchema,
