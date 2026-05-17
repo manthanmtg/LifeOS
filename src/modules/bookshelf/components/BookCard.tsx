@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { memo } from "react";
 import {
   Edit3,
   Trash2,
@@ -113,7 +114,7 @@ function formatRelativeDate(iso: string | undefined, now: Date): string | null {
   return `${Math.floor(diffDays / 365)}y ago`;
 }
 
-export default function BookCard({
+function BookCard({
   book,
   onEdit,
   onDelete,
@@ -274,3 +275,5 @@ export default function BookCard({
     </motion.article>
   );
 }
+
+export default memo(BookCard);
