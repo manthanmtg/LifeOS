@@ -194,7 +194,7 @@ export default function FolderCard({
       </div>
 
       {/* Premium accent bar */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/0 group-hover:bg-accent/40 transition-all" />
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent/0 via-accent/40 to-accent/0 opacity-0 group-hover:w-1.5 group-hover:opacity-100 transition-all duration-300" />
     </motion.div>
   );
 }
