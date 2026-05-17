@@ -42,24 +42,27 @@ export default function BookshelfPublicView({
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const stats = useMemo(() => {
-    const total = books.length;
-    const reading = books.filter(
-      (book) => book.payload.status === "reading",
-    ).length;
-    const completed = books.filter(
-      (book) => book.payload.status === "completed",
-    ).length;
-    const avgRating =
-      books
-        .filter((book) => !!book.payload.rating)
-        .reduce((sum, book) => sum + (book.payload.rating || 0), 0) /
-      Math.max(1, books.filter((book) => !!book.payload.rating).length);
+    let total = 0;
+    let reading = 0;
+    let completed = 0;
+    let ratedSum = 0;
+    let ratedCount = 0;
+
+    for (const book of books) {
+      total += 1;
+      if (book.payload.status === "reading") reading += 1;
+      if (book.payload.status === "completed") completed += 1;
+      if (book.payload.rating) {
+        ratedSum += book.payload.rating;
+        ratedCount += 1;
+      }
+    }
 
     return {
       total,
       reading,
       completed,
-      avgRating: Number.isFinite(avgRating) ? avgRating : 0,
+      avgRating: ratedCount > 0 ? ratedSum / ratedCount : 0,
     };
   }, [books]);
 
@@ -76,10 +79,17 @@ export default function BookshelfPublicView({
   }, [books, statusFilter, searchQuery]);
 
   const grouped = useMemo(() => {
-    const map: Record<string, Book[]> = {};
-    for (const status of STATUS_ORDER) {
-      map[status] = filtered.filter((book) => book.payload.status === status);
+    const map: Record<BookStatus, Book[]> = {
+      reading: [],
+      want_to_read: [],
+      completed: [],
+      abandoned: [],
+    };
+
+    for (const book of filtered) {
+      map[book.payload.status].push(book);
     }
+
     return map;
   }, [filtered]);
 
