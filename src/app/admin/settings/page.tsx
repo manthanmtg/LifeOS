@@ -538,7 +538,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 bg-zinc-950/30 p-4 sm:p-6 rounded-3xl border border-white/5 shadow-inner">
+              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-4 bg-zinc-950/30 p-4 sm:p-6 rounded-3xl border border-zinc-400/20 shadow-inner">
                 {THEMES.map((t) => {
                   const meta = THEME_META[t];
                   const isActive = mounted && theme === t;
@@ -622,7 +622,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-6 space-y-6">
+              <div className="bg-zinc-900/60 border border-zinc-400/20 rounded-3xl p-6 space-y-6">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">
                     Ordering Strategy
@@ -934,7 +934,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Site Title */}
-              <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-6 lg:p-8">
+              <div className="bg-zinc-900/60 border border-zinc-400/20 rounded-3xl p-6 lg:p-8">
                 <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                   Site Title (Alternative)
                 </label>
@@ -951,7 +951,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Site Icon (Favicon) — Rich Section */}
-              <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 border border-white/5 rounded-3xl p-6 lg:p-8 space-y-8 overflow-hidden relative">
+              <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 border border-zinc-400/20 rounded-3xl p-6 lg:p-8 space-y-8 overflow-hidden relative">
                 <div className="absolute -top-32 -right-32 w-64 h-64 bg-accent/[0.03] rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-accent/[0.02] rounded-full blur-3xl pointer-events-none" />
 
@@ -1530,7 +1530,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-zinc-900/60 border border-white/5 rounded-2xl p-6 flex flex-col items-start gap-4 hover:bg-zinc-900/80 transition-colors">
+                <div className="bg-zinc-900/60 border border-zinc-400/20 rounded-2xl p-6 flex flex-col items-start gap-4 hover:bg-zinc-900/80 transition-colors">
                   <div>
                     <h3 className="text-base font-semibold text-zinc-300">
                       Export Backup
@@ -1602,7 +1602,7 @@ export default function SettingsPage() {
             exit={{ opacity: 0, scale: 0.9 }}
             className="fixed bottom-6 right-6 bg-accent border border-accent/20 text-zinc-50 shadow-2xl flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl z-50 pointer-events-none"
           >
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-zinc-400/40 border-t-zinc-100 rounded-full animate-spin" />
             Saving System Config...
           </motion.div>
         )}
