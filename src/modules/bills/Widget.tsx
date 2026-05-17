@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Receipt, FolderOpen, Paperclip } from "lucide-react";
+import { Receipt } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -26,7 +26,6 @@ interface BillStats {
 
 export default function BillsWidget() {
   const [stats, setStats] = useState<BillStats | null>(null);
-  const [daysAgo, setDaysAgo] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,15 +34,6 @@ export default function BillsWidget() {
       .then((d) => {
         const fetchedStats = d.data || null;
         setStats(fetchedStats);
-        if (fetchedStats?.recentBill) {
-          setDaysAgo(
-            Math.floor(
-              (Date.now() -
-                new Date(fetchedStats.recentBill.created_at).getTime()) /
-                (1000 * 60 * 60 * 24),
-            ),
-          );
-        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -55,31 +45,6 @@ export default function BillsWidget() {
       icon={Receipt}
       loading={loading}
       href="/admin/bills"
-      footer={
-        stats && (
-          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5">
-                <FolderOpen className="w-3 h-3" /> {stats.folderCount} folders
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Paperclip className="w-3 h-3" /> {stats.totalAttachments} files
-              </span>
-            </div>
-            {daysAgo !== null ? (
-              <span>
-                {daysAgo === 0
-                  ? "added today"
-                  : daysAgo === 1
-                    ? "added yesterday"
-                    : `added ${daysAgo}d ago`}
-              </span>
-            ) : (
-              <span>ready to archive</span>
-            )}
-          </div>
-        )
-      }
     >
       {stats && (
         <div className="space-y-3">
@@ -87,15 +52,17 @@ export default function BillsWidget() {
           {stats.recentBill ? (
             <WidgetHighlight
               icon={Receipt}
-              text={stats.recentBill.payload.name}
+              text={stats.recentBill.payload.name || "Latest bill"}
               subtext={
-                stats.recentBill.payload.amount !== undefined
-                  ? `${stats.recentBill.payload.currency ?? ""} ${stats.recentBill.payload.amount.toLocaleString()}`
-                  : undefined
+                `Folders: ${stats.folderCount} · Files: ${stats.totalAttachments}`
               }
             />
           ) : (
-            <WidgetHighlight icon={Receipt} text="No bills yet" />
+            <WidgetHighlight
+              icon={Receipt}
+              text="No bills yet"
+              subtext={`${stats.folderCount} folders, ${stats.totalAttachments} files`}
+            />
           )}
         </div>
       )}
