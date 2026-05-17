@@ -202,6 +202,13 @@ export default function ExpenseList({
                         </div>
 
                         <button
+                          type="button"
+                          aria-label={`Delete expense ${
+                            expense.payload.title ||
+                            expense.payload.description ||
+                            expense.payload.category ||
+                            "entry"
+                          }`}
                           onClick={(e) => onDelete(e, expense._id)}
                           disabled={isDeletingId === expense._id}
                           className="p-2 opacity-0 group-hover:opacity-100 text-zinc-700 hover:text-danger hover:bg-danger/10 rounded-xl transition-all"
