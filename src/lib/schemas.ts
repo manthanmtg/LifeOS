@@ -79,7 +79,11 @@ export const ExpenseSchema = z.object({
   date: z.string().datetime("Must be a valid ISO Date string"),
   type: z.enum(["income", "expense"]).default("expense"),
   is_recurring: z.boolean().default(false),
-  receipt_url: z.string().url().optional(),
+  receipt_url: z
+    .string()
+    .url("Must be a valid URL")
+    .max(2048, "Receipt URL is too long")
+    .optional(),
 });
 
 // --- 3. BLOG POSTS ---
@@ -94,7 +98,12 @@ const BlogPostSchema = z.object({
   published_at: z.string().datetime().optional(),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   cover_image_url: z.string().url().optional(),
-  estimated_reading_time: z.number().int().optional(),
+  estimated_reading_time: z
+    .number()
+    .int()
+    .min(1, "Estimated reading time must be at least 1 minute")
+    .max(600, "Estimated reading time is unrealistically high")
+    .optional(),
   seo_description: z
     .string()
     .trim()
@@ -264,7 +273,11 @@ export const EmiLoanSchema = z.object({
   monthly_emi: z.number().positive("Monthly EMI must be greater than 0"),
 
   processing_fee_amount: z.number().min(0).optional(),
-  processing_fee_percent: z.number().min(0).optional(),
+  processing_fee_percent: z
+    .number()
+    .min(0, "Processing fee percent cannot be negative")
+    .max(100, "Processing fee percent cannot exceed 100")
+    .optional(),
   processing_fee_financed: z.boolean().default(false),
 
   start_date: z.string().datetime("Must be a valid ISO date-time"),
