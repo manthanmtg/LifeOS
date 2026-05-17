@@ -1,0 +1,158 @@
+# LifeOS Core Library (`src/lib`)
+
+The `src/lib` directory is the shared service layer for LifeOS. It provides:
+
+- Content schema validation contracts used by API routes.
+- Data and persistence helpers for system state and MongoDB.
+- Module ordering/search utilities for admin shell features.
+- Lightweight UI utility helpers for analytics, formatting, and class merging.
+
+Keep changes in this directory small and API-oriented; most module behavior should remain in `src/modules` and `src/app`.
+
+## Module map
+
+| File | Responsibility | Key exports |
+| --- | --- | --- |
+| `schemas.ts` | Authoritative Zod payload contracts and module schema registry | `SchemaRegistry`, `*Schema` exports |
+| `types.ts` | Shared interfaces used by API contracts and content typing | `SystemConfig`, `ContentDocument`, `BlogPostPayload` |
+| `admin-modules.ts` | Module registry filtering + sorting for dashboard navigation | `getDisabledModules`, `getOrderedAdminModules` |
+| `mongodb.ts` | MongoDB client caching and database factory | `getDb` |
+| `seed.ts` | First-run bootstrap for system config and indexes | `ensureSystemConfig` |
+| `auth.ts` | JWT sign/verify helpers for admin auth middleware/API auth | `signToken`, `verifyToken` |
+| `api-response.ts` | Shared NextResponse helpers for consistent JSON shape | `ApiSuccess`, `ApiError`, `ApiValidationError`, `ApiNotFound` |
+| `module-search.ts` | Tokenized matching for module search with score and highlights | `getModuleSearchResults`, `highlightText` |
+| `analytics.ts` | Client-side analytics event sender used by widgets and feature actions | `trackEvent` |
+| `metrics-cache.ts` | Cached metric aggregation for visit-tier sorting and dashboards | `getTieredVisits` |
+| `formatters.ts` | Currency/number formatting helpers | `formatNumber`, `formatCurrency` |
+| `utils.ts` | Tailwind class merge helper | `cn` |
+| `cropImage.ts` | Browser-side image crop utility for image upload/edit flows | `getCroppedImg` |
+
+## Zod schema registry (`SchemaRegistry`)
+
+`SchemaRegistry` maps `module_type` values (stored in the `content` collection) to the payload schemas used by:
+
+- `POST /api/content`
+- `PUT /api/content/[id]`
+- module-level admin editors during read/validation paths
+
+Current `module_type` keys:
+
+- `expense`
+- `blog_post`
+- `portfolio_profile`
+- `recurring_expense`
+- `reading_item`
+- `book`
+- `idea`
+- `snippet`
+- `habit`
+- `calculator_profile`
+- `metric`
+- `compass_task`
+- `emi_loan`
+- `crop_history`
+- `rain_area`
+- `rain_entry`
+- `todo`
+- `shopping_list`
+- `portfolio_resume`
+- `ai_usage`
+- `person`
+- `vehicle`
+- `maintenance_task`
+- `health_profile`
+- `whiteboard_note`
+- `binge_item`
+- `deck`
+- `bill`
+- `bill_folder`
+
+See the registry in `src/registry.ts` for module-to-content-type mapping used by admin modules and widgets.
+
+## Data layer usage pattern
+
+### System bootstrap in server routes
+
+```ts
+import { ensureSystemConfig } from "@/lib/seed";
+
+export async function GET() {
+  await ensureSystemConfig();
+  // continue request logic
+}
+```
+
+### Fetching a database instance
+
+```ts
+import { getDb } from "@/lib/mongodb";
+
+const db = await getDb();
+const collection = db.collection("content");
+```
+
+### Standardized API responses
+
+```ts
+import { ApiSuccess, ApiValidationError } from "@/lib/api-response";
+
+if (!payloadValid) {
+  return ApiValidationError(validation.error.format());
+}
+
+return ApiSuccess({ id: result.insertedId.toString() });
+```
+
+### Module ordering and visibility logic
+
+```ts
+import { getOrderedAdminModules } from "@/lib/admin-modules";
+
+const modules = getOrderedAdminModules(systemConfig);
+// feed modules into sidebar or command palette collections
+```
+
+### Client analytics helper
+
+```ts
+import { trackEvent } from "@/lib/analytics";
+
+trackEvent({
+  module: "dashboard",
+  action: "widget_open",
+  label: "expenses-widget",
+});
+```
+
+## File-level notes
+
+### `schemas.ts`
+
+- Keep helper types (`CalendarDateSchema`, `CurrencyCodeSchema`, etc.) internal unless a new module needs sharing.
+- Export concrete schema constants when they are used across routes/APIs.
+- Update `SchemaRegistry` whenever a new `contentType`/module is introduced.
+
+### `admin-modules.ts`
+
+- `getOrderedAdminModules` respects `orderingStrategy` and `moduleOrder` from `SystemConfig`.
+- Strategy modes:
+  - `name`: alphabetical
+  - `visits`: module visit tiers from `tieredVisits`
+  - `custom`: explicit `moduleOrder`
+- Disabled modules are derived from `SystemConfig.moduleRegistry`.
+
+### `metrics-cache.ts`
+
+- Aggregates 90 days of metrics into 7/30/60/90 day buckets.
+- Caches results in-memory for 5 minutes.
+- If MongoDB aggregation fails, stale cache is returned when available to avoid UI breakage.
+
+### `auth.ts`
+
+- Uses `jose` HMAC HS256 with issuer/audience constants.
+- Requires `JWT_SECRET` from environment variables.
+
+## Related docs
+
+- `AGENTS.md`: developer run contract and repo-wide conventions
+- `src/lib` consumers: `src/app`, `src/components`, `src/modules`, `src/registry.ts`
