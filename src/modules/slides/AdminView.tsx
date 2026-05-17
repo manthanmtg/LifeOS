@@ -757,7 +757,10 @@ export default function SlidesAdminView() {
               <div className="w-full h-32 rounded-xl bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
                 <Suspense
                   fallback={
-                    <Presentation className="w-8 h-8 text-zinc-600 animate-pulse" />
+                    <div className="w-full h-32 bg-zinc-900/60 border border-zinc-800/60 rounded-xl p-2 space-y-2">
+                      <SkeletonBlock className="h-16 w-full rounded-lg" />
+                      <SkeletonBlock className="h-3 w-3/5" />
+                    </div>
                   }
                 >
                   <DeckPreview deck={item} className="w-full h-full" />
