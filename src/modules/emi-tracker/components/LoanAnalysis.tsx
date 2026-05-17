@@ -446,7 +446,7 @@ export default function LoanAnalysis({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2">
+        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2 transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-0.5">
           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
             Efficiency Ratio
           </span>
@@ -465,7 +465,7 @@ export default function LoanAnalysis({
             expense.
           </p>
         </div>
-        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2">
+        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2 transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-0.5">
           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
             Payoff Completion
           </span>
@@ -485,7 +485,7 @@ export default function LoanAnalysis({
             book.
           </p>
         </div>
-        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2">
+        <div className="p-6 rounded-2xl bg-zinc-950/20 border border-zinc-800/50 flex flex-col gap-2 transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-0.5">
           <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
             Structural Overhead
           </span>
