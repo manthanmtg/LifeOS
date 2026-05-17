@@ -5,9 +5,9 @@ import type {
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types";
 
-export type ExcalidrawElements = readonly ExcalidrawElement[];
+type ExcalidrawElements = readonly ExcalidrawElement[];
 export type ExcalidrawAppState = Readonly<Partial<AppState>>;
-export type ExcalidrawFiles = BinaryFiles;
+type ExcalidrawFiles = BinaryFiles;
 export type ExcalidrawApi = ExcalidrawImperativeAPI;
 
 export function toExcalidrawElements(

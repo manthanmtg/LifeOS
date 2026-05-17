@@ -8,7 +8,7 @@ import type {
   HealthDocument,
 } from "./types";
 
-export interface HealthAlert {
+interface HealthAlert {
   profileId: string;
   profileName: string;
   label: string;
@@ -16,7 +16,7 @@ export interface HealthAlert {
   status: "overdue" | "warning";
 }
 
-export interface HealthTimelineItem {
+interface HealthTimelineItem {
   kind: "medication" | "vaccination";
   label: string;
   date: string;
@@ -337,5 +337,3 @@ export function getSortedDocuments(profile: HealthProfile): HealthDocument[] {
 export function getLatestVisit(profile: HealthProfile): Visit | null {
   return getProfileOverviewSnapshot(profile).latestVisit;
 }
-
-
