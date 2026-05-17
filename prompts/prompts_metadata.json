@@ -16,11 +16,12 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 25,
-      "totalCompleted": 23,
+      "totalCompleted": 24,
       "totalNoop": 0,
       "totalFailed": 1,
       "lastSelectedAt": "2026-05-17T17:29:51.418Z",
-      "lastOutcome": "selected"
+      "lastCompletedAt": "2026-05-17T17:30:01.114Z",
+      "lastOutcome": "completed"
     },
     "agent_docs_sync_prompt.md": {
       "id": "agent-docs-sync-prompt",
