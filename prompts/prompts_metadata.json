@@ -90,13 +90,13 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 26,
+      "totalSelected": 28,
       "totalCompleted": 17,
-      "totalNoop": 7,
+      "totalNoop": 8,
       "totalFailed": 2,
-      "lastSelectedAt": "2026-05-17T14:50:28.381Z",
-      "lastCompletedAt": "2026-05-17T14:52:30.824Z",
-      "lastOutcome": "failed"
+      "lastSelectedAt": "2026-05-17T17:43:31.322Z",
+      "lastCompletedAt": "2026-05-17T17:43:35.182Z",
+      "lastOutcome": "noop"
     },
     "loading_skeleton_auditor.md": {
       "id": "loading-skeleton-auditor",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-17T17:38:53.191Z"
     }
   },
-  "updatedAt": "2026-05-17T17:42:13.155Z"
+  "updatedAt": "2026-05-17T17:43:35.182Z"
 }
