@@ -100,7 +100,7 @@ export default function CompassTaskCard({
       )}
 
       {/* Glass shine effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-50/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
       <div className="flex gap-2 items-start justify-between mb-2 relative z-10">
         <h4 className="text-sm font-medium text-zinc-300 leading-snug group-hover:text-zinc-50 transition-colors">
