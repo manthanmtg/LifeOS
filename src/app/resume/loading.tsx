@@ -14,7 +14,7 @@ export default function ResumeLoading() {
         className="flex-1 bg-zinc-950 px-6 py-10 md:px-10 md:py-14"
       >
         <div className="mx-auto max-w-4xl space-y-8 animate-pulse">
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-4">
               <SkeletonBlock className="h-12 w-64 max-w-full" />
               <SkeletonBlock className="h-5 w-44" />
