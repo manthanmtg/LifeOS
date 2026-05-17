@@ -418,7 +418,7 @@ export const AiUsageSchema = z.object({
     "xai",
     "other",
   ]),
-  provider_config_id: z.string().optional(),
+  provider_config_id: z.string().trim().max(100).optional(),
   model: z.string().trim().min(1, "Model name is required").max(100),
   input_tokens: z.number().int().min(0).default(0),
   output_tokens: z.number().int().min(0).default(0),
@@ -468,7 +468,7 @@ export const PersonSchema = z.object({
     .array(
       z.object({
         platform: z.string().trim().min(1).max(50),
-        url: z.string().url(),
+        url: z.string().url().max(500),
       }),
     )
     .default([]),
@@ -487,7 +487,7 @@ export const PersonSchema = z.object({
             "other",
           ])
           .default("other"),
-        note: z.string().optional(),
+        note: z.string().trim().max(2000).optional(),
       }),
     )
     .default([]),
@@ -867,7 +867,7 @@ export const BillSchema = z.object({
   currency: CurrencyCodeSchema.default("INR"),
   description: z.string().trim().min(1).max(1000).optional(),
   notes: z.string().trim().min(1).max(5000).optional(),
-  folder_id: z.string().optional(),
+  folder_id: z.string().trim().max(100).optional(),
   attachments: z.array(BillAttachmentSchema).max(50).default([]),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
