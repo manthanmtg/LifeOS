@@ -137,16 +137,21 @@ export default function BookshelfPublicView({
           <div className="relative flex-1 min-w-[220px]">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
+              id="bookshelf-public-search"
               type="text"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search title, author, tags"
+              aria-label="Search books by title, author, or tags"
               className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
             />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <button
+              type="button"
               onClick={() => setStatusFilter("all")}
+              aria-label="Show all books"
+              aria-pressed={statusFilter === "all"}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs border transition-colors",
                 statusFilter === "all"
@@ -159,7 +164,10 @@ export default function BookshelfPublicView({
             {STATUS_ORDER.map((status) => (
               <button
                 key={status}
+                type="button"
                 onClick={() => setStatusFilter(status)}
+                aria-label={`Show ${STATUS_LABELS[status].toLowerCase()} books`}
+                aria-pressed={statusFilter === status}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs border transition-colors",
                   statusFilter === status
