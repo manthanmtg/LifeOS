@@ -425,6 +425,8 @@ export default function AnalyticsAdminView() {
           <button
             onClick={fetchMetrics}
             disabled={loading}
+            type="button"
+            aria-label="Refresh analytics metrics"
             className="p-2.5 bg-zinc-900 text-zinc-400 rounded-xl hover:text-accent hover:border-accent/40 border border-zinc-800 transition-all disabled:opacity-50"
           >
             <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
