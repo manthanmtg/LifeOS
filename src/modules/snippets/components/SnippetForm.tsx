@@ -243,9 +243,9 @@ export default function SnippetForm({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl border border-accent/10 bg-accent/[0.02] p-4 relative"
+                  className="rounded-xl border border-zinc-800/80 bg-zinc-900/45 p-4 relative shadow-sm backdrop-blur-sm"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 border-b border-zinc-800/80 pb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                       <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent/80">
@@ -256,7 +256,7 @@ export default function SnippetForm({
                       type="button"
                       aria-label="Copy preview code"
                       onClick={() => navigator.clipboard.writeText(code)}
-                      className="text-zinc-500 hover:text-accent transition-colors p-1"
+                      className="text-zinc-500 hover:text-accent transition-colors p-1 rounded-md hover:bg-zinc-800/60"
                       title="Copy code"
                     >
                       <Copy className="w-3 h-3" />
