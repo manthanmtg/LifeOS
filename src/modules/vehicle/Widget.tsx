@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Car, AlertTriangle, Fuel, Wrench } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -19,14 +20,20 @@ interface VehicleSummary {
 export default function VehicleWidget() {
   const [summary, setSummary] = useState<VehicleSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     fetch("/api/widgets/summary?module_type=vehicle")
       .then((r) => r.json())
       .then((d) => setSummary(d.data || null))
-      .catch(() => {})
+      .catch(() => {
+        setHasError(true);
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const summaryReady = !loading && summary;
+  const noVehicles = summaryReady ? summary.total === 0 : false;
 
   return (
     <WidgetCard
@@ -36,7 +43,7 @@ export default function VehicleWidget() {
       href="/admin/vehicle"
       footer={
         summary &&
-        summary.total > 0 && (
+        summaryReady && !hasError && (
           <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
             <span
               className={cn(
@@ -61,19 +68,25 @@ export default function VehicleWidget() {
         )
       }
     >
-      {summary && (
-        <div className="space-y-3">
+      {loading ? null : hasError || !summary ? (
+        <WidgetHighlight
+          icon={AlertTriangle}
+          text="Unable to load vehicle summary"
+          subtext="Please refresh to retry"
+          variant="warning"
+        />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="space-y-3"
+        >
           <WidgetStat
-            value={summary.total > 0 ? summary.alertCount : 0}
-            label={
-              summary.total > 0
-                ? summary.alertCount > 0
-                  ? "service alerts"
-                  : "all systems clear"
-                : "vehicles tracked"
-            }
+            value={summary.total}
+            label="vehicles tracked"
           />
-          {summary.total === 0 ? (
+          {noVehicles ? (
             <WidgetHighlight
               icon={Car}
               text="No vehicles added yet"
@@ -90,11 +103,12 @@ export default function VehicleWidget() {
           ) : (
             <WidgetHighlight
               icon={Car}
-              text={`${summary.total} vehicle${summary.total !== 1 ? "s" : ""} tracked`}
+              text="All vehicles are up to date"
+              subtext="No active service or document alerts"
               variant="success"
             />
           )}
-        </div>
+        </motion.div>
       )}
     </WidgetCard>
   );
