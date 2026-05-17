@@ -169,7 +169,7 @@ export default function LoanDetails({
           >
             <Edit3 className="w-4 h-4" /> Edit Profile
           </button>
-          <button className="p-2.5 rounded-2xl bg-zinc-800/80 text-zinc-400 hover:text-zinc-50 border border-zinc-700/50 transition-all shadow-md">
+          <button aria-label="Loan settings" className="p-2.5 rounded-2xl bg-zinc-800/80 text-zinc-400 hover:text-zinc-50 border border-zinc-700/50 transition-all shadow-md">
             <Settings className="w-5 h-5" />
           </button>
         </div>
