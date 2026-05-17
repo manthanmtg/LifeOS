@@ -3,24 +3,22 @@ export type { IdeaBoardStatus };
 
 export type IdeaPriority = "high" | "medium" | "low";
 
-export interface IdeaPayload {
-  title: string;
-  description?: string;
-  notes?: string;
-  category?: string;
-  status: IdeaBoardStatus;
-  tags: string[];
-  priority: IdeaPriority;
-  promoted_to_portfolio?: boolean;
-  promoted_at?: string;
-  order?: number;
-}
-
 export interface IdeaRecord {
   _id: string;
   created_at: string;
   updated_at?: string;
-  payload: IdeaPayload;
+  payload: {
+    title: string;
+    description?: string;
+    notes?: string;
+    category?: string;
+    status: IdeaBoardStatus;
+    tags: string[];
+    priority: IdeaPriority;
+    promoted_to_portfolio?: boolean;
+    promoted_at?: string;
+    order?: number;
+  };
 }
 
 export const IDEA_STATUS_LABELS: Record<string, string> = {
