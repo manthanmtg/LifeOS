@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Library, BookOpen, Star, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import { cn } from "@/lib/utils";
 import {
@@ -24,14 +25,21 @@ interface BookshelfSummary {
 export default function BookshelfWidget() {
   const [summary, setSummary] = useState<BookshelfSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
     fetch("/api/widgets/summary?module_type=book", { signal: ac.signal })
       .then((r) => r.json())
       .then((data) => setSummary(data.data ?? null))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch((error) => {
+        if ((error as Error).name !== "AbortError") {
+          setHasError(true);
+        }
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
   }, []);
 
@@ -76,25 +84,42 @@ export default function BookshelfWidget() {
         </div>
       }
     >
-      <div className="space-y-3">
-        <WidgetStat
-          value={total}
-          label={`${summary?.completedCount ?? 0} completed`}
+      {loading ? null : hasError || !summary ? (
+        <WidgetHighlight
+          icon={Library}
+          text="Unable to load bookshelf summary"
+          subtext="Check your connection and refresh"
+          variant="warning"
         />
-        {summary?.current ? (
-          <WidgetHighlight
-            icon={BookOpen}
-            text={summary.current.title}
-            subtext={`${summary.current.progress}% · ${summary.current.author}`}
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="space-y-3"
+        >
+          <WidgetStat
+            value={total}
+            label={`${summary.completedCount} completed`}
           />
-        ) : (
-          <WidgetHighlight
-            icon={BookOpen}
-            text="No book in progress"
-            variant="default"
-          />
-        )}
-      </div>
+          {summary.current ? (
+            <WidgetHighlight
+              icon={BookOpen}
+              text={summary.current.title}
+              subtext={`${summary.current.progress}% · ${summary.current.author}`}
+            />
+          ) : (
+            <WidgetHighlight
+              icon={BookOpen}
+              text={summary.total > 0 ? "No book in progress" : "No books yet"}
+              subtext={
+                summary.total > 0 ? "Start one to see your spotlight." : "Add your first book to begin"
+              }
+              variant="default"
+            />
+          )}
+        </motion.div>
+      )}
     </WidgetCard>
   );
 }
