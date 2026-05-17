@@ -311,19 +311,20 @@ export default function BlogEditor({
                   <label className="mb-1.5 block text-xs text-zinc-500">
                     Cover image URL
                   </label>
-                  <input
-                    type="url"
-                    value={draft.coverImageUrl}
-                    onChange={(event) =>
-                      onSetDraft((previous) => ({
-                        ...previous,
-                        coverImageUrl: event.target.value,
-                      }))
-                    }
-                    placeholder="https://..."
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
-                  />
-                </div>
+                <input
+                  type="url"
+                  value={draft.coverImageUrl}
+                  onChange={(event) =>
+                    onSetDraft((previous) => ({
+                      ...previous,
+                      coverImageUrl: event.target.value,
+                    }))
+                  }
+                  placeholder="https://..."
+                  maxLength={2048}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                />
+              </div>
               </div>
 
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
