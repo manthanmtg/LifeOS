@@ -421,19 +421,19 @@ export default function BlogAdminView() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [showEditor, handleManualSave]);
 
-  const closeEditor = () => {
+  const closeEditor = useCallback(() => {
     setShowEditor(false);
     setEditingId(null);
     setDraft(EMPTY_EDITOR_DRAFT);
     setSlugManual(false);
     setFormError("");
-  };
+  }, []);
 
-  const openNewPost = () => {
+  const openNewPost = useCallback(() => {
     openEditorWithDraft(EMPTY_EDITOR_DRAFT, null, false);
-  };
+  }, [openEditorWithDraft]);
 
-  const restoreLocalDraft = () => {
+  const restoreLocalDraft = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
       const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
@@ -449,9 +449,9 @@ export default function BlogAdminView() {
     } catch {
       setFormError("Could not restore local draft.");
     }
-  };
+  }, [openEditorWithDraft, setFormError]);
 
-  const handleEdit = (post: BlogPost) => {
+  const handleEdit = useCallback((post: BlogPost) => {
     openEditorWithDraft(
       {
         title: post.payload.title,
@@ -466,9 +466,9 @@ export default function BlogAdminView() {
       post._id,
       true,
     );
-  };
+  }, [openEditorWithDraft]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!window.confirm("Delete this post? This action cannot be undone.")) {
       return;
     }
@@ -488,9 +488,9 @@ export default function BlogAdminView() {
     } finally {
       setIsDeletingId(null);
     }
-  };
+  }, [closeEditor, editingId, fetchPosts]);
 
-  const handleStatusToggle = async (post: BlogPost) => {
+  const handleStatusToggle = useCallback(async (post: BlogPost) => {
     setIsTogglingStatusId(post._id);
     try {
       const nextStatus: PostStatus =
@@ -529,7 +529,7 @@ export default function BlogAdminView() {
     } finally {
       setIsTogglingStatusId(null);
     }
-  };
+  }, [setPosts]);
 
   const applyInline = useCallback(
     (prefix: string, suffix = prefix, placeholder = "text") => {
