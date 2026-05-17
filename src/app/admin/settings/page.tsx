@@ -1342,6 +1342,8 @@ export default function SettingsPage() {
                   <button
                     onClick={fetchDbStats}
                     disabled={dbStatsLoading}
+                    type="button"
+                    aria-label="Refresh database statistics"
                     className="p-2.5 bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/50 rounded-xl transition-all disabled:opacity-50"
                   >
                     <RefreshCw
