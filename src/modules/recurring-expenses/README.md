@@ -94,6 +94,30 @@ Admins can add or remove categories, choose the default currency, set the
 renewal warning window, toggle reminder defaults, choose western or Indian
 number formatting, and persist a default sort.
 
+## Smart Capabilities
+
+- Recurrence and urgency are normalized into derived values, such as monthly
+  equivalent cost, annualized burn, and "days until renewal".
+- The admin list highlights overdue and warning-window items and keeps inactive
+  records visible for review without counting them in active totals.
+- The module can duplicate records and reorder active subscriptions with drag-and-drop.
+- Reminder flags alter dashboard cues: reminders disabled in settings remove warning
+  states in both list and widget views.
+
+## Component Usage
+
+The module exports three render targets from the module folder:
+
+```tsx
+import RecurringExpensesAdmin from "@/modules/recurring-expenses/AdminView";
+import RecurringExpensesWidget from "@/modules/recurring-expenses/Widget";
+import RecurringExpensesPublicView from "@/modules/recurring-expenses/PublicView";
+```
+
+- `AdminView` is mounted at `/admin/recurring-expenses`.
+- `Widget` is used in the dashboard Bento Grid.
+- `PublicView` is used by the public route to render shared subscriptions.
+
 ## Widget Contract
 
 [`Widget.tsx`](Widget.tsx) follows the dashboard widget contract:
