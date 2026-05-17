@@ -40,11 +40,12 @@ export default function IdeasWidget() {
       href="/admin/ideas"
       footer={
         summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <span className="flex items-center gap-1.5 text-success">
-              <Sparkles className="h-3 w-3" /> {summary.promoted} promoted
+          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+            <span className="flex min-w-0 items-center gap-1.5 text-success">
+              <Sparkles className="h-3 w-3 shrink-0" />
+              <span className="truncate">{summary.promoted} promoted</span>
             </span>
-            <span>{summary.exploring} exploring</span>
+            <span className="shrink-0">{summary.exploring} exploring</span>
           </div>
         )
       }
