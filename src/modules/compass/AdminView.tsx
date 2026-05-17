@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Plus, Trash2, CheckCircle, Filter } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -221,15 +221,30 @@ export default function CompassAdminView() {
     }
   };
 
-  const getTasksByStatus = (status: string) => {
-    return tasks
-      .filter((t) => t.payload.status === status)
-      .filter((t) => !filterPriority || t.payload.priority === filterPriority)
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  const tasksByStatus = useMemo(() => {
+    const buckets = {
+      backlog: [] as CompassTask[],
+      in_progress: [] as CompassTask[],
+      review: [] as CompassTask[],
+      done: [] as CompassTask[],
+    };
+
+    for (const task of tasks) {
+      if (!filterPriority || task.payload.priority === filterPriority) {
+        buckets[task.payload.status].push(task);
+      }
+    }
+
+    for (const status of Object.keys(buckets) as Array<
+      keyof typeof buckets
+    >) {
+      buckets[status] = buckets[status].sort((a, b) =>
+        b.created_at.localeCompare(a.created_at),
       );
-  };
+    }
+
+    return buckets;
+  }, [tasks, filterPriority]);
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4 animate-fade-in-up">
@@ -322,7 +337,7 @@ export default function CompassAdminView() {
             {COLUMNS.filter(
               (col) => !focusMode || col.id === "in_progress",
             ).map((col) => {
-              const colTasks = getTasksByStatus(col.id);
+              const colTasks = tasksByStatus[col.id];
               const isOver = draggedOverCol === col.id;
 
               return (
