@@ -1,7 +1,7 @@
 ---
 title: "Theme strictness enforcer run blocked by pre-existing test regression"
 run: "prompts/theme_strictness_enforcer.md"
-status: "open"
+status: "resolved"
 severity: "medium"
 ---
 
@@ -19,3 +19,7 @@ This failure appears unrelated to `src/app/admin/settings/page.tsx` color-token 
 ## Suggested fix
 
 Update the navigation mock in `src/test/mocks/navigation.test.ts` or the corresponding mock setup to set mock names for exported spies (for example, `mockResolvedValue` helper preserving `mockName`), then re-run the test.
+
+## Resolution
+
+The targeted navigation mock test now passes on `main`, so this stale blocker was moved to `resolved/` during the next theme strictness run.

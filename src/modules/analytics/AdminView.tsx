@@ -68,12 +68,12 @@ export function getDeviceData(metrics: Pick<MetricEvent, "device_type">[]) {
 }
 
 const COLORS = [
-  "#6366f1",
-  "#a855f7",
-  "#ec4899",
-  "#f43f5e",
-  "#f59e0b",
-  "#10b981",
+  "var(--color-accent)",
+  "var(--color-success)",
+  "var(--color-warning)",
+  "var(--color-danger)",
+  "var(--color-accent-hover)",
+  "var(--color-success-muted)",
 ];
 
 export default function AnalyticsAdminView() {
@@ -550,31 +550,38 @@ export default function AnalyticsAdminView() {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="#18181b"
+                  stroke="var(--color-zinc-900)"
                 />
                 <XAxis
                   dataKey="displayDate"
-                  stroke="#3f3f46"
+                  stroke="var(--color-zinc-700)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   interval={Math.floor(stats.trendData.length / 6)}
                 />
                 <YAxis
-                  stroke="#3f3f46"
+                  stroke="var(--color-zinc-700)"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#09090b",
-                    border: "1px solid #27272a",
+                    backgroundColor: "var(--color-zinc-950)",
+                    border: "1px solid var(--color-zinc-800)",
                     borderRadius: "12px",
                     fontSize: "12px",
                   }}
-                  itemStyle={{ color: "#fff", fontWeight: "bold" }}
-                  cursor={{ stroke: "rgba(255,255,255,0.05)", strokeWidth: 2 }}
+                  itemStyle={{
+                    color: "var(--color-zinc-50)",
+                    fontWeight: "bold",
+                  }}
+                  cursor={{
+                    stroke:
+                      "color-mix(in srgb, var(--color-zinc-50) 5%, transparent)",
+                    strokeWidth: 2,
+                  }}
                 />
                 <Area
                   type="monotone"
@@ -874,9 +881,9 @@ export default function AnalyticsAdminView() {
                 stats.totalEvents > 0 ? (count / stats.totalEvents) * 100 : 0;
               const colorMap: Record<string, string> = {
                 Direct: "var(--color-accent)",
-                Search: "#10b981",
-                Social: "#a855f7",
-                Other: "#f59e0b",
+                Search: "var(--color-success)",
+                Social: "var(--color-accent-hover)",
+                Other: "var(--color-warning)",
               };
               return (
                 <div key={category}>
@@ -989,31 +996,35 @@ export default function AnalyticsAdminView() {
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="#18181b"
+                stroke="var(--color-zinc-900)"
               />
               <XAxis
                 dataKey="displayDate"
-                stroke="#3f3f46"
+                stroke="var(--color-zinc-700)"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 interval={Math.floor(stats.trafficSplitData.length / 6)}
               />
               <YAxis
-                stroke="#3f3f46"
+                stroke="var(--color-zinc-700)"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#09090b",
-                  border: "1px solid #27272a",
+                  backgroundColor: "var(--color-zinc-950)",
+                  border: "1px solid var(--color-zinc-800)",
                   borderRadius: "12px",
                   fontSize: "12px",
                 }}
                 itemStyle={{ fontWeight: "bold" }}
-                cursor={{ stroke: "rgba(255,255,255,0.05)", strokeWidth: 2 }}
+                cursor={{
+                  stroke:
+                    "color-mix(in srgb, var(--color-zinc-50) 5%, transparent)",
+                  strokeWidth: 2,
+                }}
               />
               <Area
                 type="monotone"
