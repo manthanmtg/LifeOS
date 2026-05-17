@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { memo } from "react";
 import { cn } from "@/lib/utils";
 import { BlogPost, PostStatus } from "@/modules/blog/types";
 import { estimateReadingTime, formatPostDate } from "@/modules/blog/utils";
@@ -30,7 +31,7 @@ interface BlogPostGridProps {
   onToggleStatus: (post: BlogPost) => void;
 }
 
-export default function BlogPostGrid({
+function BlogPostGrid({
   posts,
   loading,
   isDeletingId,
@@ -180,3 +181,5 @@ export default function BlogPostGrid({
     </motion.div>
   );
 }
+
+export default memo(BlogPostGrid);
