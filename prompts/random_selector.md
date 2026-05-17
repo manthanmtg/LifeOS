@@ -25,7 +25,7 @@ You are an autonomous improvement agent for the LifeOS project. Your job is to *
 - Treat `prompts/prompts_metadata.json` as the source of truth for prompt eligibility and run counters.
 - Select only prompts whose metadata has `enabled: true` and `autonomousSafe: true`. Keep the rare `prompts_optimizer.md` branch at about 1 in 25 runs.
 - Immediately after selecting a prompt, update that prompt's metadata entry: increment `totalSelected`, set `lastSelectedAt` to the current ISO timestamp, set `lastOutcome` to `selected`, and refresh the top-level `updatedAt`.
-- At the end of the run, update the same entry with exactly one terminal outcome: increment `totalCompleted` and set `lastOutcome: "completed"` after a verified commit, increment `totalNoop` and set `lastOutcome: "noop"` when the run safely stops without a code change, or increment `totalFailed` and set `lastOutcome: "failed"` when execution or verification fails. Set `lastCompletedAt` for every terminal outcome.
+- At the end of the run, after verification succeeds and before the final commit, update the same entry with exactly one terminal outcome: increment `totalCompleted` and set `lastOutcome: "completed"` for a verified change, increment `totalNoop` and set `lastOutcome: "noop"` when the run safely stops without a code change, or increment `totalFailed` and set `lastOutcome: "failed"` when execution or verification fails. Set `lastCompletedAt` for every terminal outcome.
 - Refresh the top-level `updatedAt` again when recording the terminal outcome so run history and global metadata timestamps stay in sync.
 - Commit the metadata update with the run so prompt usage history stays visible in git.
 
