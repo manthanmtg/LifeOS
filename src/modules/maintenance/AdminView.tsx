@@ -182,13 +182,13 @@ export default function MaintenanceAdminView() {
       list = list.filter((t) => t.payload.status === filterStatus);
 
     // Sort: overdue first, then by next_due ascending
+    const statusOrder: Record<Status, number> = {
+      overdue: 0,
+      upcoming: 1,
+      completed: 2,
+      skipped: 3,
+    };
     list = [...list].sort((a, b) => {
-      const statusOrder: Record<Status, number> = {
-        overdue: 0,
-        upcoming: 1,
-        completed: 2,
-        skipped: 3,
-      };
       const diff =
         statusOrder[a.payload.status] - statusOrder[b.payload.status];
       if (diff !== 0) return diff;
