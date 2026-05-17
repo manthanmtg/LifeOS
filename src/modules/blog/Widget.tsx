@@ -42,22 +42,6 @@ export default function BlogWidget() {
       icon={Sparkles}
       loading={loading}
       href="/admin/blog"
-      footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          {summary.drafts > 0 ? (
-            <span className="flex items-center gap-1 text-warning">
-              <PenLine className="h-3 w-3" />
-              {summary.drafts} draft{summary.drafts !== 1 ? "s" : ""}
-            </span>
-          ) : (
-            <span className="text-zinc-500">No drafts</span>
-          )}
-          <span className="inline-flex items-center gap-1 text-zinc-500">
-            <FileText className="h-3 w-3" />
-            {summary.total} total
-          </span>
-        </div>
-      }
     >
       <div className="space-y-3">
         <WidgetStat
