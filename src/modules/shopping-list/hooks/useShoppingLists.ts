@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { createItemId, parseSmartEntry } from "../helpers";
 
-export type ToastType = "success" | "error" | "info";
+type ToastType = "success" | "error" | "info";
 
 export function useShoppingLists() {
   const [lists, setLists] = useState<ShoppingListDocument[]>([]);
