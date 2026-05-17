@@ -30,7 +30,7 @@ const SocialLinkSchema = z.object({
   url: z.string().url("Must be a valid URL").max(500),
 });
 
-export const PortfolioProfileSchema = z.object({
+const PortfolioProfileSchema = z.object({
   full_name: z
     .string()
     .trim()
@@ -83,7 +83,7 @@ export const ExpenseSchema = z.object({
 });
 
 // --- 3. BLOG POSTS ---
-export const BlogPostSchema = z.object({
+const BlogPostSchema = z.object({
   title: z.string().trim().min(3, "Post title is required").max(200),
   slug: z
     .string()
@@ -118,7 +118,7 @@ export const RecurringExpenseSchema = z.object({
 });
 
 // --- 5. READING QUEUE ---
-export const ReadingItemSchema = z.object({
+const ReadingItemSchema = z.object({
   url: z.string().url("Must be a valid URL").max(2048),
   title: z.string().trim().min(1, "Title is required").max(500),
   source_domain: z.string().trim().min(1).max(200).optional(),
@@ -131,7 +131,7 @@ export const ReadingItemSchema = z.object({
 });
 
 // --- 6. BOOKSHELF ---
-export const BookSchema = z.object({
+const BookSchema = z.object({
   title: z.string().trim().min(1, "Book title is required").max(300),
   author: z.string().trim().min(1, "Author is required").max(200),
   isbn: z.string().trim().max(20).optional(),
@@ -174,7 +174,7 @@ export const SnippetSchema = z.object({
 });
 
 // --- 9. HABIT TRACKER ---
-export const HabitSchema = z.object({
+const HabitSchema = z.object({
   name: z.string().trim().min(1, "Habit name is required").max(100),
   description: z.string().trim().max(500).optional(),
   frequency: z.enum(["daily", "weekly"]).default("daily"),
