@@ -844,6 +844,7 @@ export default function SlidesAdminView() {
                 <div className="ml-auto flex items-center gap-1">
                   <button
                     onClick={() => toggleVisibility(item)}
+                    aria-label={item.is_public ? "Make deck private" : "Make deck public"}
                     className={cn(
                       "p-1.5 rounded-lg transition-colors",
                       item.is_public
@@ -860,6 +861,7 @@ export default function SlidesAdminView() {
                   </button>
                   <button
                     onClick={() => handleEdit(item)}
+                    aria-label={`Edit ${item.payload.title}`}
                     className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
                     title="Edit"
                   >
@@ -871,6 +873,7 @@ export default function SlidesAdminView() {
                         handleDelete(item._id);
                       }
                     }}
+                    aria-label={`Delete ${item.payload.title}`}
                     disabled={isDeletingId === item._id}
                     className="p-1.5 rounded-lg text-danger/60 hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-50"
                     title="Delete"
