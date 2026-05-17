@@ -1368,10 +1368,12 @@ export default function SettingsPage() {
                         Collections
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200">
-                      {dbStatsLoading
-                        ? "—"
-                        : dbStats?.database.collections || 0}
+                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="h-8 w-14 rounded" />
+                      ) : (
+                        dbStats?.database.collections || 0
+                      )}
                     </p>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
@@ -1381,10 +1383,12 @@ export default function SettingsPage() {
                         Documents
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200">
-                      {dbStatsLoading
-                        ? "—"
-                        : dbStats?.database.documents.toLocaleString() || 0}
+                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="h-8 w-16 rounded" />
+                      ) : (
+                        dbStats?.database.documents.toLocaleString() || 0
+                      )}
                     </p>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
@@ -1394,12 +1398,14 @@ export default function SettingsPage() {
                         Data Size
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200">
-                      {dbStatsLoading
-                        ? "—"
-                        : dbStats
-                          ? `${(dbStats.database.dataSize / 1024 / 1024).toFixed(1)} MB`
-                          : "0 MB"}
+                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="h-8 w-20 rounded" />
+                      ) : dbStats ? (
+                        `${(dbStats.database.dataSize / 1024 / 1024).toFixed(1)} MB`
+                      ) : (
+                        "0 MB"
+                      )}
                     </p>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
@@ -1409,12 +1415,14 @@ export default function SettingsPage() {
                         Storage
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200">
-                      {dbStatsLoading
-                        ? "—"
-                        : dbStats
-                          ? `${(dbStats.database.storageSize / 1024 / 1024).toFixed(1)} MB`
-                          : "0 MB"}
+                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="h-8 w-20 rounded" />
+                      ) : dbStats ? (
+                        `${(dbStats.database.storageSize / 1024 / 1024).toFixed(1)} MB`
+                      ) : (
+                        "0 MB"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -1440,46 +1448,88 @@ export default function SettingsPage() {
                             : "text-success",
                       )}
                     >
-                      {dbStatsLoading
-                        ? "—"
-                        : `${dbStats?.limits?.usagePercent?.toFixed(1) || "0.0"}%`}
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="h-5 w-12 rounded" />
+                      ) : (
+                        `${dbStats?.limits?.usagePercent?.toFixed(1) || "0.0"}%`
+                      )}
                     </span>
                   </div>
-                  <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${dbStats?.limits?.usagePercent || 0}%`,
-                      }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className={cn(
-                        "h-full rounded-full",
-                        (dbStats?.limits?.usagePercent || 0) > 80
-                          ? "bg-gradient-to-r from-danger to-danger"
-                          : (dbStats?.limits?.usagePercent || 0) > 50
-                            ? "bg-gradient-to-r from-warning to-warning"
-                            : "bg-gradient-to-r from-success to-success",
-                      )}
-                    />
-                  </div>
+                  {dbStatsLoading ? (
+                    <SkeletonBlock className="h-3 w-full rounded-full" />
+                  ) : (
+                    <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${dbStats?.limits?.usagePercent || 0}%`,
+                        }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className={cn(
+                          "h-full rounded-full",
+                          (dbStats?.limits?.usagePercent || 0) > 80
+                            ? "bg-gradient-to-r from-danger to-danger"
+                            : (dbStats?.limits?.usagePercent || 0) > 50
+                              ? "bg-gradient-to-r from-warning to-warning"
+                              : "bg-gradient-to-r from-success to-success",
+                        )}
+                      />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mt-3 text-xs">
                     <span className="text-zinc-500">
                       Used:{" "}
-                      {dbStats
-                        ? `${(dbStats.database?.storageSize / 1024 / 1024).toFixed(1)} MB`
-                        : "—"}
+                      {dbStatsLoading
+                        ? (
+                          <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
+                        )
+                        : dbStats
+                          ? `${(dbStats.database?.storageSize / 1024 / 1024).toFixed(1)} MB`
+                          : "—"}
                     </span>
                     <span className="text-zinc-500">
                       Limit:{" "}
-                      {dbStats
-                        ? `${(dbStats.limits?.estimated / 1024 / 1024).toFixed(0)} MB`
-                        : "~512 MB"}
+                      {dbStatsLoading
+                        ? (
+                          <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
+                        )
+                        : dbStats
+                          ? `${(dbStats.limits?.estimated / 1024 / 1024).toFixed(0)} MB`
+                          : "~512 MB"}
                     </span>
                   </div>
                 </div>
 
+                {dbStatsLoading && (
+                  <div className="bg-zinc-950/30 border border-zinc-800/30 rounded-2xl overflow-hidden relative z-10">
+                    <div className="px-5 py-4 border-b border-zinc-800/30">
+                      <SkeletonBlock className="h-5 w-44" />
+                    </div>
+                    <div className="max-h-48">
+                      <div className="px-5 py-3 border-b border-zinc-800/20">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-2">
+                            <SkeletonBlock className="h-4 w-32" />
+                            <SkeletonBlock className="h-3 w-24" />
+                          </div>
+                          <SkeletonBlock className="h-3 w-20" />
+                        </div>
+                      </div>
+                      <div className="px-5 py-3 border-b border-zinc-800/20">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-2">
+                            <SkeletonBlock className="h-4 w-28" />
+                            <SkeletonBlock className="h-3 w-20" />
+                          </div>
+                          <SkeletonBlock className="h-3 w-16" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Collection Breakdown */}
-                {dbStats && dbStats.collections.length > 0 && (
+                {!dbStatsLoading && dbStats && dbStats.collections.length > 0 && (
                   <div className="bg-zinc-950/30 border border-zinc-800/30 rounded-2xl overflow-hidden relative z-10">
                     <div className="px-5 py-4 border-b border-zinc-800/30">
                       <h3 className="text-sm font-semibold text-zinc-300">
