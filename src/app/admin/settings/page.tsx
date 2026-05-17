@@ -1189,14 +1189,17 @@ export default function SettingsPage() {
                         <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">
                           Upload Custom Icon
                         </label>
-                        <div
+                        <button
+                          type="button"
+                          onClick={() => iconFileRef.current?.click()}
                           onDragOver={(e) => {
                             e.preventDefault();
                             setDragOver(true);
                           }}
                           onDragLeave={() => setDragOver(false)}
                           onDrop={handleIconDrop}
-                          onClick={() => iconFileRef.current?.click()}
+                          aria-label="Upload custom icon"
+                          aria-describedby="custom-icon-upload-help"
                           className={cn(
                             "relative border-2 border-dashed rounded-2xl p-6 transition-all duration-300 cursor-pointer group",
                             dragOver
@@ -1227,6 +1230,7 @@ export default function SettingsPage() {
                             </motion.div>
                             <div>
                               <p
+                                id="custom-icon-upload-help"
                                 className={cn(
                                   "text-sm font-medium transition-colors",
                                   dragOver ? "text-accent" : "text-zinc-300",
@@ -1248,6 +1252,7 @@ export default function SettingsPage() {
                             onChange={handleIconUpload}
                             className="hidden"
                           />
+                        </button>
                           <AnimatePresence>
                             {uploadSuccess && (
                               <motion.div
