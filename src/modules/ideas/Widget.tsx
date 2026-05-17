@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lightbulb, Sparkles, AlertTriangle } from "lucide-react";
+import { Lightbulb, Sparkles, AlertTriangle, Timer } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
+  WidgetMiniStats,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
@@ -20,6 +22,7 @@ interface IdeaSummary {
 export default function IdeasWidget() {
   const [summary, setSummary] = useState<IdeaSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -27,7 +30,7 @@ export default function IdeasWidget() {
     fetch("/api/widgets/summary?module_type=idea", { signal: ac.signal })
       .then((r) => r.json())
       .then((data) => setSummary(data.data || null))
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
@@ -38,40 +41,70 @@ export default function IdeasWidget() {
       icon={Lightbulb}
       loading={loading}
       href="/admin/ideas"
-      footer={
-        summary && (
-          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-            <span className="flex min-w-0 items-center gap-1.5 text-success">
-              <Sparkles className="h-3 w-3 shrink-0" />
-              <span className="truncate">
-                {summary.promoted} promoted, {summary.exploring} exploring
-              </span>
-            </span>
-          </div>
-        )
-      }
     >
-      {summary && (
-        <div className="space-y-3">
-          <WidgetStat value={summary.total} label="captured concepts" />
-          {summary.reviewCount > 0 ? (
-            <WidgetHighlight
-              icon={AlertTriangle}
-              text={`${summary.reviewCount} idea${summary.reviewCount === 1 ? "" : "s"} need review`}
-              subtext="high-priority concepts surfaced first"
-              variant="warning"
-            />
-          ) : summary.spotlightTitle ? (
-            <WidgetHighlight
-              icon={Lightbulb}
-              text={summary.spotlightTitle}
-              subtext={summary.spotlightStatus}
-            />
-          ) : (
-            <WidgetHighlight icon={Lightbulb} text="No ideas yet" />
-          )}
-        </div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.24, ease: "easeOut" }}
+      >
+        {summary ? (
+          <div className="space-y-3">
+            <WidgetStat value={summary.total} label="captured ideas" />
+            {summary.total === 0 ? (
+              <WidgetHighlight
+                icon={Lightbulb}
+                text="No ideas yet"
+                subtext="Capture your first thought to get momentum."
+              />
+            ) : summary.reviewCount > 0 ? (
+              <WidgetMiniStats
+                stats={[
+                  {
+                    value: summary.promoted,
+                    label: "promoted",
+                    icon: Sparkles,
+                    color: "success",
+                  },
+                  {
+                    value: summary.exploring,
+                    label: "exploring",
+                    icon: Timer,
+                    color: "warning",
+                  },
+                  {
+                    value: summary.reviewCount,
+                    label: "review needed",
+                    icon: AlertTriangle,
+                    color: "danger",
+                  },
+                ]}
+              />
+            ) : (
+              <WidgetHighlight
+                icon={Lightbulb}
+                text={summary.spotlightTitle ?? "All ideas are in motion"}
+                subtext={
+                  summary.spotlightStatus
+                    ? `Top focus: ${summary.spotlightStatus}`
+                    : "Review queue is clear."
+                }
+                variant="success"
+              />
+            )}
+          </div>
+        ) : (
+          <WidgetHighlight
+            icon={AlertTriangle}
+            text={
+              loadError
+                ? "Idea metrics unavailable"
+                : "Preparing your idea board"
+            }
+            subtext={loadError ? "Open Ideas to retry" : "Summary data loading soon"}
+            variant={loadError ? "danger" : "accent"}
+          />
+        )}
+      </motion.div>
     </WidgetCard>
   );
 }
