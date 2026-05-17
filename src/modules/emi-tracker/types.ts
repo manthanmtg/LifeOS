@@ -8,7 +8,7 @@ export type DocType =
   | "interest_certificate"
   | "other";
 export type PaymentKind = "emi" | "prepayment";
-export type LoanStatus = "active" | "closed" | "archived";
+type LoanStatus = "active" | "closed" | "archived";
 
 export interface EmiLoan {
   _id: string;
