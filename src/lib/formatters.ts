@@ -12,7 +12,9 @@ export function formatNumber(
   format: NumberFormat = "western",
   decimals: number = 0,
 ): string {
-  const parts = num.toFixed(decimals).split(".");
+  const rounded = num.toFixed(decimals);
+  const normalized = Number(rounded) === 0 ? (0).toFixed(decimals) : rounded;
+  const parts = normalized.split(".");
   const integerPart = parts[0];
   const sign = integerPart.startsWith("-") ? "-" : "";
   const unsignedIntegerPart = sign ? integerPart.slice(1) : integerPart;
