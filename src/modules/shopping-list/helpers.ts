@@ -9,6 +9,11 @@ import {
 
 const QUANTITY_FIRST_PATTERN = /^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/;
 const NAME_FIRST_PATTERN = /^(.*?)[,\s]+(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?$/;
+const updatedDateFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
 
 export function createItemId() {
   if (
@@ -153,4 +158,14 @@ export function buildSuggestionNames(
     )
     .slice(0, 4)
     .map((entry) => entry.label);
+}
+
+export function formatUpdatedDate(updatedAt: string) {
+  const date = new Date(updatedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return updatedDateFormatter.format(date);
 }
