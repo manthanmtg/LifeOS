@@ -97,7 +97,7 @@ const BlogPostSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   published_at: z.string().datetime().optional(),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
-  cover_image_url: z.string().url().optional(),
+  cover_image_url: z.string().trim().url().max(2048).optional(),
   estimated_reading_time: z
     .number()
     .int()
@@ -144,7 +144,7 @@ const BookSchema = z.object({
   title: z.string().trim().min(1, "Book title is required").max(300),
   author: z.string().trim().min(1, "Author is required").max(200),
   isbn: z.string().trim().max(20).optional(),
-  cover_url: z.string().url().optional(),
+  cover_url: z.string().trim().url().max(2048).optional(),
   status: z
     .enum(["want_to_read", "reading", "completed", "abandoned"])
     .default("want_to_read"),
