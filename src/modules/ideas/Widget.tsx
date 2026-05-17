@@ -43,9 +43,10 @@ export default function IdeasWidget() {
           <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             <span className="flex min-w-0 items-center gap-1.5 text-success">
               <Sparkles className="h-3 w-3 shrink-0" />
-              <span className="truncate">{summary.promoted} promoted</span>
+              <span className="truncate">
+                {summary.promoted} promoted, {summary.exploring} exploring
+              </span>
             </span>
-            <span className="shrink-0">{summary.exploring} exploring</span>
           </div>
         )
       }
