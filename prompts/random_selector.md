@@ -5,6 +5,7 @@ category: selector
 enabled: false
 autonomousSafe: false
 ---
+
 # Random Selector — Autonomous Improvement Agent
 
 ## Objective
@@ -13,7 +14,7 @@ You are an autonomous improvement agent for the LifeOS project. Your job is to *
 
 ## Philosophy
 
-- **Incremental, not dramatic.** Each run should make one small, confident improvement. The project gets mind-blowingly beautiful and robust _over many runs_, not in one shot.
+- **Incremental, not dramatic.** Each run should make one small, confident improvement. The project gets mind-blowingly beautiful and robust *over many runs*, not in one shot.
 - **First, do no harm.** If you're unsure whether a change is safe, don't make it. Log it instead (see No-Op Protocol below).
 - **Compound quality.** Think of yourself as compound interest for code quality. Small, consistent deposits beat rare large ones.
 
@@ -33,8 +34,9 @@ You are an autonomous improvement agent for the LifeOS project. Your job is to *
 - Read `prompts/README.md` first. Its run contract applies to every selected prompt.
 - Identify and pick one **autonomous-safe prompt** at random by running the following shell command. `prompts_optimizer.md` should run rarely, about 1 in 25 runs, because it maintains the prompt suite itself:
 ```bash
-node -e 'const isOptimizer = Math.floor(Math.random() * 25) === 0; if (isOptimizer) { console.log("prompts/prompts_optimizer.md"); process.exit(0); } const fs=require("fs"); const metadata=JSON.parse(fs.readFileSync("prompts/prompts_metadata.json","utf8")); const candidates=Object.values(metadata.prompts).filter((prompt)=>prompt.enabled&&prompt.autonomousSafe&&prompt.file!=="prompts_optimizer.md").map((prompt)=>`prompts/${prompt.file}`).sort(); if(candidates.length===0){console.error("No eligible prompts found in prompts/prompts_metadata.json."); process.exit(1);} console.log(candidates[Math.floor(Math.random()*candidates.length)]);'
+node -e 'const fs=require("fs"); const isOptimizer = Math.floor(Math.random() * 25) === 0; if (isOptimizer) { console.log("prompts/prompts_optimizer.md"); process.exit(0); } const metadata=JSON.parse(fs.readFileSync("prompts/prompts_metadata.json","utf8")); const candidates=Object.values(metadata.prompts).filter((prompt)=>prompt.enabled&&prompt.autonomousSafe&&prompt.file!=="prompts_optimizer.md").map((prompt)=>`prompts/${prompt.file}`).filter((candidate)=>fs.existsSync(candidate)).sort(); if(candidates.length===0){console.error("No eligible prompts found in prompts/prompts_metadata.json."); process.exit(1);} console.log(candidates[Math.floor(Math.random()*candidates.length)]);'
 ```
+
 - Log which prompt you selected so the run is traceable.
 
 ### 2. Execute the Prompt
@@ -73,24 +75,3 @@ If the answer to **any** of these is "no", **do NOT make the change.** Instead:
 - Use a descriptive, lowercase commit message (e.g., `fix(expenses): tighten payload types for zod v4 compat`).
 - Include which prompt was selected in the commit body for traceability.
 - Push or create PR as instructed by the user.
-
-## Prompt Selection Weights (Optional Guidance)
-
-All autonomous-safe prompts have equal probability by default, but if the agent wants to be smart about it:
-
-- **Prefer** prompts that target areas with known issues (check `issues_to_look/` for hints).
-- **Favor** small-scope prompts (`lint_and_purity_doctor`, `test_corrector`, `build_verifier`) when in doubt.
-
-## What Success Looks Like
-
-After 100 runs:
-
-- Every module has clean types, rich tests, and polished UI.
-- The dashboard is a cohesive, beautiful experience.
-- `pnpm check` passes with zero warnings.
-- Documentation is accurate and complete.
-- The `issues_to_look/` folder is mostly empty because issues got addressed in subsequent runs.
-
-## Issue Cleanup
-
-If an issue from `issues_to_look/` is resolved, or if it is found to be already resolved, move the issue file to the `issues_to_look/resolved/` directory to keep things clean.
