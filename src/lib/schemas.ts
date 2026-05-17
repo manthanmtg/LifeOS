@@ -390,7 +390,10 @@ export const RainEntrySchema = z.object({
   rainfall_unit: z.enum(["mm", "cm", "in"]).default("mm"),
   date: z.string().datetime("Must be a valid ISO date-time"),
   notes: z.string().trim().max(2000).optional(),
-  source: z.string().trim().max(100).optional(), // e.g., manual, sensor, imported
+  source: z
+    .enum(["manual", "sensor", "imported"])
+    .default("manual")
+    .optional(),
 });
 
 // --- 15. PORTFOLIO RESUME ---
@@ -463,7 +466,7 @@ export const PersonSchema = z.object({
     ])
     .default("friend"),
   phone: z.string().trim().max(50).optional(),
-  email: z.string().email().optional().or(z.literal("")),
+  email: z.string().trim().email().optional().or(z.literal("")),
   company: z.string().trim().max(100).optional(),
   role: z.string().trim().max(100).optional(),
   birthday: CalendarDateSchema.optional(),
