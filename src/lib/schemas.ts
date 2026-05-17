@@ -320,7 +320,7 @@ export const EmiLoanSchema = z.object({
 });
 
 // --- 11. CROP HISTORY ---
-export const CropHistorySchema = z.object({
+const CropHistorySchema = z.object({
   crop_id: z.string().trim().min(1, "Crop ID is required").max(100),
   schedule_period: z
     .string()
@@ -337,7 +337,7 @@ export const CropHistorySchema = z.object({
 });
 
 // --- 13. TODO MODULE ---
-export const TodoSchema = z.object({
+const TodoSchema = z.object({
   title: z.string().trim().min(1, "Task title is required").max(200),
   notes: z.string().trim().max(2000).optional(),
   due_date: z.string().datetime().optional(),
@@ -916,14 +916,14 @@ export const MetricEventSchema = z.object({
   is_admin: z.boolean().default(false),
 });
 
-export const CalculatorProfileSchema = z
+const CalculatorProfileSchema = z
   .object({
     enabledCategories: z.record(z.string(), z.boolean()).default({}),
     enabledCalculators: z.record(z.string(), z.boolean()).default({}),
   })
   .catchall(z.unknown());
 
-export const BingeItemSchema = z.object({
+const BingeItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   type: z.enum(["movie", "series", "documentary", "anime"]).default("movie"),
   status: z
