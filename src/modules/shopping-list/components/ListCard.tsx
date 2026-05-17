@@ -4,7 +4,7 @@ import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Copy, ShoppingBag, Trash2 } from "lucide-react";
 import { ShoppingListDocument } from "../types";
-import { summarizeList } from "../helpers";
+import { formatUpdatedDate, summarizeList } from "../helpers";
 
 interface ListCardProps {
   list: ShoppingListDocument;
@@ -20,6 +20,10 @@ const ListCard = ({
   onDelete,
 }: ListCardProps) => {
   const summary = useMemo(() => summarizeList(list.payload), [list.payload]);
+  const updatedLabel = useMemo(
+    () => formatUpdatedDate(list.updated_at),
+    [list.updated_at],
+  );
 
   return (
     <motion.article
@@ -74,7 +78,7 @@ const ListCard = ({
 
         <div className="flex items-center justify-between gap-2 pt-1">
           <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-1 text-[11px] text-zinc-500">
-            Updated {new Date(list.updated_at).toLocaleDateString()}
+            Updated {updatedLabel}
           </span>
 
           <button

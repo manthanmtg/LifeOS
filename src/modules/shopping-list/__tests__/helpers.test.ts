@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSmartEntry } from "../helpers";
+import { formatUpdatedDate, parseSmartEntry } from "../helpers";
 
 describe("Shopping List Helpers - parseSmartEntry", () => {
   it("parses name only", () => {
@@ -52,5 +52,9 @@ describe("Shopping List Helpers - parseSmartEntry", () => {
       quantity: "2",
       unit: "kg",
     });
+  });
+
+  it("handles invalid list updated date", () => {
+    expect(formatUpdatedDate("nonsense")).toBe("Unknown date");
   });
 });
