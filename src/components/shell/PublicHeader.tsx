@@ -118,14 +118,14 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
+              className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-50 hover:bg-zinc-900/70 transition-all duration-200 rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
             >
               {link.label}
             </Link>
           ))}
           <Link
             href="/admin/login"
-            className="text-sm text-zinc-400 hover:text-zinc-50 transition-colors font-medium rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
+            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-50 hover:bg-zinc-900/70 transition-all duration-200 font-medium rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
           >
             Admin
           </Link>
