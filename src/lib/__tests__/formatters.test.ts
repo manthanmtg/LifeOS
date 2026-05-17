@@ -27,6 +27,18 @@ describe("formatters", () => {
       expect(formatNumber(0, "indian", 2)).toBe("0.00");
     });
 
+    it("does not preserve a negative sign when rounding to zero", () => {
+      expect(formatNumber(-0.004, "western", 2)).toBe("0.00");
+      expect(formatNumber(-0.004, "indian", 2)).toBe("0.00");
+      expect(formatNumber(-0.4, "western", 0)).toBe("0");
+      expect(formatNumber(-0.4, "indian", 0)).toBe("0");
+    });
+
+    it("preserves negative signs when rounded values remain below zero", () => {
+      expect(formatNumber(-0.005, "western", 2)).toBe("-0.01");
+      expect(formatNumber(-0.005, "indian", 2)).toBe("-0.01");
+    });
+
     it("formats negative numbers without grouping the minus sign", () => {
       expect(formatNumber(-100, "indian", 0)).toBe("-100");
       expect(formatNumber(-1000, "indian", 0)).toBe("-1,000");
@@ -52,6 +64,16 @@ describe("formatters", () => {
       expect(formatCurrency(-1234567.89, "$", "western", 2)).toBe(
         "$-1,234,567.89",
       );
+    });
+
+    it("does not show a negative sign for currency amounts rounded to zero", () => {
+      expect(formatCurrency(-0.004, "$", "western", 2)).toBe("$0.00");
+      expect(formatCurrency(-0.4, "₹", "indian", 0)).toBe("₹0");
+    });
+
+    it("keeps explicit decimal precision for small rounded currency values", () => {
+      expect(formatCurrency(0.004, "$", "western", 2)).toBe("$0.00");
+      expect(formatCurrency(0.005, "$", "western", 2)).toBe("$0.01");
     });
   });
 });
