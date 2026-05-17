@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Tv, Star, Edit3, Trash2, RefreshCw } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { BingeItem } from "../types";
 import {
@@ -114,10 +115,11 @@ export default function BingeCard({
         {/* Poster */}
         <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
           {item.payload.poster_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={item.payload.poster_url}
               alt={item.payload.title}
+              width={56}
+              height={80}
               className="w-full h-full object-cover"
             />
           ) : (
