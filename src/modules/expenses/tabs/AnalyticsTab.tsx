@@ -205,7 +205,7 @@ export default function AnalyticsTab({
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="p-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 rounded-2xl transition-all border border-zinc-700/50">
+          <button aria-label="Download analytics report" className="p-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 rounded-2xl transition-all border border-zinc-700/50">
             <Download className="w-4 h-4" />
           </button>
           <button className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover text-zinc-50 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-accent/20">
