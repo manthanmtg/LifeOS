@@ -15,10 +15,12 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 24,
-      "totalCompleted": 23,
+      "totalSelected": 25,
+      "totalCompleted": 24,
       "totalNoop": 0,
       "totalFailed": 1,
+      "lastSelectedAt": "2026-05-17T17:29:51.418Z",
+      "lastCompletedAt": "2026-05-17T17:30:01.114Z",
       "lastOutcome": "completed"
     },
     "agent_docs_sync_prompt.md": {
@@ -323,5 +325,5 @@
       "lastSelectedAt": "2026-05-17T17:23:32.930473269Z"
     }
   },
-  "updatedAt": "2026-05-17T17:28:20.015Z"
+  "updatedAt": "2026-05-17T17:29:51.418Z"
 }
