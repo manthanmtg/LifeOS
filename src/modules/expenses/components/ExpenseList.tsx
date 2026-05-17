@@ -22,9 +22,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  FinanceListSkeleton,
-} from "@/components/ui/Skeletons";
+import { FinanceListSkeleton } from "@/components/ui/Skeletons";
 import {
   Expense,
   ExpenseSettings,
@@ -204,7 +202,6 @@ export default function ExpenseList({
                         <button
                           type="button"
                           aria-label={`Delete expense ${
-                            expense.payload.title ||
                             expense.payload.description ||
                             expense.payload.category ||
                             "entry"
