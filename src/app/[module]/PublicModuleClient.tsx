@@ -7,72 +7,44 @@ import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import { moduleRegistry } from "@/registry";
 import { Briefcase } from "lucide-react";
-import { PublicModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
+import { PublicModuleSkeleton } from "@/components/ui/Skeletons";
 
 /* ── Module-specific public views ─────────────────────────────── */
-function ViewLoadingFallback() {
-  return (
-    <div className="space-y-4 animate-pulse">
-      <div className="space-y-2 mb-8">
-        <SkeletonBlock className="h-8 w-1/4 rounded-lg" />
-        <SkeletonBlock className="h-4 w-1/2 opacity-50" />
-      </div>
-      <div className="grid grid-cols-1 gap-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-6 bg-zinc-900/40 border border-zinc-800/50 rounded-2xl flex items-center justify-between"
-          >
-            <div className="flex items-center gap-4 flex-1">
-              <div className="w-12 h-12 rounded-xl bg-zinc-800/50 flex-shrink-0" />
-              <div className="space-y-3 flex-1">
-                <SkeletonBlock className="h-4 w-2/5" />
-                <SkeletonBlock className="h-3 w-1/4 opacity-50" />
-              </div>
-            </div>
-            <SkeletonBlock className="h-6 w-16 rounded-lg opacity-30" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const publicViews: Record<string, ComponentType<any>> = {
   portfolio: dynamic(() => import("@/modules/portfolio/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   bookshelf: dynamic(() => import("@/modules/bookshelf/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   snippets: dynamic(() => import("@/modules/snippets/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   ideas: dynamic(() => import("@/modules/ideas/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   reading: dynamic(() => import("@/modules/reading/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   habits: dynamic(() => import("@/modules/habits/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   expenses: dynamic(() => import("@/modules/expenses/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   "recurring-expenses": dynamic(
     () => import("@/modules/recurring-expenses/PublicView"),
-    { loading: () => <ViewLoadingFallback /> },
+    { loading: () => <PublicModuleSkeleton /> },
   ),
   calculators: dynamic(() => import("@/modules/calculators/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   whiteboard: dynamic(() => import("@/modules/whiteboard/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
   slides: dynamic(() => import("@/modules/slides/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PublicModuleSkeleton />,
   }),
 };
 
@@ -194,7 +166,7 @@ export default function PublicModuleClient({ slug, userName }: Props) {
             )}
           </div>
 
-          <Suspense key={slug} fallback={<ViewLoadingFallback />}>
+          <Suspense key={slug} fallback={<PublicModuleSkeleton />}>
             {PublicView ? (
               <PublicView items={items} />
             ) : /* Fallback for modules without a dedicated public view */
