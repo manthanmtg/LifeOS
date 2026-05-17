@@ -1,10 +1,10 @@
 import { vi } from "vitest";
 
 export const routerMocks = {
-  push: vi.fn(),
-  replace: vi.fn(),
-  prefetch: vi.fn(),
-  back: vi.fn(),
+  push: vi.fn().mockName("push"),
+  replace: vi.fn().mockName("replace"),
+  prefetch: vi.fn().mockName("prefetch"),
+  back: vi.fn().mockName("back"),
 };
 
 export const navigationState = {
