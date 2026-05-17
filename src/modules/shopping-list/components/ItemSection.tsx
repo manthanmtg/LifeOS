@@ -46,9 +46,13 @@ export default function ItemSection({
   const isHidden = purchased && isCollapsed;
 
   return (
-    <section className="space-y-3 rounded-3xl border border-zinc-800 bg-zinc-950/40 p-4">
+    <section className="space-y-3 rounded-3xl border border-zinc-800 bg-zinc-950/40 p-4 shadow-sm shadow-zinc-950/40 transition-colors duration-200 hover:border-zinc-700/80 hover:bg-zinc-950/60">
       <div
-        className={`flex items-center justify-between gap-3 ${purchased ? "cursor-pointer" : ""}`}
+        className={`flex items-center justify-between gap-3 rounded-xl px-1 py-1 transition-colors duration-200 ${
+          purchased
+            ? "cursor-pointer hover:bg-zinc-900/60"
+            : ""
+        }`}
         onClick={purchased ? onToggleCollapse : undefined}
       >
         <div className="flex items-center gap-2">
