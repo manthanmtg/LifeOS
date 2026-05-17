@@ -117,7 +117,7 @@ export default function WidgetCard({
               color: resolved,
             }}
           >
-            <Icon className="w-4 h-4" />
+            <Icon aria-hidden="true" className="w-4 h-4" />
           </div>
         </div>
       </div>
@@ -146,7 +146,11 @@ export default function WidgetCard({
 
   if (href) {
     return (
-      <Link href={href} className="block h-full">
+      <Link
+        href={href}
+        aria-label={`Open ${title} module`}
+        className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+      >
         {CardContent}
       </Link>
     );
