@@ -12,6 +12,7 @@ import {
 import { motion } from "framer-motion";
 import { memo } from "react";
 import { cn } from "@/lib/utils";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import { BlogPost, PostStatus } from "@/modules/blog/types";
 import { estimateReadingTime, formatPostDate } from "@/modules/blog/utils";
 
@@ -42,17 +43,17 @@ function BlogPostGrid({
 }: BlogPostGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="animate-pulse grid grid-cols-1 gap-3 md:grid-cols-2">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
+            className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
           >
-            <div className="h-4 w-2/3 rounded bg-zinc-800" />
-            <div className="mt-3 h-3 w-1/2 rounded bg-zinc-800" />
+            <SkeletonBlock className="h-4 w-2/3 rounded" />
+            <SkeletonBlock className="mt-3 h-3 w-1/2 rounded" />
             <div className="mt-4 flex gap-2">
-              <div className="h-5 w-12 rounded-full bg-zinc-800" />
-              <div className="h-5 w-16 rounded-full bg-zinc-800" />
+              <SkeletonBlock className="h-5 w-12 rounded-full" />
+              <SkeletonBlock className="h-5 w-16 rounded-full" />
             </div>
           </div>
         ))}
