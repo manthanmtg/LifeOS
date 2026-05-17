@@ -15,12 +15,12 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 25,
-      "totalCompleted": 24,
+      "totalSelected": 26,
+      "totalCompleted": 25,
       "totalNoop": 0,
       "totalFailed": 1,
-      "lastSelectedAt": "2026-05-17T17:29:51.418Z",
-      "lastCompletedAt": "2026-05-17T17:30:01.114Z",
+      "lastSelectedAt": "2026-05-17T18:00:08.080Z",
+      "lastCompletedAt": "2026-05-17T18:00:28.805Z",
       "lastOutcome": "completed"
     },
     "agent_docs_sync_prompt.md": {
@@ -185,9 +185,9 @@
       "totalCompleted": 25,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-17T16:54:34.762Z",
       "lastCompletedAt": "2026-05-17T16:54:41.978Z",
-      "lastOutcome": "completed"
+      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-17T16:54:34.762Z"
     },
     "random_selector.md": {
       "id": "random-selector",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-17T17:38:53.191Z"
     }
   },
-  "updatedAt": "2026-05-17T17:50:10.061Z"
+  "updatedAt": "2026-05-17T18:00:28.805Z"
 }

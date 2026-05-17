@@ -501,6 +501,8 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-xl shadow-inner">
                     <button
                       onClick={() => handleModeChange("light")}
+                      aria-label="Switch to light theme"
+                      title="Switch to light theme"
                       className={cn(
                         "p-2 rounded-lg transition-all",
                         config?.color_mode === "light"
@@ -512,6 +514,8 @@ export default function SettingsPage() {
                     </button>
                     <button
                       onClick={() => handleModeChange("dark")}
+                      aria-label="Switch to dark theme"
+                      title="Switch to dark theme"
                       className={cn(
                         "p-2 rounded-lg transition-all",
                         !config?.color_mode || config?.color_mode === "dark"
