@@ -2,6 +2,7 @@
 
 import { CalendarDays, CreditCard, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/formatters";
 
 interface RecurringExpense {
   _id: string;
@@ -14,6 +15,27 @@ interface RecurringExpense {
     next_renewal_date: string;
     is_active: boolean;
   };
+}
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  INR: "₹",
+  JPY: "¥",
+  AUD: "A$",
+  CAD: "C$",
+  CHF: "CHF",
+  CNY: "¥",
+  BRL: "R$",
+};
+
+function currencySymbol(code: string): string {
+  return CURRENCY_SYMBOLS[code] || code;
+}
+
+function formatRecurringAmount(amount: number, currency: string): string {
+  return formatCurrency(amount, currencySymbol(currency), "western", 2);
 }
 
 function monthlyEquivalent(cost: number, cycle: string): number {
@@ -48,6 +70,9 @@ export default function RecurringExpensesPublicView({
     0,
   );
   const totalYearly = totalMonthly * 12;
+  const currencies = new Set(subs.map((sub) => sub.payload.currency));
+  const hasSingleCurrency = currencies.size <= 1;
+  const primaryCurrency = subs[0]?.payload.currency ?? "USD";
   const nextUp = [...subs]
     .sort(
       (a, b) =>
@@ -73,18 +98,29 @@ export default function RecurringExpensesPublicView({
       <div className="relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
         <div className="absolute -top-10 right-0 h-28 w-28 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative flex items-start justify-between gap-4">
-          <div>
-            <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-zinc-500 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-accent" /> Expense Snapshot
-            </p>
-            <p className="text-2xl md:text-3xl font-bold text-zinc-50">
-              ${totalMonthly.toFixed(2)}
-            </p>
-            <p className="text-sm text-zinc-400 mt-1">monthly burn</p>
+            <div>
+              <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-zinc-500 mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-accent" /> Expense Snapshot
+              </p>
+              <p className="text-2xl md:text-3xl font-bold text-zinc-50">
+                {hasSingleCurrency
+                  ? formatRecurringAmount(totalMonthly, primaryCurrency)
+                  : `${totalMonthly.toFixed(2)} /mo`}
+              </p>
+              {!hasSingleCurrency && (
+                <p className="text-xs text-zinc-500 mt-1">
+                  Mixed currencies
+                </p>
+              )}
+              <p className="text-sm text-zinc-400 mt-1">monthly burn</p>
           </div>
           <div className="text-right text-xs text-zinc-400">
             <p>{subs.length} active services</p>
-            <p className="mt-1">${totalYearly.toFixed(0)}/year</p>
+            <p className="mt-1">
+              {hasSingleCurrency
+                ? formatRecurringAmount(totalYearly, primaryCurrency)
+                : `${totalYearly.toFixed(0)}/year`}
+            </p>
           </div>
         </div>
 
@@ -114,8 +150,13 @@ export default function RecurringExpensesPublicView({
                 {category}
               </p>
               <p className="text-sm font-semibold text-zinc-100 mt-1">
-                ${monthly.toFixed(0)}/mo
+                {hasSingleCurrency
+                  ? formatRecurringAmount(monthly, primaryCurrency)
+                  : `${monthly.toFixed(0)}/mo`}
               </p>
+              {!hasSingleCurrency && (
+                <p className="text-xs text-zinc-500 mt-1">mixed currencies</p>
+              )}
             </div>
           ))}
         </div>
@@ -143,7 +184,7 @@ export default function RecurringExpensesPublicView({
             <p className="text-xs text-zinc-500 mt-0.5">{s.payload.category}</p>
             <div className="flex items-baseline gap-1 mt-3">
               <span className="text-xl font-bold text-zinc-50">
-                ${s.payload.cost.toFixed(2)}
+                {formatRecurringAmount(s.payload.cost, s.payload.currency)}
               </span>
               <span className="text-xs text-zinc-500">
                 /{s.payload.billing_cycle}
@@ -155,12 +196,14 @@ export default function RecurringExpensesPublicView({
                 {new Date(s.payload.next_renewal_date).toLocaleDateString()}
               </span>
               <span>
-                $
-                {monthlyEquivalent(
-                  s.payload.cost,
-                  s.payload.billing_cycle,
-                ).toFixed(2)}
-                /mo
+                {formatRecurringAmount(
+                  monthlyEquivalent(
+                    s.payload.cost,
+                    s.payload.billing_cycle,
+                  ),
+                  s.payload.currency,
+                )}
+                  /mo
               </span>
             </div>
           </div>
