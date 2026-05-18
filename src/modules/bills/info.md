@@ -8,7 +8,7 @@ The Bills module lets users upload, store, and organize bills with a flexible fo
 
 - **Folder system** — Create folders and subfolders to organize bills. Bills can also live at the root level.
 - **Bill management** — Each bill has a name, date, optional description and notes.
-- **File attachments** — Attach multiple images (any type) and PDFs to a bill. Files are stored as base64 in MongoDB (5 MB per file limit).
+- **File attachments** — Attach multiple images (`image/*`) and PDFs to a bill. Files are stored as base64 in MongoDB (5 MB per file limit).
 - **Move bills** — Assign or reassign a bill to any folder at any time.
 - **Search** — Filter bills by name or description in real time.
 - **Responsive UI** — Works on mobile and desktop. Folder tree collapses into a toggle on small screens.
@@ -33,7 +33,9 @@ The Bills module lets users upload, store, and organize bills with a flexible fo
 | PUT    | `/api/bills/folders/:id`                   | Rename/update a folder              |
 | DELETE | `/api/bills/folders/:id`                   | Delete folder (moves bills to root) |
 | POST   | `/api/bills/:id/attachments`               | Upload a file attachment            |
-| DELETE | `/api/bills/:id/attachments/:attachmentId` | Remove an attachment                |
+| PUT    | `/api/bills/:id/move`                      | Move a bill into a folder or root                     |
+| DELETE | `/api/bills/:id/attachments/:attachmentId` | Remove an attachment                                  |
+| PUT    | `/api/bills/folders/:id/move`              | Move a folder under another folder or to root          |
 
 ## File Storage
 
