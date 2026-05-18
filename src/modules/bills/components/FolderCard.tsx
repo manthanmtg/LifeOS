@@ -108,6 +108,7 @@ export default function FolderCard({
                 onChange={(e) => setEditName(e.target.value)}
                 onBlur={handleRenameSubmit}
                 aria-label="Folder name"
+                maxLength={100}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRenameSubmit();
                   if (e.key === "Escape") {

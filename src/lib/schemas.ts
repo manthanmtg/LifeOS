@@ -892,16 +892,17 @@ export const BillSchema = z.object({
   currency: CurrencyCodeSchema.default("INR"),
   description: z.string().trim().min(1).max(1000).optional(),
   notes: z.string().trim().min(1).max(5000).optional(),
-  folder_id: z.string().trim().max(100).optional(),
+  folder_id: z.string().trim().min(1).max(100).optional(),
   attachments: z.array(BillAttachmentSchema).max(50).default([]),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 export const BillFolderSchema = z.object({
   name: z.string().trim().min(1, "Folder name is required").max(100),
-  parent_id: z.string().optional(),
+  parent_id: z.string().trim().min(1).max(100).optional(),
   color: z
     .string()
+    .trim()
     .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid hex color")
     .optional(),
 });

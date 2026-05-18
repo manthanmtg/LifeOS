@@ -47,6 +47,7 @@ export default function NewFolderInlineCard({
           }}
           placeholder="New folder name…"
           disabled={creating}
+          maxLength={100}
           className="w-full bg-transparent border-b border-accent/30 text-sm font-medium text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent/60 focus:ring-0 pb-1.5 disabled:opacity-50 transition-colors"
         />
       </div>
