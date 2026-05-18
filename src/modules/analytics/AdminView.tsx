@@ -45,6 +45,10 @@ interface MetricEvent {
   timestamp: string;
 }
 
+interface MetricEventView extends MetricEvent {
+  displayTime: string;
+}
+
 export function getDeviceData(metrics: Pick<MetricEvent, "device_type">[]) {
   const deviceCounts = metrics.reduce(
     (counts, metric) => {
@@ -88,6 +92,13 @@ export default function AnalyticsAdminView() {
   const [metricType, setMetricType] = useState<"all" | "views" | "actions">(
     "views",
   );
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  const formatDayLabel = useCallback((date: string) => {
+    return new Date(date).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  }, []);
 
   const fetchMetrics = useCallback(async () => {
     setLoading(true);
@@ -97,6 +108,7 @@ export default function AnalyticsAdminView() {
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Failed to fetch metrics");
       setMetrics(d.data || []);
+      setNowMs(Date.now());
     } catch (err: unknown) {
       const message =
         err instanceof Error
@@ -140,8 +152,8 @@ export default function AnalyticsAdminView() {
       );
     }
 
-    const today = new Date().toISOString().split("T")[0];
-    const yesterday = new Date(Date.now() - 86400000)
+    const today = new Date(nowMs).toISOString().split("T")[0];
+    const yesterday = new Date(nowMs - 86400000)
       .toISOString()
       .split("T")[0];
 
@@ -172,13 +184,10 @@ export default function AnalyticsAdminView() {
     });
     const trendData = [];
     for (let j = parseInt(dateRange) - 1; j >= 0; j--) {
-      const d = new Date(Date.now() - j * 86400000).toISOString().split("T")[0];
+      const d = new Date(nowMs - j * 86400000).toISOString().split("T")[0];
       trendData.push({
         date: d,
-        displayDate: new Date(d).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-        }),
+        displayDate: formatDayLabel(d),
         count: dailyAgg[d] || 0,
       });
     }
@@ -299,13 +308,10 @@ export default function AnalyticsAdminView() {
     });
     const trafficSplitData = [];
     for (let j = parseInt(dateRange) - 1; j >= 0; j--) {
-      const d = new Date(Date.now() - j * 86400000).toISOString().split("T")[0];
+      const d = new Date(nowMs - j * 86400000).toISOString().split("T")[0];
       trafficSplitData.push({
         date: d,
-        displayDate: new Date(d).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-        }),
+        displayDate: formatDayLabel(d),
         admin: adminDailyAgg[d] || 0,
         public: publicDailyAgg[d] || 0,
       });
@@ -321,7 +327,16 @@ export default function AnalyticsAdminView() {
       trendData,
       deviceData,
       topActions,
-      recentEvents: filtered.slice(0, 15),
+      recentEvents: filtered.slice(0, 15).map((event) => ({
+        ...event,
+        displayTime: event.timestamp
+          ? new Date(event.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+          : "00:00:00",
+      })),
       referrerData,
       topReferrers,
       heatmapData,
@@ -331,7 +346,15 @@ export default function AnalyticsAdminView() {
       avgSessionFormatted,
       trafficSplitData,
     };
-  }, [metrics, dateRange, selectedModule, trafficSource, metricType]);
+  }, [
+    dateRange,
+    formatDayLabel,
+    metricType,
+    metrics,
+    nowMs,
+    selectedModule,
+    trafficSource,
+  ]);
 
   const trend = stats.todayActions - stats.yesterdayActions;
 
@@ -736,13 +759,7 @@ export default function AnalyticsAdminView() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-[10px] font-bold text-zinc-600">
-                    {event.timestamp
-                      ? new Date(event.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })
-                      : "00:00:00"}
+                    {event.displayTime}
                   </p>
                 </div>
               </div>
