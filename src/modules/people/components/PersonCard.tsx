@@ -10,7 +10,7 @@ import {
   Building2,
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Person, InteractionType } from "../types";
 import { getDaysSinceDate, getDerivedLastContacted } from "../insights";
@@ -38,8 +38,12 @@ export default function PersonCard({
   onToggleFavorite,
   onQuickLog,
 }: PersonCardProps) {
+  const [nowMs] = useState(() => Date.now());
   const lastContacted = getDerivedLastContacted(person);
-  const days = useMemo(() => getDaysSinceDate(lastContacted), [lastContacted]);
+  const days = useMemo(
+    () => getDaysSinceDate(lastContacted, nowMs),
+    [lastContacted, nowMs],
+  );
 
   const isStale = days !== null && days > 90;
   const isHot = days !== null && days < 14;
@@ -96,7 +100,9 @@ export default function PersonCard({
               </div>
             ) : (
               <div className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center">
-                <span className="text-sm font-bold text-zinc-500">{name[0]}</span>
+                <span className="text-sm font-bold text-zinc-500">
+                  {name[0]}
+                </span>
               </div>
             )}
             {isHot && (
@@ -116,7 +122,9 @@ export default function PersonCard({
                 }}
                 className={cn(
                   "p-2 rounded-lg transition-all shrink-0",
-                  is_favorite ? "text-accent" : "text-zinc-700 hover:text-accent",
+                  is_favorite
+                    ? "text-accent"
+                    : "text-zinc-700 hover:text-accent",
                 )}
               >
                 <Heart
