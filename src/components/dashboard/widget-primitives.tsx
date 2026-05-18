@@ -54,8 +54,8 @@ export const WidgetStat = memo(function WidgetStat({
   label: string;
 }) {
   return (
-    <div>
-      <p className="text-4xl font-black text-zinc-50 tracking-tighter tabular-nums leading-none">
+    <div className="min-w-0">
+      <p className="max-w-full overflow-hidden text-ellipsis text-4xl font-black text-zinc-50 tracking-tighter tabular-nums leading-none">
         {value}
       </p>
       <p className="text-[10px] font-bold text-zinc-500 mt-2 uppercase tracking-widest leading-none">
