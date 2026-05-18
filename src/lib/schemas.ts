@@ -703,9 +703,9 @@ const BillAttachmentContentTypeSchema = z
   );
 
 const GenericAttachmentSchema = z.object({
-  id: z.string().min(1),
-  filename: z.string().min(1),
-  content_type: z.string().min(1),
+  id: z.string().trim().min(1).max(100),
+  filename: z.string().trim().min(1).max(255),
+  content_type: z.string().trim().min(1).max(100),
   data: z.string().min(1), // base64
   size: z.number().int().min(0),
   uploaded_at: z
