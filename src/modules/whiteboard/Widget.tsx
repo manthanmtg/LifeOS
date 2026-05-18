@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, memo } from "react";
 import { PenLine, Star, Globe } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -81,17 +82,30 @@ export default memo(function WhiteboardWidget() {
       }
     >
       <div className="space-y-3">
-        <WidgetStat value={summary?.total ?? 0} label="whiteboards" />
-        {summary?.latest ? (
-          <WidgetHighlight
-            icon={summary.latest.is_favorite ? Star : PenLine}
-            text={summary.latest.name}
-            subtext={summary.latest.is_favorite ? "favorite" : "last edited"}
-            variant={summary.latest.is_favorite ? "warning" : "default"}
-          />
-        ) : (
-          <WidgetHighlight icon={PenLine} text="No boards yet" />
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          <WidgetStat value={summary?.total ?? 0} label="whiteboards" />
+        </motion.div>
+        <motion.div
+          key={summary?.latest?.name ?? "empty"}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut", delay: 0.05 }}
+        >
+          {summary?.latest ? (
+            <WidgetHighlight
+              icon={summary.latest.is_favorite ? Star : PenLine}
+              text={summary.latest.name}
+              subtext={summary.latest.is_favorite ? "favorite" : "last edited"}
+              variant={summary.latest.is_favorite ? "warning" : "default"}
+            />
+          ) : (
+            <WidgetHighlight icon={PenLine} text="No boards yet" />
+          )}
+        </motion.div>
       </div>
     </WidgetCard>
   );
