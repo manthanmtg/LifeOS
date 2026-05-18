@@ -97,7 +97,17 @@ function getProfileSearchText(profile: HealthProfile): string {
       .map((visit) => [visit.doctor, visit.facility, visit.diagnosis].join(" "))
       .join(" "),
     payload.lab_results.map((result) => result.test_name).join(" "),
-    payload.documents.map((document) => document.title).join(" "),
+    payload.documents
+      .map((document) =>
+        [
+          document.title,
+          document.notes,
+          document.attachments
+            .map((attachment) => attachment.filename)
+            .join(" "),
+        ].join(" "),
+      )
+      .join(" "),
   ]
     .filter(Boolean)
     .join(" ")

@@ -231,6 +231,35 @@ describe("health selectors", () => {
     vi.useRealTimers();
   });
 
+  it("matches document attachment filenames in free-text search", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        documents: [
+          {
+            id: "doc-1",
+            type: "lab_report",
+            title: "Annual labs",
+            attachments: [
+              {
+                id: "att-1",
+                filename: "hemoglobin-a1c-results.pdf",
+                content_type: "application/pdf",
+                data: "base64",
+                size: 42,
+                uploaded_at: "2026-04-01T00:00:00.000Z",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(filterHealthProfiles([profile], "all", "a1c-results")[0]?._id).toBe(
+      "profile-1",
+    );
+  });
+
   it("builds filter counts for the list toolbar", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));
