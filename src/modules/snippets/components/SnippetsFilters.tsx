@@ -32,17 +32,17 @@ export default function SnippetsFilters({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15, duration: 0.3 }}
-      className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3"
+      className="rounded-2xl border border-zinc-800/80 bg-zinc-900/65 backdrop-blur-sm p-4 space-y-3 transition-all duration-300 hover:border-accent/35 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-accent/5"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+        <div className="relative flex-1 min-w-[220px] group">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-accent" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search title, code, tags"
-            className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
+            className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35 focus-visible:border-accent/50 focus-within:bg-zinc-900/70"
           />
         </div>
 
