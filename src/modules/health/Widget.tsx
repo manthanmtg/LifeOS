@@ -2,6 +2,7 @@
 
 import { useState, useEffect, memo, useMemo } from "react";
 import { HeartPulse, Pill, Calendar, Syringe } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -42,6 +43,31 @@ export default memo(function HealthWidget() {
     [summary],
   );
 
+  if (loading) {
+    return (
+      <WidgetCard
+        title="Health"
+        icon={HeartPulse}
+        loading={loading}
+        href="/admin/health"
+      >
+        <motion.div
+          initial={{ opacity: 0.6 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            duration: 1.2,
+          }}
+          className="space-y-3"
+        >
+          <div className="h-11 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
+          <div className="h-16 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
+        </motion.div>
+      </WidgetCard>
+    );
+  }
+
   return (
     <WidgetCard
       title="Health"
@@ -70,7 +96,12 @@ export default memo(function HealthWidget() {
       }
     >
       {summary ? (
-        <div className="space-y-3">
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="space-y-3"
+        >
           <WidgetStat
             value={summary.alertCount}
             label={summary.alertCount > 0 ? "need attention" : "all clear"}
@@ -89,10 +120,15 @@ export default memo(function HealthWidget() {
             }
             variant={summary.alertCount > 0 ? "danger" : "default"}
           />
-        </div>
+        </motion.div>
       ) : (
         !loading && (
-          <div className="space-y-3">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="space-y-3"
+          >
             <WidgetStat value={0} label="profiles tracked" />
             <WidgetHighlight
               icon={HeartPulse}
@@ -100,7 +136,7 @@ export default memo(function HealthWidget() {
               subtext="Set up your first health profile"
               variant="default"
             />
-          </div>
+          </motion.div>
         )
       )}
     </WidgetCard>
