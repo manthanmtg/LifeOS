@@ -40,7 +40,7 @@ Look for one small prompt-suite issue:
 - A prompt has weak no-op guidance and may keep running when the target area is already healthy.
 - A prompt is missing repo-specific constraints from `AGENTS.md`, `README.md`, or `prompts/README.md`.
 - `random_selector.md` includes a prompt that should not be in the normal autonomous pool.
-- Metadata drift between `prompts/prompts_metadata.json` and top-level `prompts/*.md` files (missing files, enabled flags, or stale counters).
+- Metadata drift between `prompts/prompts_metadata.json` and selectable top-level prompt files, excluding `prompts/README.md` because it is the shared run contract rather than an executable prompt.
 
 ### 3. Make One Small Prompt Improvement
 
