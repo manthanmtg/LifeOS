@@ -92,11 +92,11 @@
       "autonomousSafe": true,
       "totalSelected": 30,
       "totalCompleted": 18,
-      "totalNoop": 9,
+      "totalNoop": 10,
       "totalFailed": 2,
-      "lastOutcome": "selected",
+      "lastOutcome": "noop",
       "lastSelectedAt": "2026-05-18T04:07:11.300Z",
-      "lastCompletedAt": "2026-05-18T00:52:28Z"
+      "lastCompletedAt": "2026-05-18T04:09:35.890Z"
     },
     "loading_skeleton_auditor.md": {
       "id": "loading-skeleton-auditor",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-17T18:06:40.850Z"
     }
   },
-  "updatedAt": "2026-05-18T04:07:25.671Z"
+  "updatedAt": "2026-05-18T04:09:35.890Z"
 }
