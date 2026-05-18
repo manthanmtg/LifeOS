@@ -72,6 +72,8 @@ Include the prompt issue, evidence, proposed fix, and why you held back. Then st
 - Run `git diff --check`.
 - If markdown formatting or trailing whitespace problems are introduced, fix them.
 - Run `pnpm check` per the shared prompt run contract before recording a terminal outcome.
+- If TypeScript or build verification runs out of memory, retry once with:
+  - `NODE_OPTIONS="--max-old-space-size=4096" pnpm check`.
 
 ### 6. Commit
 
