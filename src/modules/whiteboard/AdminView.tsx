@@ -664,7 +664,7 @@ export default function WhiteboardAdminView() {
             "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all",
             showCreate
               ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-              : "bg-zinc-50 text-zinc-950 hover:bg-zinc-200 shadow-lg shadow-white/5",
+              : "bg-zinc-50 text-zinc-950 hover:bg-zinc-200 shadow-lg shadow-zinc-200/20",
           )}
         >
           {showCreate ? (
