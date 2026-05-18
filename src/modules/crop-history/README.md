@@ -11,7 +11,7 @@ The Crop History module stores periodic crop records in the polymorphic `content
 - Configuration state: persisted in system config key `cropHistorySettings`
 - Public view: not exposed (no `PublicView.tsx`)
 
-## Data Schema
+## Data Schema (Current Contract)
 
 ### Content record (`content` collection)
 
@@ -46,6 +46,14 @@ The Crop History module stores periodic crop records in the polymorphic `content
 - `source_data`: nested map `{ [areaId]: { [fieldId]: number } }`
 - `summary_data`: per-period scalar map `{ [fieldId]: number }`
 - `notes`: optional free-form notes stored with a record
+- `source_data` and `summary_data` default to `{}` and accept numeric strings via Zod coercion.
+
+Validation rules in `CropHistorySchema` (`src/lib/schemas.ts`):
+
+- `crop_id` and `schedule_period` are required.
+- `source_data` maps area ids -> field ids -> numeric values.
+- `summary_data` maps field ids -> numeric values.
+- All numeric fields are normalized through `z.coerce.number()`.
 
 ### Crop configuration (system config)
 
@@ -108,8 +116,47 @@ curl -X POST /api/content \
     "payload": {
       "crop_id": "coffee",
       "schedule_period": "2026-H2",
-      "source_data": {},
-      "summary_data": {}
+      "source_data": {
+        "area-west": {
+          "undried": 1200
+        }
+      },
+      "summary_data": {
+        "avg_price": 4200
+      }
+    }
+  }'
+```
+
+### Update module settings (conceptual)
+
+```bash
+curl -X PUT /api/system \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cropHistorySettings": {
+      "crops": [
+        {
+          "id": "coffee",
+          "name": "Arabica Coffee",
+          "scheduleType": "quarterly",
+          "sourceFields": [
+            { "id": "undried", "name": "Undried Weight", "type": "number", "unit": "kg" }
+          ],
+          "summaryFields": [
+            { "id": "avg_price", "name": "Avg Price", "type": "number" }
+          ],
+          "calculatedFields": [
+            { "id": "revenue", "name": "Revenue", "formula": "SUM(undried) * avg_price", "format": "currency" }
+          ],
+          "analyticsConfig": {
+            "revenueFieldId": "revenue"
+          }
+        }
+      ],
+      "sources": [
+        { "id": "area-west", "name": "North Field" }
+      ]
     }
   }'
 ```
