@@ -2,6 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import { Banknote, TrendingUp, TrendingDown, Tag, Target } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -83,7 +84,12 @@ export default memo(function ExpensesWidget() {
         </div>
       }
     >
-      <div className="space-y-3">
+      <motion.div
+        className="space-y-3"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
         <WidgetStat
           value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
           label="spent this month"
@@ -121,7 +127,7 @@ export default memo(function ExpensesWidget() {
             variant="default"
           />
         )}
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 });
