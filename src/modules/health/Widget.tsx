@@ -43,6 +43,23 @@ export default memo(function HealthWidget() {
     [summary],
   );
 
+  const latestVisitLabel = useMemo(() => {
+    if (!summary?.latestVisit) return null;
+
+    const visitType = summary.latestVisit.type.replace(/_/g, " ");
+    const parsed = new Date(summary.latestVisit.date);
+    const visitDate =
+      Number.isNaN(parsed.getTime()) === true
+        ? "unknown date"
+        : parsed.toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+
+    return `${visitType} on ${visitDate}`;
+  }, [summary]);
+
   if (loading) {
     return (
       <WidgetCard
@@ -80,7 +97,7 @@ export default memo(function HealthWidget() {
             {summary.latestVisit ? (
               <span className="flex items-center gap-1.5 text-zinc-500">
                 <Calendar className="w-3 h-3" />
-                Last: {summary.latestVisit.type.replace("_", " ")}
+                Last: {latestVisitLabel}
               </span>
             ) : (
               <span className="text-zinc-600">No visits logged</span>
