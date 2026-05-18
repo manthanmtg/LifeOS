@@ -15,6 +15,11 @@ const CurrencyCodeSchema = z
   .string()
   .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code");
 
+const ObjectIdStringSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-f\d]{24}$/i, "Must be a valid ObjectId");
+
 const IsoCalendarDateOrDateTimeSchema = z.union([
   CalendarDateSchema,
   z.string().datetime("Must be a valid ISO date-time"),
@@ -48,7 +53,7 @@ const PortfolioProfileSchema = z.object({
     .trim()
     .min(1)
     .max(1000, "Bio is getting too long! Keep it under 1000 characters."),
-  skills: z.array(z.string().trim().max(50)).max(100),
+  skills: z.array(z.string().trim().min(1).max(50)).max(100),
   social_links: z.array(SocialLinkSchema),
   available_for_hire: z.boolean().default(false),
 });
@@ -892,14 +897,14 @@ export const BillSchema = z.object({
   currency: CurrencyCodeSchema.default("INR"),
   description: z.string().trim().min(1).max(1000).optional(),
   notes: z.string().trim().min(1).max(5000).optional(),
-  folder_id: z.string().trim().min(1).max(100).optional(),
+  folder_id: ObjectIdStringSchema.optional(),
   attachments: z.array(BillAttachmentSchema).max(50).default([]),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
 export const BillFolderSchema = z.object({
   name: z.string().trim().min(1, "Folder name is required").max(100),
-  parent_id: z.string().trim().min(1).max(100).optional(),
+  parent_id: ObjectIdStringSchema.optional(),
   color: z
     .string()
     .trim()

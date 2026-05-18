@@ -14,6 +14,7 @@ import {
   ShoppingListSchema,
   WhiteboardNoteSchema,
   BillSchema,
+  BillFolderSchema,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -499,6 +500,31 @@ describe("schemas", () => {
       };
 
       const result = BillSchema.safeParse(bill);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects malformed bill folder references", () => {
+      const bill = {
+        name: "Internet bill",
+        bill_date: new Date().toISOString(),
+        folder_id: "folder-1",
+      };
+
+      const result = BillSchema.safeParse(bill);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("BillFolderSchema", () => {
+    it("rejects malformed parent folder ids", () => {
+      const folder = {
+        name: "Work invoices",
+        parent_id: "folder-1",
+      };
+
+      const result = BillFolderSchema.safeParse(folder);
 
       expect(result.success).toBe(false);
     });
