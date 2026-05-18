@@ -1,20 +1,20 @@
 "use client";
 
-export interface AnalyticsEvent {
-  module?: string;
-  action?: string;
-  label?: string | null;
-  value?: number | null;
-  metadata?: Record<string, unknown>;
-  path?: string;
-  is_admin?: boolean;
-}
-
 /**
  * Global tracking utility for Rich Analytics.
  * Can be used anywhere in the client-side code to record custom actions.
  */
-export const trackEvent = async (event: AnalyticsEvent) => {
+export const trackEvent = async (
+  event: {
+    module?: string;
+    action?: string;
+    label?: string | null;
+    value?: number | null;
+    metadata?: Record<string, unknown>;
+    path?: string;
+    is_admin?: boolean;
+  },
+) => {
   if (typeof window === "undefined") return;
 
   try {
