@@ -18,4 +18,25 @@ describe("WidgetCard", () => {
       screen.getByText("Very Long Module Name That Needs To Fit"),
     ).toHaveClass("min-w-0", "truncate");
   });
+
+  it("uses a pulsing skeleton instead of blank widget content while loading", () => {
+    render(
+      <WidgetCard
+        title="Loading Module"
+        icon={LayoutDashboard}
+        loading
+        footer={<span>Loaded footer</span>}
+      >
+        <p>Loaded content</p>
+      </WidgetCard>,
+    );
+
+    const status = screen.getByRole("status", {
+      name: "Loading Loading Module widget",
+    });
+
+    expect(status).toHaveClass("animate-pulse");
+    expect(screen.queryByText("Loaded content")).toBeNull();
+    expect(screen.queryByText("Loaded footer")).toBeNull();
+  });
 });
