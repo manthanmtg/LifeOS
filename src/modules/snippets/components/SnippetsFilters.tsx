@@ -49,7 +49,7 @@ export default function SnippetsFilters({
         <button
           onClick={onFavoritesToggle}
           className={cn(
-            "px-3 py-1.5 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
+            "min-h-11 px-3 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
             favoritesOnly
               ? "bg-warning/15 border-warning/30 text-warning"
               : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -66,7 +66,7 @@ export default function SnippetsFilters({
           <button
             onClick={() => onLangFilterChange("all")}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-colors",
+              "min-h-11 px-3 rounded-lg text-xs border transition-colors",
               langFilter === "all"
                 ? "bg-accent/15 border-accent/35 text-accent"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -79,7 +79,7 @@ export default function SnippetsFilters({
               key={lang}
               onClick={() => onLangFilterChange(lang)}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs border transition-colors",
+                "min-h-11 px-3 rounded-lg text-xs border transition-colors",
                 langFilter === lang
                   ? "bg-accent/15 border-accent/35 text-accent"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
