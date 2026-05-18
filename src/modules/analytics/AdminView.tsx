@@ -162,6 +162,7 @@ export default function AnalyticsAdminView() {
     const moduleChartData = Object.entries(moduleCounts)
       .sort((a, b) => b[1] - a[1])
       .map(([name, value]) => ({ name, value }));
+    const maxModuleCount = moduleChartData[0]?.value ?? 0;
 
     // Daily trend - using filtered
     const dailyAgg: Record<string, number> = {};
@@ -310,12 +311,13 @@ export default function AnalyticsAdminView() {
       });
     }
 
-    return {
+      return {
       totalEvents: filtered.length,
       todayActions,
       yesterdayActions,
       uniqueSessions,
       moduleChartData,
+      maxModuleCount,
       trendData,
       deviceData,
       topActions,
@@ -623,7 +625,7 @@ export default function AnalyticsAdminView() {
           </h3>
           <div className="space-y-6">
             {stats.moduleChartData.slice(0, 6).map((item, idx) => (
-              <div key={item.name} className="group">
+                <div key={item.name} className="group">
                 <div className="flex items-center justify-between text-xs mb-2">
                   <span className="font-bold text-zinc-300 capitalize flex items-center gap-2">
                     <div
@@ -638,13 +640,22 @@ export default function AnalyticsAdminView() {
                   <div
                     className="h-full rounded-full transition-all duration-1000 ease-out"
                     style={{
-                      width: `${(item.value / stats.moduleChartData[0].value) * 100}%`,
+                      width: `${
+                        stats.maxModuleCount > 0
+                          ? (item.value / stats.maxModuleCount) * 100
+                          : 0
+                      }%`,
                       backgroundColor: COLORS[idx % COLORS.length],
                     }}
                   />
                 </div>
               </div>
             ))}
+            {stats.moduleChartData.length === 0 && (
+              <p className="text-center text-xs text-zinc-600 py-6">
+                No module activity yet.
+              </p>
+            )}
           </div>
 
           <div className="mt-12 pt-8 border-t border-zinc-900">
@@ -655,7 +666,10 @@ export default function AnalyticsAdminView() {
               {stats.deviceData.map((d) => (
                 <div key={d.name} className="text-center">
                   <div className="text-lg font-black text-zinc-50 mb-1">
-                    {((d.value / stats.totalEvents) * 100).toFixed(0)}%
+                    {stats.totalEvents > 0
+                      ? Math.round((d.value / stats.totalEvents) * 100)
+                      : 0}
+                    %
                   </div>
                   <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter flex items-center justify-center gap-1">
                     {d.name === "Desktop" ? (
