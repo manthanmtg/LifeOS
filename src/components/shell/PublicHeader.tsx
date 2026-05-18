@@ -94,7 +94,7 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
   return (
     <header
       className={`border-b border-zinc-800 sticky top-0 z-30 backdrop-blur-xl transition-all duration-300 ${
-        scrolled ? "bg-zinc-950/95 shadow-lg shadow-black/20" : "bg-zinc-950/80"
+        scrolled ? "bg-zinc-950/95 shadow-lg shadow-zinc-950/20" : "bg-zinc-950/80"
       }`}
       suppressHydrationWarning
     >
