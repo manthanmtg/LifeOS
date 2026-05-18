@@ -43,25 +43,37 @@ export default function VehicleWidget() {
       href="/admin/vehicle"
       footer={
         summary &&
-        summaryReady && !hasError && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span
-              className={cn(
-                "flex items-center gap-1.5",
-                summary.fuelCostThisMonth > 0
-                  ? "text-warning/80"
-                  : "text-zinc-500",
-              )}
-            >
-              <Fuel className="w-3 h-3" />
-              {summary.fuelCostThisMonth > 0
-                ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
-                : "No logs"}
+        summaryReady &&
+        !hasError && (
+          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
+            <span className="flex min-w-0 items-center gap-1.5">
+              <Fuel
+                className={cn(
+                  "w-3 h-3 shrink-0",
+                  summary.fuelCostThisMonth > 0
+                    ? "text-warning/80"
+                    : "text-zinc-500",
+                )}
+              />
+              <span
+                className={cn(
+                  "truncate",
+                  summary.fuelCostThisMonth > 0
+                    ? "text-warning/80"
+                    : "text-zinc-500",
+                )}
+              >
+                {summary.fuelCostThisMonth > 0
+                  ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
+                  : "No logs"}
+              </span>
             </span>
             {summary.latestService && (
-              <span className="flex items-center gap-1.5 text-zinc-500 max-w-[120px]">
+              <span className="flex min-w-0 max-w-[120px] items-center gap-1.5 text-zinc-500">
                 <Wrench className="w-3 h-3 shrink-0" />
-                <span className="truncate">{summary.latestService.description}</span>
+                <span className="truncate">
+                  {summary.latestService.description}
+                </span>
               </span>
             )}
           </div>
@@ -82,10 +94,7 @@ export default function VehicleWidget() {
           transition={{ duration: 0.25 }}
           className="space-y-3"
         >
-          <WidgetStat
-            value={summary.total}
-            label="vehicles tracked"
-          />
+          <WidgetStat value={summary.total} label="vehicles tracked" />
           {noVehicles ? (
             <WidgetHighlight
               icon={Car}
