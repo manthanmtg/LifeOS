@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Timer } from "lucide-react";
+import { AlertTriangle, Sparkles, Timer } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -48,6 +48,7 @@ export default function RecurringExpensesWidget() {
 
   const [summary, setSummary] = useState<RecurringSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
   const format = settings.numberFormat || "western";
 
@@ -56,9 +57,25 @@ export default function RecurringExpensesWidget() {
     fetch("/api/widgets/summary?module_type=recurring_expense", {
       signal: ac.signal,
     })
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(() => {})
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`summary request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((d) => {
+        setSummary(d.data || null);
+        setSummaryError(null);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+        setSummary(null);
+        setSummaryError(
+          error instanceof Error ? error.message : "Unable to load summary",
+        );
+      })
       .finally(() => setLoading(false));
     return () => ac.abort();
   }, []);
@@ -70,10 +87,12 @@ export default function RecurringExpensesWidget() {
     if (summary.daysUntilNext === 1) return "tomorrow";
     return `in ${summary.daysUntilNext}d`;
   })();
-  const activeCount = summary?.activeCount ?? 0;
   const totalBurn = summary?.totalBurn ?? 0;
   const overdueCount = summary?.overdueCount ?? 0;
   const dueSoonCount = summary?.dueSoonCount ?? 0;
+  const summaryLabel = summary?.activeCount
+    ? `${summary.activeCount} active`
+    : "no active subscriptions";
 
   return (
     <WidgetCard
@@ -84,29 +103,48 @@ export default function RecurringExpensesWidget() {
       footer={
         !loading && (
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
-            <span
-              className={cn(overdueCount > 0 ? "text-danger" : "text-zinc-500")}
-            >
-              {overdueCount} overdue
-            </span>
-            <span className="text-zinc-800">·</span>
-            <span
-              className={cn(
-                dueSoonCount > 0 ? "text-warning" : "text-zinc-500",
-              )}
-            >
-              {dueSoonCount} due soon
-            </span>
+            {summaryError ? (
+              <span className="text-danger">Summary unavailable</span>
+            ) : (
+              <>
+                <span
+                  className={cn(
+                    overdueCount > 0 ? "text-danger" : "text-zinc-500",
+                  )}
+                >
+                  {overdueCount} overdue
+                </span>
+                <span className="text-zinc-800">·</span>
+                <span
+                  className={cn(
+                    dueSoonCount > 0 ? "text-warning" : "text-zinc-500",
+                  )}
+                >
+                  {dueSoonCount} due soon
+                </span>
+              </>
+            )}
           </div>
         )
       }
     >
       <div className="space-y-3">
         <WidgetStat
-          value={`${sym}${formatNumber(totalBurn, format)}`}
-          label={`monthly · ${activeCount} active`}
+          value={
+            summaryError
+              ? "—"
+              : `${sym}${formatNumber(totalBurn, format)}`
+          }
+          label={`monthly · ${summaryLabel}`}
         />
-        {summary?.nextRenewal ? (
+        {summaryError ? (
+          <WidgetHighlight
+            icon={AlertTriangle}
+            text={summaryError}
+            subtext="Please retry from dashboard"
+            variant="danger"
+          />
+        ) : summary?.nextRenewal ? (
           <WidgetHighlight
             icon={Timer}
             text={summary.nextRenewal.name}
