@@ -101,6 +101,20 @@ export async function POST(request: Request) {
     let costError: string | null = null;
     const usageUrl: string[] = [];
     const costUrl: string[] = [];
+    const runDebugRequest = async (url: string, headers: HeadersInit) => {
+      try {
+        const response = await fetch(url, { headers });
+        const raw = await response.json();
+        return { status: response.status, raw, error: null as string | null };
+      } catch (error) {
+        console.error(`Debug request failed for ${url}:`, error);
+        return {
+          status: 0,
+          raw: null as unknown,
+          error: "Failed to fetch debug info",
+        };
+      }
+    };
 
     if (config.provider === "openai") {
       const startUnix = Math.floor(start.getTime() / 1000);
@@ -108,61 +122,44 @@ export async function POST(request: Request) {
 
       const uUrl = `https://api.openai.com/v1/organization/usage/completions?start_time=${startUnix}&end_time=${endUnix}&bucket_width=1d&group_by[]=model&limit=3`;
       usageUrl.push(uUrl);
-      try {
-        const r = await fetch(uUrl, {
-          headers: { Authorization: `Bearer ${config.admin_api_key}` },
-        });
-        usageStatus = r.status;
-        usageRaw = await r.json();
-      } catch (e) {
-        console.error("OpenAI usage fetch failed:", e);
-        usageError = "Failed to fetch debug info";
-      }
 
       const cUrl = `https://api.openai.com/v1/organization/costs?start_time=${startUnix}&bucket_width=1d&limit=3`;
       costUrl.push(cUrl);
-      try {
-        const r = await fetch(cUrl, {
-          headers: { Authorization: `Bearer ${config.admin_api_key}` },
-        });
-        costStatus = r.status;
-        costRaw = await r.json();
-      } catch (e) {
-        console.error("OpenAI cost fetch failed:", e);
-        costError = "Failed to fetch debug info";
-      }
+
+      const headers = {
+        Authorization: `Bearer ${config.admin_api_key}`,
+      };
+      const [usageResult, costResult] = await Promise.all([
+        runDebugRequest(uUrl, headers),
+        runDebugRequest(cUrl, headers),
+      ]);
+      usageStatus = usageResult.status;
+      usageRaw = usageResult.raw;
+      usageError = usageResult.error;
+      costStatus = costResult.status;
+      costRaw = costResult.raw;
+      costError = costResult.error;
     } else if (config.provider === "anthropic") {
       const uUrl = `https://api.anthropic.com/v1/organizations/usage_report/messages?starting_at=${fmtDate(start)}&ending_at=${fmtDate(now)}&bucket_width=1d&group_by[]=model`;
       usageUrl.push(uUrl);
-      try {
-        const r = await fetch(uUrl, {
-          headers: {
-            "x-api-key": config.admin_api_key,
-            "anthropic-version": "2023-06-01",
-          },
-        });
-        usageStatus = r.status;
-        usageRaw = await r.json();
-      } catch (e) {
-        console.error("Anthropic usage fetch failed:", e);
-        usageError = "Failed to fetch debug info";
-      }
 
       const cUrl = `https://api.anthropic.com/v1/organizations/cost_report?starting_at=${fmtDate(start)}&ending_at=${fmtDate(now)}&bucket_width=1d`;
       costUrl.push(cUrl);
-      try {
-        const r = await fetch(cUrl, {
-          headers: {
-            "x-api-key": config.admin_api_key,
-            "anthropic-version": "2023-06-01",
-          },
-        });
-        costStatus = r.status;
-        costRaw = await r.json();
-      } catch (e) {
-        console.error("Anthropic cost fetch failed:", e);
-        costError = "Failed to fetch debug info";
-      }
+
+      const headers = {
+        "x-api-key": config.admin_api_key,
+        "anthropic-version": "2023-06-01",
+      };
+      const [usageResult, costResult] = await Promise.all([
+        runDebugRequest(uUrl, headers),
+        runDebugRequest(cUrl, headers),
+      ]);
+      usageStatus = usageResult.status;
+      usageRaw = usageResult.raw;
+      usageError = usageResult.error;
+      costStatus = costResult.status;
+      costRaw = costResult.raw;
+      costError = costResult.error;
     }
 
     return ApiSuccess({
