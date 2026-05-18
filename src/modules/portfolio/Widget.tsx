@@ -95,16 +95,16 @@ export default function PortfolioWidget() {
       href="/admin/portfolio"
       footer={
         p && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-            <span className="text-zinc-500">
+          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
+            <span className="min-w-0 truncate text-zinc-500">
               {readiness?.validSocialLinks ?? 0} verified links
             </span>
             {p.available_for_hire ? (
-              <span className="flex items-center gap-1 text-success">
+              <span className="flex shrink-0 items-center gap-1 text-success">
                 <Briefcase className="w-3 h-3" /> Open
               </span>
             ) : (
-              <span className="text-zinc-500">Selective</span>
+              <span className="shrink-0 text-zinc-500">Selective</span>
             )}
           </div>
         )

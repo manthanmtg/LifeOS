@@ -47,6 +47,9 @@ describe("PortfolioWidget", () => {
 
     expect(await screen.findByText("100%")).toBeInTheDocument();
     expect(screen.getByText("profile ready")).toBeInTheDocument();
-    expect(screen.getByText("2 verified links")).toBeInTheDocument();
+    expect(screen.getByText("2 verified links")).toHaveClass(
+      "min-w-0",
+      "truncate",
+    );
   });
 });
