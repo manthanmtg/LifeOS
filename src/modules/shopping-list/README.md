@@ -1,75 +1,123 @@
 # Shopping List Module
 
-A dedicated shopping list manager for groceries, household items, and other purchases. It allows you to create lists, parse item quantities smartly, and reuse historical lists.
+A practical shopping list manager for grocery and household runs with mobile-first list creation, item parsing, quick checkoffs, and completed-item cleanup.
 
 ## Overview
 
-The Shopping List module provides a mobile-friendly interface designed for use in-store. It allows users to manage multiple shopping lists, check off items as they are purchased, and automatically sorts completed items to the bottom of the list.
+The module stores shopping lists in the shared `content` collection with `module_type = "shopping_list"` and is registered as `shopping-list` in `src/registry.ts`.
+
+### Core behavior
+
+- Tabs separate **active** and **completed** lists.
+- Items can be added with quick free-text parsing via `parseSmartEntry`.
+- Completed items are visually separated in list views.
+- A list can be marked complete, duplicated, and deleted from admin screens.
 
 ## Data Schema
 
-The payload structure for a Shopping List (`shopping_list` module type) is strictly validated using Zod (`ShoppingListSchema`):
+Payload is validated with `ShoppingListSchema` in `src/lib/schemas.ts`.
 
-```typescript
-{
-  title: string;              // Minimum 1 character, max 200
-  items: ShoppingItem[];      // Array of items (see below)
-  is_completed: boolean;      // Marks if the whole list is archived/done
-  completed_at?: string;      // ISO datetime when completed
-  notes?: string;             // Optional additional notes
-}
-```
+`title`
 
-**ShoppingItem Schema:**
+- `string`
+- required
+- min 1, max 200 characters
 
-```typescript
-{
-  id: string;                 // UUID or unique string identifier
-  name: string;               // Item name
-  quantity?: string;          // Optional quantity (e.g. "2", "1.5")
-  unit?: string;              // Optional unit (e.g. "kg", "ltr", "packs")
-  purchased: boolean;         // Checked/unchecked state
-}
-```
+`items`
 
-## Features
+- array of `ShoppingItem` objects
+- defaults to `[]`
 
-- **Smart Entry Parsing**: Automatically extracts quantities and units from natural text input.
-  - *Quantity First*: "10 eggs" `->` `{ quantity: "10", name: "eggs" }`
-  - *Name First*: "Milk 2 ltr" `->` `{ name: "Milk", quantity: "2", unit: "ltr" }`
-- **Auto-Suggestions**: Builds suggestion names from items in other unselected lists to quickly populate recurring purchases.
-- **List Duplication**: One-click duplication of previous lists for recurring shopping trips.
-- **Real-time Partitioning**: Purchased items are immediately separated and moved to the bottom of the list view.
-- **Summary Metrics**: Calculates total items, remaining items, purchased items, and a completion percentage.
+`ShoppingItem`
+
+- `id` (`string`, required, min 1, max 100)
+- `name` (`string`, required, min 1, max 100)
+- `quantity` (`string`, optional, max 50)
+- `unit` (`string`, optional, max 20)
+- `purchased` (`boolean`, defaults to `false`)
+
+`is_completed`
+
+- `boolean`, defaults to `false`
+
+`completed_at`
+
+- `string` ISO date-time, optional
+
+`notes`
+
+- `string`, optional, max 2000
+
+## Admin API contract
+
+- Fetch all lists:
+  - `GET /api/content?module_type=shopping_list`
+- Create list payload:
+  - `POST /api/content`
+  - body: `{ module_type, is_public, payload }`
+  - `payload` must match `ShoppingListPayload`
+- Update list payload:
+  - `PUT /api/content/:id`
+  - body: `{ payload }`
+- Delete list:
+  - `DELETE /api/content/:id`
+
+Dashboard widgets call:
+
+- `GET /api/widgets/summary?module_type=shopping_list`
+
+## Feature Notes
+
+- Smart entry parsing supports:
+  - quantity-first pattern (`"10 eggs"` -> `{ name: "eggs", quantity: "10" }`)
+  - name-first pattern (`"Milk 2 ltr"` -> `{ name: "Milk", quantity: "2", unit: "ltr" }`)
+- Duplicate flow strips `completed_at` and resets item `purchased` flags.
+- Suggestions are generated from non-selected lists and sorted by frequency.
 
 ## Example Usage
 
-### Parsing a Smart Entry
+### `parseSmartEntry` output
 
-```typescript
+```ts
 import { parseSmartEntry } from "@/modules/shopping-list/helpers";
 
-const itemA = parseSmartEntry("2kg Apples");
-// Returns: { name: "Apples", quantity: "2", unit: "kg" }
+parseSmartEntry("10 eggs");
+// { name: "eggs", quantity: "10", unit: undefined }
 
-const itemB = parseSmartEntry("Bananas, 5");
-// Returns: { name: "Bananas,", quantity: "5", unit: undefined }
+parseSmartEntry("Milk 2 ltr");
+// { name: "Milk", quantity: "2", unit: "ltr" }
 ```
 
-### Generating List Summaries
+### `summarizeList` output
 
-```typescript
+```ts
 import { summarizeList } from "@/modules/shopping-list/helpers";
 
-const listPayload = {
+const payload = {
   title: "Weekend Groceries",
   items: [
     { id: "1", name: "Milk", purchased: true },
-    { id: "2", name: "Bread", purchased: false }
+    { id: "2", name: "Bread", purchased: false },
   ],
-  is_completed: false
+  is_completed: false,
 };
 
-const summary = summarizeList(listPayload);
-// Returns: { totalItems: 2, purchasedItems: 1, remainingItems: 1, completionPercent: 50 }
+summarizeList(payload);
+// { totalItems: 2, purchasedItems: 1, remainingItems: 1, completionPercent: 50 }
 ```
+
+### Filter lists by tab + search
+
+```ts
+import { filterLists } from "@/modules/shopping-list/helpers";
+
+const active = filterLists(lists, "active", "grocer");
+const completed = filterLists(lists, "completed", "");
+```
+
+## Local Files
+
+- Admin view: `AdminView.tsx`
+- Widget summary: `Widget.tsx`
+- Helper utilities: `helpers.ts`
+- Data types: `types.ts`
