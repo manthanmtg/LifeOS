@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 import { SpreadsheetTab } from "./SpreadsheetTab";
 import { AnalyticsTab } from "./AnalyticsTab";
@@ -193,22 +194,7 @@ export default function CropHistoryAdminView() {
   );
 
   if (!settingsLoaded) {
-    return (
-      <div className="animate-fade-in-up space-y-6">
-        <div className="rounded-2xl md:rounded-3xl border border-zinc-800 bg-zinc-900 p-4 md:p-6 animate-pulse">
-          <div className="h-8 w-48 bg-zinc-800 rounded-lg mb-2" />
-          <div className="h-4 w-72 bg-zinc-800 rounded-md" />
-          <div className="mt-8 flex gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-8 w-24 bg-zinc-800 rounded-lg" />
-            ))}
-          </div>
-        </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 animate-pulse">
-          <div className="h-32 w-full bg-zinc-800 rounded-xl" />
-        </div>
-      </div>
-    );
+    return <AdminModuleSkeleton />;
   }
 
   return (
