@@ -45,10 +45,6 @@ interface MetricEvent {
   timestamp: string;
 }
 
-interface MetricEventView extends MetricEvent {
-  displayTime: string;
-}
-
 export function getDeviceData(metrics: Pick<MetricEvent, "device_type">[]) {
   const deviceCounts = metrics.reduce(
     (counts, metric) => {
