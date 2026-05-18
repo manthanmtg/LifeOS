@@ -52,7 +52,7 @@ export default function Toast({
           exit={{ opacity: 0, scale: 0.95 }}
           role={type === "error" ? "alert" : "status"}
           aria-live="polite"
-          className={`fixed bottom-8 right-8 z-[10000] flex items-center gap-3 px-4 py-3 border rounded-2xl shadow-2xl backdrop-blur-md min-w-[300px] max-w-md ${colors}`}
+          className={`fixed left-4 right-4 bottom-4 sm:left-auto sm:right-8 sm:bottom-8 z-[10000] flex items-center gap-3 px-4 py-3 border rounded-2xl shadow-2xl backdrop-blur-md min-w-0 sm:min-w-[300px] max-w-[calc(100%-2rem)] sm:max-w-md ${colors}`}
         >
           <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
           <p className="text-sm font-semibold flex-1 leading-tight">
@@ -65,7 +65,7 @@ export default function Toast({
                 action.onClick();
                 onClose();
               }}
-              className="px-3 py-1.5 bg-zinc-50/10 hover:bg-zinc-50/20 rounded-xl text-xs font-bold transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shrink-0"
+              className="px-3 py-2.5 sm:py-1.5 min-h-[44px] min-w-[44px] bg-zinc-50/10 hover:bg-zinc-50/20 rounded-xl text-xs font-bold transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shrink-0"
             >
               {action.label}
             </button>
@@ -74,7 +74,7 @@ export default function Toast({
           <button
             onClick={onClose}
             aria-label="Close notification"
-            className="p-1 hover:bg-zinc-50/5 rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shrink-0"
+            className="min-h-[44px] min-w-[44px] p-2.5 sm:p-1 hover:bg-zinc-50/5 rounded-lg transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shrink-0 flex items-center justify-center"
           >
             <X className="w-4 h-4 opacity-50 hover:opacity-100" />
           </button>
