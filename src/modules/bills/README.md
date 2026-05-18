@@ -14,7 +14,7 @@ Admin data is loaded through the bills-specific API family under `/api/bills`. T
 - **Compact Loading**: The admin list requests `/api/bills?compact=true` so attachment `data` blobs are omitted until a bill detail view needs the full record.
 - **Search And Views**: Filter by bill text and switch between grid and list views while preserving folder navigation.
 - **Metrics**: The admin view shows lifetime bills, current-month count, and current-month total with month-over-month trends.
-- **Dashboard Widget**: Shows total archived bills, the latest bill highlight, folder count, attachment count, and a relative "added" footer.
+- **Dashboard Widget**: Shows total archived bills, the latest bill preview, folder count, and attachment count.
 
 ## Data Schema
 
@@ -68,7 +68,7 @@ Bills use `module_type: "bill"` and are validated by `BillSchema` in `src/lib/sc
 | `GET`    | `/api/bills/folders`                       | List folders sorted oldest first.                                                                               |
 | `POST`   | `/api/bills/folders`                       | Create a private folder document after `BillFolderSchema` validation.                                           |
 | `PUT`    | `/api/bills/folders/:id`                   | Rename or update folder payload fields.                                                                         |
-| `DELETE` | `/api/bills/folders/:id`                   | Delete a folder and move direct bills out of it.                                                                |
+| `DELETE` | `/api/bills/folders/:id`                   | Delete a folder and move its bills (including direct child folder bills) to root.                                |
 | `PUT`    | `/api/bills/folders/:id/move`              | Move a folder with `{ "parent_id": "..." }` or `{ "parent_id": null }`; self and descendant moves are rejected. |
 
 ## Registration
