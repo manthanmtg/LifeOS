@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type DragEvent } from "react";
+import { useState, useRef, useCallback, useMemo, type DragEvent } from "react";
 import {
   FileText,
   Upload,
@@ -111,7 +111,22 @@ export default function PersonDocuments({
     size?: number;
   } | null>(null);
 
-  const documents = person.payload.documents || [];
+  const documents = useMemo(
+    () => person.payload.documents ?? [],
+    [person.payload.documents],
+  );
+  const documentRows = useMemo(
+    () =>
+      documents.map((doc) => ({
+        ...doc,
+        formattedAddedAt: new Date(doc.added_at).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      })),
+    [documents],
+  );
 
   const processFile = useCallback(
     async (file: File) => {
@@ -401,8 +416,8 @@ export default function PersonDocuments({
 
         {/* Document list */}
         <div className="space-y-2">
-          {documents.length > 0
-            ? documents.map((doc) => (
+          {documentRows.length > 0
+            ? documentRows.map((doc) => (
                 <motion.div
                   key={doc.id}
                   layout
@@ -422,12 +437,7 @@ export default function PersonDocuments({
                       {doc.name}
                     </p>
                     <p className="text-[10px] text-zinc-600 mt-0.5">
-                      {formatBytes(doc.size)} ·{" "}
-                      {new Date(doc.added_at).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
+                      {formatBytes(doc.size)} · {doc.formattedAddedAt}
                     </p>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

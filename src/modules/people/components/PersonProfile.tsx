@@ -57,6 +57,8 @@ interface PersonProfileProps {
 const inputCls =
   "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 outline-none focus:border-accent/40 transition-colors";
 
+const getTodayInputValue = () => new Date().toISOString().slice(0, 10);
+
 export default function PersonProfile({
   person,
   onBack,
@@ -71,7 +73,8 @@ export default function PersonProfile({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [logType, setLogType] = useState<InteractionType>("message");
   const [logNote, setLogNote] = useState("");
-  const [logDate, setLogDate] = useState(new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => new Date());
+  const [logDate, setLogDate] = useState(getTodayInputValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -99,16 +102,16 @@ export default function PersonProfile({
   );
   const lastContacted = getDerivedLastContacted(person);
   const daysSinceContact = useMemo(
-    () => getDaysSinceDate(lastContacted),
-    [lastContacted],
+    () => getDaysSinceDate(lastContacted, today.getTime()),
+    [lastContacted, today],
   );
   const birthdayDetails = useMemo(
-    () => getBirthdayDetails(birthday),
-    [birthday],
+    () => getBirthdayDetails(birthday, today),
+    [birthday, today],
   );
   const birthdayDisplay = useMemo(
-    () => (birthday ? getBirthdayDisplay(birthday) : null),
-    [birthday],
+    () => (birthday ? getBirthdayDisplay(birthday, today) : null),
+    [birthday, today],
   );
   const interactionRows = useMemo(
     () =>
@@ -534,7 +537,7 @@ export default function PersonProfile({
                         setShowLogForm(false);
                         setEditingIndex(null);
                         setLogNote("");
-                        setLogDate(new Date().toISOString().slice(0, 10));
+                        setLogDate(getTodayInputValue());
                         setLogType("message");
                       }}
                       className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-zinc-500 text-xs font-medium border border-zinc-800 hover:text-zinc-200 transition-all"
