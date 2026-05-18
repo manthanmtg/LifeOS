@@ -465,7 +465,16 @@ export const PersonSchema = z.object({
       "other",
     ])
     .default("friend"),
-  phone: z.string().trim().max(50).optional(),
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Phone number must be at least 7 characters")
+    .regex(
+      /^\+?[0-9][0-9\s().-]{5,49}$/,
+      "Phone number can only contain digits, spaces, parentheses, and dashes",
+    )
+    .max(50)
+    .optional(),
   email: z.string().trim().email().optional().or(z.literal("")),
   company: z.string().trim().max(100).optional(),
   role: z.string().trim().max(100).optional(),

@@ -221,6 +221,18 @@ describe("schemas", () => {
       expect(result.success).toBe(false);
     });
 
+    it("rejects malformed person phone numbers", () => {
+      const person = {
+        name: "Jane Doe",
+        relationship: "friend",
+        phone: "+phone",
+      };
+
+      const result = PersonSchema.safeParse(person);
+
+      expect(result.success).toBe(false);
+    });
+
     it("rejects malformed person date fields", () => {
       const person = {
         name: "Jane Doe",
