@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, memo } from "react";
-import { Tv, Star, Play } from "lucide-react";
+import { motion } from "framer-motion";
+import { AlertTriangle, Tv, Star, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -30,6 +31,19 @@ const EMPTY_SUMMARY: BingeSummary = {
 export default memo(function BingeWidget() {
   const [summary, setSummary] = useState<BingeSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  const ratingToneClass =
+    summary.avgRating >= 8
+      ? "text-success"
+      : summary.avgRating >= 6
+        ? "text-warning"
+        : "text-danger";
+
+  const footerRating =
+    loadError || summary.avgRating === 0
+      ? "—"
+      : summary.avgRating.toFixed(1);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -37,8 +51,11 @@ export default memo(function BingeWidget() {
       signal: controller.signal,
     })
       .then((res) => res.json())
-      .then((data) => setSummary(data.data || EMPTY_SUMMARY))
-      .catch(() => {})
+      .then((data) => {
+        setLoadError(false);
+        setSummary(data.data || EMPTY_SUMMARY);
+      })
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, []);
@@ -57,38 +74,56 @@ export default memo(function BingeWidget() {
           <span
             className={cn(
               "inline-flex items-center gap-1",
-              summary.avgRating > 0 ? "text-warning/80" : "text-zinc-500",
+              loadError || summary.avgRating === 0 ? "text-zinc-500" : ratingToneClass,
             )}
           >
             <Star
               className="w-3 h-3"
-              fill={summary.avgRating > 0 ? "currentColor" : "none"}
+              fill={footerRating !== "—" ? "currentColor" : "none"}
             />
-            {summary.avgRating > 0 ? summary.avgRating.toFixed(1) : "—"}
+            {footerRating}
           </span>
         </div>
       }
     >
-      <div className="space-y-3">
-        <WidgetStat value={summary.watchingCount} label="currently watching" />
-        {summary.latest ? (
-          <WidgetHighlight
-            icon={Play}
-            text={summary.latest.title}
-            variant="accent"
-            subtext={
-              summary.latest.current_season
-                ? `S${summary.latest.current_season}${summary.latest.current_episode ? ` · E${summary.latest.current_episode}` : ""}`
-                : undefined
-            }
-          />
-        ) : (
-          <WidgetHighlight
-            icon={Tv}
-            text={summary.total > 0 ? "No active watch" : "Nothing queued up"}
-          />
-        )}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+      >
+        <div className="space-y-3">
+          <WidgetStat value={summary.watchingCount} label="currently watching" />
+          {loadError ? (
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text="Binge summary unavailable"
+              subtext="Open Binge to verify data and retry."
+              variant="danger"
+            />
+          ) : summary.latest ? (
+            <WidgetHighlight
+              icon={Play}
+              text={summary.latest.title}
+              variant="accent"
+              subtext={
+                summary.latest.current_season
+                  ? `S${summary.latest.current_season}${summary.latest.current_episode ? ` · E${summary.latest.current_episode}` : ""}`
+                  : undefined
+              }
+            />
+          ) : (
+            <WidgetHighlight
+              icon={Tv}
+              text={summary.total > 0 ? "No active watch" : "Nothing queued up"}
+              subtext={
+                summary.total > 0
+                  ? "Open an item to resume progress"
+                  : "Add a title to build your watch list"
+              }
+            />
+          )}
+        </div>
+      </motion.div>
     </WidgetCard>
   );
 });
