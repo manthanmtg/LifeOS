@@ -939,10 +939,14 @@ export default function SettingsPage() {
 
               {/* Site Title */}
               <div className="bg-zinc-900/60 border border-zinc-400/20 rounded-3xl p-6 lg:p-8">
-                <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                <label
+                  htmlFor="site-title"
+                  className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2"
+                >
                   Site Title (Alternative)
                 </label>
                 <input
+                  id="site-title"
                   type="text"
                   value={config?.site_title || ""}
                   onChange={(e) => saveConfig({ site_title: e.target.value })}
@@ -1291,12 +1295,16 @@ export default function SettingsPage() {
 
                       {/* Custom URL Input */}
                       <div>
-                        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                        <label
+                          htmlFor="site-icon-url"
+                          className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2"
+                        >
                           Or paste image URL
                         </label>
                         <div className="relative">
                           <Link className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                           <input
+                            id="site-icon-url"
                             type="text"
                             value={isCustomUrl ? config.site_icon : ""}
                             onChange={(e) =>
