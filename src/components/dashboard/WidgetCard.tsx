@@ -125,7 +125,12 @@ export default function WidgetCard({
       {/* Main Content */}
       <div className="flex-1 relative z-10 min-h-0">
         {loading ? (
-          <div className="space-y-3">
+          <div
+            role="status"
+            aria-label={`Loading ${title} widget`}
+            aria-busy="true"
+            className="space-y-3 animate-pulse"
+          >
             <SkeletonBlock className="h-8 w-1/3" />
             <SkeletonBlock className="h-4 w-2/3" />
             <SkeletonBlock className="h-4 w-1/2" />
