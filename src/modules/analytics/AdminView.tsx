@@ -79,6 +79,7 @@ const COLORS = [
 export default function AnalyticsAdminView() {
   const [metrics, setMetrics] = useState<MetricEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState("30");
   const [selectedModule, setSelectedModule] = useState<string>("all");
   const [trafficSource, setTrafficSource] = useState<
@@ -90,13 +91,20 @@ export default function AnalyticsAdminView() {
 
   const fetchMetrics = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const r = await fetch(`/api/metrics?days=${dateRange}`);
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Failed to fetch metrics");
       setMetrics(d.data || []);
     } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "An unknown error occurred while loading analytics.";
       console.error("fetchMetrics failed:", err);
+      setError(message);
+      setMetrics([]);
     } finally {
       setLoading(false);
     }
@@ -335,6 +343,16 @@ export default function AnalyticsAdminView() {
 
   return (
     <div className="animate-fade-in space-y-8 pb-12">
+      {error && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-danger"
+        >
+          <p className="text-sm font-bold">Could not load analytics data.</p>
+          <p className="text-xs text-danger/90">{error}</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
