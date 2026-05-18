@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, Edit3, Paperclip, Receipt } from "lucide-react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatDate } from "../helpers";
 import PdfThumbnail from "./PdfThumbnail";
@@ -48,12 +49,14 @@ export default function BillCard({
       }}
     >
       {firstImage ? (
-        <div className="h-28 sm:h-32 w-full bg-zinc-800/50 overflow-hidden shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative h-28 sm:h-32 w-full bg-zinc-800/50 overflow-hidden shrink-0">
+          <Image
+            fill
             src={`data:${firstImage.content_type};base64,${firstImage.data!}`}
             alt={bill.payload.name}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+            unoptimized
+            sizes="100vw"
           />
         </div>
       ) : firstPDF ? (

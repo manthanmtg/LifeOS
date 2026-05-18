@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import {
   X,
   Calendar,
@@ -242,11 +243,13 @@ export default function BillDetail({
                         onClick={() => handlePreview(att)}
                         className="relative aspect-square rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition-colors group"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
+                          fill
                           src={`data:${att.content_type};base64,${att.data}`}
                           alt={att.filename}
-                          className="w-full h-full object-cover"
+                          className="object-cover"
+                          unoptimized
+                          sizes="33vw"
                         />
                         <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors flex items-center justify-center">
                           <Eye className="w-5 h-5 text-zinc-50 opacity-0 group-hover:opacity-100 transition-opacity" />
