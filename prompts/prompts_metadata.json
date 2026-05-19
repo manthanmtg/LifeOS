@@ -211,13 +211,13 @@
       "category": "security",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 21,
+      "totalSelected": 22,
       "totalCompleted": 14,
-      "totalNoop": 7,
+      "totalNoop": 8,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-19T02:45:58.137Z",
-      "lastCompletedAt": "2026-05-19T02:49:04.341Z",
-      "lastOutcome": "completed"
+      "lastSelectedAt": "2026-05-19T12:45:52.197Z",
+      "lastCompletedAt": "2026-05-19T12:48:27.440Z",
+      "lastOutcome": "noop"
     },
     "test_corrector.md": {
       "id": "test-corrector",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-18T05:54:27.014Z"
     }
   },
-  "updatedAt": "2026-05-19T12:20:52.317Z"
+  "updatedAt": "2026-05-19T12:48:27.440Z"
 }
