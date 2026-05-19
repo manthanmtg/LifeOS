@@ -1,6 +1,16 @@
 import { getDb } from "@/lib/mongodb";
 import { ContentDocument } from "@/lib/types";
 
+function sanitizePdfFilename(filename: string) {
+  const sanitized = filename
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9._-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  return sanitized || "resume.pdf";
+}
+
 export async function GET() {
   try {
     const db = await getDb();
@@ -44,7 +54,7 @@ export async function GET() {
         filename = `${cleanName}_resume.pdf`;
       }
     } else if (resumePayload.filename) {
-      filename = resumePayload.filename;
+      filename = sanitizePdfFilename(resumePayload.filename);
     }
 
     // 3. Extract base64 data

@@ -133,6 +133,25 @@ describe("GET /api/portfolio/resume", () => {
     );
   });
 
+  it("sanitizes the fallback resume filename before writing response headers", async () => {
+    const mockResume = {
+      module_type: "portfolio_resume",
+      payload: {
+        is_active: true,
+        content: "data:application/pdf;base64,SGVsbG8gV29ybGQ=",
+        filename: 'custom"\r\nX-Injected: yes.pdf',
+      },
+    };
+    mockFindOne.mockResolvedValueOnce(mockResume).mockResolvedValueOnce(null);
+
+    const response = await GET();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'inline; filename="custom_x-injected_yes.pdf"',
+    );
+  });
+
   it("returns 500 if resume content is invalid (missing comma)", async () => {
     const mockResume = {
       module_type: "portfolio_resume",
