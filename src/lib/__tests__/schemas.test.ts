@@ -286,6 +286,18 @@ describe("schemas", () => {
 
       expect(result.success).toBe(false);
     });
+
+    it("rejects deck data URLs larger than the upload limit envelope", () => {
+      const deck = {
+        title: "Oversized upload",
+        format: "html",
+        deck_url: `data:text/html;base64,${"a".repeat(14 * 1024 * 1024 + 1)}`,
+      };
+
+      const result = DeckSchema.safeParse(deck);
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("AiUsageSchema", () => {

@@ -25,6 +25,8 @@ const IsoCalendarDateOrDateTimeSchema = z.union([
   z.string().datetime("Must be a valid ISO date-time"),
 ]);
 
+const DeckUrlMaxLength = 14 * 1024 * 1024;
+
 // --- 1. PORTFOLIO & IDENTITY ---
 const SocialLinkSchema = z.object({
   platform: z
@@ -883,7 +885,12 @@ export const DeckSchema = z.object({
   author: z.string().trim().max(100).optional(),
   topic: z.string().trim().max(100).optional(),
   folder: z.string().trim().max(100).optional(),
-  deck_url: z.string().url().optional(),
+  deck_url: z
+    .string()
+    .trim()
+    .url()
+    .max(DeckUrlMaxLength, "Deck URL or upload data is too large")
+    .optional(),
   file_name: z.string().trim().max(255).optional(),
   file_size: z.number().int().min(0).optional(),
   thumbnail_url: z.string().url().max(500).optional(),
