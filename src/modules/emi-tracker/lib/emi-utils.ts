@@ -474,6 +474,88 @@ export function calculateInterestSaved(
   return Math.max(0, originalInterest - currentTotalInterest);
 }
 
+export function calculateQuickStats(
+  loans: EmiLoan[],
+  now: Date,
+  decimals: number,
+) {
+  const active = loans.filter((l) => l.payload.status === "active");
+  const currencies: Record<string, number> = {};
+  let nearest: { loan: EmiLoan; row: ScheduleRow } | null = null;
+
+  active.forEach((l) => {
+    const schedule = computeSchedule(l.payload, decimals);
+    const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+    currencies[l.payload.currency] =
+      (currencies[l.payload.currency] || 0) + outstanding;
+
+    if (nextDue) {
+      if (
+        !nearest ||
+        new Date(nextDue.due_date).getTime() <
+          new Date(nearest.row.due_date).getTime()
+      ) {
+        nearest = { loan: l, row: nextDue };
+      }
+    }
+  });
+
+  return {
+    activeCount: active.length,
+    outstandingByCurrency: Object.entries(currencies).map(
+      ([currency, amount]) => ({
+        currency,
+        amount,
+      }),
+    ),
+    nearestDue: nearest,
+  };
+}
+
+export function calculateTotalInterestSavedAcrossAll(
+  loans: EmiLoan[],
+  decimals: number,
+) {
+  return loans.reduce((acc, loan) => {
+    const schedule = computeSchedule(loan.payload, decimals);
+    const originalPayload = {
+      ...loan.payload,
+      payments: loan.payload.payments.filter((p) => p.kind !== "prepayment"),
+    };
+    const originalSchedule = computeSchedule(originalPayload, decimals);
+    return (
+      acc +
+      calculateInterestSaved(
+        schedule.rows,
+        originalSchedule.totals.total_interest,
+      )
+    );
+  }, 0);
+}
+
+export function getLoanCards(
+  loans: EmiLoan[],
+  now: Date,
+  searchQuery: string,
+  decimals: number,
+) {
+  const filtered = loans.filter(
+    (l) =>
+      l.payload.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.payload.lender_name?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+  return filtered.map((loan) => {
+    const schedule = computeSchedule(loan.payload, decimals);
+    const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+    const totalPrincipal = loan.payload.principal;
+    const progress = Math.min(
+      1,
+      Math.max(0, (totalPrincipal - outstanding) / totalPrincipal),
+    );
+    return { loan, outstanding, nextDue, progress };
+  });
+}
+
 export function exportSchedulePDF(
   loanTitle: string,
   schedule: ScheduleResult,
