@@ -109,7 +109,7 @@ export default function SnippetCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onCopy(snippet._id, snippet.payload.code)}
             className={cn(
