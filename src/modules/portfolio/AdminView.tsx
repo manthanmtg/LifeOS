@@ -271,8 +271,7 @@ export default function PortfolioAdminView() {
 
   return (
     <div className="animate-fade-in-up space-y-6">
-      <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-        <div className="absolute -top-10 right-0 h-32 w-32 rounded-full bg-accent/20 blur-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/80 p-6 shadow-lg shadow-zinc-950/20 backdrop-blur-sm">
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
