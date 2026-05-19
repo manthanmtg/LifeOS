@@ -7,9 +7,9 @@ import { trackEvent } from "@/lib/analytics";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { EmiLoan, EmiTrackerSettings } from "./types";
 import {
-  computeSchedule,
-  getOutstandingAsOf,
-  calculateInterestSaved,
+  calculateQuickStats,
+  calculateTotalInterestSavedAcrossAll,
+  getLoanCards,
 } from "./lib/emi-utils";
 
 // Components
@@ -71,83 +71,21 @@ export default function EmiTrackerAdminView() {
     [loans, selectedId],
   );
 
-  const loanCards = useMemo(() => {
-    const filtered = loans.filter(
-      (l) =>
-        l.payload.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        l.payload.lender_name
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()),
-    );
-    return filtered.map((loan) => {
-      const schedule = computeSchedule(loan.payload, settings.roundingDecimals);
-      const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
-      const totalPrincipal = loan.payload.principal;
-      const progress = Math.min(
-        1,
-        Math.max(0, (totalPrincipal - outstanding) / totalPrincipal),
-      );
-      return { loan, outstanding, nextDue, progress };
-    });
-  }, [loans, now, searchQuery, settings.roundingDecimals]);
+  const loanCards = useMemo(
+    () => getLoanCards(loans, now, searchQuery, settings.roundingDecimals),
+    [loans, now, searchQuery, settings.roundingDecimals],
+  );
 
-  const quickStats = useMemo(() => {
-    const active = loans.filter((l) => l.payload.status === "active");
-    const currencies: Record<string, number> = {};
-    let nearest: { loan: EmiLoan; row: { due_date: string } } | null = null;
+  const quickStats = useMemo(
+    () => calculateQuickStats(loans, now, settings.roundingDecimals),
+    [loans, now, settings.roundingDecimals],
+  );
 
-    active.forEach((l) => {
-      const schedule = computeSchedule(l.payload, settings.roundingDecimals);
-      const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
-      currencies[l.payload.currency] =
-        (currencies[l.payload.currency] || 0) + outstanding;
-
-      if (nextDue) {
-        if (
-          !nearest ||
-          new Date(nextDue.due_date).getTime() <
-            new Date(
-              (nearest as { row: { due_date: string } }).row.due_date,
-            ).getTime()
-        ) {
-          nearest = { loan: l, row: nextDue };
-        }
-      }
-    });
-
-    return {
-      activeCount: active.length,
-      outstandingByCurrency: Object.entries(currencies).map(
-        ([currency, amount]) => ({
-          currency,
-          amount,
-        }),
-      ),
-      nearestDue: nearest,
-    };
-  }, [loans, now, settings.roundingDecimals]);
-
-  const totalInterestSavedAcrossAll = useMemo(() => {
-    return loans.reduce((acc, loan) => {
-      const schedule = computeSchedule(loan.payload, settings.roundingDecimals);
-      // We need an "original" schedule without prepayments to compare
-      const originalPayload = {
-        ...loan.payload,
-        payments: loan.payload.payments.filter((p) => p.kind !== "prepayment"),
-      };
-      const originalSchedule = computeSchedule(
-        originalPayload,
-        settings.roundingDecimals,
-      );
-      return (
-        acc +
-        calculateInterestSaved(
-          schedule.rows,
-          originalSchedule.totals.total_interest,
-        )
-      );
-    }, 0);
-  }, [loans, settings.roundingDecimals]);
+  const totalInterestSavedAcrossAll = useMemo(
+    () =>
+      calculateTotalInterestSavedAcrossAll(loans, settings.roundingDecimals),
+    [loans, settings.roundingDecimals],
+  );
 
   if (loading) {
     return <AdminModuleSkeleton />;
