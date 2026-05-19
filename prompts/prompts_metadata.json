@@ -150,12 +150,12 @@
       "category": "performance",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 32,
+      "totalSelected": 33,
       "totalCompleted": 29,
       "totalNoop": 0,
       "totalFailed": 1,
-      "lastSelectedAt": "2026-05-19T00:45:56Z",
-      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-19T04:01:02.398Z",
+      "lastOutcome": "selected",
       "lastCompletedAt": "2026-05-19T00:49:23Z"
     },
     "prompts_optimizer.md": {
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-18T05:54:27.014Z"
     }
   },
-  "updatedAt": "2026-05-19T02:49:04.341Z"
+  "updatedAt": "2026-05-19T04:01:02.398Z"
 }
