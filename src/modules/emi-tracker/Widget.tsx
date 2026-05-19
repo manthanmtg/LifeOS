@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Landmark, Clock, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -45,6 +46,7 @@ export default function EMITrackerWidget() {
 
   const [summary, setSummary] = useState<EmiSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [nowMs] = useState(() => Date.now());
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function EMITrackerWidget() {
     )
       .then((r) => r.json())
       .then((d) => setSummary(d.data || null))
-      .catch(() => {})
+      .catch(() => setHasError(true))
       .finally(() => setLoading(false));
   }, [settings.roundingDecimals, settings.defaultCurrency]);
 
@@ -87,8 +89,20 @@ export default function EMITrackerWidget() {
       loading={loading}
       href="/admin/emi-tracker"
     >
-      {summary && (
-        <div className="space-y-3">
+      {loading ? null : hasError || !summary ? (
+        <WidgetHighlight
+          icon={AlertTriangle}
+          text="Unable to load loans summary"
+          subtext="Please refresh to retry"
+          variant="warning"
+        />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="space-y-3"
+        >
           <WidgetStat
             value={`${sym}${formatNumber(amount, settings.numberFormat)}`}
             label="total principal"
@@ -109,9 +123,14 @@ export default function EMITrackerWidget() {
               }
             />
           ) : (
-            <WidgetHighlight icon={Clock} text="No upcoming EMIs" />
+            <WidgetHighlight
+              icon={Landmark}
+              text="No active loans"
+              subtext="Add a loan or EMI to track"
+              variant="accent"
+            />
           )}
-        </div>
+        </motion.div>
       )}
     </WidgetCard>
   );
