@@ -62,7 +62,7 @@ export default function PortfolioShowcase({
                 </motion.span>
               )}
 
-              <h1 className="text-5xl md:text-8xl font-bold tracking-tight text-zinc-50 leading-[0.95] max-w-4xl">
+              <h1 className="text-5xl md:text-8xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-400 leading-[0.95] max-w-4xl">
                 {profile.hero_title || displayName}
               </h1>
 
@@ -80,7 +80,7 @@ export default function PortfolioShowcase({
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ y: -2 }}
+                  whileHover={{ y: -2, scale: 1.02 }}
                   className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:border-zinc-600 transition-all text-sm backdrop-blur-md"
                 >
                   <ExternalLink className="w-3.5 h-3.5 group-hover:text-accent transition-colors" />
