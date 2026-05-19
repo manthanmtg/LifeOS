@@ -131,10 +131,11 @@ export default function BlogEditor({
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs text-zinc-500">
+              <label htmlFor="post-title" className="mb-1.5 block text-xs text-zinc-500">
                 Title
               </label>
               <input
+                id="post-title"
                 type="text"
                 value={draft.title}
                 onChange={(event) =>
@@ -212,6 +213,7 @@ export default function BlogEditor({
               {viewMode !== "preview" && (
                 <textarea
                   ref={textareaRef}
+                  aria-label="Post content"
                   value={draft.content}
                   onChange={(event) =>
                     onSetDraft((previous) => ({
@@ -265,10 +267,11 @@ export default function BlogEditor({
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs text-zinc-500">
+                  <label htmlFor="post-tags" className="mb-1.5 block text-xs text-zinc-500">
                     Tags (comma-separated)
                   </label>
                   <input
+                    id="post-tags"
                     type="text"
                     value={draft.tagsInput}
                     onChange={(event) =>
