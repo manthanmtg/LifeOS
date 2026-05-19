@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import { THEMES } from "@/components/ThemeProvider";
 import {
@@ -31,11 +32,22 @@ import {
   Link,
   Trash2,
 } from "lucide-react";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import { moduleRegistry } from "@/registry";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
+
+const MarkdownRenderer = dynamic(() => import("@/components/MarkdownRenderer"), {
+  loading: () => (
+    <div className="space-y-4 animate-pulse">
+      <SkeletonBlock className="h-6 w-1/3 rounded" />
+      <SkeletonBlock className="h-4 w-full rounded" />
+      <SkeletonBlock className="h-4 w-2/3 rounded" />
+      <SkeletonBlock className="h-4 w-full rounded" />
+      <SkeletonBlock className="h-4 w-1/2 rounded" />
+    </div>
+  ),
+});
 
 const THEME_META: Record<string, { label: string; colors: string[] }> = {
   "one-dark": { label: "One Dark", colors: ["#161b26", "#61afef", "#f2f4f8"] },
