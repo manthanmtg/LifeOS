@@ -1,6 +1,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import AnalyticsAdminView, { getDeviceData } from "../AdminView";
+import AnalyticsAdminView, {
+  getAverageSessionFormatted,
+  getDeviceData,
+} from "../AdminView";
 import React from "react";
 
 describe("AnalyticsAdminView", () => {
@@ -65,5 +68,15 @@ describe("AnalyticsAdminView", () => {
       { name: "Mobile", value: 2 },
       { name: "Tablet", value: 1 },
     ]);
+  });
+
+  it("formats average session duration from the provided metric subset", () => {
+    const avgSession = getAverageSessionFormatted([
+      { action: "session_end", value: 30_000 },
+      { action: "page_view", value: 10_000 },
+      { action: "session_end", value: 90_000 },
+    ]);
+
+    expect(avgSession).toBe("1m 0s");
   });
 });

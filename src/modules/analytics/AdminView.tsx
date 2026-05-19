@@ -67,6 +67,26 @@ export function getDeviceData(metrics: Pick<MetricEvent, "device_type">[]) {
   ].filter((device) => device.value > 0);
 }
 
+export function getAverageSessionFormatted(
+  metrics: Pick<MetricEvent, "action" | "value">[],
+) {
+  const sessionEndEvents = metrics.filter(
+    (metric) => metric.action === "session_end" && metric.value,
+  );
+  const avgSessionMs =
+    sessionEndEvents.length > 0
+      ? sessionEndEvents.reduce((sum, event) => sum + (event.value || 0), 0) /
+        sessionEndEvents.length
+      : 0;
+  const avgSessionSec = Math.round(avgSessionMs / 1000);
+
+  if (avgSessionSec <= 0) return "—";
+
+  return avgSessionSec >= 60
+    ? `${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`
+    : `${avgSessionSec}s`;
+}
+
 const COLORS = [
   "var(--color-accent)",
   "var(--color-success)",
@@ -149,9 +169,7 @@ export default function AnalyticsAdminView() {
     }
 
     const today = new Date(nowMs).toISOString().split("T")[0];
-    const yesterday = new Date(nowMs - 86400000)
-      .toISOString()
-      .split("T")[0];
+    const yesterday = new Date(nowMs - 86400000).toISOString().split("T")[0];
 
     const todayActions = filtered.filter((m) =>
       m.timestamp?.startsWith(today),
@@ -277,21 +295,7 @@ export default function AnalyticsAdminView() {
       .slice(0, 10);
 
     // ─── Average Session Duration ───
-    const sessionEndEvents = metrics.filter(
-      (m) => m.action === "session_end" && m.value,
-    );
-    const avgSessionMs =
-      sessionEndEvents.length > 0
-        ? sessionEndEvents.reduce((s, e) => s + (e.value || 0), 0) /
-          sessionEndEvents.length
-        : 0;
-    const avgSessionSec = Math.round(avgSessionMs / 1000);
-    const avgSessionFormatted =
-      avgSessionSec > 0
-        ? avgSessionSec >= 60
-          ? `${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`
-          : `${avgSessionSec}s`
-        : "—";
+    const avgSessionFormatted = getAverageSessionFormatted(filtered);
 
     // ─── Public vs Admin Traffic (daily) ───
     const adminDailyAgg: Record<string, number> = {};
@@ -313,7 +317,7 @@ export default function AnalyticsAdminView() {
       });
     }
 
-      return {
+    return {
       totalEvents: filtered.length,
       todayActions,
       yesterdayActions,
@@ -644,7 +648,7 @@ export default function AnalyticsAdminView() {
           </h3>
           <div className="space-y-6">
             {stats.moduleChartData.slice(0, 6).map((item, idx) => (
-                <div key={item.name} className="group">
+              <div key={item.name} className="group">
                 <div className="flex items-center justify-between text-xs mb-2">
                   <span className="font-bold text-zinc-300 capitalize flex items-center gap-2">
                     <div
