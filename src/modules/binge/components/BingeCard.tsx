@@ -5,6 +5,7 @@ import { Tv, Star, Edit3, Trash2, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { BingeItem } from "../types";
+import { formatRelativeDate } from "./helpers";
 import {
   STATUS_LABELS,
   STATUS_STYLES,
@@ -29,6 +30,7 @@ interface BingeCardProps {
   onDelete: (id: string) => void;
   isDeletingId: string | null;
   index: number;
+  currentTimeMs: number | null;
 }
 
 function SeasonProgress({ item }: { item: BingeItem }) {
@@ -61,26 +63,13 @@ function SeasonProgress({ item }: { item: BingeItem }) {
   );
 }
 
-function formatRelativeDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
-  return `${Math.floor(diffDays / 365)}y ago`;
-}
-
 export default function BingeCard({
   item,
   onEdit,
   onDelete,
   isDeletingId,
   index,
+  currentTimeMs,
 }: BingeCardProps) {
   const isDeleting = isDeletingId === item._id;
   const isSeries =
@@ -143,9 +132,11 @@ export default function BingeCard({
                 · {item.payload.platform}
               </span>
             )}
-            <span className="text-[10px] text-zinc-600 ml-auto">
-              {formatRelativeDate(item.created_at)}
-            </span>
+            {currentTimeMs !== null && (
+              <span className="text-[10px] text-zinc-600 ml-auto">
+                {formatRelativeDate(item.created_at, currentTimeMs)}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             <span
