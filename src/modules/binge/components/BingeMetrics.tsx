@@ -13,6 +13,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import type { BingeItem } from "../types";
+import { buildBingeStats } from "./helpers";
 
 function Sparkline({
   data,
@@ -78,71 +79,21 @@ const cardVariants = {
 
 interface BingeMetricsProps {
   items: BingeItem[];
+  currentTimeMs: number | null;
 }
 
-export default function BingeMetrics({ items }: BingeMetricsProps) {
+export default function BingeMetrics({
+  items,
+  currentTimeMs,
+}: BingeMetricsProps) {
+  const monthAnchor = useMemo(
+    () => (currentTimeMs === null ? null : new Date(currentTimeMs)),
+    [currentTimeMs],
+  );
+
   const stats = useMemo(() => {
-    const total = items.length;
-    const watching = items.filter(
-      (i) => i.payload.status === "watching",
-    ).length;
-    const completed = items.filter(
-      (i) => i.payload.status === "completed",
-    ).length;
-    const toWatch = items.filter((i) => i.payload.status === "to_watch").length;
-    const dropped = items.filter((i) => i.payload.status === "dropped").length;
-    const rated = items.filter((i) => !!i.payload.rating);
-    const avgRating =
-      rated.length > 0
-        ? rated.reduce((sum, i) => sum + (i.payload.rating || 0), 0) /
-          rated.length
-        : 0;
-
-    const movies = items.filter((i) => i.payload.type === "movie").length;
-    const series = items.filter((i) => i.payload.type === "series").length;
-    const anime = items.filter((i) => i.payload.type === "anime").length;
-    const docs = items.filter((i) => i.payload.type === "documentary").length;
-
-    // Monthly additions for sparkline (last 6 months)
-    const now = new Date();
-    const monthlyData: number[] = [];
-    for (let m = 5; m >= 0; m--) {
-      const start = new Date(now.getFullYear(), now.getMonth() - m, 1);
-      const end = new Date(now.getFullYear(), now.getMonth() - m + 1, 1);
-      const count = items.filter((i) => {
-        const d = new Date(i.created_at);
-        return d >= start && d < end;
-      }).length;
-      monthlyData.push(count);
-    }
-
-    // Completion rate sparkline (last 6 months)
-    const completionData: number[] = [];
-    for (let m = 5; m >= 0; m--) {
-      const start = new Date(now.getFullYear(), now.getMonth() - m, 1);
-      const end = new Date(now.getFullYear(), now.getMonth() - m + 1, 1);
-      const count = items.filter((i) => {
-        const d = new Date(i.created_at);
-        return d >= start && d < end && i.payload.status === "completed";
-      }).length;
-      completionData.push(count);
-    }
-
-    return {
-      total,
-      watching,
-      completed,
-      toWatch,
-      dropped,
-      avgRating,
-      movies,
-      series,
-      anime,
-      docs,
-      monthlyData,
-      completionData,
-    };
-  }, [items]);
+    return buildBingeStats(items, monthAnchor);
+  }, [items, monthAnchor]);
 
   const metrics = [
     {

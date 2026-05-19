@@ -16,6 +16,7 @@ export default function BingeAdminView() {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<BingeItem | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+  const [currentTimeMs, setCurrentTimeMs] = useState<number | null>(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("all");
@@ -38,6 +39,18 @@ export default function BingeAdminView() {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
+
+  useEffect(() => {
+    setCurrentTimeMs(Date.now());
+    const intervalId = window.setInterval(
+      () => {
+        setCurrentTimeMs(Date.now());
+      },
+      60 * 60 * 1000,
+    );
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const handleEdit = useCallback((item: BingeItem) => {
     setEditingItem(item);
@@ -122,7 +135,7 @@ export default function BingeAdminView() {
           </div>
 
           {/* Metrics */}
-          <BingeMetrics items={items} />
+          <BingeMetrics items={items} currentTimeMs={currentTimeMs} />
         </div>
       </div>
 
@@ -189,6 +202,7 @@ export default function BingeAdminView() {
                 onDelete={handleDelete}
                 isDeletingId={isDeletingId}
                 index={i}
+                currentTimeMs={currentTimeMs}
               />
             ))}
           </AnimatePresence>
