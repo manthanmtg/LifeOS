@@ -170,7 +170,7 @@ function FormulaBuilder({
     { label: "\u00d7", value: "*", title: "Multiply" },
     { label: "\u00f7", value: "/", title: "Divide" },
     { label: "(", value: "(", title: "Open bracket" },
-    { label: "&quot;)", value: ")", title: "Close bracket" },
+    { label: ")", value: ")", title: "Close bracket" },
   ];
 
   const hasContent = sourceFields.length > 0 || summaryFields.length > 0;
