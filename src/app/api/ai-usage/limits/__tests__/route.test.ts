@@ -38,15 +38,17 @@ describe("/api/ai-usage/limits", () => {
     vi.mocked(getDb).mockResolvedValue({
       collection: vi.fn().mockReturnValue({
         find: vi.fn().mockReturnValue({
-          toArray: vi.fn().mockResolvedValue([
-            {
-              _id: "123",
-              name: "OpenAI",
-              provider: "openai",
-              admin_api_key: "key",
-              is_active: true,
-            },
-          ]),
+          project: vi.fn().mockReturnValue({
+            toArray: vi.fn().mockResolvedValue([
+              {
+                _id: "123",
+                name: "OpenAI",
+                provider: "openai",
+                admin_api_key: "key",
+                is_active: true,
+              },
+            ]),
+          }),
         }),
       }),
     } as any);

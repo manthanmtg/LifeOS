@@ -115,6 +115,7 @@ export async function GET() {
     const providers = await db
       .collection("ai_providers")
       .find({ is_active: true })
+      .project({ name: 1, provider: 1, admin_api_key: 1 })
       .toArray();
 
     const results: ProviderLimitResult[] = await Promise.all(
