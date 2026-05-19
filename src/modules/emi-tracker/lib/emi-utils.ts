@@ -556,13 +556,16 @@ export function getLoanCards(
   });
 }
 
-export function exportSchedulePDF(
+export async function exportSchedulePDF(
   loanTitle: string,
   schedule: ScheduleResult,
   currencySym: string,
   decimals: number,
   numberFormat: "western" | "indian",
 ) {
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
   const doc = new jsPDF();
   doc.setFontSize(18);
   doc.text(`Amortization Schedule: ${loanTitle}`, 14, 22);
