@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { Code, Star } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -38,24 +38,29 @@ export default memo(function SnippetsWidget() {
     return () => controller.abort();
   }, []);
 
-  const highlight =
-    summary.total === 0
-      ? {
-          text: "No snippets yet",
-          subtext: "Save reusable code as you go",
-          variant: "default" as const,
-        }
-      : summary.favorites > 0
-        ? {
-            text: `${summary.favorites} starred across ${summary.languageCount} languages`,
-            subtext: "Favorites stay easy to find",
-            variant: "accent" as const,
-          }
-        : {
-            text: `${summary.languageCount} languages collected`,
-            subtext: "Star key snippets for faster recall",
-            variant: "default" as const,
-          };
+  const highlight = useMemo(() => {
+    if (summary.total === 0) {
+      return {
+        text: "No snippets yet",
+        subtext: "Save reusable code as you go",
+        variant: "default" as const,
+      };
+    }
+
+    if (summary.favorites > 0) {
+      return {
+        text: `${summary.favorites} starred across ${summary.languageCount} languages`,
+        subtext: "Favorites stay easy to find",
+        variant: "accent" as const,
+      };
+    }
+
+    return {
+      text: `${summary.languageCount} languages collected`,
+      subtext: "Star key snippets for faster recall",
+      variant: "default" as const,
+    };
+  }, [summary.favorites, summary.languageCount, summary.total]);
 
   return (
     <WidgetCard
