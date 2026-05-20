@@ -317,7 +317,7 @@ export default function ExpenseForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label htmlFor="expense-amount" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Amount
               </label>
               <div className="relative">
@@ -330,6 +330,7 @@ export default function ExpenseForm({
                   {CURR_SYM[settings.defaultCurrency]}
                 </span>
                 <input
+                  id="expense-amount"
                   type="number"
                   step="0.01"
                   min="0.01"
@@ -348,10 +349,11 @@ export default function ExpenseForm({
             </div>
 
             <div className="md:col-span-2 relative">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label htmlFor="expense-description" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Description
               </label>
               <input
+                id="expense-description"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -501,6 +503,7 @@ export default function ExpenseForm({
                     {t}
                     <button
                       type="button"
+                      aria-label={`Remove tag ${t}`}
                       onClick={() => setTags(tags.filter((tag) => tag !== t))}
                     >
                       <X className="w-3 h-3 hover:text-zinc-50" />
