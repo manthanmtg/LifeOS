@@ -184,7 +184,7 @@ export default function SnippetsMetrics({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 flex flex-col gap-2 animate-pulse"
+              className="rounded-2xl border border-zinc-800/80 bg-zinc-900/55 p-4 flex flex-col gap-2 animate-pulse backdrop-blur-sm"
             >
               <div className="flex items-center justify-between">
                 <SkeletonBlock className="h-7 w-7 rounded-lg" />
@@ -210,7 +210,7 @@ export default function SnippetsMetrics({
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="group relative rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4 flex flex-col gap-2 hover:border-zinc-700 hover:bg-zinc-900/40 transition-all duration-300 overflow-hidden"
+            className="group relative rounded-2xl border border-zinc-800/80 bg-zinc-900/55 p-4 flex flex-col gap-2 overflow-hidden backdrop-blur-sm transition-all duration-300 hover:border-accent/35 hover:bg-zinc-900/75 hover:shadow-lg hover:shadow-accent/5"
           >
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
               <m.icon className="w-12 h-12" />
@@ -249,7 +249,7 @@ export default function SnippetsMetrics({
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.4 }}
-            className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
+            className="rounded-2xl border border-zinc-800/80 bg-zinc-900/55 p-5 backdrop-blur-sm"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 rounded-lg bg-accent/10 text-accent">
@@ -295,7 +295,7 @@ export default function SnippetsMetrics({
             initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}
-            className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
+            className="rounded-2xl border border-zinc-800/80 bg-zinc-900/55 p-5 backdrop-blur-sm"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 rounded-lg bg-warning/10 text-warning">
