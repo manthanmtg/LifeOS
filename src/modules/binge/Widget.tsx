@@ -41,16 +41,19 @@ export default memo(function BingeWidget() {
         : "text-danger";
 
   const footerRating =
-    loadError || summary.avgRating === 0
-      ? "—"
-      : summary.avgRating.toFixed(1);
+    loadError || summary.avgRating === 0 ? "—" : summary.avgRating.toFixed(1);
 
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/widgets/summary?module_type=binge_item", {
       signal: controller.signal,
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load binge summary");
+        }
+        return res.json();
+      })
       .then((data) => {
         setLoadError(false);
         setSummary(data.data || EMPTY_SUMMARY);
@@ -74,7 +77,9 @@ export default memo(function BingeWidget() {
           <span
             className={cn(
               "inline-flex items-center gap-1",
-              loadError || summary.avgRating === 0 ? "text-zinc-500" : ratingToneClass,
+              loadError || summary.avgRating === 0
+                ? "text-zinc-500"
+                : ratingToneClass,
             )}
           >
             <Star
@@ -92,7 +97,10 @@ export default memo(function BingeWidget() {
         transition={{ duration: 0.22, ease: "easeOut" }}
       >
         <div className="space-y-3">
-          <WidgetStat value={summary.watchingCount} label="currently watching" />
+          <WidgetStat
+            value={summary.watchingCount}
+            label="currently watching"
+          />
           {loadError ? (
             <WidgetHighlight
               icon={AlertTriangle}
