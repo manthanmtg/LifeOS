@@ -20,10 +20,11 @@ export async function GET(
     if (!ObjectId.isValid(id)) {
       return ApiError("Invalid ID", 400);
     }
+    const contentObjectId = new ObjectId(id);
 
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
-    const result = await contentColl.findOne({ _id: new ObjectId(id) });
+    const result = await contentColl.findOne({ _id: contentObjectId });
 
     if (!result) return ApiNotFound();
 
@@ -54,6 +55,7 @@ export async function PUT(
     if (!ObjectId.isValid(id)) {
       return ApiError("Invalid ID", 400);
     }
+    const contentObjectId = new ObjectId(id);
 
     const body = await request.json().catch(() => ({}));
     const { is_public, payload } = body;
@@ -65,31 +67,26 @@ export async function PUT(
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
-    const existing = await contentColl.findOne({ _id: new ObjectId(id) });
+    const existing = await contentColl.findOne({ _id: contentObjectId });
     if (!existing) return ApiNotFound();
 
     const schema = SchemaRegistry[existing.module_type];
     if (payload !== undefined && !schema) {
       return ApiError("Unknown module_type for existing content", 400);
     }
-    if (payload !== undefined && schema) {
-      const parsed = schema.safeParse(payload);
-      if (!parsed.success) {
-        return ApiValidationError(parsed.error.format());
-      }
+    const parsedPayload =
+      payload !== undefined && schema ? schema.safeParse(payload) : undefined;
+    if (parsedPayload && !parsedPayload.success) {
+      return ApiValidationError(parsedPayload.error.format());
     }
 
     const updateData: Partial<ContentDocument> = {
       updated_at: new Date().toISOString(),
     };
     if (is_public !== undefined) updateData.is_public = is_public;
-    if (payload !== undefined && schema)
-      updateData.payload = schema.parse(payload);
+    if (parsedPayload?.success) updateData.payload = parsedPayload.data;
 
-    await contentColl.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: updateData },
-    );
+    await contentColl.updateOne({ _id: contentObjectId }, { $set: updateData });
 
     return ApiSuccess({ success: true });
   } catch (error) {
@@ -107,11 +104,12 @@ export async function DELETE(
     if (!ObjectId.isValid(id)) {
       return ApiError("Invalid ID", 400);
     }
+    const contentObjectId = new ObjectId(id);
 
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
-    const result = await contentColl.deleteOne({ _id: new ObjectId(id) });
+    const result = await contentColl.deleteOne({ _id: contentObjectId });
     if (result.deletedCount === 0) return ApiNotFound();
 
     return ApiSuccess({ success: true });
