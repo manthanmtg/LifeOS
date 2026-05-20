@@ -5,6 +5,7 @@ import HabitsAdminView from "../AdminView";
 import HabitsWidget from "../Widget";
 import {
   computeMetrics,
+  getCompletionRateForDays,
   getStreak,
   heatmapDaysCount,
   getDaysArray,
@@ -121,6 +122,21 @@ describe("getStreak", () => {
     ]);
     expect(result.current).toBe(2);
     expect(result.longest).toBe(2);
+  });
+});
+
+describe("getCompletionRateForDays", () => {
+  it("calculates the completed percentage across supplied days", () => {
+    const rate = getCompletionRateForDays(
+      [
+        { date: "2026-05-18", count: 1 },
+        { date: "2026-05-19", count: 0 },
+        { date: "2026-05-20", count: 2 },
+      ],
+      ["2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21"],
+    );
+
+    expect(rate).toBe(50);
   });
 });
 

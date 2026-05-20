@@ -34,6 +34,7 @@ export default function HabitsAdminView() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [isLoggingId, setIsLoggingId] = useState<string | null>(null);
+  const [today] = useState(() => new Date());
 
   const fetchHabits = useCallback(async () => {
     try {
@@ -53,13 +54,13 @@ export default function HabitsAdminView() {
   }, [fetchHabits]);
 
   const days = useMemo(
-    () => getDaysArray(heatmapDaysCount(settings.heatmapMonths)),
-    [settings.heatmapMonths],
+    () => getDaysArray(heatmapDaysCount(settings.heatmapMonths), today),
+    [settings.heatmapMonths, today],
   );
 
-  const todayStr = useMemo(() => getDateStr(new Date()), []);
+  const todayStr = useMemo(() => getDateStr(today), [today]);
 
-  const metrics = useMemo(() => computeMetrics(habits), [habits]);
+  const metrics = useMemo(() => computeMetrics(habits, today), [habits, today]);
 
   // --- Handlers ---
 
