@@ -1,6 +1,6 @@
 import type { BingeItem } from "../types";
 
-export interface BingeStats {
+interface BingeStats {
   total: number;
   watching: number;
   completed: number;

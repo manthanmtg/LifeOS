@@ -461,7 +461,7 @@ export function downloadTextFile(
   URL.revokeObjectURL(url);
 }
 
-export function calculateInterestSaved(
+function calculateInterestSaved(
   schedule: ScheduleRow[],
   originalInterest: number,
 ) {
