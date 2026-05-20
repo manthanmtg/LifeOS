@@ -11,7 +11,7 @@
     "accessibility_improver.md": {
       "id": "accessibility-improver",
       "file": "accessibility_improver.md",
-      "title": "Accessibility Improver",
+      "title": "Accessibility Improver Prompt",
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -41,7 +41,7 @@
     "build_verifier.md": {
       "id": "build-verifier",
       "file": "build_verifier.md",
-      "title": "Build Verifier",
+      "title": "Build Verifier Prompt",
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
@@ -56,7 +56,7 @@
     "dead_code_cleaner.md": {
       "id": "dead-code-cleaner",
       "file": "dead_code_cleaner.md",
-      "title": "Dead Code Cleaner",
+      "title": "Dead Code Cleaner Prompt",
       "category": "code-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -86,7 +86,7 @@
     "lint_and_purity_doctor_prompt.md": {
       "id": "lint-and-purity-doctor-prompt",
       "file": "lint_and_purity_doctor_prompt.md",
-      "title": "Lint And Purity Doctor Prompt",
+      "title": "Lint & Purity Doctor Prompt",
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
@@ -101,7 +101,7 @@
     "loading_skeleton_auditor.md": {
       "id": "loading-skeleton-auditor",
       "file": "loading_skeleton_auditor.md",
-      "title": "Loading Skeleton Auditor",
+      "title": "Loading Skeleton Auditor Prompt",
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -116,7 +116,7 @@
     "mobile_view_optimizer.md": {
       "id": "mobile-view-optimizer",
       "file": "mobile_view_optimizer.md",
-      "title": "Mobile View Optimizer",
+      "title": "Mobile View Optimizer Prompt",
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -146,7 +146,7 @@
     "performance_tuner.md": {
       "id": "performance-tuner",
       "file": "performance_tuner.md",
-      "title": "Performance Tuner",
+      "title": "Performance Tuner Prompt",
       "category": "performance",
       "enabled": true,
       "autonomousSafe": true,
@@ -165,14 +165,14 @@
       "category": "prompt-maintenance",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 15,
-      "totalCompleted": 15,
+      "totalSelected": 16,
+      "totalCompleted": 16,
       "totalNoop": 0,
       "totalFailed": 0,
-      "lastCompletedAt": "2026-05-18T06:28:20.717Z",
+      "lastCompletedAt": "2026-05-20T00:05:38.591Z",
       "lastOutcome": "completed",
       "notes": "Selected only by the rare maintenance branch, roughly 1 in 25 runs.",
-      "lastSelectedAt": "2026-05-18T06:25:39.461Z"
+      "lastSelectedAt": "2026-05-20T00:00:49.199Z"
     },
     "random_module_enhancer_prompt.md": {
       "id": "random-module-enhancer-prompt",
@@ -207,7 +207,7 @@
     "security_enhancer.md": {
       "id": "security-enhancer",
       "file": "security_enhancer.md",
-      "title": "Security Enhancer",
+      "title": "Security Enhancer Prompt",
       "category": "security",
       "enabled": true,
       "autonomousSafe": true,
@@ -222,7 +222,7 @@
     "test_corrector.md": {
       "id": "test-corrector",
       "file": "test_corrector.md",
-      "title": "Test Corrector",
+      "title": "Test Corrector Prompt",
       "category": "testing",
       "enabled": true,
       "autonomousSafe": true,
@@ -237,7 +237,7 @@
     "test_coverage_adder.md": {
       "id": "test-coverage-adder",
       "file": "test_coverage_adder.md",
-      "title": "Test Coverage Adder",
+      "title": "Test Coverage Adder Prompt",
       "category": "testing",
       "enabled": true,
       "autonomousSafe": true,
@@ -252,7 +252,7 @@
     "theme_strictness_enforcer.md": {
       "id": "theme-strictness-enforcer",
       "file": "theme_strictness_enforcer.md",
-      "title": "Theme Strictness Enforcer",
+      "title": "Theme Strictness Enforcer Prompt",
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -282,7 +282,7 @@
     "widget_contract_enforcer.md": {
       "id": "widget-contract-enforcer",
       "file": "widget_contract_enforcer.md",
-      "title": "Widget Contract Enforcer",
+      "title": "Widget Contract Enforcer Prompt",
       "category": "feature-quality",
       "enabled": true,
       "autonomousSafe": true,
@@ -310,9 +310,9 @@
       "lastOutcome": "completed"
     },
     "zod_schema_tightener.md": {
-      "id": "zod_schema_tightener.md",
+      "id": "zod-schema-tightener",
       "file": "zod_schema_tightener.md",
-      "title": "Zod Schema Tightener",
+      "title": "Zod Schema Tightener Prompt",
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-19T18:46:04.000Z"
     }
   },
-  "updatedAt": "2026-05-19T22:50:18.602Z"
+  "updatedAt": "2026-05-20T00:05:38.591Z"
 }
