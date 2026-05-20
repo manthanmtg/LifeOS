@@ -64,9 +64,16 @@ export function getDateStr(d: Date): string {
   return d.toISOString().split("T")[0];
 }
 
-export function getDaysArray(count: number): string[] {
+function asDate(date: Date | string): Date {
+  return typeof date === "string" ? new Date(`${date}T00:00:00`) : date;
+}
+
+export function getDaysArray(
+  count: number,
+  endDate: Date | string = new Date(),
+): string[] {
   const arr: string[] = [];
-  const today = new Date();
+  const today = asDate(endDate);
   for (let i = count - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
@@ -75,15 +82,18 @@ export function getDaysArray(count: number): string[] {
   return arr;
 }
 
-export function getStreak(completions: HabitCompletion[]): StreakInfo {
+export function getStreak(
+  completions: HabitCompletion[],
+  today: Date | string = new Date(),
+): StreakInfo {
   const dateSet = new Set(
     completions.filter((c) => c.count > 0).map((c) => c.date),
   );
-  const today = new Date();
+  const currentDay = asDate(today);
   let current = 0;
   for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(currentDay);
+    d.setDate(currentDay.getDate() - i);
     if (dateSet.has(getDateStr(d))) current++;
     else break;
   }
@@ -104,18 +114,35 @@ export function getStreak(completions: HabitCompletion[]): StreakInfo {
   return { current, longest };
 }
 
-export function computeMetrics(habits: Habit[]): HabitMetricsData {
-  const todayStr = getDateStr(new Date());
+export function getCompletionRateForDays(
+  completions: HabitCompletion[],
+  days: string[],
+): number {
+  if (days.length === 0) return 0;
+
+  const completionDates = new Set(
+    completions.filter((c) => c.count > 0).map((c) => c.date),
+  );
+  const completedDays = days.filter((day) => completionDates.has(day)).length;
+
+  return Math.round((completedDays / days.length) * 100);
+}
+
+export function computeMetrics(
+  habits: Habit[],
+  today: Date | string = new Date(),
+): HabitMetricsData {
+  const todayStr = typeof today === "string" ? today : getDateStr(today);
 
   let completedToday = 0;
   let bestCurrentStreak = 0;
 
   // Last 7 days array for sparkline
-  const last7DaysArr = getDaysArray(7);
+  const last7DaysArr = getDaysArray(7, today);
   const dailyCompletions = last7DaysArr.map(() => 0);
 
   // Last 14 days for trend comparison
-  const last14DaysArr = getDaysArray(14);
+  const last14DaysArr = getDaysArray(14, today);
   let thisWeekTotal = 0;
   let lastWeekTotal = 0;
 
@@ -126,7 +153,7 @@ export function computeMetrics(habits: Habit[]): HabitMetricsData {
 
     if (completionDates.has(todayStr)) completedToday++;
 
-    const streakInfo = getStreak(habit.payload.completions);
+    const streakInfo = getStreak(habit.payload.completions, todayStr);
     if (streakInfo.current > bestCurrentStreak) {
       bestCurrentStreak = streakInfo.current;
     }

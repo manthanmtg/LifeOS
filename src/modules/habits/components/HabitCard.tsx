@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Edit3, Trash2, Flame, Trophy, RefreshCw, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Habit, getStreak } from "./types";
+import { Habit, getCompletionRateForDays, getStreak } from "./types";
 import HabitHeatmap from "./HabitHeatmap";
 
 interface HabitCardProps {
@@ -49,23 +49,16 @@ export default function HabitCard({
   );
 
   const streakInfo = useMemo(
-    () => getStreak(habit.payload.completions),
-    [habit.payload.completions],
+    () => getStreak(habit.payload.completions, todayStr),
+    [habit.payload.completions, todayStr],
   );
 
   const completedToday = completionDates.has(todayStr);
 
-  // Completion rate (last 30 days)
-  const last30Rate = useMemo(() => {
-    let count = 0;
-    const today = new Date();
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      if (completionDates.has(d.toISOString().split("T")[0])) count++;
-    }
-    return Math.round((count / 30) * 100);
-  }, [completionDates]);
+  const last30Rate = useMemo(
+    () => getCompletionRateForDays(habit.payload.completions, days.slice(-30)),
+    [days, habit.payload.completions],
+  );
 
   const loggingKey = isLoggingId === habit._id + todayStr ? todayStr : null;
 
@@ -88,13 +81,18 @@ export default function HabitCard({
         <div className="flex items-center gap-3 min-w-0">
           <motion.div
             className="w-2.5 h-2.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor] opacity-80"
-            style={{ backgroundColor: habit.payload.color, color: habit.payload.color }}
+            style={{
+              backgroundColor: habit.payload.color,
+              color: habit.payload.color,
+            }}
             whileHover={{ scale: 1.3 }}
           />
           <div className="min-w-0">
-            <p 
+            <p
               className="text-sm font-black tracking-tight text-zinc-100 transition-colors group-hover:text-zinc-50"
-              style={{ '--hover-color': habit.payload.color } as React.CSSProperties}
+              style={
+                { "--hover-color": habit.payload.color } as React.CSSProperties
+              }
             >
               <span className="group-hover:text-[var(--hover-color)] transition-colors">
                 {habit.payload.name}

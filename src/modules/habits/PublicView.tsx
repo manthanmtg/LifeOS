@@ -1,19 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Target, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Habit, getDateStr, getStreak, getDaysArray } from "./components/types";
+import {
+  Habit,
+  getCompletionRateForDays,
+  getDateStr,
+  getStreak,
+  getDaysArray,
+} from "./components/types";
 
-function getLast30Days(): string[] {
-  return getDaysArray(30);
+function getLast30Days(today: Date): string[] {
+  return getDaysArray(30, today);
 }
 
 export default function HabitsPublicView({ items }: { items: Habit[] }) {
   const habits = items;
-  const today = useMemo(() => getDateStr(new Date()), []);
-  const days = useMemo(() => getLast30Days(), []);
+  const [todayDate] = useState(() => new Date());
+  const today = useMemo(() => getDateStr(todayDate), [todayDate]);
+  const days = useMemo(() => getLast30Days(todayDate), [todayDate]);
 
   if (habits.length === 0) {
     return (
@@ -32,8 +39,11 @@ export default function HabitsPublicView({ items }: { items: Habit[] }) {
             .filter((c) => c.count > 0)
             .map((c) => c.date),
         );
-        const streakInfo = getStreak(habit.payload.completions);
-        const rate30 = days.filter((d) => completionSet.has(d)).length;
+        const streakInfo = getStreak(habit.payload.completions, today);
+        const rate30 = getCompletionRateForDays(
+          habit.payload.completions,
+          days,
+        );
         const completedToday = completionSet.has(today);
 
         return (
