@@ -16,3 +16,28 @@ No new security issues were identified that were both safe and independent to fi
 
 - CSP/HSTS policy review remains documented in `issues_to_look/2026-04-23_security-audit.md`.
 - The `POST /api/import` validation scope continues to be documented in `issues_to_look/2026-04-23_security-audit.md` and was not changed.
+
+## Follow-up run (2026-05-20)
+
+Selected prompt: `prompts/security_enhancer.md`
+
+Scope audited:
+
+- `src/proxy.ts`
+- `src/lib/auth.ts`
+- `next.config.ts`
+- API routes under `src/app/api`
+- Existing open security audit notes
+
+Result:
+
+- Security audit clean for autonomous-safe work in this run.
+- Middleware continues to protect admin routes, sensitive API prefixes, content mutations, widget summaries, import/export, bills, database stats, module info, AI usage routes, and GET metrics.
+- JWT verification still enforces issuer and audience.
+- Baseline browser hardening headers remain present.
+- No new security issue was identified that was both safe and independent to fix within the prompt constraints.
+
+Existing findings not duplicated:
+
+- CSP/HSTS policy review remains documented in `issues_to_look/2026-04-23_security-audit.md`.
+- The `POST /api/import` content revalidation scope remains documented in `issues_to_look/2026-04-23_security-audit.md`.
