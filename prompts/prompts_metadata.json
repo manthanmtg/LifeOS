@@ -30,13 +30,13 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 27,
+      "totalSelected": 28,
       "totalCompleted": 11,
       "totalNoop": 10,
-      "totalFailed": 6,
-      "lastCompletedAt": "2026-05-19T20:49:02.981Z",
+      "totalFailed": 7,
+      "lastCompletedAt": "2026-05-20T14:47:04.369Z",
       "lastOutcome": "failed",
-      "lastSelectedAt": "2026-05-19T20:45:55.977Z"
+      "lastSelectedAt": "2026-05-20T14:46:16.052Z"
     },
     "build_verifier.md": {
       "id": "build-verifier",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-19T18:46:04.000Z"
     }
   },
-  "updatedAt": "2026-05-20T12:50:17.137Z"
+  "updatedAt": "2026-05-20T14:47:04.369Z"
 }
