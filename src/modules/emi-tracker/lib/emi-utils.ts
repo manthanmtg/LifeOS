@@ -1,5 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { EmiLoan, ScheduleRow, ScheduleResult, RecastStrategy } from "../types";
 
 export const CURR_SYM: Record<string, string> = {
