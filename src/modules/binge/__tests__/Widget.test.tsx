@@ -10,6 +10,7 @@ describe("BingeWidget", () => {
 
   it("uses an accurate empty state when there are titles but nothing active", async () => {
     global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () =>
         Promise.resolve({
           data: {
@@ -25,5 +26,21 @@ describe("BingeWidget", () => {
 
     expect(await screen.findByText("No active watch")).toBeInTheDocument();
     expect(screen.queryByText("Nothing queued up")).not.toBeInTheDocument();
+  });
+
+  it("shows the unavailable state when the summary request fails", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ error: "failed" }),
+    });
+
+    render(React.createElement(BingeWidget));
+
+    expect(
+      await screen.findByText("Binge summary unavailable"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Open Binge to verify data and retry."),
+    ).toBeInTheDocument();
   });
 });
