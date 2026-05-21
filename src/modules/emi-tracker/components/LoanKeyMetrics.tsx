@@ -71,9 +71,9 @@ export default function LoanKeyMetrics({
       {metrics.map((m, i) => (
         <div
           key={i}
-          className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-sm hover:border-zinc-700/50 transition-all group overflow-hidden relative"
+          className="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl p-4 shadow-sm shadow-zinc-950/15 transition-all duration-200 group overflow-hidden relative hover:-translate-y-0.5 hover:bg-zinc-900/52 hover:border-zinc-700/70 hover:shadow-md hover:shadow-zinc-950/35"
         >
-          <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+          <div className="absolute -right-4 -bottom-4 opacity-[0.03] text-zinc-500 group-hover:text-zinc-300 group-hover:opacity-[0.08] transition-all duration-200">
             <m.icon className="w-20 h-20" />
           </div>
           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5">
