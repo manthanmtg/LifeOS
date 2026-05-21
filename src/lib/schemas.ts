@@ -21,6 +21,23 @@ const ObjectIdStringSchema = z
   .trim()
   .regex(/^[a-f\d]{24}$/i, "Must be a valid ObjectId");
 
+const AppThemeSchema = z.enum([
+  "one-dark",
+  "dracula",
+  "github-dark",
+  "night-owl",
+  "solarized-dark",
+  "material-dark",
+  "monokai",
+  "cyberpunk",
+  "aurora",
+  "ocean-dark",
+  "sunset",
+  "coffee",
+  "minimal-light",
+  "nordic-light",
+]);
+
 const IsoCalendarDateOrDateTimeSchema = z.union([
   CalendarDateSchema,
   z.string().datetime("Must be a valid ISO date-time"),
@@ -484,11 +501,23 @@ export const PersonSchema = z.object({
     )
     .max(50)
     .optional(),
-  email: z.string().trim().email().optional().or(z.literal("")),
+  email: z
+    .string()
+    .trim()
+    .email("Must be a valid email")
+    .max(320, "Email is too long")
+    .optional()
+    .or(z.literal("")),
   company: z.string().trim().max(100).optional(),
   role: z.string().trim().max(100).optional(),
   birthday: CalendarDateSchema.optional(),
-  avatar_url: z.string().url().optional().or(z.literal("")),
+  avatar_url: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(2048, "Avatar URL is too long")
+    .optional()
+    .or(z.literal("")),
   profile_pic: z
     .object({
       data: z.string().min(1),
@@ -765,7 +794,12 @@ export const HealthProfileSchema = z.object({
     .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "unknown"])
     .default("unknown"),
   gender: z.enum(["male", "female", "other"]).optional(),
-  avatar_url: z.string().url().optional(),
+  avatar_url: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(2048, "Avatar URL is too long")
+    .optional(),
   profile_pic: z
     .object({
       data: z.string().min(1),
@@ -944,7 +978,7 @@ export const BillFolderSchema = z.object({
 // --- 23. SYSTEM CONFIG ---
 export const SystemUpdateSchema = z
   .object({
-    active_theme: z.string().trim().min(1).max(100).optional(),
+    active_theme: AppThemeSchema.optional(),
     color_mode: z.enum(["light", "dark"]).optional(),
     site_title: z.string().trim().min(1).max(100).optional(),
     site_icon: z.string().trim().min(1).max(200).optional(),
@@ -956,7 +990,9 @@ export const SystemUpdateSchema = z
       )
       .optional(),
     widgetRegistry: z.record(z.string(), z.boolean()).optional(),
-    moduleOrder: z.array(z.string()).optional(),
+    moduleOrder: z
+      .array(z.string().trim().min(1, "Module slug is required").max(100))
+      .optional(),
     orderingStrategy: z.enum(["custom", "name", "visits"]).optional(),
     visitSortScope: z.enum(["admin", "public", "all"]).optional(),
   })

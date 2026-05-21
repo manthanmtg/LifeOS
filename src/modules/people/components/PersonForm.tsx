@@ -251,6 +251,7 @@ export default function PersonForm({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@example.com"
+                  maxLength={320}
                   className={inputCls}
                 />
               </div>
