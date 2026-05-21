@@ -71,6 +71,7 @@ export function SortableIdeaCard({
             {...attributes}
             {...listeners}
             className="p-1 -ml-1.5 text-zinc-700 hover:text-zinc-500 cursor-grab active:cursor-grabbing touch-none rounded transition-colors hover:bg-zinc-800"
+            aria-label={`Reorder idea ${idea.payload.title}`}
           >
             <GripVertical className="w-3.5 h-3.5" />
           </button>
