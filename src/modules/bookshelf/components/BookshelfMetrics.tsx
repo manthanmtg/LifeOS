@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Library,
@@ -21,8 +21,6 @@ interface BookshelfMetricsProps {
   loading?: boolean;
 }
 
-let sparklineIdCounter = 0;
-
 function MiniSparkline({
   data,
   color = "var(--accent)",
@@ -32,7 +30,11 @@ function MiniSparkline({
   color?: string;
   height?: number;
 }) {
-  const gradientId = useMemo(() => `spark-${++sparklineIdCounter}`, []);
+  const sparklineId = useId();
+  const gradientId = useMemo(
+    () => `spark-${sparklineId.replace(/[:.]/g, "-")}`,
+    [sparklineId],
+  );
   const max = Math.max(...data, 1);
   const width = 80;
   const points = data
