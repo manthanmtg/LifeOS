@@ -293,22 +293,41 @@ export async function GET(request: Request) {
         .sort({ created_at: -1 })
         .toArray()) as ContentDocument<BingeSummaryPayload>[];
 
-      const watching = bingeDocs.filter(
-        (item) => item.payload.status === "watching",
+      const bingeSummary = bingeDocs.reduce(
+        (acc, item) => {
+          if (item.payload.status === "watching") {
+            acc.watchingCount += 1;
+            if (!acc.latestWatching) {
+              acc.latestWatching = item.payload;
+            }
+          }
+
+          const rating = item.payload.rating;
+          if (typeof rating === "number") {
+            acc.ratedSum += rating;
+            acc.ratedCount += 1;
+          }
+
+          return acc;
+        },
+        {
+          watchingCount: 0,
+          latestWatching: null as BingeSummaryPayload | null,
+          ratedSum: 0,
+          ratedCount: 0,
+        },
       );
-      const rated = bingeDocs.filter(
-        (item) => typeof item.payload.rating === "number",
-      );
+
+      const { watchingCount, latestWatching, ratedSum, ratedCount } = bingeSummary;
       const avgRating =
-        rated.length > 0
-          ? rated.reduce((sum, item) => sum + (item.payload.rating ?? 0), 0) /
-            rated.length
+        ratedCount > 0
+          ? ratedSum / ratedCount
           : 0;
-      const latest = watching[0]?.payload;
+      const latest = latestWatching;
 
       return ApiSuccess({
         total: bingeDocs.length,
-        watchingCount: watching.length,
+        watchingCount,
         avgRating: Number.isFinite(avgRating) ? avgRating : 0,
         latest: latest
           ? {
