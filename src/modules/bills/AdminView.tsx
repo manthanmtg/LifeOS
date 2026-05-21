@@ -540,7 +540,7 @@ export default function BillsAdminView() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             className={cn(
-              "fixed bottom-8 right-8 z-[100] px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3 backdrop-blur-md border",
+              "fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-8 sm:right-8 z-[100] px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-3 backdrop-blur-md border",
               toast.type === "success"
                 ? "bg-success/10 border-success/20 text-success"
                 : "bg-danger/10 border-danger/20 text-danger",
