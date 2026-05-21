@@ -441,7 +441,7 @@ export const AiUsageSchema = z.object({
     "xai",
     "other",
   ]),
-  provider_config_id: z.string().trim().max(100).optional(),
+  provider_config_id: ObjectIdStringSchema.optional(),
   model: z.string().trim().min(1, "Model name is required").max(100),
   input_tokens: z.number().int().min(0).default(0),
   output_tokens: z.number().int().min(0).default(0),
