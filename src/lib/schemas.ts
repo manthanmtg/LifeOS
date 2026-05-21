@@ -967,18 +967,18 @@ const BingeItemSchema = z.object({
   status: z
     .enum(["to_watch", "watching", "completed", "dropped"])
     .default("to_watch"),
-  rating: z.number().min(1).max(5).optional(),
+  rating: z.number().int().min(1).max(10).optional(),
   notes: z.string().trim().max(5000).optional(),
   genre: z.string().trim().max(100).optional(),
   platform: z.string().trim().max(100).optional(),
-  year: z.number().int().min(1888).max(3000).optional(),
+  year: z.number().int().min(1900).max(2100).optional(),
   poster_url: z.string().url().max(500).optional(),
   recommended_by: z.string().trim().max(100).optional(),
   rewatched: z.boolean().default(false),
   rewatch_count: z.number().int().min(0).default(0),
-  current_season: z.number().int().positive().optional(),
-  current_episode: z.number().int().positive().optional(),
-  total_seasons: z.number().int().positive().optional(),
+  current_season: z.number().int().min(1).max(999).optional(),
+  current_episode: z.number().int().min(1).max(10000).optional(),
+  total_seasons: z.number().int().min(1).max(999).optional(),
 });
 
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
