@@ -669,17 +669,19 @@ export default function BlogAdminView() {
         onSetViewMode={setViewMode}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-2">
         {(["all", "draft", "published", "archived"] as StatusFilter[]).map(
           (item) => (
             <button
               key={item}
               onClick={() => setStatusFilter(item)}
               className={cn(
-                "rounded-xl border px-3 py-1.5 text-xs font-medium capitalize transition-colors",
+                "rounded-xl border px-3 py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
                 statusFilter === item
                   ? "border-accent/40 bg-accent/15 text-accent"
                   : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+                "active:translate-y-px",
               )}
             >
               {item}
