@@ -68,7 +68,11 @@ export default function SettingsTab({
           </div>
 
           <div className="flex gap-3 mb-8">
+            <label htmlFor="new-expense-category" className="sr-only">
+              New expense category
+            </label>
             <input
+              id="new-expense-category"
               type="text"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
@@ -101,6 +105,8 @@ export default function SettingsTab({
                   </span>
                   <button
                     onClick={() => removeCategory(cat)}
+                    aria-label={`Remove category ${cat}`}
+                    title={`Remove ${cat}`}
                     className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-danger transition-all"
                   >
                     <Trash2 className="w-3 h-3" />
