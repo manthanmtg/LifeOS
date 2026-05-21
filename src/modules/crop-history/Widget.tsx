@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Wheat, TrendingUp, TrendingDown } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -39,6 +40,10 @@ export default function CropHistoryWidget() {
         100
       : null;
 
+  const compactCoverage = summary
+    ? `${summary.totalCrops} ${summary.totalCrops === 1 ? "crop" : "crops"} · ${summary.totalPeriods} ${summary.totalPeriods === 1 ? "period" : "periods"}`
+    : null;
+
   return (
     <WidgetCard
       title="Crop History"
@@ -47,7 +52,12 @@ export default function CropHistoryWidget() {
       href="/admin/crop-history"
       accentColor="success"
     >
-      <div className="space-y-3">
+      <motion.div
+        initial={{ opacity: 0.75, y: 2 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-3"
+      >
         {summary && summary.latestRevenue > 0 ? (
           <>
             <WidgetStat
@@ -58,14 +68,14 @@ export default function CropHistoryWidget() {
               <WidgetHighlight
                 icon={pctChange > 0 ? TrendingUp : TrendingDown}
                 text={`${pctChange > 0 ? "+" : ""}${pctChange.toFixed(1)}% revenue trend`}
-                subtext={`vs ${summary.prevPeriod}`}
+                subtext={`${compactCoverage ?? "No history"} · vs ${summary.prevPeriod}`}
                 variant={pctChange > 0 ? "success" : "danger"}
               />
             ) : (
               <WidgetHighlight
                 icon={Wheat}
                 text={summary.bestCropName}
-                subtext="Latest performance"
+                subtext={`Latest performance · ${compactCoverage ?? "No history"}`}
                 variant="success"
               />
             )}
@@ -80,7 +90,7 @@ export default function CropHistoryWidget() {
             />
           </div>
         )}
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
