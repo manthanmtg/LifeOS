@@ -23,6 +23,13 @@ import Toast, { type ToastType } from "@/components/ui/Toast";
 
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
+const getDateTime = (value?: string | null): number | null => {
+  if (!value) return null;
+
+  const ts = new Date(value).getTime();
+  return Number.isFinite(ts) ? ts : null;
+};
+
 export default function TodoAdminView() {
   const [todos, setTodos] = useState<TodoDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -290,12 +297,12 @@ export default function TodoAdminView() {
           );
         }
         if (sortBy === "due_date") {
-          if (!a.payload?.due_date) return 1;
-          if (!b.payload?.due_date) return -1;
-          return (
-            new Date(a.payload.due_date).getTime() -
-            new Date(b.payload.due_date).getTime()
-          );
+          const aDate = getDateTime(a.payload?.due_date);
+          const bDate = getDateTime(b.payload?.due_date);
+          if (aDate === null && bDate === null) return 0;
+          if (aDate === null) return 1;
+          if (bDate === null) return -1;
+          return aDate - bDate;
         }
         if (sortBy === "priority") {
           return (
