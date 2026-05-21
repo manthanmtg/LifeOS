@@ -506,7 +506,9 @@ export default function WhiteboardAdminView() {
         <div className="flex items-center justify-between gap-3 mb-2 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <button
+              type="button"
               onClick={goBackToList}
+              aria-label="Go back to whiteboards list"
               className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-all shrink-0"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -591,12 +593,14 @@ export default function WhiteboardAdminView() {
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-medium"
             >
               {t}
-              <button
-                onClick={() => removeEditorTag(t)}
-                className="text-zinc-500 hover:text-zinc-200 transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => removeEditorTag(t)}
+                  aria-label={`Remove tag ${t}`}
+                  className="text-zinc-500 hover:text-zinc-200 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
             </span>
           ))}
           <input
