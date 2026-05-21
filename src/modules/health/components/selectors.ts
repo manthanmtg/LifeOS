@@ -49,21 +49,26 @@ export interface WeightTrendPoint {
   heightPercent: number;
 }
 
+function toEpochMs(date?: string): number {
+  const epoch = date ? Date.parse(date) : Number.NaN;
+  return Number.isNaN(epoch) ? 0 : epoch;
+}
+
 function byNewestDate<T extends { date: string }>(items: T[]): T[] {
   return [...items].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
   );
 }
 
 function byNewestVisit(items: Visit[]): Visit[] {
   return [...items].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
   );
 }
 
 function byNewestMeasurement(items: Measurement[]): Measurement[] {
   return [...items].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
   );
 }
 
@@ -72,7 +77,7 @@ function byNewestDocument(items: HealthDocument[]): HealthDocument[] {
     if (!a.date && !b.date) return 0;
     if (!a.date) return 1;
     if (!b.date) return -1;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+    return toEpochMs(b.date) - toEpochMs(a.date);
   });
 }
 
@@ -149,7 +154,7 @@ export function getProfileAlerts(profile: HealthProfile): HealthAlert[] {
   alerts.sort((a, b) => {
     if (a.status === "overdue" && b.status !== "overdue") return -1;
     if (a.status !== "overdue" && b.status === "overdue") return 1;
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
+    return toEpochMs(a.date) - toEpochMs(b.date);
   });
 
   return alerts;
@@ -246,7 +251,7 @@ export function getNextTimelineItem(
     const rank = { overdue: 0, warning: 1, ok: 2 };
     if (rank[a.status] !== rank[b.status])
       return rank[a.status] - rank[b.status];
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
+    return toEpochMs(a.date) - toEpochMs(b.date);
   });
 
   return upcoming[0] ?? null;
@@ -307,8 +312,7 @@ export function getSortedLabGroups(
     ])
     .sort(
       (a, b) =>
-        new Date(b[1][0]?.date ?? 0).getTime() -
-        new Date(a[1][0]?.date ?? 0).getTime(),
+        toEpochMs(b[1][0]?.date) - toEpochMs(a[1][0]?.date),
     );
 }
 
