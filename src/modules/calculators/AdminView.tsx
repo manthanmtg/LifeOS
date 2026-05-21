@@ -60,7 +60,13 @@ export default function CalculatorsAdminView() {
 
   if (!loaded) {
     return (
-      <div aria-label="Loading calculator settings">
+      <div
+        role="status"
+        aria-label="Loading calculator settings"
+        aria-busy="true"
+        aria-live="polite"
+        className="animate-fade-in-up"
+      >
         <AdminModuleSkeleton />
       </div>
     );
