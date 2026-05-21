@@ -60,7 +60,11 @@ export default memo(function ExpensesWidget() {
         } than last month`;
   const trendSubtext =
     budget > 0
-      ? `${trendLabel} · ${remaining >= 0 ? `${sym}${formatCurrency(remaining, "", format)} remaining` : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`}`
+      ? `${trendLabel} · ${
+          remaining >= 0
+            ? `${sym}${formatCurrency(remaining, "", format)} remaining`
+            : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`
+        }`
       : topCategory
         ? `${trendLabel} · Top category: ${topCategory[0]}`
         : trendLabel;
