@@ -20,7 +20,11 @@ const Excalidraw = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex-1 w-full h-full bg-zinc-900 flex items-center justify-center">
-        <div className="w-full h-full p-8 space-y-4">
+        <div className="w-full h-full p-8 space-y-4 animate-pulse">
+          <div className="flex items-center justify-between gap-3">
+            <SkeletonBlock className="h-4 w-40 rounded" />
+            <SkeletonBlock className="h-4 w-24 rounded" />
+          </div>
           <SkeletonBlock className="w-full h-full rounded-xl opacity-20" />
         </div>
       </div>
