@@ -563,6 +563,7 @@ export default function MaintenanceAdminView() {
                 <button
                   onClick={() => setShowForm(false)}
                   className="p-2 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                  aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -734,6 +735,9 @@ export default function MaintenanceAdminView() {
                           "w-11 h-6 rounded-full transition-colors relative shrink-0",
                           form.is_recurring ? "bg-success" : "bg-zinc-700",
                         )}
+                        role="switch"
+                        aria-checked={form.is_recurring}
+                        aria-label="Recurring Task Toggle"
                       >
                         <span
                           className={cn(
@@ -1269,6 +1273,7 @@ export default function MaintenanceAdminView() {
                 <button
                   onClick={() => setHistoryTask(null)}
                   className="p-2 rounded-xl text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                  aria-label="Close history"
                 >
                   <X className="w-5 h-5" />
                 </button>
