@@ -36,9 +36,13 @@ export default function SnippetsFilters({
     >
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px] group">
+          <label htmlFor="snippets-search" className="sr-only">
+            Search snippets
+          </label>
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-accent" />
           <input
             type="text"
+            id="snippets-search"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search title, code, tags"
