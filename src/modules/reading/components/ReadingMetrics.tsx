@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { ReadingItem } from "../types";
 import { motion } from "framer-motion";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
@@ -83,4 +83,3 @@ export function ReadingMetrics({ items, loading }: ReadingMetricsProps) {
     </div>
   );
 }
-
