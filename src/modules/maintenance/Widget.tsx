@@ -3,7 +3,6 @@
 import { useState, useEffect, memo } from "react";
 import { Wrench, AlertTriangle, Clock } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
-import { motion } from "framer-motion";
 import {
   WidgetStat,
   WidgetHighlight,
@@ -74,12 +73,7 @@ export default memo(function MaintenanceWidget() {
       href="/admin/maintenance"
     >
       {loadError ? (
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           <WidgetStat value="—" label="Summary unavailable" />
           <WidgetHighlight
             icon={Wrench}
@@ -87,14 +81,9 @@ export default memo(function MaintenanceWidget() {
             subtext="Please check API access and retry"
             variant="warning"
           />
-        </motion.div>
+        </div>
       ) : summary ? (
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           <WidgetStat
             value={hero.value}
             label={hero.label}
@@ -129,14 +118,9 @@ export default memo(function MaintenanceWidget() {
               variant={hero.tone}
             />
           )}
-        </motion.div>
+        </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           <WidgetStat value="0" label="maintenance tasks" />
           <WidgetHighlight
             icon={Wrench}
@@ -144,7 +128,7 @@ export default memo(function MaintenanceWidget() {
             subtext="Add your first maintenance plan to get started"
             variant="accent"
           />
-        </motion.div>
+        </div>
       )}
     </WidgetCard>
   );
