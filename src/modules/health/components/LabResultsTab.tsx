@@ -164,14 +164,18 @@ export default function LabResultsTab({
                         </div>
                         <div className="flex items-center gap-1 md:opacity-0 md:group-hover/item:opacity-100 transition-opacity">
                           <button
+                            type="button"
                             onClick={() => onEdit(r)}
-                            className="p-1 rounded hover:bg-zinc-800"
+                            aria-label={`Edit ${testName} result from ${formatDate(r.date)}`}
+                            className="p-1 rounded hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-900"
                           >
                             <Edit3 className="w-3 h-3 text-zinc-500" />
                           </button>
                           <button
+                            type="button"
                             onClick={() => onDelete(r.id)}
-                            className="p-1 rounded hover:bg-danger/50"
+                            aria-label={`Delete ${testName} result from ${formatDate(r.date)}`}
+                            className="p-1 rounded hover:bg-danger/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-900"
                           >
                             <Trash2 className="w-3 h-3 text-danger" />
                           </button>
