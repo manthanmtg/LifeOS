@@ -98,10 +98,22 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
           onClose();
         }
       }
-      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ")
+      if (
+        e.key === "ArrowRight" ||
+        e.key === "ArrowDown" ||
+        e.key === " "
+      ) {
+        e.preventDefault();
         next();
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") prev();
-      if (e.key === "f" || e.key === "F") toggleFullscreen();
+      }
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        prev();
+      }
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
