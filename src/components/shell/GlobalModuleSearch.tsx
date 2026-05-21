@@ -226,7 +226,7 @@ export default function GlobalModuleSearch({
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950",
                   isSidebar
                     ? "h-11 w-11 min-h-11 min-w-11 touch-manipulation sm:h-5 sm:w-5"
-                    : "h-8 w-8",
+                    : "h-11 w-11 min-h-11 min-w-11 touch-manipulation sm:h-8 sm:w-8",
                 )}
                 aria-label="Clear search"
               >
