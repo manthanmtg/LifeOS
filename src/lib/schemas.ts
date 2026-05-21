@@ -21,6 +21,16 @@ const ObjectIdStringSchema = z
   .trim()
   .regex(/^[a-f\d]{24}$/i, "Must be a valid ObjectId");
 
+const MimeTypeSchema = z
+  .string()
+  .trim()
+  .min(1, "Content type is required")
+  .max(100, "Content type is too long")
+  .regex(
+    /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/i,
+    "Must be a valid MIME type",
+  );
+
 const AppThemeSchema = z.enum([
   "one-dark",
   "dracula",
@@ -570,11 +580,7 @@ export const PersonSchema = z.object({
           .trim()
           .min(1, "Filename is required")
           .max(255),
-        content_type: z
-          .string()
-          .trim()
-          .min(1, "Content type is required")
-          .max(100),
+        content_type: MimeTypeSchema,
         data: z.string().min(1), // base64
         size: z.number().int().min(0),
         added_at: z
@@ -768,11 +774,7 @@ const GenericAttachmentSchema = z.object({
     .trim()
     .min(1, "Filename is required")
     .max(255, "Filename is too long"),
-  content_type: z
-    .string()
-    .trim()
-    .min(1, "Content type is required")
-    .max(100, "Content type is too long"),
+  content_type: MimeTypeSchema,
   data: z.string().trim().min(1, "Attachment data is required"), // base64
   size: z.number().int().min(0),
   uploaded_at: z
@@ -803,7 +805,7 @@ export const HealthProfileSchema = z.object({
   profile_pic: z
     .object({
       data: z.string().min(1),
-      content_type: z.string().min(1),
+      content_type: MimeTypeSchema,
     })
     .optional(),
   emergency_contact: z.string().trim().max(200).optional(),
