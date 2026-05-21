@@ -534,8 +534,8 @@ export const PersonSchema = z.object({
     .or(z.literal("")),
   profile_pic: z
     .object({
-      data: z.string().min(1),
-      content_type: z.string().min(1),
+      data: z.string().trim().min(1, "Profile picture data is required"),
+      content_type: MimeTypeSchema,
     })
     .optional(),
   interests: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
@@ -808,7 +808,7 @@ export const HealthProfileSchema = z.object({
     .optional(),
   profile_pic: z
     .object({
-      data: z.string().min(1),
+      data: z.string().trim().min(1, "Profile picture data is required"),
       content_type: MimeTypeSchema,
     })
     .optional(),

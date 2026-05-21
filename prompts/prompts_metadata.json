@@ -326,14 +326,14 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 42,
-      "totalCompleted": 39,
+      "totalSelected": 43,
+      "totalCompleted": 40,
       "totalNoop": 0,
       "totalFailed": 4,
-      "lastCompletedAt": "2026-05-21T16:57:01.644Z",
-      "lastOutcome": "failed",
-      "lastSelectedAt": "2026-05-21T16:56:00.159Z"
+      "lastCompletedAt": "2026-05-21T17:08:44.518Z",
+      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-21T17:08:05.316Z"
     }
   },
-  "updatedAt": "2026-05-21T17:06:02.050Z"
+  "updatedAt": "2026-05-21T17:08:44.518Z"
 }
