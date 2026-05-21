@@ -346,6 +346,17 @@ function emptyPayload(): VehiclePayload {
   };
 }
 
+function formatFuelRate(
+  quantity: number,
+  cost: number,
+  unit: FuelUnit,
+): string {
+  if (!quantity || quantity <= 0) return "—";
+  const rate = cost / quantity;
+  if (!Number.isFinite(rate)) return "—";
+  return `${rate.toFixed(2)}/${unit === "liters" ? "L" : "gal"}`;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 function Portal({ children }: { children: ReactNode }) {
@@ -1473,8 +1484,7 @@ export default function VehicleAdminView() {
                             <p className="text-[11px] text-zinc-600 mt-0.5">
                               Rate:{" "}
                               {log.currency === "INR" ? "₹" : log.currency}{" "}
-                              {(log.cost / log.quantity).toFixed(2)}/
-                              {log.fuel_unit === "liters" ? "L" : "gal"}
+                              {formatFuelRate(log.quantity, log.cost, log.fuel_unit)}
                             </p>
                           </div>
                         </div>
