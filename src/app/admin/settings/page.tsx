@@ -790,6 +790,11 @@ export default function SettingsPage() {
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={() => toggleModule(key, "isPublic")}
                             disabled={!state.enabled}
+                            aria-label={
+                              state.isPublic
+                                ? `Hide ${mod.name} from public visitors`
+                                : `Show ${mod.name} to public visitors`
+                            }
                             className={cn(
                               "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                               !state.enabled
@@ -811,6 +816,11 @@ export default function SettingsPage() {
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={() => toggleModule(key, "enabled")}
+                            aria-label={
+                              state.enabled
+                                ? `Disable ${mod.name} module`
+                                : `Enable ${mod.name} module`
+                            }
                             className={cn(
                               "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                               state.enabled
@@ -894,6 +904,11 @@ export default function SettingsPage() {
                           <button
                             onClick={() => toggleModule(key, "isPublic")}
                             disabled={!state.enabled}
+                            aria-label={
+                              state.isPublic
+                                ? `Hide ${mod.name} from public visitors`
+                                : `Show ${mod.name} to public visitors`
+                            }
                             className={cn(
                               "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                               !state.enabled
@@ -914,6 +929,11 @@ export default function SettingsPage() {
                           </button>
                           <button
                             onClick={() => toggleModule(key, "enabled")}
+                            aria-label={
+                              state.enabled
+                                ? `Disable ${mod.name} module`
+                                : `Enable ${mod.name} module`
+                            }
                             className={cn(
                               "flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all justify-center",
                               state.enabled
@@ -1722,6 +1742,7 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => setInfoModule(null)}
+                    aria-label="Close module information"
                     className="p-2 rounded-lg text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-colors"
                   >
                     <X className="w-5 h-5" />
