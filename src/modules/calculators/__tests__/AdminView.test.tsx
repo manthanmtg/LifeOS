@@ -2,7 +2,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import CalculatorsAdminView from "../AdminView";
 import { _resetSystemCache } from "@/hooks/useModuleSettings";
-import React from "react";
 
 describe("CalculatorsAdminView", () => {
   beforeEach(() => {
