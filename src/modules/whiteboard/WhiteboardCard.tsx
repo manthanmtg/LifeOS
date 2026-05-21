@@ -53,6 +53,9 @@ export default function WhiteboardCard({
 }: WhiteboardCardProps) {
   const elementCount = board.payload.elements?.length || 0;
   const colorBorder = COLOR_BORDER[board.payload.color_label || "none"];
+  const colorLabel = COLOR_LABELS.find(
+    (color) => color.value === board.payload.color_label,
+  )?.label;
 
   return (
     <motion.div
@@ -122,8 +125,10 @@ export default function WhiteboardCard({
         {/* Color label picker */}
         <div className="relative group/color">
           <button
+            type="button"
             className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
             title="Color label"
+            aria-label={`Current color label: ${colorLabel || "none"}`}
           >
             <div
               className={cn(
@@ -155,6 +160,8 @@ export default function WhiteboardCard({
             setRenamingId(board._id);
             setRenameValue(board.payload.name);
           }}
+          type="button"
+          aria-label={`Rename ${board.payload.name}`}
           className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
           title="Rename"
         >
@@ -162,6 +169,8 @@ export default function WhiteboardCard({
         </button>
         <button
           onClick={() => setDeleteTarget(board)}
+          type="button"
+          aria-label={`Delete board ${board.payload.name}`}
           className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-danger/20 text-zinc-400 hover:text-danger transition-colors"
           title="Delete"
         >
