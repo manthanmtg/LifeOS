@@ -1005,9 +1005,33 @@ export const SystemUpdateSchema = z
   .catchall(z.unknown());
 
 export const MetricEventSchema = z.object({
-  path: z.string().trim().min(1).max(200).default("/"),
-  module: z.string().trim().min(1).max(100).default("core"),
-  action: z.string().trim().min(1).max(50).default("view"),
+  path: z
+    .string()
+    .trim()
+    .min(1, "Path is required")
+    .max(400, "Path is too long")
+    .regex(/^\//, "Path must start with a slash")
+    .default("/"),
+  module: z
+    .string()
+    .trim()
+    .min(1, "Module is required")
+    .max(100, "Module is too long")
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Module should only include lowercase letters, numbers, underscores, and dashes",
+    )
+    .default("core"),
+  action: z
+    .string()
+    .trim()
+    .min(1, "Action is required")
+    .max(50, "Action is too long")
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Action should only include lowercase letters, numbers, underscores, and dashes",
+    )
+    .default("view"),
   label: z.string().trim().max(200).nullable().optional(),
   value: z.number().nullable().optional(),
   metadata: z.record(z.string(), z.unknown()).default({}),
