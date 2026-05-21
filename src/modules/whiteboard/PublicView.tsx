@@ -228,6 +228,7 @@ export default function WhiteboardPublicView({
             </div>
             <button
               onClick={closeViewer}
+              aria-label="Close whiteboard viewer"
               className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-all"
             >
               <X className="w-5 h-5" />
