@@ -107,6 +107,7 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 - `/api/export` / `/api/import` — Backup and restore
 - `/api/bills/*` — Bill, folder, move, and attachment operations backed by `content`
 - `/api/ai-usage/*` — Provider, sync, limits, and debug operations backed by `content`
+- Maintenance task CRUD uses `/api/content?module_type=maintenance_task`; there are currently no dedicated `/api/maintenance/*` route files.
 
 ### Auth & Middleware
 
