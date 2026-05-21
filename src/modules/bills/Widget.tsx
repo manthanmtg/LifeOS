@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Receipt } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -27,15 +28,25 @@ interface BillStats {
 export default function BillsWidget() {
   const [stats, setStats] = useState<BillStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch("/api/widgets/summary?module_type=bill")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error(`Request failed: ${r.status}`);
+        }
+        return r.json();
+      })
       .then((d) => {
+        if (!d?.data) {
+          throw new Error("Invalid widget response");
+        }
         const fetchedStats = d.data || null;
         setStats(fetchedStats);
+        setError(false);
       })
-      .catch(() => {})
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,10 +57,24 @@ export default function BillsWidget() {
       loading={loading}
       href="/admin/bills"
     >
-      {stats && (
-        <div className="space-y-3">
-          <WidgetStat value={stats.total} label="bills archived" />
-          {stats.recentBill ? (
+      {(stats || error) && (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="space-y-3"
+        >
+          <WidgetStat
+            value={stats?.total ?? 0}
+            label="bills archived"
+          />
+          {error ? (
+            <WidgetHighlight
+              icon={Receipt}
+              text="Couldn’t refresh bills summary"
+              subtext="Please retry dashboard load"
+            />
+          ) : stats?.recentBill ? (
             <WidgetHighlight
               icon={Receipt}
               text={stats.recentBill.payload.name || "Latest bill"}
@@ -61,10 +86,14 @@ export default function BillsWidget() {
             <WidgetHighlight
               icon={Receipt}
               text="No bills yet"
-              subtext={`${stats.folderCount} folders, ${stats.totalAttachments} files`}
+              subtext={`${stats?.folderCount ?? 0} folders, ${stats?.totalAttachments ?? 0} files`}
             />
           )}
-        </div>
+        </motion.div>
+      )}
+
+      {!stats && !error && (
+        <div className="hidden" aria-hidden="true" />
       )}
     </WidgetCard>
   );
