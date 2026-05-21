@@ -21,6 +21,26 @@ export default memo(function MaintenanceWidget() {
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const hero = summary
+    ? summary.overdue > 0
+      ? {
+          value: summary.overdue,
+          label: "overdue tasks",
+          tone: "danger" as const,
+        }
+      : summary.upcoming > 0
+        ? {
+            value: summary.upcoming,
+            label: "due in next 30 days",
+            tone: "warning" as const,
+          }
+        : {
+            value: summary.total,
+            label: summary.total > 0 ? "active tasks" : "maintenance tasks",
+            tone: "success" as const,
+          }
+    : { value: "—" as const, label: "maintenance tasks", tone: "accent" as const };
+
   useEffect(() => {
     const ac = new AbortController();
     fetch("/api/widgets/summary?module_type=maintenance_task", {
@@ -76,8 +96,8 @@ export default memo(function MaintenanceWidget() {
           className="space-y-3"
         >
           <WidgetStat
-            value={summary.overdue}
-            label={summary.overdue > 0 ? "overdue tasks" : "all on schedule"}
+            value={hero.value}
+            label={hero.label}
           />
           {summary.overdue > 0 ? (
             <WidgetHighlight
@@ -105,12 +125,8 @@ export default memo(function MaintenanceWidget() {
                   ? `${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`
                   : "Add your first maintenance plan today"
               }
-              subtext={
-                summary.total > 0
-                  ? `${summary.completedThisMonth} completed this month`
-                  : "Track tasks to keep everything on schedule"
-              }
-              variant="success"
+              subtext={`${summary.completedThisMonth} completed this month`}
+              variant={hero.tone}
             />
           )}
         </motion.div>
