@@ -120,12 +120,13 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 30,
+      "totalSelected": 31,
       "totalCompleted": 28,
       "totalNoop": 2,
-      "totalFailed": 0,
-      "lastSelectedAt": "2026-05-21T09:23:52.287Z",
-      "lastOutcome": "completed"
+      "totalFailed": 1,
+      "lastSelectedAt": "2026-05-21T10:28:32.654Z",
+      "lastOutcome": "failed",
+      "lastCompletedAt": "2026-05-21T10:29:09.618Z"
     },
     "module_generator_prompt.md": {
       "id": "module-generator-prompt",
@@ -329,5 +330,5 @@
       "lastSelectedAt": "2026-05-21T09:05:55.398Z"
     }
   },
-  "updatedAt": "2026-05-21T10:27:24Z"
+  "updatedAt": "2026-05-21T10:29:09.618Z"
 }
