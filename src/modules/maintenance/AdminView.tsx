@@ -65,7 +65,7 @@ import {
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 export default function MaintenanceAdminView() {
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -117,6 +117,16 @@ export default function MaintenanceAdminView() {
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setNow(new Date());
+    }, 60_000);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, []);
 
   // ── Smart status on load ──────────────────────────────────────────────
 
