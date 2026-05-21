@@ -24,7 +24,7 @@ describe("maintenance helpers", () => {
 
   it("formats dates for public display using en-IN locale", () => {
     expect(formatDate(undefined)).toBe("--");
-    expect(formatDate("not-a-date")).toContain("Invalid");
+    expect(formatDate("not-a-date")).toBe("--");
     expect(formatDate("2026-05-21T12:00:00.000Z")).toContain("2026");
     expect(formatDate("2026-05-21T12:00:00.000Z")).toMatch(/May/);
   });
@@ -100,20 +100,48 @@ describe("maintenance helpers", () => {
     expect(daysUntilDue(undefined, new Date("2026-05-21T12:00:00.000Z"))).toBe(
       null,
     );
-    expect(daysUntilDue("2026-05-22T00:00:00.000Z", new Date("2026-05-21T12:00:00.000Z"))).toBe(1);
-    expect(daysUntilDue("2026-05-20T00:00:00.000Z", new Date("2026-05-21T12:00:00.000Z"))).toBe(-1);
+    expect(
+      daysUntilDue(
+        "2026-05-22T00:00:00.000Z",
+        new Date("2026-05-21T12:00:00.000Z"),
+      ),
+    ).toBe(1);
+    expect(
+      daysUntilDue(
+        "2026-05-20T00:00:00.000Z",
+        new Date("2026-05-21T12:00:00.000Z"),
+      ),
+    ).toBe(-1);
   });
 
   it("clamps due progress percent within 0 to 100", () => {
     const now = new Date("2026-05-21T12:00:00.000Z");
 
     expect(
-      dueProgressPercent("2026-05-20T12:00:00.000Z", "2026-05-19T12:00:00.000Z", now),
+      dueProgressPercent(
+        "2026-05-20T12:00:00.000Z",
+        "2026-05-19T12:00:00.000Z",
+        now,
+      ),
     ).toBe(100);
 
-    expect(dueProgressPercent(undefined, "2026-06-01T12:00:00.000Z", now)).toBe(0);
-    expect(dueProgressPercent("2026-05-22T12:00:00.000Z", "2026-05-23T12:00:00.000Z", now)).toBe(0);
-    expect(dueProgressPercent("2026-05-20T12:00:00.000Z", "2026-05-22T12:00:00.000Z", now)).toBe(50);
+    expect(dueProgressPercent(undefined, "2026-06-01T12:00:00.000Z", now)).toBe(
+      0,
+    );
+    expect(
+      dueProgressPercent(
+        "2026-05-22T12:00:00.000Z",
+        "2026-05-23T12:00:00.000Z",
+        now,
+      ),
+    ).toBe(0);
+    expect(
+      dueProgressPercent(
+        "2026-05-20T12:00:00.000Z",
+        "2026-05-22T12:00:00.000Z",
+        now,
+      ),
+    ).toBe(50);
   });
 
   it("shifts month values and keeps ISO format", () => {

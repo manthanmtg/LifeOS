@@ -86,13 +86,13 @@ function resolveFunctions(formula: string, ctx: FormulaContext): string {
   let safety = 0;
   while (/ROUND\(/i.test(expr) && safety < 10) {
     expr = expr.replace(
-      /ROUND\(\s*([^()]+?)\s*,\s*(\d+)\s*\)/gi,
-      (_match, innerExpr, decimals) => {
+      /ROUND\(\s*([^,]+)\s*,\s*(\d+)\s*\)/gi,
+      (match, innerExpr, decimals) => {
         const val = safeEvaluateArithmetic(innerExpr.trim());
         if (val !== null && isFinite(val)) {
           return val.toFixed(Number(decimals));
         }
-        return innerExpr;
+        return match;
       },
     );
     safety++;
@@ -275,10 +275,7 @@ function evaluateArithmetic(expression: string): number | null {
  * Supports: SUM(field), AVG(field), WEIGHTED_AVG(val, weight), MIN(field), MAX(field), COUNT()
  * Plus: total_<field>, summary field names, calculated field names, and arithmetic.
  */
-function evaluateFormula(
-  formula: string,
-  ctx: FormulaContext,
-): number | null {
+function evaluateFormula(formula: string, ctx: FormulaContext): number | null {
   if (!formula) return null;
 
   try {
@@ -288,7 +285,10 @@ function evaluateFormula(
     // Step 2: Resolve variable references
     expr = resolveVariables(expr, ctx);
 
-    // Step 3: Evaluate arithmetic
+    // Step 3: Resolve helpers that can reference calculated variables
+    expr = resolveFunctions(expr, ctx);
+
+    // Step 4: Evaluate arithmetic
     return evaluateArithmetic(expr);
   } catch (e) {
     console.error("Formula evaluation failed:", formula, e);

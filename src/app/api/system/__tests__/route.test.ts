@@ -35,7 +35,7 @@ describe("PUT /api/system", () => {
   it("updates allowed fields", async () => {
     const request = createRequest({
       site_title: "New Title",
-      active_theme: "dark",
+      color_mode: "dark",
     });
 
     const response = await PUT(request);
@@ -43,7 +43,7 @@ describe("PUT /api/system", () => {
     expect(response.status).toBe(200);
     expect(mockUpdateOne).toHaveBeenCalledWith(
       { _id: "global" },
-      { $set: { site_title: "New Title", active_theme: "dark" } },
+      { $set: { site_title: "New Title", color_mode: "dark" } },
     );
   });
 

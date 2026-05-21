@@ -52,7 +52,9 @@ export default function IdeasWidget() {
                 ? "Idea metrics unavailable"
                 : "Preparing your idea board"
             }
-            subtext={loadError ? "Open Ideas to retry" : "Summary data loading soon"}
+            subtext={
+              loadError ? "Open Ideas to retry" : "Summary data loading soon"
+            }
             variant={loadError ? "danger" : "accent"}
           />
         )}
@@ -98,8 +100,7 @@ export default function IdeasWidget() {
               variant="success"
             />
           )
-        ) : (
-        )}
+        ) : null}
       </div>
     </WidgetCard>
   );

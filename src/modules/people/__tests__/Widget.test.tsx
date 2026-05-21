@@ -1,14 +1,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PeopleWidget from "../Widget";
 
 describe("PeopleWidget", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("keeps the dashboard tile to one hero metric and one detail", async () => {
     global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () =>
         Promise.resolve({
           data: {
@@ -20,7 +22,7 @@ describe("PeopleWidget", () => {
         }),
     });
 
-    render(<PeopleWidget />);
+    render(React.createElement(PeopleWidget));
 
     expect(await screen.findByText("12")).toBeInTheDocument();
     expect(screen.getByText("people you know")).toBeInTheDocument();
@@ -47,7 +49,7 @@ describe("PeopleWidget", () => {
         }),
     );
 
-    const { unmount } = render(<PeopleWidget />);
+    const { unmount } = render(React.createElement(PeopleWidget));
 
     unmount();
     resolveFetch!({ json });
