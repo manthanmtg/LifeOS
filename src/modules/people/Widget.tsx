@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Clock, AlertTriangle, CalendarCheck2 } from "lucide-react";
+import {
+  Users,
+  Clock,
+  AlertTriangle,
+  Activity,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -15,6 +20,7 @@ interface PeopleSummary {
   recentlyContactedCount: number;
   favorites: number;
   upcomingBirthdaysCount: number;
+  healthScore: number;
 }
 
 const EMPTY_SUMMARY: PeopleSummary = {
@@ -23,6 +29,7 @@ const EMPTY_SUMMARY: PeopleSummary = {
   recentlyContactedCount: 0,
   favorites: 0,
   upcomingBirthdaysCount: 0,
+  healthScore: 0,
 };
 
 export default function PeopleWidget() {
@@ -94,10 +101,16 @@ export default function PeopleWidget() {
             />
           ) : (
             <WidgetHighlight
-              icon={CalendarCheck2}
-              text={`${summary.recentlyContactedCount} contacted in the last 14 days`}
-              subtext="Connection momentum looks healthy"
-              variant="success"
+              icon={Activity}
+              text={`Network health: ${summary.healthScore}%`}
+              subtext={`${summary.recentlyContactedCount} contacts in last 14 days`}
+              variant={
+                summary.healthScore >= 85
+                  ? "success"
+                  : summary.healthScore >= 60
+                    ? "warning"
+                    : "danger"
+              }
             />
           )}
         </div>
