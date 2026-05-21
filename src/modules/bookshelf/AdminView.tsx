@@ -69,7 +69,7 @@ export default function BookshelfAdminView() {
       const idx = 5 - i;
       return {
         start: new Date(now.getFullYear(), now.getMonth() - idx, 1),
-        end: new Date(now.getFullYear(), now.getMonth() - idx + 1, 0),
+        end: new Date(now.getFullYear(), now.getMonth() - idx + 1, 1),
         count: 0,
       };
     });
@@ -84,7 +84,7 @@ export default function BookshelfAdminView() {
         if (b.payload.finished_at) {
           const d = new Date(b.payload.finished_at);
           for (const m of monthBoundaries) {
-            if (d >= m.start && d <= m.end) {
+            if (d >= m.start && d < m.end) {
               m.count++;
               break;
             }
