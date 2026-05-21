@@ -363,6 +363,7 @@ export default function BingeForm({
                   id="binge-season"
                   type="number"
                   min={1}
+                  max={999}
                   value={currentSeason}
                   onChange={(e) => setCurrentSeason(e.target.value)}
                   placeholder="1"
@@ -381,6 +382,7 @@ export default function BingeForm({
                   id="binge-episode"
                   type="number"
                   min={1}
+                  max={10000}
                   value={currentEpisode}
                   onChange={(e) => setCurrentEpisode(e.target.value)}
                   placeholder="1"
@@ -399,6 +401,7 @@ export default function BingeForm({
                   id="binge-total-seasons"
                   type="number"
                   min={1}
+                  max={999}
                   value={totalSeasons}
                   onChange={(e) => setTotalSeasons(e.target.value)}
                   placeholder="Optional"
@@ -459,6 +462,7 @@ export default function BingeForm({
                 <input
                   type="number"
                   min={1}
+                  max={999}
                   value={rewatchCount}
                   onChange={(e) => setRewatchCount(e.target.value)}
                   placeholder="Times"
