@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Target, Flame, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -65,19 +64,14 @@ export default function HabitsWidget() {
     ? "Add your first habit to start building streaks"
     : `${streakText} · ${trendLabel}`;
 
-  return (
+    return (
     <WidgetCard
       title="Habits"
       icon={Target}
       loading={loading}
       href="/admin/habits"
     >
-      <motion.div
-        className="space-y-3"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
+      <div className="space-y-3">
         <WidgetStat value={heroValue} label={heroLabel} />
         <WidgetHighlight
           icon={summary.bestCurrentStreak > 0 ? Flame : TrendingUp}
@@ -85,7 +79,7 @@ export default function HabitsWidget() {
           subtext={highlightSubtext}
           variant={highlightVariant}
         />
-      </motion.div>
+      </div>
     </WidgetCard>
   );
 }
