@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -23,6 +24,28 @@ export default function LoginPage() {
       .catch(() => {})
       .finally(() => setLoaded(true));
   }, []);
+
+  if (!loaded) {
+    return (
+      <div
+        suppressHydrationWarning
+        className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-50 relative overflow-hidden"
+      >
+        <div className="absolute top-0 blur-[150px] bg-zinc-800/50 w-full h-[500px] rounded-full -translate-y-1/2" />
+        <div className="w-full max-w-sm p-8 z-10 space-y-6">
+          <div className="flex flex-col items-center mb-2">
+            <SkeletonBlock className="w-14 h-14 rounded-2xl" />
+          </div>
+          <div className="w-full space-y-3">
+            <SkeletonBlock className="h-8 w-40 mx-auto" />
+            <SkeletonBlock className="h-4 w-48 mx-auto" />
+            <SkeletonBlock className="h-12 w-full rounded-lg" />
+            <SkeletonBlock className="h-12 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
