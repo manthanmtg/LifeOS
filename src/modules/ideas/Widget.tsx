@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Lightbulb, Sparkles, AlertTriangle, Timer } from "lucide-react";
-import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -42,56 +41,9 @@ export default function IdeasWidget() {
       loading={loading}
       href="/admin/ideas"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.24, ease: "easeOut" }}
-      >
+      <div className="space-y-3">
         {summary ? (
-          <div className="space-y-3">
-            <WidgetStat value={summary.total} label="captured ideas" />
-            {summary.total === 0 ? (
-              <WidgetHighlight
-                icon={Lightbulb}
-                text="No ideas yet"
-                subtext="Capture your first thought to get momentum."
-              />
-            ) : summary.reviewCount > 0 ? (
-              <WidgetMiniStats
-                stats={[
-                  {
-                    value: summary.promoted,
-                    label: "promoted",
-                    icon: Sparkles,
-                    color: "success",
-                  },
-                  {
-                    value: summary.exploring,
-                    label: "exploring",
-                    icon: Timer,
-                    color: "warning",
-                  },
-                  {
-                    value: summary.reviewCount,
-                    label: "review needed",
-                    icon: AlertTriangle,
-                    color: "danger",
-                  },
-                ]}
-              />
-            ) : (
-              <WidgetHighlight
-                icon={Lightbulb}
-                text={summary.spotlightTitle ?? "All ideas are in motion"}
-                subtext={
-                  summary.spotlightStatus
-                    ? `Top focus: ${summary.spotlightStatus}`
-                    : "Review queue is clear."
-                }
-                variant="success"
-              />
-            )}
-          </div>
+          <WidgetStat value={summary.total} label="captured ideas" />
         ) : (
           <WidgetHighlight
             icon={AlertTriangle}
@@ -104,7 +56,51 @@ export default function IdeasWidget() {
             variant={loadError ? "danger" : "accent"}
           />
         )}
-      </motion.div>
+        {summary ? (
+          summary.total === 0 ? (
+            <WidgetHighlight
+              icon={Lightbulb}
+              text="No ideas yet"
+              subtext="Capture your first thought to get momentum."
+            />
+          ) : summary.reviewCount > 0 ? (
+            <WidgetMiniStats
+              stats={[
+                {
+                  value: summary.promoted,
+                  label: "promoted",
+                  icon: Sparkles,
+                  color: "success",
+                },
+                {
+                  value: summary.exploring,
+                  label: "exploring",
+                  icon: Timer,
+                  color: "warning",
+                },
+                {
+                  value: summary.reviewCount,
+                  label: "review needed",
+                  icon: AlertTriangle,
+                  color: "danger",
+                },
+              ]}
+            />
+          ) : (
+            <WidgetHighlight
+              icon={Lightbulb}
+              text={summary.spotlightTitle ?? "All ideas are in motion"}
+              subtext={
+                summary.spotlightStatus
+                  ? `Top focus: ${summary.spotlightStatus}`
+                  : "Review queue is clear."
+              }
+              variant="success"
+            />
+          )
+        ) : (
+        )}
+      </div>
     </WidgetCard>
   );
 }
