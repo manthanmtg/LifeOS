@@ -63,15 +63,18 @@ export default function SnippetForm({
 
       setIsSubmitting(true);
       try {
+        const normalizedTags = tagsInput
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+        const uniqueTags = Array.from(new Set(normalizedTags));
+
         const payload = {
           title: title.trim(),
           code,
           language,
           description: description.trim() || undefined,
-          tags: tagsInput
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter(Boolean),
+          tags: uniqueTags,
           is_favorite: isFavorite,
         };
 
