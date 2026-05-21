@@ -12,7 +12,6 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET(
-  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -96,7 +95,6 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {

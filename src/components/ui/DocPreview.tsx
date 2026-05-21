@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { X, Download, FileText, ImageIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
