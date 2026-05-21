@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Clock } from "lucide-react";
+import { Users, Clock, AlertTriangle, CalendarCheck2 } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -11,22 +12,42 @@ import {
 interface PeopleSummary {
   total: number;
   staleCount: number;
+  recentlyContactedCount: number;
+  favorites: number;
+  upcomingBirthdaysCount: number;
 }
 
+const EMPTY_SUMMARY: PeopleSummary = {
+  total: 0,
+  staleCount: 0,
+  recentlyContactedCount: 0,
+  favorites: 0,
+  upcomingBirthdaysCount: 0,
+};
+
 export default function PeopleWidget() {
-  const [summary, setSummary] = useState<PeopleSummary | null>(null);
+  const [summary, setSummary] = useState<PeopleSummary>(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
     let active = true;
 
     fetch("/api/widgets/summary?module_type=person", { signal: ac.signal })
-      .then((r) => (active ? r.json() : null))
-      .then((data) => {
-        if (active) setSummary(data?.data || null);
+      .then(async (r) => {
+        if (!r.ok) throw new Error("Failed to load people summary");
+        return r.json();
       })
-      .catch(() => {})
+      .then((data) => {
+        if (active) {
+          setLoadError(false);
+          setSummary(data?.data || EMPTY_SUMMARY);
+        }
+      })
+      .catch(() => {
+        if (active) setLoadError(true);
+      })
       .finally(() => {
         if (active) setLoading(false);
       });
@@ -43,25 +64,44 @@ export default function PeopleWidget() {
       loading={loading}
       href="/admin/people"
     >
-      {summary && (
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+      >
         <div className="space-y-3">
           <WidgetStat value={summary.total} label="people you know" />
-          {summary.staleCount > 0 ? (
+          {loadError ? (
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text="People summary unavailable"
+              subtext="Open People to refresh this card"
+              variant="danger"
+            />
+          ) : summary.total === 0 ? (
+            <WidgetHighlight
+              icon={Users}
+              text="No one here yet"
+              subtext="Add a person to begin building your network"
+              variant="accent"
+            />
+          ) : summary.staleCount > 0 ? (
             <WidgetHighlight
               icon={Clock}
               text={`${summary.staleCount} to catch up with`}
-              subtext="Haven't talked in 90+ days"
+              subtext={`${summary.favorites} favorites; ${summary.upcomingBirthdaysCount} upcoming birthdays in next 30 days`}
               variant="warning"
             />
           ) : (
             <WidgetHighlight
-              icon={Users}
-              text="Everyone's in touch"
+              icon={CalendarCheck2}
+              text={`${summary.recentlyContactedCount} contacted in the last 14 days`}
+              subtext="Connection momentum looks healthy"
               variant="success"
             />
           )}
         </div>
-      )}
+      </motion.div>
     </WidgetCard>
   );
 }
