@@ -1,69 +1,93 @@
 # Slides
 
-Create, preview, and manage presentation decks.
+Slides in LifeOS let you upload or link deck content and present from a unified interface. The module stores slide metadata in the shared `content` collection with `module_type = "deck"`, renders admin cards with filters, and exposes a full-screen public viewer.
 
-The **Slides** module is designed for uploading, organizing, and presenting slides. It supports multiple presentation formats and provides an embedded full-screen viewer so presentations can be hosted or linked seamlessly within LifeOS.
+## Where it lives
 
-Admin data is loaded from `/api/content?module_type=deck`, and widget data is loaded from `/api/widgets/summary?module_type=deck`. Public rendering uses the module route with only documents where `is_public` is true.
-
-## Features
-
-- **Multi-Format Support**: Create decks via URL or upload files. Supported formats include HTML, PDF, PowerPoint (`pptx`), Google Slides, and Reveal.js.
-- **Embedded Viewer**: Present directly from LifeOS using the full-screen Slide Viewer.
-- **Organization**: Categorize your decks with tags, folders, and topics. Assign authors for collaborative or sourced presentations.
-- **Visibility Control**: Set deck visibility to `public`, `private`, or `link_only` to control who can view the presentation.
-- **Dashboard Widget**: Shows the total number of decks uploaded and highlights the latest deck with its format.
-- **Public Grid**: Showcase public decks in an interactive grid with live previews and an easy "Present" action to open the embedded viewer.
-- **Smart Previewing**: Prefer `thumbnail_url` when present, otherwise render a scaled iframe preview from `deck_url` or decoded uploaded HTML.
-- **Viewer Controls**: Navigate with arrow keys, space, edge clicks, or fullscreen mode while the overlay hides after inactivity.
-
-## Data Schema
-
-The `payload` shape is represented by `DeckItem` in `src/modules/slides/types.ts` and validated by `DeckSchema` in `src/lib/schemas.ts`.
-
-| Field             | Type                                                                       | Description                                        |
-| ----------------- | -------------------------------------------------------------------------- | -------------------------------------------------- |
-| `title`           | `string`                                                                   | Required deck title, trimmed and capped at 200 characters. |
-| `description`     | `string` (optional)                                                        | Optional summary, trimmed and capped at 1,000 characters. |
-| `format`          | `"html" \| "pdf" \| "pptx" \| "google_slides" \| "reveal_js" \| "url"`       | Presentation format; defaults to `url`.            |
-| `visibility`      | `"public" \| "private" \| "link_only"`                                     | Payload-level access label; defaults to `private`. |
-| `tags`            | `string[]`                                                                 | Up to 20 trimmed tags, each capped at 50 characters. |
-| `author`          | `string` (optional)                                                        | Creator or presenter, capped at 100 characters.    |
-| `topic`           | `string` (optional)                                                        | Topic category, capped at 100 characters.          |
-| `folder`          | `string` (optional)                                                        | Folder name, capped at 100 characters.             |
-| `deck_url`        | `string` (optional)                                                        | URL or uploaded data URL used by previews and the viewer. |
-| `file_name`       | `string` (optional)                                                        | Uploaded file name, capped at 255 characters.      |
-| `file_size`       | `number` (optional)                                                        | Non-negative uploaded file size in bytes.          |
-| `thumbnail_url`   | `string` (optional)                                                        | Cover image URL, capped at 500 characters.         |
-| `embed_enabled`   | `boolean`                                                                  | Whether the admin view exposes embed-code copying; defaults to false. |
-
-`visibility` is stored in the module payload, while public API routing depends on the top-level content document `is_public` flag. The admin form keeps them in sync for `public` and `private` states.
-
-## Registration
-
+- **Module slug**: `slides`
 - **Admin route**: `/admin/slides`
 - **Content type**: `deck`
-- **Icon**: `Presentation`
-- **Default visibility**: private
-- **Schema registry key**: `deck`
+- **Registry key**: `deck`
+- **Schema key**: `DeckSchema` in `src/lib/schemas.ts`
+- **Payload type**: `DeckItem` in `src/modules/slides/types.ts`
+- **Public route**: `/slides` (via `src/app/[module]/page.tsx` + `PublicModuleClient`)
 
-## Example Usage
+## Module behavior
 
-Creating a new Slide deck through `/api/content`:
+- Admin list, create, edit, publish/private toggle, and delete are handled by `src/modules/slides/AdminView.tsx`.
+- Public cards are rendered by `src/modules/slides/PublicView.tsx` and use the same item contract.
+- Dashboard widget reads `/api/widgets/summary?module_type=deck` from `src/modules/slides/Widget.tsx`.
+- Supported formats are configured in `FORMATS`:
+  - `html`, `pdf`, `pptx`, `google_slides`, `reveal_js`, `url`.
+- File uploads are accepted for:
+  - `pdf`, `ppt`, `pptx`, `html`, `htm`
+  - up to 10 MB each
+  - files are converted to `data:text/html;base64` for `deck_url` in the request payload.
+- Deck visibility is driven by payload `visibility` and synced with API-level `is_public` when using admin controls.
 
-```typescript
-const newDeck = {
-  module_type: "deck",
-  is_public: true,
-  payload: {
-    title: "Project Architecture 2026",
-    description: "An overview of our latest backend architecture and module structure.",
-    format: "google_slides",
-    visibility: "public",
-    tags: ["architecture", "backend", "planning"],
-    author: "Jane Doe",
-    deck_url: "https://docs.google.com/presentation/d/e/2PACX.../embed",
-    embed_enabled: true,
-  },
-};
+## Data schema
+
+`DeckSchema` enforces constraints used by `/api/content` writes.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `title` | `string` | Required; max 200 chars. |
+| `description` | `string \| undefined` | Optional; max 1,000 chars. |
+| `format` | `"html" \| "pdf" \| "pptx" \| "google_slides" \| "reveal_js" \| "url"` | Defaults to `url`. |
+| `visibility` | `"public" \| "private" \| "link_only"` | Defaults to `private`. |
+| `tags` | `string[]` | Up to 20 values, each 1–50 chars. |
+| `author` | `string \| undefined` | Optional; max 100 chars. |
+| `topic` | `string \| undefined` | Optional; max 100 chars. |
+| `folder` | `string \| undefined` | Optional; max 100 chars. |
+| `deck_url` | `string \| undefined` | URL or uploaded deck data. |
+| `file_name` | `string \| undefined` | Optional; max 255 chars. |
+| `file_size` | `number \| undefined` | Optional; non-negative integer bytes. |
+| `thumbnail_url` | `string \| undefined` | Optional; max 500 chars. |
+| `embed_enabled` | `boolean` | Defaults to `false`. |
+
+## API interaction examples
+
+Create a public deck:
+
+```ts
+await fetch("/api/content", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    module_type: "deck",
+    is_public: true,
+    payload: {
+      title: "Project Architecture",
+      description: "Review notes for Q2 roadmap.",
+      format: "google_slides",
+      visibility: "public",
+      tags: ["architecture", "roadmap", "planning"],
+      author: "Jane Doe",
+      deck_url: "https://docs.google.com/presentation/d/e/.../embed",
+      embed_enabled: true,
+    },
+  }),
+});
+```
+
+Toggle an existing item to public/private:
+
+```ts
+await fetch(`/api/content/${deckId}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    is_public: true,
+    payload: {
+      ...deck.payload,
+      visibility: "public",
+    },
+  }),
+});
+```
+
+Fetch public slides for `/slides`:
+
+```ts
+await fetch("/api/content?module_type=deck&is_public=true");
 ```
