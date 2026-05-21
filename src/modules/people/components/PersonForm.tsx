@@ -159,6 +159,7 @@ export default function PersonForm({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close person form"
             className="p-2 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-lg transition-all"
           >
             <X className="w-5 h-5" />
