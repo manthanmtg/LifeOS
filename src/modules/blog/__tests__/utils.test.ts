@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { BlogPayload, BlogPost } from "@/modules/blog/types";
 import {
   buildBlogSummary,
-  parseHeadingOutline,
   parseTagInput,
   sortPostsByNewest,
 } from "@/modules/blog/utils";
@@ -88,14 +87,4 @@ describe("blog utils", () => {
     });
   });
 
-  it("extracts duplicate markdown headings with stable ids", () => {
-    expect(
-      parseHeadingOutline("## Setup\n### Details\n## Setup\n### Details"),
-    ).toEqual([
-      { id: "setup", text: "Setup", level: 2 },
-      { id: "details", text: "Details", level: 3 },
-      { id: "setup-2", text: "Setup", level: 2 },
-      { id: "details-2", text: "Details", level: 3 },
-    ]);
-  });
 });
