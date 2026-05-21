@@ -346,6 +346,7 @@ export default function BillModal({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close bill editor"
             className="p-1.5 -mr-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
           >
             <X className="w-4 h-4" />
