@@ -96,6 +96,7 @@ export function ReadingForm({
             value={url}
             onChange={(e) => handleUrlChange(e.target.value)}
             placeholder="https://..."
+            maxLength={2048}
             autoFocus
             disabled={isSubmitting}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
@@ -115,6 +116,7 @@ export function ReadingForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Readable title"
+            maxLength={500}
             disabled={isSubmitting}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
             required

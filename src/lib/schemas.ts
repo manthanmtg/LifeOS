@@ -169,7 +169,7 @@ export const RecurringExpenseSchema = z.object({
 
 // --- 5. READING QUEUE ---
 const ReadingItemSchema = z.object({
-  url: z.string().url("Must be a valid URL").max(2048),
+  url: z.string().trim().url("Must be a valid URL").max(2048),
   title: z.string().trim().min(1, "Title is required").max(500),
   source_domain: z.string().trim().min(1).max(200).optional(),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
@@ -1060,7 +1060,7 @@ const BingeItemSchema = z.object({
   genre: z.string().trim().max(100).optional(),
   platform: z.string().trim().max(100).optional(),
   year: z.number().int().min(1900).max(2100).optional(),
-  poster_url: z.string().url().max(500).optional(),
+  poster_url: z.string().trim().url().max(500).optional(),
   recommended_by: z.string().trim().max(100).optional(),
   rewatched: z.boolean().default(false),
   rewatch_count: z.number().int().min(0).max(999).default(0),
