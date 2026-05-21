@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Briefcase, User } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -66,8 +67,12 @@ function getReadiness(profile: Profile["payload"]) {
     validSocialLinks >= 2,
   ];
 
+  const completed = checks.filter(Boolean).length;
+
   return {
-    pct: Math.round((checks.filter(Boolean).length / checks.length) * 100),
+    pct: Math.round((completed / checks.length) * 100),
+    completed,
+    total: checks.length,
     validSocialLinks,
   };
 }
@@ -86,6 +91,17 @@ export default function PortfolioWidget() {
 
   const p = profile;
   const readiness = p ? getReadiness(p) : null;
+  const heroAvailability = p?.available_for_hire
+    ? "open to opportunities"
+    : "selective availability";
+  const readinessTone =
+    !p
+      ? "default"
+      : readiness?.pct && readiness.pct >= 85
+        ? "success"
+        : readiness?.pct && readiness.pct >= 55
+          ? "warning"
+          : "danger";
 
   return (
     <WidgetCard
@@ -95,42 +111,48 @@ export default function PortfolioWidget() {
       href="/admin/portfolio"
       footer={
         p && (
-          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
-            <span className="min-w-0 truncate text-zinc-500">
-              {readiness?.validSocialLinks ?? 0} verified links
+          <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+            <span>
+              {readiness?.completed ?? 0}/{readiness?.total ?? 0} checks complete
             </span>
-            {p.available_for_hire ? (
-              <span className="flex shrink-0 items-center gap-1 text-success">
-                <Briefcase className="w-3 h-3" /> Open
-              </span>
-            ) : (
-              <span className="shrink-0 text-zinc-500">Selective</span>
-            )}
           </div>
         )
       }
     >
       {p ? (
-        <div className="space-y-3">
-          <WidgetStat value={`${readiness?.pct ?? 0}%`} label="profile ready" />
+        <motion.div
+          initial={{ opacity: 0, y: 3 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="space-y-3"
+        >
+          <WidgetStat
+            value={`${readiness?.pct ?? 0}%`}
+            label="profile readiness"
+          />
           <WidgetHighlight
             icon={Briefcase}
             text={p.hero_title}
-            subtext={p.sub_headline}
-            variant={p.available_for_hire ? "success" : "default"}
+            subtext={`${p.sub_headline ?? "Set your portfolio subtitle"} • ${heroAvailability}`}
+            variant={readinessTone}
           />
-        </div>
+        </motion.div>
       ) : (
         !loading && (
-          <div className="space-y-3">
-            <WidgetStat value={0} label="skills" />
+          <motion.div
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="space-y-3"
+          >
+            <WidgetStat value={0} label="profile readiness" />
             <WidgetHighlight
               icon={User}
               text="No profile yet"
-              subtext="Set up your first portfolio profile"
+              subtext="Set up a portfolio profile to unlock your dashboard summary."
               variant="default"
             />
-          </div>
+          </motion.div>
         )
       )}
     </WidgetCard>
