@@ -41,6 +41,12 @@ describe("api-response", () => {
       const body = await response.json();
       expect(body.details).toEqual(details);
     });
+
+    it("omits internal details for 500-level errors", async () => {
+      const response = ApiError("Failed", 500, new Error("sensitive"));
+      const body = await response.json();
+      expect(body.details).toBeUndefined();
+    });
   });
 
   describe("Specific Error Helpers", () => {

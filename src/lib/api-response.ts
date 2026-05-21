@@ -1,5 +1,17 @@
 import { NextResponse } from "next/server";
 
+const sanitizeDetails = (details: unknown, status: number) => {
+  if (status >= 500) {
+    return undefined;
+  }
+
+  if (details instanceof Error) {
+    return details.message;
+  }
+
+  return details;
+};
+
 /**
  * Success response helper
  */
@@ -11,8 +23,11 @@ export const ApiSuccess = <T>(data: T, status = 200) => {
  * Error response helper
  */
 export const ApiError = (message: string, status = 500, details?: unknown) => {
+  const safeDetails = sanitizeDetails(details, status);
+  const payload = { success: false, error: message };
+
   return NextResponse.json(
-    { success: false, error: message, details },
+    safeDetails === undefined ? payload : { ...payload, details: safeDetails },
     { status },
   );
 };
