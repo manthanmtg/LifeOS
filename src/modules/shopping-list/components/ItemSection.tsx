@@ -44,47 +44,69 @@ export default function ItemSection({
   onDeleteItem,
 }: ItemSectionProps) {
   const isHidden = purchased && isCollapsed;
+  const sectionId = `${listId}-${purchased ? "purchased" : "remaining"}-items`;
 
   return (
     <section className="space-y-3 rounded-3xl border border-zinc-800 bg-zinc-950/40 p-4 shadow-sm shadow-zinc-950/40 transition-colors duration-200 hover:border-zinc-700/80 hover:bg-zinc-950/60">
-      <div
-        className={`flex items-center justify-between gap-3 rounded-xl px-1 py-1 transition-colors duration-200 ${
-          purchased
-            ? "cursor-pointer hover:bg-zinc-900/60"
-            : ""
-        }`}
-        onClick={purchased ? onToggleCollapse : undefined}
-      >
-        <div className="flex items-center gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            {title}
-          </h3>
-          {purchased &&
-            (isCollapsed ? (
+      {purchased && onToggleCollapse ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl px-1 py-1 transition-colors duration-200 hover:bg-zinc-900/60">
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            aria-expanded={!isCollapsed}
+            aria-controls={sectionId}
+            className="flex min-w-0 items-center gap-2"
+          >
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              {title}
+            </h3>
+            {isCollapsed ? (
               <ChevronDown className="h-3.5 w-3.5 text-zinc-600" />
             ) : (
               <ChevronUp className="h-3.5 w-3.5 text-zinc-600" />
-            ))}
+            )}
+          </button>
+          <div className="flex items-center gap-2">
+            {actionLabel && onAction ? (
+              <button
+                type="button"
+                onClick={onAction}
+                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-danger"
+              >
+                {actionLabel}
+              </button>
+            ) : null}
+            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[11px] text-zinc-500">
+              {count}
+            </span>
+          </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          {actionLabel && onAction ? (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onAction();
-              }}
-              className="rounded-full px-2.5 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-danger"
-            >
-              {actionLabel}
-            </button>
-          ) : null}
-          <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[11px] text-zinc-500">
-            {count}
-          </span>
+      ) : (
+        <div className="flex items-center justify-between gap-3 rounded-xl px-1 py-1 transition-colors duration-200">
+          <div className="flex items-center gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              {title}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            {actionLabel && onAction ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onAction();
+                }}
+                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-danger"
+              >
+                {actionLabel}
+              </button>
+            ) : null}
+            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[11px] text-zinc-500">
+              {count}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {!purchased && suggestions.length > 0 && onSuggestionSelect ? (
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-accent/20 bg-accent/5 p-3">
@@ -110,6 +132,7 @@ export default function ItemSection({
           <motion.div
             layout
             className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
+            id={sectionId}
           >
             <AnimatePresence mode="popLayout">
               {items.map((item) => (
