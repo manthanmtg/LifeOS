@@ -276,13 +276,13 @@
       "category": "ui-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 51,
+      "totalSelected": 52,
       "totalCompleted": 50,
       "totalNoop": 0,
-      "totalFailed": 0,
-      "lastSelectedAt": "2026-05-21T09:57:46.659Z",
-      "lastCompletedAt": "2026-05-21T09:58:21.963Z",
-      "lastOutcome": "completed"
+      "totalFailed": 1,
+      "lastSelectedAt": "2026-05-21T16:32:03.641Z",
+      "lastCompletedAt": "2026-05-21T16:32:55.498Z",
+      "lastOutcome": "failed"
     },
     "widget_contract_enforcer.md": {
       "id": "widget-contract-enforcer",
@@ -332,5 +332,5 @@
       "lastSelectedAt": "2026-05-21T16:14:36.701Z"
     }
   },
-  "updatedAt": "2026-05-21T16:30:42.515Z"
+  "updatedAt": "2026-05-21T16:32:55.498Z"
 }
