@@ -68,7 +68,7 @@ export default function IdeaFormPanel({
         <button
           type="button"
           onClick={onCancel}
-          className="text-zinc-500 hover:text-zinc-300"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-800/70 hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           aria-label="Close form"
         >
           <X className="w-5 h-5" />
