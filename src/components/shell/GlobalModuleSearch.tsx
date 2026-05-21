@@ -163,6 +163,7 @@ export default function GlobalModuleSearch({
                 "shrink-0 text-zinc-500",
                 isSidebar ? "h-3.5 w-3.5" : "h-4 w-4",
               )}
+              aria-hidden="true"
             />
             <input
               ref={inputRef}
@@ -221,8 +222,16 @@ export default function GlobalModuleSearch({
                     : "h-8 w-8",
                 )}
                 aria-label="Clear search"
+                focus-visible:outline-none
+                focus-visible:ring-1
+                focus-visible:ring-accent/70
+                focus-visible:ring-offset-1
+                focus-visible:ring-offset-zinc-950
               >
-                <X className={cn(isSidebar ? "h-3.5 w-3.5" : "h-4 w-4")} />
+                <X
+                  className={cn(isSidebar ? "h-3.5 w-3.5" : "h-4 w-4")}
+                  aria-hidden="true"
+                />
               </button>
             )}
           </div>
@@ -275,6 +284,7 @@ export default function GlobalModuleSearch({
                       >
                         <Icon
                           className={cn(isSidebar ? "h-3.5 w-3.5" : "h-4 w-4")}
+                          aria-hidden="true"
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -298,7 +308,10 @@ export default function GlobalModuleSearch({
                             </span>
                           )}
                           {index === activeIndex && isSidebar && (
-                            <ArrowRight className="h-3 w-3 text-zinc-500" />
+                            <ArrowRight
+                              className="h-3 w-3 text-zinc-500"
+                              aria-hidden="true"
+                            />
                           )}
                         </div>
                         {!isSidebar && (
@@ -337,6 +350,7 @@ export default function GlobalModuleSearch({
                             index === activeIndex &&
                               "translate-x-0.5 text-zinc-300",
                           )}
+                          aria-hidden="true"
                         />
                       )}
                     </Link>
