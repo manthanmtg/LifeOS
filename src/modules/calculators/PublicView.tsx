@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import {
   Search,
   Sparkles,
@@ -74,6 +74,9 @@ export default function CalculatorsPublicView({
   const [activeCalculatorId, setActiveCalculatorId] = useState<string | null>(
     null,
   );
+  const searchInputId = useId();
+  const modalTitleId = useId();
+  const modalDescriptionId = useId();
 
   const normalized = useMemo(
     () => normalizeSettings(settingsOverride ?? settings),
@@ -142,6 +145,18 @@ export default function CalculatorsPublicView({
   }, [activeCalculator]);
 
   useEffect(() => {
+    if (!activeCalculatorId) return;
+
+    const activeStillVisible = visibleCalculators.some(
+      (calculator) => calculator.id === activeCalculatorId,
+    );
+
+    if (!activeStillVisible) {
+      setActiveCalculatorId(null);
+    }
+  }, [activeCalculatorId, visibleCalculators]);
+
+  useEffect(() => {
     if (!activeCalculatorId) {
       document.body.style.overflow = "";
       return;
@@ -190,6 +205,7 @@ export default function CalculatorsPublicView({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
               type="text"
+              id={searchInputId}
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search calculators by purpose..."
@@ -197,6 +213,12 @@ export default function CalculatorsPublicView({
               className="w-full rounded-xl border border-zinc-800 bg-zinc-950/70 pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
             />
           </div>
+          <p className="text-xs text-zinc-500">
+            {hasActiveFilters
+              ? `${visibleCalculators.length} matches`
+              : `${visibleCalculators.length} calculators available`}
+          </p>
+
           {hasActiveFilters ? (
             <button
               type="button"
@@ -327,16 +349,28 @@ export default function CalculatorsPublicView({
           />
 
           <div className="relative max-w-5xl mx-auto max-h-full overflow-y-auto">
-            <div className="rounded-2xl border border-zinc-700 bg-zinc-950/95 p-4 sm:p-5">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={modalTitleId}
+              aria-describedby={modalDescriptionId}
+              className="rounded-2xl border border-zinc-700 bg-zinc-950/95 p-4 sm:p-5"
+            >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
                     {activeCategoryMeta?.name || "Calculator"}
                   </p>
-                  <h3 className="text-xl font-semibold text-zinc-50 mt-1">
+                  <h3
+                    id={modalTitleId}
+                    className="text-xl font-semibold text-zinc-50 mt-1"
+                  >
                     {activeCalculator.name}
                   </h3>
-                  <p className="text-sm text-zinc-400 mt-1">
+                  <p
+                    id={modalDescriptionId}
+                    className="text-sm text-zinc-400 mt-1"
+                  >
                     Adjust inputs and see instant results.
                   </p>
                 </div>
