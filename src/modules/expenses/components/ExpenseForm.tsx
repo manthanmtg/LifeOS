@@ -224,10 +224,12 @@ export default function ExpenseForm({
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close expense form"
             className="p-2 hover:bg-zinc-800 rounded-xl transition-colors"
           >
-            <X className="w-6 h-6 text-zinc-500" />
+            <X className="w-6 h-6 text-zinc-500" aria-hidden="true" />
           </button>
         </div>
 
