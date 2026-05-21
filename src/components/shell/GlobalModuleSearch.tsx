@@ -143,6 +143,9 @@ export default function GlobalModuleSearch({
   const activeIndex =
     results.length === 0 ? 0 : Math.min(selectedIndex, results.length - 1);
   const selectedResult = results[activeIndex];
+  const selectedResultId = selectedResult
+    ? `module-search-result-${selectedResult.item.key}`
+    : undefined;
 
   const isSidebar = variant === "sidebar";
 
@@ -208,11 +211,14 @@ export default function GlobalModuleSearch({
                   : "Search modules by name, description, or tag"
               }
               aria-label="Search modules"
-              className={cn(
-                "min-w-0 flex-1 bg-transparent text-zinc-100 placeholder:text-zinc-600 outline-none transition-all",
-                isSidebar ? "text-[13px]" : "text-sm sm:text-[15px]",
-              )}
-            />
+                className={cn(
+                  "min-w-0 flex-1 bg-transparent text-zinc-100 placeholder:text-zinc-600 outline-none transition-all",
+                  isSidebar ? "text-[13px]" : "text-sm sm:text-[15px]",
+                )}
+                aria-activedescendant={selectedResultId}
+                aria-controls="module-search-results"
+                role="combobox"
+              />
             {query.length > 0 && (
               <button
                 type="button"
@@ -251,6 +257,9 @@ export default function GlobalModuleSearch({
 
         {showResults && (
           <div
+            id="module-search-results"
+            role="listbox"
+            aria-label="Module search results"
             className={cn(
               "absolute top-full z-[100] mt-2 rounded-xl border border-zinc-800/80 bg-zinc-950/95 p-1.5 shadow-2xl shadow-black/60 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150",
               isSidebar ? "left-0 min-w-[240px] w-full" : "inset-x-0",
@@ -266,6 +275,9 @@ export default function GlobalModuleSearch({
                     <Link
                       key={result.item.key}
                       href={result.item.href}
+                      id={`module-search-result-${result.item.key}`}
+                      role="option"
+                      aria-selected={index === activeIndex}
                       onMouseEnter={() => setSelectedIndex(index)}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-2.5 py-2 transition-all duration-100",
