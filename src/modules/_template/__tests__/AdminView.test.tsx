@@ -217,7 +217,7 @@ describe("TemplateAdminView", () => {
     expect(screen.getByText("Keep me")).toBeInTheDocument();
     const deleteAttempt = fetchMock.mock.calls.some(
       ([calledUrl, init]) =>
-        calledUrl.startsWith("/api/content/") &&
+        String(calledUrl).startsWith("/api/content/") &&
         (init?.method ?? "GET").toUpperCase() === "DELETE",
     );
     expect(deleteAttempt).toBe(false);

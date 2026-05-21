@@ -371,6 +371,18 @@ describe("health selectors", () => {
 
     expect(getSortedLabGroups(profile)).toEqual([
       [
+        "Vitamin D",
+        [
+          {
+            id: "lab-3",
+            date: "2026-02-01T00:00:00.000Z",
+            test_name: "Vitamin D",
+            value: "32",
+            status: "normal",
+          },
+        ],
+      ],
+      [
         "HbA1c",
         [
           {
@@ -386,18 +398,6 @@ describe("health selectors", () => {
             test_name: "HbA1c",
             value: "6.0",
             status: "borderline",
-          },
-        ],
-      ],
-      [
-        "Vitamin D",
-        [
-          {
-            id: "lab-3",
-            date: "2026-02-01T00:00:00.000Z",
-            test_name: "Vitamin D",
-            value: "32",
-            status: "normal",
           },
         ],
       ],

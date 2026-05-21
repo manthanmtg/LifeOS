@@ -129,10 +129,10 @@ export default function CalculatorsPublicView({
 
   const activeCalculator = useMemo(
     () =>
-      CALCULATOR_DEFINITIONS.find(
+      visibleCalculators.find(
         (calculator) => calculator.id === activeCalculatorId,
       ) || null,
-    [activeCalculatorId],
+    [activeCalculatorId, visibleCalculators],
   );
 
   const activeCategoryMeta = useMemo(() => {
@@ -143,18 +143,6 @@ export default function CalculatorsPublicView({
       ) || null
     );
   }, [activeCalculator]);
-
-  useEffect(() => {
-    if (!activeCalculatorId) return;
-
-    const activeStillVisible = visibleCalculators.some(
-      (calculator) => calculator.id === activeCalculatorId,
-    );
-
-    if (!activeStillVisible) {
-      setActiveCalculatorId(null);
-    }
-  }, [activeCalculatorId, visibleCalculators]);
 
   useEffect(() => {
     if (!activeCalculatorId) {

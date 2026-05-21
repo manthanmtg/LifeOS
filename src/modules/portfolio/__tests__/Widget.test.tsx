@@ -20,7 +20,9 @@ describe("PortfolioWidget", () => {
 
     expect(await screen.findByText("No profile yet")).toBeInTheDocument();
     expect(
-      await screen.findByText("Set up your first portfolio profile"),
+      await screen.findByText(
+        "Set up a portfolio profile to unlock your dashboard summary.",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -46,10 +48,12 @@ describe("PortfolioWidget", () => {
     render(React.createElement(PortfolioWidget));
 
     expect(await screen.findByText("100%")).toBeInTheDocument();
-    expect(screen.getByText("profile ready")).toBeInTheDocument();
-    expect(screen.getByText("2 verified links")).toHaveClass(
-      "min-w-0",
-      "truncate",
-    );
+    expect(screen.getByText("Product Engineer")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Building thoughtful operating systems. • open to opportunities",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("6/6 checks complete")).toBeInTheDocument();
   });
 });
