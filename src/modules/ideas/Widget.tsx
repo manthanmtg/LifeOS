@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Lightbulb, Sparkles, AlertTriangle, Timer } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -41,7 +42,12 @@ export default function IdeasWidget() {
       loading={loading}
       href="/admin/ideas"
     >
-      <div className="space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="space-y-3"
+      >
         {summary ? (
           <WidgetStat value={summary.total} label="captured ideas" />
         ) : (
@@ -104,7 +110,7 @@ export default function IdeasWidget() {
             />
           )
         ) : null}
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
