@@ -77,7 +77,7 @@ export default function HabitCard({
         style={{ backgroundColor: habit.payload.color }}
       />
       {/* Header */}
-      <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+      <div className="px-5 pt-5 pb-3 flex flex-wrap items-start justify-between gap-3 sm:items-center">
         <div className="flex items-center gap-3 min-w-0">
           <motion.div
             className="w-2.5 h-2.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor] opacity-80"
@@ -106,7 +106,7 @@ export default function HabitCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-start gap-2 sm:items-center shrink-0 flex-wrap justify-end">
           {/* Streak badges */}
           <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1 text-warning/80 group-hover:text-warning transition-colors">
