@@ -305,14 +305,14 @@
       "category": "feature-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 43,
+      "totalSelected": 44,
       "totalCompleted": 41,
       "totalNoop": 1,
-      "totalFailed": 0,
-      "lastSelectedAt": "2026-05-21T10:09:31.028Z",
-      "lastCompletedAt": "2026-05-21T10:09:44.106Z",
-      "lastOutcome": "completed",
-      "updatedAt": "2026-05-21T10:09:44.106Z"
+      "totalFailed": 1,
+      "lastSelectedAt": "2026-05-21T10:46:16.687Z",
+      "lastCompletedAt": "2026-05-21T10:48:47.476Z",
+      "lastOutcome": "failed",
+      "updatedAt": "2026-05-21T10:48:47.476Z"
     },
     "zod_schema_tightener.md": {
       "id": "zod-schema-tightener",
@@ -330,5 +330,5 @@
       "lastSelectedAt": "2026-05-21T10:36:44.942Z"
     }
   },
-  "updatedAt": "2026-05-21T10:39:52.106Z"
+  "updatedAt": "2026-05-21T10:48:47.476Z"
 }
