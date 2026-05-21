@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Plus, Search, ShoppingBag } from "lucide-react";
+import { Plus, Search, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ListCard from "./ListCard";
 import ShoppingListSkeleton from "./ShoppingListSkeleton";
@@ -74,8 +74,18 @@ export default function ShoppingListGridView({
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search lists..."
-            className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 py-4 pl-11 pr-4 text-sm text-zinc-50 outline-none transition-colors placeholder:text-zinc-600 focus:border-zinc-700"
+            className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 py-4 pl-11 pr-10 text-sm text-zinc-50 outline-none transition-colors placeholder:text-zinc-600 focus:border-zinc-700"
           />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => onSearchChange("")}
+              className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-zinc-500 transition-colors hover:text-zinc-200"
+              aria-label="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
       </div>
 
