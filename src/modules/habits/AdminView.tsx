@@ -34,7 +34,7 @@ export default function HabitsAdminView() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [isLoggingId, setIsLoggingId] = useState<string | null>(null);
-  const [today] = useState(() => new Date());
+  const today = useMemo(() => new Date(), []);
 
   const fetchHabits = useCallback(async () => {
     try {
