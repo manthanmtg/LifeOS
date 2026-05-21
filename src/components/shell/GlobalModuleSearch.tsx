@@ -217,16 +217,12 @@ export default function GlobalModuleSearch({
                 }}
                 className={cn(
                   "inline-flex items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/50 text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950",
                   isSidebar
                     ? "h-11 w-11 min-h-11 min-w-11 touch-manipulation sm:h-5 sm:w-5"
                     : "h-8 w-8",
                 )}
                 aria-label="Clear search"
-                focus-visible:outline-none
-                focus-visible:ring-1
-                focus-visible:ring-accent/70
-                focus-visible:ring-offset-1
-                focus-visible:ring-offset-zinc-950
               >
                 <X
                   className={cn(isSidebar ? "h-3.5 w-3.5" : "h-4 w-4")}

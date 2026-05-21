@@ -324,12 +324,17 @@ async function fetchAnthropicUsage(
     costPage = data.has_more ? data.next_page || null : null;
   } while (costPage);
 
+  const tokenTotalsByDay: Record<string, number> = {};
+  for (const [key, usage] of Object.entries(usageByDayModel)) {
+    const [day] = key.split("::");
+    tokenTotalsByDay[day] =
+      (tokenTotalsByDay[day] || 0) + usage.input + usage.output;
+  }
+
   // Build buckets
   for (const [key, usage] of Object.entries(usageByDayModel)) {
     const [day, model] = key.split("::");
-    const dayTokensTotal = Object.entries(usageByDayModel)
-      .filter(([k]) => k.startsWith(day + "::"))
-      .reduce((s, [, u]) => s + u.input + u.output, 0);
+    const dayTokensTotal = tokenTotalsByDay[day] || 0;
     const modelTokens = usage.input + usage.output;
     const proportionalCost =
       dayTokensTotal > 0 && costByDay[day]
