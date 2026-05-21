@@ -74,17 +74,21 @@ export default async function proxy(request: NextRequest) {
     request.method !== "HEAD" &&
     path.startsWith("/api/")
   ) {
-    const origin = request.headers.get("origin");
-    const host = request.headers.get("host");
-    if (origin && host) {
-      try {
-        const originHost = new URL(origin).host;
-        if (originHost !== host) {
-          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-      } catch {
+    const host = request.headers.get("host") || request.nextUrl.host;
+    const csrfSource =
+      request.headers.get("origin") || request.headers.get("referer");
+
+    if (!host || !csrfSource) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    try {
+      const sourceHost = new URL(csrfSource).host;
+      if (sourceHost !== host) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
+    } catch {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
   }
 

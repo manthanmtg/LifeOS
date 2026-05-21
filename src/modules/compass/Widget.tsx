@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
+  WidgetHighlight,
   WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
 
