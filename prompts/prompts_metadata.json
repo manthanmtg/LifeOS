@@ -323,14 +323,14 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 40,
-      "totalCompleted": 38,
+      "totalSelected": 41,
+      "totalCompleted": 39,
       "totalNoop": 0,
       "totalFailed": 3,
-      "lastCompletedAt": "2026-05-21T12:48:26.136Z",
-      "lastOutcome": "failed",
-      "lastSelectedAt": "2026-05-21T12:46:08.758Z"
+      "lastCompletedAt": "2026-05-21T16:15:39.247Z",
+      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-21T16:14:36.701Z"
     }
   },
-  "updatedAt": "2026-05-21T16:13:41.278Z"
+  "updatedAt": "2026-05-21T16:15:39.247Z"
 }
