@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, memo } from "react";
-import { Banknote, TrendingUp, TrendingDown, Tag, Target } from "lucide-react";
+import { Banknote, Tag, Target } from "lucide-react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -53,6 +52,18 @@ export default memo(function ExpensesWidget() {
   const budget = settings.monthlyBudget || 0;
   const budgetPercent = budget > 0 ? (totalThisMonth / budget) * 100 : 0;
   const remaining = budget - totalThisMonth;
+  const trendLabel =
+    trend === 0
+      ? "Stable vs last month"
+      : `${Math.abs(trend).toFixed(0)}% ${
+          trend > 0 ? "more" : "less"
+        } than last month`;
+  const trendSubtext =
+    budget > 0
+      ? `${trendLabel} · ${remaining >= 0 ? `${sym}${formatCurrency(remaining, "", format)} remaining` : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`}`
+      : topCategory
+        ? `${trendLabel} · Top category: ${topCategory[0]}`
+        : trendLabel;
 
   return (
     <WidgetCard
@@ -60,29 +71,6 @@ export default memo(function ExpensesWidget() {
       icon={Banknote}
       loading={loading}
       href="/admin/expenses"
-      footer={
-        <div className="flex items-center justify-between">
-          {trend !== 0 ? (
-            <span
-              className={cn(
-                "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
-                trend > 0 ? "text-danger" : "text-success",
-              )}
-            >
-              {trend > 0 ? (
-                <TrendingUp className="w-3 h-3" />
-              ) : (
-                <TrendingDown className="w-3 h-3" />
-              )}
-              {Math.abs(trend).toFixed(0)}% vs last month
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-wider">
-              Stable vs last month
-            </span>
-          )}
-        </div>
-      }
     >
       <motion.div
         className="space-y-3"
@@ -99,11 +87,7 @@ export default memo(function ExpensesWidget() {
           <WidgetHighlight
             icon={Target}
             text={`${budgetPercent.toFixed(0)}% of budget spent`}
-            subtext={
-              remaining >= 0
-                ? `${sym}${formatCurrency(remaining, "", format)} remaining`
-                : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`
-            }
+            subtext={trendSubtext}
             variant={
               budgetPercent > 90
                 ? "danger"
@@ -116,14 +100,14 @@ export default memo(function ExpensesWidget() {
           <WidgetHighlight
             icon={Tag}
             text={topCategory[0]}
-            subtext="top spending category"
+            subtext={trendSubtext}
             variant="accent"
           />
         ) : (
           <WidgetHighlight
             icon={Banknote}
             text="No expenses yet"
-            subtext="Track your first spend today"
+            subtext={trendSubtext}
             variant="default"
           />
         )}
