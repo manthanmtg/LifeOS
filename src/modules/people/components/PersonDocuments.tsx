@@ -304,10 +304,14 @@ export default function PersonDocuments({
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
+                  <label
+                    className="text-[9px] font-bold uppercase tracking-wider text-zinc-600"
+                    htmlFor={`person-document-name-${person._id}`}
+                  >
                     Document Name *
                   </label>
                   <input
+                    id={`person-document-name-${person._id}`}
                     type="text"
                     value={docName}
                     onChange={(e) => setDocName(e.target.value)}
@@ -359,6 +363,7 @@ export default function PersonDocuments({
                           e.stopPropagation();
                           setPendingFile(null);
                         }}
+                        aria-label="Remove selected document"
                         className="p-1.5 text-zinc-500 hover:text-danger rounded-lg hover:bg-danger/10 transition-all"
                       >
                         <X className="w-3.5 h-3.5" />
