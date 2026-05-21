@@ -73,6 +73,7 @@ export function ReadingForm({
         </h2>
         <button
           onClick={onCancel}
+          aria-label={initialData ? "Cancel edit reading item" : "Cancel add reading item"}
           className="text-zinc-500 hover:text-zinc-300 transition-colors"
         >
           <X className="w-5 h-5" />
