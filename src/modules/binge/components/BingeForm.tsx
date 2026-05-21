@@ -39,6 +39,26 @@ export default function BingeForm({
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const clearForm = useCallback(() => {
+    setTitle("");
+    setType("movie");
+    setStatus("to_watch");
+    setRating(0);
+    setHoveredStar(0);
+    setNotes("");
+    setGenre("");
+    setPlatform("");
+    setYear("");
+    setPosterUrl("");
+    setRecommendedBy("");
+    setRewatched(false);
+    setRewatchCount("");
+    setCurrentSeason("");
+    setCurrentEpisode("");
+    setTotalSeasons("");
+    setFormError("");
+  }, []);
+
   const populateForm = useCallback((item: BingeItem) => {
     setTitle(item.payload.title);
     setType(item.payload.type);
@@ -60,8 +80,10 @@ export default function BingeForm({
   useEffect(() => {
     if (editingItem) {
       populateForm(editingItem);
+    } else {
+      clearForm();
     }
-  }, [editingItem, populateForm]);
+  }, [editingItem, populateForm, clearForm]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
