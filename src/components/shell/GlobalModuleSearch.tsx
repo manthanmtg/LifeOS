@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useMemo } from "react";
+import {
+  memo,
+  useEffect,
+  useRef,
+  useMemo,
+  useState,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
@@ -74,14 +80,14 @@ const IconMap: Record<string, LucideIcon> = {
   Presentation,
 };
 
-function HighlightedText({
+const HighlightedText = memo(function HighlightedText({
   value,
   matches,
 }: {
   value: string;
   matches: MatchRange[];
 }) {
-  const parts = highlightText(value, matches);
+  const parts = useMemo(() => highlightText(value, matches), [value, matches]);
 
   return (
     <>
@@ -97,7 +103,7 @@ function HighlightedText({
       ))}
     </>
   );
-}
+});
 
 export default function GlobalModuleSearch({
   variant = "default",
