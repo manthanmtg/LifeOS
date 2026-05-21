@@ -37,6 +37,91 @@ describe("useModuleSettings", () => {
     expect(global.fetch).toHaveBeenCalledWith("/api/system");
   });
 
+  it("falls back to defaults when the server has no value for the key", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({
+        data: {
+          unrelatedSettings: {
+            active: false,
+          },
+        },
+      }),
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+        theme: "ocean",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      enabled: true,
+      theme: "ocean",
+    });
+  });
+
+  it("dedupes initial system fetches across multiple hook instances", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({
+        data: {
+          widgetSettings: {
+            mode: "dense",
+          },
+        },
+      }),
+    } as Response);
+
+    const { result: first } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        mode: "default",
+      }),
+    );
+    const { result: second } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        mode: "default",
+      }),
+    );
+
+    await waitFor(() => expect(first.current.loaded).toBe(true));
+    await waitFor(() => expect(second.current.loaded).toBe(true));
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(first.current.settings).toEqual({ mode: "dense" });
+    expect(second.current.settings).toEqual({ mode: "dense" });
+  });
+
+  it("does not mutate other keys in the system response", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({
+        data: {
+          widgetSettings: {
+            enabled: false,
+          },
+          readingSettings: {
+            autoPlay: true,
+          },
+        },
+      }),
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+        speed: "fast",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      enabled: false,
+      speed: "fast",
+    });
+  });
+
   it("marks the hook as loaded even when the initial fetch fails", async () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("network down"));
 
@@ -87,8 +172,86 @@ describe("useModuleSettings", () => {
       }),
     });
 
-    await waitFor(() => expect(result.current.saving).toBe(false), {
-      timeout: 1000,
+    vi.useFakeTimers();
+    act(() => {
+      vi.advanceTimersByTime(500);
     });
+    await waitFor(() => expect(result.current.saving).toBe(false));
+    vi.useRealTimers();
+  });
+
+  it("keeps settings optimistic and clears saving when save fails", async () => {
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce({
+        json: async () => ({ data: {} }),
+      } as Response)
+      .mockRejectedValueOnce(new Error("save failed"));
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+        theme: "ocean",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    await act(async () => {
+      await result.current.updateSettings({ theme: "forest" });
+    });
+
+    expect(result.current.settings).toEqual({
+      enabled: true,
+      theme: "forest",
+    });
+
+    vi.useFakeTimers();
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    await waitFor(() => expect(result.current.saving).toBe(false));
+    vi.useRealTimers();
+  });
+
+  it("keeps optimistic state local before save completes", async () => {
+    let resolvePut: (value: Response) => void = () => {};
+    const putPromise = new Promise<Response>((resolve) => {
+      resolvePut = resolve;
+    });
+
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce({
+        json: async () => ({ data: {} }),
+      } as Response)
+      .mockImplementationOnce(() => putPromise);
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    const updatePromise = act(async () => {
+      await result.current.updateSettings({ enabled: false });
+    });
+
+    expect(result.current.settings).toEqual({
+      enabled: false,
+    });
+    expect(result.current.saving).toBe(true);
+
+    resolvePut({ ok: true } as Response);
+    await act(async () => {
+      await updatePromise;
+    });
+
+    vi.useFakeTimers();
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    await waitFor(() => expect(result.current.saving).toBe(false));
+    vi.useRealTimers();
   });
 });
