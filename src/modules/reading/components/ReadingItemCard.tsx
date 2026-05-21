@@ -133,6 +133,11 @@ export function ReadingItemCard({
           onClick={handleCopyUrl}
           className="p-1.5 text-zinc-500 hover:text-accent rounded-md hover:bg-zinc-800 transition-colors"
           title={copied ? "Copied!" : "Copy URL"}
+          aria-label={
+            copied
+              ? `Copy link for ${item.payload.title} (copied)`
+              : `Copy link for ${item.payload.title}`
+          }
         >
           {copied ? (
             <Check className="w-3.5 h-3.5 text-success" />
