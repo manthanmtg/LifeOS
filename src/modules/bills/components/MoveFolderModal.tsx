@@ -72,8 +72,10 @@ export default function MoveFolderModal({
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
           <h2 className="text-sm font-bold text-zinc-100">{title}</h2>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+            aria-label="Close move folder modal"
+            className="p-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
           >
             <X className="w-4 h-4" />
           </button>
