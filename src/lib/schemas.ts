@@ -62,7 +62,11 @@ const SocialLinkSchema = z.object({
     .trim()
     .min(1, "Platform name is required (e.g., GitHub, LinkedIn)")
     .max(50),
-  url: z.string().url("Must be a valid URL").max(500),
+  url: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL is too long"),
 });
 
 const PortfolioProfileSchema = z.object({
@@ -287,7 +291,11 @@ export const CompassTaskSchema = z.object({
     .array(
       z.object({
         label: z.string().trim().min(1).max(100),
-        url: z.string().url("Must be a valid URL").max(500),
+        url: z
+          .string()
+          .trim()
+          .url("Must be a valid URL")
+          .max(500, "URL is too long"),
       }),
     )
     .default([]),
@@ -563,7 +571,7 @@ export const PersonSchema = z.object({
     .array(
       z.object({
         platform: z.string().trim().min(1).max(50),
-        url: z.string().url().max(500),
+        url: z.string().trim().url().max(500, "URL is too long"),
       }),
     )
     .default([]),
