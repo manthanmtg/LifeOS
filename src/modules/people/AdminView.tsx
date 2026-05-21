@@ -295,7 +295,7 @@ export default function PeopleAdminView() {
               counts={counts}
             />
 
-            <div className="mb-4 flex flex-col gap-1 rounded-2xl border border-zinc-800/50 bg-zinc-900/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-4 flex flex-col gap-1 rounded-2xl border border-zinc-700/45 bg-zinc-900/45 px-4 py-3 shadow-lg shadow-zinc-950/35 ring-1 ring-zinc-700/20 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-zinc-100">
                   {filteredPeople.length} match
