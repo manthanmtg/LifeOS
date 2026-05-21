@@ -115,8 +115,8 @@ export default function SnippetCard({
             className={cn(
               "p-1.5 rounded-md transition-all",
               isCopied
-                ? "text-success bg-success/10 scale-110"
-                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
+                ? "text-success bg-success/10 scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
             )}
             title="Copy code"
           >
@@ -129,7 +129,7 @@ export default function SnippetCard({
           <button
             onClick={() => onToggleFavorite(snippet)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="p-1.5 text-zinc-500 hover:text-warning rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             title={snippet.payload.is_favorite ? "Unstar" : "Star"}
           >
             {isFavoriting ? (
@@ -144,7 +144,7 @@ export default function SnippetCard({
           <button
             onClick={() => onEdit(snippet)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-accent rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="p-1.5 text-zinc-500 hover:text-accent rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             title="Edit"
           >
             <Edit3 className="w-3.5 h-3.5" />
@@ -152,7 +152,7 @@ export default function SnippetCard({
           <button
             onClick={() => onDelete(snippet._id)}
             disabled={isFavoriting || isDeleting}
-            className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="p-1.5 text-zinc-500 hover:text-danger rounded-md hover:bg-zinc-800 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             title="Delete"
           >
             {isDeleting ? (
@@ -208,7 +208,7 @@ export default function SnippetCard({
         </p>
         <button
           onClick={() => onCopy(snippet._id, snippet.payload.code)}
-          className="text-[10px] text-accent hover:text-accent-hover font-medium transition-colors"
+          className="text-[10px] text-accent hover:text-accent-hover font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-md"
         >
           {isCopied ? "Copied!" : "Quick Copy"}
         </button>
