@@ -727,12 +727,12 @@ export default function AnalyticsAdminView() {
             {stats.recentEvents.map((event) => (
               <div
                 key={event._id}
-                className="flex items-center gap-4 p-4 rounded-2xl hover:bg-zinc-900/40 transition-colors group"
+                className="group flex items-center gap-4 p-4 rounded-2xl border border-transparent hover:border-zinc-800/90 hover:bg-zinc-900/40 transition-colors"
               >
                 <div
                   className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-zinc-800 transition-colors group-hover:border-accent/20",
-                    "bg-zinc-900",
+                    "bg-zinc-900 group-hover:bg-zinc-900/85",
                   )}
                 >
                   {event.device_type === "mobile" ? (
