@@ -155,7 +155,12 @@ export const RecurringExpenseSchema = z.object({
   billing_cycle: z.enum(["monthly", "yearly", "weekly", "daily", "quarterly"]),
   next_renewal_date: z.string().datetime("Must be a valid ISO Date"),
   category: z.string().trim().min(1, "Category is required").max(100),
-  url: z.string().url().optional(),
+  url: z
+    .string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(2048, "Expense URL is too long")
+    .optional(),
   is_active: z.boolean().default(true),
   enable_reminders: z.boolean().default(true),
   notes: z.string().trim().max(2000).optional(),
