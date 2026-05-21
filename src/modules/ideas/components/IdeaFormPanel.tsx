@@ -60,7 +60,7 @@ export default function IdeaFormPanel({
   onCancel,
 }: IdeaFormPanelProps) {
   return (
-    <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 shadow-xl shadow-accent/10 backdrop-blur-md animate-fade-in-up space-y-4">
+    <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 shadow-xl shadow-accent/10 backdrop-blur-md transition-colors hover:border-accent/50 hover:shadow-accent/20 animate-fade-in-up space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-50">
           {editingId ? "Edit" : "New"} Idea
