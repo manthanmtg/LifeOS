@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Lightbulb, AlertTriangle, CheckCheck } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -11,6 +12,8 @@ import {
 interface IdeaSummary {
   total: number;
   reviewCount: number;
+  promoted: number;
+  exploring: number;
   spotlightTitle?: string;
   spotlightStatus?: string;
 }
@@ -31,6 +34,46 @@ export default function IdeasWidget() {
     return () => ac.abort();
   }, []);
 
+  const totalIdeas = summary?.total ?? 0;
+  const reviewCount = summary?.reviewCount ?? 0;
+  const promotedCount = summary?.promoted ?? 0;
+  const exploringCount = summary?.exploring ?? 0;
+  const spotlightTitle = summary?.spotlightTitle ?? "No spotlight idea yet";
+  const spotlightStatus = summary?.spotlightStatus;
+  const hasIdeas = totalIdeas > 0;
+
+  const detailText =
+    loadError
+      ? "Idea metrics unavailable"
+      : hasIdeas && reviewCount > 0
+        ? `${reviewCount} ideas need review`
+        : hasIdeas
+          ? exploringCount > 0
+            ? `${exploringCount} ideas are exploring`
+            : "Review queue is clear."
+          : "No ideas yet";
+
+  const detailSubtext = loadError
+    ? "Open Ideas to retry"
+    : hasIdeas
+      ? `Latest focus: ${spotlightTitle}${spotlightStatus ? ` · ${spotlightStatus}` : ""}`
+      : "A single idea capture makes momentum";
+
+  const detailIcon = loadError
+    ? AlertTriangle
+    : reviewCount > 0
+      ? CheckCheck
+      : Lightbulb;
+
+  const detailVariant =
+    loadError || (!hasIdeas && !loadError)
+      ? "warning"
+      : reviewCount
+        ? "warning"
+        : promotedCount > 0
+          ? "success"
+          : "accent";
+
   return (
     <WidgetCard
       title="Ideas"
@@ -38,40 +81,23 @@ export default function IdeasWidget() {
       loading={loading}
       href="/admin/ideas"
     >
-      <div className="space-y-3">
+      <motion.div
+        className="space-y-3"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
         <WidgetStat
-          value={summary?.total ?? 0}
+          value={totalIdeas}
           label="captured ideas"
         />
         <WidgetHighlight
-          icon={
-            loadError
-              ? AlertTriangle
-              : summary && summary.reviewCount > 0
-                ? CheckCheck
-                : Lightbulb
-          }
-          text={
-            loadError
-              ? "Idea metrics unavailable"
-              : summary
-                ? summary.reviewCount > 0
-                  ? `${summary.reviewCount} ideas need review`
-                  : summary.total === 0
-                    ? "No ideas yet"
-                    : summary.spotlightTitle || "Review queue is clear."
-                : "Preparing your idea board"
-          }
-          subtext={
-            loadError
-              ? "Open Ideas to retry"
-              : summary
-                ? summary.spotlightStatus || "Last update from idea board"
-                : "Summary data loading soon"
-          }
-          variant={loadError ? "danger" : summary?.reviewCount ? "warning" : "accent"}
+          icon={detailIcon}
+          text={loadError ? detailText : detailText || "Preparing your idea board"}
+          subtext={loadError ? detailSubtext : detailSubtext}
+          variant={detailVariant}
         />
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
