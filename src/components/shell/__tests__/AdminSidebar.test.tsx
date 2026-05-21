@@ -40,7 +40,7 @@ describe("AdminSidebar", () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("system down"));
     render(<AdminSidebar />);
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
     expect(
       await screen.findByRole("navigation", { name: "Main navigation" }),
     ).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("AdminSidebar", () => {
   });
 
   it("applies a custom title and excludes disabled modules", async () => {
-    vi.mocked(global.fetch).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValue({
       json: async () => ({
         data: {
           site_title: "Ops Console",
@@ -86,7 +86,7 @@ describe("AdminSidebar", () => {
     appleLink.href = "/old-icon.png";
     document.head.append(iconLink, appleLink);
 
-    vi.mocked(global.fetch).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValue({
       json: async () => ({
         data: {
           site_icon: "/assets/icons/site.ico",

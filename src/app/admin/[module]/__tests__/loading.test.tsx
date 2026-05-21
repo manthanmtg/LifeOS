@@ -26,8 +26,12 @@ describe("AdminModuleLoading", () => {
   it("contains the page header skeleton placeholders", () => {
     const { container } = render(<AdminModuleLoading />);
 
-    const headerHeightBlock = container.querySelector("[class*='h-8'][class*='w-52']");
-    const subheadingHeightBlock = container.querySelector("[class*='h-4'][class*='w-72']");
+    const headerHeightBlock = container.querySelector(
+      "[class*='h-8'][class*='w-52']",
+    );
+    const subheadingHeightBlock = container.querySelector(
+      "[class*='h-4'][class*='w-72']",
+    );
 
     expect(headerHeightBlock).not.toBeNull();
     expect(subheadingHeightBlock).not.toBeNull();
@@ -55,10 +59,12 @@ describe("AdminModuleLoading", () => {
   it("shows a nested skeleton container and admin-skeleton list", () => {
     const { container } = render(<AdminModuleLoading />);
 
-    const skeletonContainers = Array.from(container.querySelectorAll("div")).filter(
+    const skeletonContainers = Array.from(
+      container.querySelectorAll("div"),
+    ).filter(
       (node) =>
         typeof node.className === "string" &&
-        node.className.includes("grid") &&
+        node.className.includes("animate-fade-in-up") &&
         node.className.includes("space-y-6"),
     );
 

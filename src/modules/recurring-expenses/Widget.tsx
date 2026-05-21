@@ -107,10 +107,10 @@ export default function RecurringExpensesWidget() {
           subtext: `${daysLabel || "upcoming"} · ${overdueCount} overdue · ${dueSoonCount} due soon`,
           variant:
             summary.daysUntilNext !== null && summary.daysUntilNext < 3
-              ? "danger"
+              ? ("danger" as const)
               : overdueCount > 0
-                ? "warning"
-                : "default",
+                ? ("warning" as const)
+                : ("default" as const),
         }
       : {
           icon: Timer,

@@ -25,7 +25,7 @@ describe("GlobalModuleSearch", () => {
     fireEvent.change(input, { target: { value: "fin" } });
 
     expect(
-      screen.getByRole("link", { name: /Calculators/i }),
+      screen.getByRole("option", { name: /Calculators/i }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("fin", { exact: false }).length).toBeGreaterThan(
       0,

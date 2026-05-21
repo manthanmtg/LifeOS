@@ -105,7 +105,8 @@ export const ExpenseSchema = z.object({
     .string()
     .trim()
     .min(1, "Merchant is required when provided")
-    .max(100),
+    .max(100)
+    .optional(),
   account: z
     .enum([
       "Cash",
@@ -249,7 +250,7 @@ const HabitSchema = z.object({
   completions: z
     .array(
       z.object({
-        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"),
+        date: CalendarDateSchema,
         count: z.number().int().min(0).default(1),
       }),
     )

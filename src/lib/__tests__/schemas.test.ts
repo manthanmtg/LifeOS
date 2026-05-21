@@ -15,6 +15,7 @@ import {
   WhiteboardNoteSchema,
   BillSchema,
   BillFolderSchema,
+  SchemaRegistry,
 } from "../schemas";
 
 describe("schemas", () => {
@@ -476,6 +477,19 @@ describe("schemas", () => {
       };
 
       const result = ShoppingListSchema.safeParse(list);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("HabitSchema", () => {
+    it("rejects impossible completion calendar dates", () => {
+      const habit = {
+        name: "Morning walk",
+        completions: [{ date: "2026-02-31", count: 1 }],
+      };
+
+      const result = SchemaRegistry.habit.safeParse(habit);
 
       expect(result.success).toBe(false);
     });
