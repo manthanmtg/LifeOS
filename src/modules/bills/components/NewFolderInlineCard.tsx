@@ -55,12 +55,14 @@ export default function NewFolderInlineCard({
         <button
           onClick={handleSubmit}
           disabled={creating || !name.trim()}
+          aria-label="Create new folder"
           className="p-2 text-accent hover:bg-accent/10 disabled:opacity-40 rounded-xl transition-all"
         >
           <Check className="w-5 h-5" />
         </button>
         <button
           onClick={onCancel}
+          aria-label="Cancel creating folder"
           className="p-2 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/80 rounded-xl transition-all"
         >
           <X className="w-5 h-5" />
