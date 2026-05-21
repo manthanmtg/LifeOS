@@ -776,7 +776,7 @@ export default function HealthAdminView() {
               setSelectedProfile(null);
               setActiveTab("overview");
             }}
-            className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors shrink-0"
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors shrink-0 sm:h-10 sm:w-10"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
           </button>
@@ -841,7 +841,7 @@ export default function HealthAdminView() {
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => openEditProfile(selectedProfile)}
-              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-colors sm:h-10 sm:w-10"
             >
               <Edit3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
             </button>
@@ -853,7 +853,7 @@ export default function HealthAdminView() {
                   name: p.name,
                 })
               }
-              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-danger/30 hover:bg-danger/50 transition-colors sm:h-10 sm:w-10"
             >
               <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-danger" />
             </button>
