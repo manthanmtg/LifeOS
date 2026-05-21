@@ -252,7 +252,7 @@ export default function CompassAdminView() {
       {!loading && <CompassMetrics tasks={tasks} />}
 
       {/* Header: Quick Add + Controls */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
         <div className="flex-1">
           <form onSubmit={handleQuickAdd} className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -307,7 +307,7 @@ export default function CompassAdminView() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-2 shrink-0 overflow-hidden"
+            className="flex flex-wrap gap-2 shrink-0 overflow-hidden"
           >
             <span className="text-xs text-zinc-500 font-medium">Priority:</span>
             {PRIORITY_FILTERS.map((pf) => (
