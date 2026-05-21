@@ -93,6 +93,87 @@ describe("useModuleSettings", () => {
     expect(second.current.settings).toEqual({ mode: "dense" });
   });
 
+  it("reuses a valid cache on subsequent mounts within TTL", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({
+        data: {
+          widgetSettings: {
+            enabled: false,
+          },
+        },
+      }),
+    } as Response);
+
+    const { result: first } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => expect(first.current.loaded).toBe(true));
+
+    const { result: second } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => expect(second.current.loaded).toBe(true));
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(first.current.settings).toEqual({ enabled: false });
+    expect(second.current.settings).toEqual({ enabled: false });
+  });
+
+  it("re-fetches system settings after cache TTL expires", async () => {
+    const nowSpy = vi.spyOn(Date, "now");
+    nowSpy.mockReturnValue(0);
+
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce({
+        json: async () => ({
+          data: {
+            widgetSettings: {
+              enabled: true,
+            },
+          },
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        json: async () => ({
+          data: {
+            widgetSettings: {
+              enabled: false,
+            },
+          },
+        }),
+      } as Response);
+
+    const { result: first } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: false,
+      }),
+    );
+
+    await waitFor(() => expect(first.current.loaded).toBe(true));
+
+    nowSpy.mockReturnValue(6000);
+
+    const { result: second } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => expect(second.current.loaded).toBe(true));
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(first.current.settings).toEqual({ enabled: true });
+    expect(second.current.settings).toEqual({ enabled: false });
+
+    nowSpy.mockRestore();
+  });
+
   it("does not mutate other keys in the system response", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       json: async () => ({
@@ -172,12 +253,9 @@ describe("useModuleSettings", () => {
       }),
     });
 
-    vi.useFakeTimers();
-    act(() => {
-      vi.advanceTimersByTime(500);
+    await waitFor(() => expect(result.current.saving).toBe(false), {
+      timeout: 1500,
     });
-    await waitFor(() => expect(result.current.saving).toBe(false));
-    vi.useRealTimers();
   });
 
   it("keeps settings optimistic and clears saving when save fails", async () => {
@@ -205,12 +283,9 @@ describe("useModuleSettings", () => {
       theme: "forest",
     });
 
-    vi.useFakeTimers();
-    act(() => {
-      vi.advanceTimersByTime(500);
+    await waitFor(() => expect(result.current.saving).toBe(false), {
+      timeout: 1500,
     });
-    await waitFor(() => expect(result.current.saving).toBe(false));
-    vi.useRealTimers();
   });
 
   it("keeps optimistic state local before save completes", async () => {
@@ -233,8 +308,8 @@ describe("useModuleSettings", () => {
 
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
-    const updatePromise = act(async () => {
-      await result.current.updateSettings({ enabled: false });
+    act(() => {
+      void result.current.updateSettings({ enabled: false });
     });
 
     expect(result.current.settings).toEqual({
@@ -243,15 +318,50 @@ describe("useModuleSettings", () => {
     expect(result.current.saving).toBe(true);
 
     resolvePut({ ok: true } as Response);
-    await act(async () => {
-      await updatePromise;
+    await waitFor(() => expect(result.current.saving).toBe(false), {
+      timeout: 1500,
     });
+  });
 
-    vi.useFakeTimers();
-    act(() => {
-      vi.advanceTimersByTime(500);
+  it("falls back to defaults when API returns missing data", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "ok" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+        mode: "compact",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      enabled: true,
+      mode: "compact",
     });
-    await waitFor(() => expect(result.current.saving).toBe(false));
-    vi.useRealTimers();
+  });
+
+  it("falls back to defaults when system payload is malformed", async () => {
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error("invalid payload"));
+
+    const { result } = renderHook(() =>
+      useModuleSettings("widgetSettings", {
+        enabled: true,
+        theme: "ocean",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      enabled: true,
+      theme: "ocean",
+    });
+    expect(result.current.saving).toBe(false);
   });
 });
