@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lightbulb, Sparkles, AlertTriangle, Timer } from "lucide-react";
+import { Lightbulb, AlertTriangle, CheckCheck } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
-  WidgetMiniStats,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 
 interface IdeaSummary {
   total: number;
-  promoted: number;
-  exploring: number;
   reviewCount: number;
   spotlightTitle?: string;
   spotlightStatus?: string;
@@ -42,68 +39,38 @@ export default function IdeasWidget() {
       href="/admin/ideas"
     >
       <div className="space-y-3">
-        {summary ? (
-          <WidgetStat value={summary.total} label="captured ideas" />
-        ) : (
-          <>
-            <WidgetStat value={0} label="captured ideas" />
-            <WidgetHighlight
-              icon={AlertTriangle}
-              text={
-                loadError
-                  ? "Idea metrics unavailable"
-                  : "Preparing your idea board"
-              }
-              subtext={
-                loadError ? "Open Ideas to retry" : "Summary data loading soon"
-              }
-              variant={loadError ? "danger" : "accent"}
-            />
-          </>
-        )}
-        {summary ? (
-          summary.total === 0 ? (
-            <WidgetHighlight
-              icon={Lightbulb}
-              text="No ideas yet"
-              subtext="Capture your first thought to get momentum."
-            />
-          ) : summary.reviewCount > 0 ? (
-            <WidgetMiniStats
-              stats={[
-                {
-                  value: summary.promoted,
-                  label: "promoted",
-                  icon: Sparkles,
-                  color: "success",
-                },
-                {
-                  value: summary.exploring,
-                  label: "exploring",
-                  icon: Timer,
-                  color: "warning",
-                },
-                {
-                  value: summary.reviewCount,
-                  label: "review needed",
-                  icon: AlertTriangle,
-                  color: "danger",
-                },
-              ]}
-            />
-          ) : (
-            <WidgetHighlight
-              icon={Lightbulb}
-              text={summary.spotlightTitle ?? "All ideas are in motion"}
-              subtext={
-                summary.spotlightStatus
-                  ? `Top focus: ${summary.spotlightStatus}`
-                  : "Review queue is clear."
-              }
-              variant="success"
-            />
-          )
-        ) : null}
+        <WidgetStat
+          value={summary?.total ?? 0}
+          label="captured ideas"
+        />
+        <WidgetHighlight
+          icon={
+            loadError
+              ? AlertTriangle
+              : summary && summary.reviewCount > 0
+                ? CheckCheck
+                : Lightbulb
+          }
+          text={
+            loadError
+              ? "Idea metrics unavailable"
+              : summary
+                ? summary.reviewCount > 0
+                  ? `${summary.reviewCount} ideas need review`
+                  : summary.total === 0
+                    ? "No ideas yet"
+                    : summary.spotlightTitle || "Review queue is clear."
+                : "Preparing your idea board"
+          }
+          subtext={
+            loadError
+              ? "Open Ideas to retry"
+              : summary
+                ? summary.spotlightStatus || "Last update from idea board"
+                : "Summary data loading soon"
+          }
+          variant={loadError ? "danger" : summary?.reviewCount ? "warning" : "accent"}
+        />
       </div>
     </WidgetCard>
   );
