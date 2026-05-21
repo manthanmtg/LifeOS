@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, memo } from "react";
-import { AlertCircle, Map, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Map } from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
-  WidgetHighlight,
+  WidgetMiniStats,
 } from "@/components/dashboard/widget-primitives";
 
 interface CompassSummary {
@@ -49,18 +49,6 @@ export default memo(function CompassWidget() {
       loading={loading}
       href="/admin/compass"
       accentColor="accent"
-      footer={
-        summary &&
-        !loading &&
-        !hasError && (
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-          <span className="flex items-center gap-1">
-            <CheckCircle className="w-3 h-3" /> {reviewCount} in review
-          </span>
-          <span>{total} total</span>
-        </div>
-        )
-      }
     >
       {loading ? null : hasError || !summary ? (
         <motion.div
@@ -87,21 +75,27 @@ export default memo(function CompassWidget() {
             value={inProgressCount}
             label={inProgressCount === 0 ? "no active tasks" : "in progress"}
           />
-          {criticalCount > 0 ? (
-            <WidgetHighlight
-              icon={AlertCircle}
-              text={`${criticalCount} critical path item${criticalCount !== 1 ? "s" : ""}`}
-              variant="danger"
-            />
-          ) : reviewCount > 0 ? (
-            <WidgetHighlight
-              icon={CheckCircle}
-              text={`${reviewCount} awaiting review`}
-              variant="warning"
-            />
-          ) : (
-            <WidgetHighlight icon={Map} text="No items need attention" />
-          )}
+          <WidgetMiniStats
+            stats={[
+              {
+                value: reviewCount,
+                label: "in review",
+                icon: CheckCircle,
+                color: "warning",
+              },
+              {
+                value: criticalCount,
+                label: "critical",
+                icon: AlertCircle,
+                color: "danger",
+              },
+              {
+                value: total,
+                label: "total",
+                icon: Map,
+              },
+            ]}
+          />
         </motion.div>
       )}
     </WidgetCard>
