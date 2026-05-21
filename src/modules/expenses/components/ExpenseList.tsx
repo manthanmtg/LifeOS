@@ -88,8 +88,12 @@ export default function ExpenseList({
           Recent Ledger
         </h3>
         <div className="relative group">
+          <label htmlFor="expense-search-input" className="sr-only">
+            Search transactions
+          </label>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 group-focus-within:text-accent transition-colors" />
           <input
+            id="expense-search-input"
             type="text"
             placeholder="Search transactions..."
             value={searchQuery}
