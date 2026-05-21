@@ -356,7 +356,12 @@ export const EmiLoanSchema = z.object({
         amount: z.number().positive(),
         kind: z.enum(["emi", "prepayment"]),
         note: z.string().trim().max(2000).optional(),
-        receipt_url: z.string().url().optional(),
+        receipt_url: z
+          .string()
+          .trim()
+          .url()
+          .max(2048, "Receipt URL is too long")
+          .optional(),
       }),
     )
     .default([]),
@@ -368,7 +373,11 @@ export const EmiLoanSchema = z.object({
           .enum(["sanction_letter", "noc", "interest_certificate", "other"])
           .default("other"),
         title: z.string().trim().min(1).max(200),
-        url: z.string().url(),
+        url: z
+          .string()
+          .trim()
+          .url()
+          .max(2048, "Document URL is too long"),
         issued_at: z.string().datetime().optional(),
         added_at: z
           .string()
