@@ -1,6 +1,11 @@
 import { Priority } from "./types";
 import { ArrowUpCircle, ArrowRightCircle, ArrowDownCircle } from "lucide-react";
 
+export function parseIsoDate(iso: string): number | null {
+  const timestamp = Date.parse(iso);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
 export function extractDomain(url: string): string {
   try {
     return new URL(url).hostname.replace("www.", "");
@@ -11,9 +16,9 @@ export function extractDomain(url: string): string {
 
 export function formatDate(iso?: string) {
   if (!iso) return "";
-  const date = new Date(iso);
-  if (!Number.isFinite(date.getTime())) return "";
-  return date.toLocaleDateString();
+  const parsed = parseIsoDate(iso);
+  if (parsed === null) return "";
+  return new Date(parsed).toLocaleDateString();
 }
 
 export const PRIORITY_STYLES: Record<Priority, string> = {
