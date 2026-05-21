@@ -60,6 +60,10 @@ export function getOrderedAdminModules(
     }));
 
   const strategy = config?.orderingStrategy || "custom";
+  const order = config?.moduleOrder || [];
+  const orderIndex = new Map<string, number>(
+    order.map((key, idx) => [key, idx]),
+  );
 
   return modules.sort((a, b) => {
     if (strategy === "name") {
@@ -96,13 +100,12 @@ export function getOrderedAdminModules(
       return a.name.localeCompare(b.name);
     }
 
-    const order = config?.moduleOrder || [];
     if (order.length === 0) {
       return 0;
     }
 
-    const indexA = order.indexOf(a.key);
-    const indexB = order.indexOf(b.key);
+    const indexA = orderIndex.get(a.key) ?? -1;
+    const indexB = orderIndex.get(b.key) ?? -1;
 
     if (indexA === -1 && indexB === -1) {
       return 0;
