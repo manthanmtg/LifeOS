@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileText, PenLine, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetHighlight,
@@ -36,6 +37,31 @@ export default function BlogWidget() {
     return () => controller.abort();
   }, []);
 
+  if (loading) {
+    return (
+      <WidgetCard
+        title="Blog"
+        icon={Sparkles}
+        loading={loading}
+        href="/admin/blog"
+      >
+        <motion.div
+          initial={{ opacity: 0.6 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "reverse",
+            duration: 1.15,
+          }}
+          className="space-y-3"
+        >
+          <div className="h-11 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
+          <div className="h-16 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
+        </motion.div>
+      </WidgetCard>
+    );
+  }
+
   return (
     <WidgetCard
       title="Blog"
@@ -43,7 +69,12 @@ export default function BlogWidget() {
       loading={loading}
       href="/admin/blog"
     >
-      <div className="space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="space-y-3"
+      >
         <WidgetStat
           value={summary.published}
           label={`published · ${summary.totalReadMinutes}m total read time`}
@@ -63,9 +94,14 @@ export default function BlogWidget() {
             variant="warning"
           />
         ) : (
-          <WidgetHighlight icon={FileText} text="No posts yet" />
+          <WidgetHighlight
+            icon={FileText}
+            text={summary.archived > 0 ? `${summary.archived} archived post${summary.archived !== 1 ? "s" : ""}` : "No posts yet"}
+            subtext={summary.archived > 0 ? "Consider republishing from archive" : "Draft your first post"}
+            variant="default"
+          />
         )}
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
