@@ -149,7 +149,7 @@ export default function AdminHeader() {
                   aria-label={mod.name}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 shrink-0",
+                    "relative flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 shrink-0",
                     isActive
                       ? "bg-accent/15 text-accent"
                       : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
