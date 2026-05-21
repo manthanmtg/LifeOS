@@ -17,6 +17,7 @@ export default function BingeAdminView() {
   const [editingItem, setEditingItem] = useState<BingeItem | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [currentTimeMs, setCurrentTimeMs] = useState<number | null>(null);
+  const [currentMonthAnchor, setCurrentMonthAnchor] = useState<Date | null>(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("all");
@@ -41,13 +42,14 @@ export default function BingeAdminView() {
   }, [fetchItems]);
 
   useEffect(() => {
-    setCurrentTimeMs(Date.now());
-    const intervalId = window.setInterval(
-      () => {
-        setCurrentTimeMs(Date.now());
-      },
-      60 * 60 * 1000,
-    );
+    const updateCurrentTime = () => {
+      const now = new Date();
+      setCurrentTimeMs(now.getTime());
+      setCurrentMonthAnchor(now);
+    };
+
+    updateCurrentTime();
+    const intervalId = window.setInterval(updateCurrentTime, 60 * 60 * 1000);
 
     return () => window.clearInterval(intervalId);
   }, []);
@@ -89,7 +91,7 @@ export default function BingeAdminView() {
   const sortedItems = useMemo(() => {
     return [...items].sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        Date.parse(b.created_at) - Date.parse(a.created_at),
     );
   }, [items]);
 
@@ -135,7 +137,10 @@ export default function BingeAdminView() {
           </div>
 
           {/* Metrics */}
-          <BingeMetrics items={items} currentTimeMs={currentTimeMs} />
+          <BingeMetrics
+            items={items}
+            monthAnchor={currentMonthAnchor}
+          />
         </div>
       </div>
 

@@ -79,18 +79,13 @@ const cardVariants = {
 
 interface BingeMetricsProps {
   items: BingeItem[];
-  currentTimeMs: number | null;
+  monthAnchor: Date | null;
 }
 
 export default function BingeMetrics({
   items,
-  currentTimeMs,
+  monthAnchor,
 }: BingeMetricsProps) {
-  const monthAnchor = useMemo(
-    () => (currentTimeMs === null ? null : new Date(currentTimeMs)),
-    [currentTimeMs],
-  );
-
   const stats = useMemo(() => {
     return buildBingeStats(items, monthAnchor);
   }, [items, monthAnchor]);

@@ -16,8 +16,10 @@ interface BingeStats {
 }
 
 export function formatRelativeDate(dateStr: string, nowMs: number): string {
-  const date = new Date(dateStr);
-  const diffMs = nowMs - date.getTime();
+  const dateMs = Date.parse(dateStr);
+  if (!Number.isFinite(dateMs)) return "—";
+
+  const diffMs = nowMs - dateMs;
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return "Today";
@@ -32,6 +34,11 @@ export function buildBingeStats(
   items: BingeItem[],
   monthAnchor: Date | null,
 ): BingeStats {
+  const itemsByCreatedAt = items.map((item) => ({
+    item,
+    createdAtMs: Date.parse(item.created_at),
+  }));
+
   const total = items.length;
   const watching = items.filter((i) => i.payload.status === "watching").length;
   const completed = items.filter(
@@ -60,25 +67,20 @@ export function buildBingeStats(
       continue;
     }
 
-    const start = new Date(
-      monthAnchor.getFullYear(),
-      monthAnchor.getMonth() - m,
-      1,
+    const anchorYear = monthAnchor.getUTCFullYear();
+    const anchorMonth = monthAnchor.getUTCMonth() - m;
+    const start = Date.UTC(anchorYear, anchorMonth, 1);
+    const end = Date.UTC(anchorYear, anchorMonth + 1, 1);
+
+    const monthlyItems = itemsByCreatedAt.filter(
+      ({ createdAtMs }) => createdAtMs >= start && createdAtMs < end,
     );
-    const end = new Date(
-      monthAnchor.getFullYear(),
-      monthAnchor.getMonth() - m + 1,
-      1,
+    const completedItems = monthlyItems.filter(
+      ({ item }) => item.payload.status === "completed",
     );
-    const monthlyItems = items.filter((i) => {
-      const d = new Date(i.created_at);
-      return d >= start && d < end;
-    });
 
     monthlyData.push(monthlyItems.length);
-    completionData.push(
-      monthlyItems.filter((i) => i.payload.status === "completed").length,
-    );
+    completionData.push(completedItems.length);
   }
 
   return {
