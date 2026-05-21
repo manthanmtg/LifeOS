@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Car, AlertTriangle, Fuel, Wrench } from "lucide-react";
+import { Car, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -9,7 +9,6 @@ import {
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
 import { WidgetSkeleton } from "@/components/ui/Skeletons";
-import { cn } from "@/lib/utils";
 
 interface VehicleSummary {
   total: number;
@@ -35,6 +34,14 @@ export default function VehicleWidget() {
 
   const summaryReady = !loading && summary;
   const noVehicles = summaryReady ? summary.total === 0 : false;
+  const fuelSummary =
+    summary && summaryReady && summary.fuelCostThisMonth > 0
+      ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} spent on fuel this month`
+      : "No fuel logs this month";
+  const serviceSummary =
+    summary && summaryReady && summary.latestService?.description
+      ? `Latest: ${summary.latestService.description}`
+      : "No service logs yet";
 
   return (
     <WidgetCard
@@ -42,44 +49,6 @@ export default function VehicleWidget() {
       icon={Car}
       loading={loading}
       href="/admin/vehicle"
-      footer={
-        summary &&
-        summaryReady &&
-        !hasError && (
-          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex min-w-0 items-center gap-1.5">
-              <Fuel
-                className={cn(
-                  "w-3 h-3 shrink-0",
-                  summary.fuelCostThisMonth > 0
-                    ? "text-warning/80"
-                    : "text-zinc-500",
-                )}
-              />
-              <span
-                className={cn(
-                  "truncate",
-                  summary.fuelCostThisMonth > 0
-                    ? "text-warning/80"
-                    : "text-zinc-500",
-                )}
-              >
-                {summary.fuelCostThisMonth > 0
-                  ? `${Math.round(summary.fuelCostThisMonth).toLocaleString()} fuel`
-                  : "No logs"}
-              </span>
-            </span>
-            {summary.latestService && (
-              <span className="flex min-w-0 max-w-[120px] items-center gap-1.5 text-zinc-500">
-                <Wrench className="w-3 h-3 shrink-0" />
-                <span className="truncate">
-                  {summary.latestService.description}
-                </span>
-              </span>
-            )}
-          </div>
-        )
-      }
     >
       {loading ? (
         <WidgetSkeleton />
@@ -109,14 +78,14 @@ export default function VehicleWidget() {
             <WidgetHighlight
               icon={AlertTriangle}
               text={`${summary.alertCount} expiry/service alert${summary.alertCount !== 1 ? "s" : ""}`}
-              subtext="needs attention"
+              subtext={`${fuelSummary} · ${serviceSummary}`}
               variant="warning"
             />
           ) : (
             <WidgetHighlight
               icon={Car}
               text="All vehicles are up to date"
-              subtext="No active service or document alerts"
+              subtext={`${fuelSummary} · ${serviceSummary}`}
               variant="success"
             />
           )}
