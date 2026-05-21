@@ -166,7 +166,7 @@ The TypeScript compiler can hit Node's default heap limit (~1.5–2 GB) during t
 
 - **Increase Node heap**: Already configured in `package.json` scripts (`--max-old-space-size=4096`).
 - **Enable `skipLibCheck`**: Set `"skipLibCheck": true` in `tsconfig.json` `compilerOptions` (Done).
-- **Narrow `include`**: Ensure `tsconfig.json` only includes `src/` — not the entire repo (Done).
+- **Narrow `include`**: Keep `tsconfig.json` focused on app-relevant TypeScript files (`src/**/*.ts(x)`, `next-env`/`next.config`, Vitest config) rather than the repo root (Done).
 - **Add swap space**: On low-RAM servers, adding swap prevents hard OOM kills.
 
 ## Visual Verification with Playwright MCP
