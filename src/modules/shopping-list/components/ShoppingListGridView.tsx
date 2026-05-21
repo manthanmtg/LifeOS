@@ -33,6 +33,7 @@ export default function ShoppingListGridView({
   isSaving,
 }: ShoppingListGridViewProps) {
   const [newListTitle, setNewListTitle] = useState("");
+  const hasSearchQuery = searchQuery.trim().length > 0;
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,14 +102,18 @@ export default function ShoppingListGridView({
             <ShoppingBag className="h-8 w-8 text-zinc-700" />
           </div>
           <h2 className="text-lg font-semibold text-zinc-200">
-            {activeTab === "active"
-              ? "No active lists yet"
-              : "No completed lists"}
+            {hasSearchQuery
+              ? "No matching lists"
+              : activeTab === "active"
+                ? "No active lists yet"
+                : "No completed lists"}
           </h2>
           <p className="mt-2 text-sm text-zinc-500">
-            {activeTab === "active"
-              ? "Create a list to start tracking what you need."
-              : "Completed lists will appear here once you finish them."}
+            {hasSearchQuery
+              ? "Try a different search term or clear search to see all lists."
+              : activeTab === "active"
+                ? "Create a list to start tracking what you need."
+                : "Completed lists will appear here once you finish them."}
           </p>
         </div>
       )}
