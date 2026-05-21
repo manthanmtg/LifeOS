@@ -192,7 +192,7 @@ export default function EmiTrackerAdminView() {
                 placeholder="Search loans..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all shadow-inner"
+                className="w-full bg-zinc-900/40 backdrop-blur-md border border-zinc-800 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/25 hover:border-zinc-700 transition-all duration-200 shadow-inner"
               />
             </div>
           </div>
