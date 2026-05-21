@@ -62,13 +62,14 @@
       "category": "code-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 37,
+      "totalSelected": 38,
       "totalCompleted": 36,
       "totalNoop": 2,
-      "totalFailed": 0,
-      "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-21T10:33:50.008Z",
-      "lastCompletedAt": "2026-05-21T10:34:12.182Z"
+      "totalFailed": 1,
+      "lastOutcome": "failed",
+      "lastSelectedAt": "2026-05-21T17:02:20.390Z",
+      "lastCompletedAt": "2026-05-21T17:06:02.050Z",
+      "updatedAt": "2026-05-21T17:06:02.050Z"
     },
     "documentation_ghostwriter_prompt.md": {
       "id": "documentation-ghostwriter-prompt",
@@ -334,5 +335,5 @@
       "lastSelectedAt": "2026-05-21T16:56:00.159Z"
     }
   },
-  "updatedAt": "2026-05-21T17:00:07Z"
+  "updatedAt": "2026-05-21T17:06:02.050Z"
 }
