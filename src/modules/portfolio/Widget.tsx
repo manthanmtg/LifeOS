@@ -95,7 +95,7 @@ export default function PortfolioWidget() {
       href="/admin/portfolio"
       footer={
         p && (
-          <div className="flex min-w-0 items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider">
             <span className="min-w-0 truncate text-zinc-500">
               {readiness?.validSocialLinks ?? 0} verified links
             </span>
