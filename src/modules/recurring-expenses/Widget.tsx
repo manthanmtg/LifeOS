@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle, Sparkles, Timer } from "lucide-react";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
-import { cn } from "@/lib/utils";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -94,39 +93,38 @@ export default function RecurringExpensesWidget() {
     ? `${summary.activeCount} active`
     : "no active subscriptions";
 
+  const detail = summaryError
+    ? {
+        icon: AlertTriangle,
+        text: "Summary unavailable",
+        subtext: "Please retry from dashboard",
+        variant: "danger" as const,
+      }
+    : summary?.nextRenewal
+      ? {
+          icon: Timer,
+          text: summary.nextRenewal.name,
+          subtext: `${daysLabel || "upcoming"} · ${overdueCount} overdue · ${dueSoonCount} due soon`,
+          variant:
+            summary.daysUntilNext !== null && summary.daysUntilNext < 3
+              ? "danger"
+              : overdueCount > 0
+                ? "warning"
+                : "default",
+        }
+      : {
+          icon: Timer,
+          text: "No upcoming renewals",
+          subtext: `${summary?.activeCount ?? 0} active subscriptions`,
+          variant: "default" as const,
+        };
+
   return (
     <WidgetCard
       title="Subscriptions"
       icon={Sparkles}
       loading={loading}
       href="/admin/recurring-expenses"
-      footer={
-        !loading && (
-          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
-            {summaryError ? (
-              <span className="text-danger">Summary unavailable</span>
-            ) : (
-              <>
-                <span
-                  className={cn(
-                    overdueCount > 0 ? "text-danger" : "text-zinc-500",
-                  )}
-                >
-                  {overdueCount} overdue
-                </span>
-                <span className="text-zinc-800">·</span>
-                <span
-                  className={cn(
-                    dueSoonCount > 0 ? "text-warning" : "text-zinc-500",
-                  )}
-                >
-                  {dueSoonCount} due soon
-                </span>
-              </>
-            )}
-          </div>
-        )
-      }
     >
       <div className="space-y-3">
         <WidgetStat
@@ -137,31 +135,12 @@ export default function RecurringExpensesWidget() {
           }
           label={`monthly · ${summaryLabel}`}
         />
-        {summaryError ? (
-          <WidgetHighlight
-            icon={AlertTriangle}
-            text={summaryError}
-            subtext="Please retry from dashboard"
-            variant="danger"
-          />
-        ) : summary?.nextRenewal ? (
-          <WidgetHighlight
-            icon={Timer}
-            text={summary.nextRenewal.name}
-            subtext={daysLabel}
-            variant={
-              summary.daysUntilNext !== null && summary.daysUntilNext < 3
-                ? "danger"
-                : "default"
-            }
-          />
-        ) : (
-          <WidgetHighlight
-            icon={Timer}
-            text="No upcoming renewals"
-            subtext="Add active subscriptions to track"
-          />
-        )}
+        <WidgetHighlight
+          icon={detail.icon}
+          text={detail.text}
+          subtext={detail.subtext}
+          variant={detail.variant}
+        />
       </div>
     </WidgetCard>
   );
