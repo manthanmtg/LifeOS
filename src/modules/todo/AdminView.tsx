@@ -271,7 +271,11 @@ export default function TodoAdminView() {
           ? new Date(t.payload.due_date)
           : null;
         const isToday = dueDate && dueDate.toDateString() === todayStr;
-        const isOverdue = dueDate && dueDate < currentDate && !isCompleted;
+        const isOverdue =
+          dueDate &&
+          dueDate < currentDate &&
+          dueDate.toDateString() !== todayStr &&
+          !isCompleted;
         const isHigh = t.payload.priority === "high";
 
         switch (activeFilter) {
