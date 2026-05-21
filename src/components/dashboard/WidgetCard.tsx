@@ -2,7 +2,7 @@
 
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ReactNode, useRef, useEffect, useState } from "react";
+import { memo, ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { WIDGET_MAX_HEIGHT } from "./widget-primitives";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
@@ -30,7 +30,7 @@ interface WidgetCardProps {
   accentColor?: string;
 }
 
-export default function WidgetCard({
+function WidgetCard({
   title,
   icon: Icon,
   children,
@@ -163,3 +163,5 @@ export default function WidgetCard({
 
   return CardContent;
 }
+
+export default memo(WidgetCard);
