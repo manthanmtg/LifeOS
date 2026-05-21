@@ -1,6 +1,18 @@
+import { memo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, AlertCircle, X, Info } from "lucide-react";
-import { useEffect } from "react";
+
+const TOAST_ICON_BY_TYPE = {
+  success: CheckCircle2,
+  error: AlertCircle,
+  info: Info,
+} as const;
+
+const TOAST_CLASSES_BY_TYPE = {
+  success: "border-success/20 bg-success/10 text-success",
+  error: "border-danger/20 bg-danger/10 text-danger",
+  info: "border-accent/20 bg-accent/10 text-accent",
+} as const;
 
 export type ToastType = "success" | "error" | "info";
 
@@ -16,7 +28,7 @@ interface ToastProps {
   };
 }
 
-export default function Toast({
+function Toast({
   message,
   type,
   isVisible,
@@ -31,17 +43,8 @@ export default function Toast({
     }
   }, [isVisible, duration, onClose]);
 
-  const Icon = {
-    success: CheckCircle2,
-    error: AlertCircle,
-    info: Info,
-  }[type];
-
-  const colors = {
-    success: "border-success/20 bg-success/10 text-success",
-    error: "border-danger/20 bg-danger/10 text-danger",
-    info: "border-accent/20 bg-accent/10 text-accent",
-  }[type];
+  const Icon = TOAST_ICON_BY_TYPE[type];
+  const colors = TOAST_CLASSES_BY_TYPE[type];
 
   return (
     <AnimatePresence>
@@ -83,3 +86,5 @@ export default function Toast({
     </AnimatePresence>
   );
 }
+
+export default memo(Toast);
