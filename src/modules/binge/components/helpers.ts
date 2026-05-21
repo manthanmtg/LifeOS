@@ -34,53 +34,72 @@ export function buildBingeStats(
   items: BingeItem[],
   monthAnchor: Date | null,
 ): BingeStats {
-  const itemsByCreatedAt = items.map((item) => ({
-    item,
-    createdAtMs: Date.parse(item.created_at),
-  }));
+  const anchorYear = monthAnchor?.getUTCFullYear();
+  const anchorMonth = monthAnchor?.getUTCMonth();
 
   const total = items.length;
-  const watching = items.filter((i) => i.payload.status === "watching").length;
-  const completed = items.filter(
-    (i) => i.payload.status === "completed",
-  ).length;
-  const toWatch = items.filter((i) => i.payload.status === "to_watch").length;
-  const dropped = items.filter((i) => i.payload.status === "dropped").length;
-  const rated = items.filter((i) => !!i.payload.rating);
-  const avgRating =
-    rated.length > 0
-      ? rated.reduce((sum, i) => sum + (i.payload.rating || 0), 0) /
-        rated.length
-      : 0;
+  let watching = 0;
+  let completed = 0;
+  let toWatch = 0;
+  let dropped = 0;
+  let ratingSum = 0;
+  let ratedCount = 0;
+  let movies = 0;
+  let series = 0;
+  let anime = 0;
+  let docs = 0;
 
-  const movies = items.filter((i) => i.payload.type === "movie").length;
-  const series = items.filter((i) => i.payload.type === "series").length;
-  const anime = items.filter((i) => i.payload.type === "anime").length;
-  const docs = items.filter((i) => i.payload.type === "documentary").length;
+  for (const item of items) {
+    if (item.payload.status === "watching") watching += 1;
+    else if (item.payload.status === "completed") completed += 1;
+    else if (item.payload.status === "to_watch") toWatch += 1;
+    else if (item.payload.status === "dropped") dropped += 1;
+
+    if (item.payload.type === "movie") movies += 1;
+    else if (item.payload.type === "series") series += 1;
+    else if (item.payload.type === "anime") anime += 1;
+    else if (item.payload.type === "documentary") docs += 1;
+
+    if (item.payload.rating) {
+      ratingSum += item.payload.rating;
+      ratedCount += 1;
+    }
+  }
+
+  const avgRating = ratedCount > 0 ? ratingSum / ratedCount : 0;
 
   const monthlyData: number[] = [];
   const completionData: number[] = [];
-  for (let m = 5; m >= 0; m--) {
-    if (!monthAnchor) {
+
+  if (!monthAnchor) {
+    for (let m = 0; m < 6; m++) {
       monthlyData.push(0);
       completionData.push(0);
-      continue;
+    }
+  } else {
+    const monthBuckets: number[] = Array.from({ length: 6 }, () => 0);
+    const completedMonthBuckets: number[] = Array.from({ length: 6 }, () => 0);
+
+    for (const item of items) {
+      const createdAtMs = Date.parse(item.created_at);
+      if (!Number.isFinite(createdAtMs)) continue;
+
+      const itemDate = new Date(createdAtMs);
+      const monthDiff =
+        (anchorYear! - itemDate.getUTCFullYear()) * 12 +
+        (anchorMonth! - itemDate.getUTCMonth());
+      if (monthDiff < 0 || monthDiff >= 6) continue;
+
+      const idx = 5 - monthDiff;
+      monthBuckets[idx] += 1;
+
+      if (item.payload.status === "completed") {
+        completedMonthBuckets[idx] += 1;
+      }
     }
 
-    const anchorYear = monthAnchor.getUTCFullYear();
-    const anchorMonth = monthAnchor.getUTCMonth() - m;
-    const start = Date.UTC(anchorYear, anchorMonth, 1);
-    const end = Date.UTC(anchorYear, anchorMonth + 1, 1);
-
-    const monthlyItems = itemsByCreatedAt.filter(
-      ({ createdAtMs }) => createdAtMs >= start && createdAtMs < end,
-    );
-    const completedItems = monthlyItems.filter(
-      ({ item }) => item.payload.status === "completed",
-    );
-
-    monthlyData.push(monthlyItems.length);
-    completionData.push(completedItems.length);
+    monthlyData.push(...monthBuckets);
+    completionData.push(...completedMonthBuckets);
   }
 
   return {
