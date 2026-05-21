@@ -105,9 +105,10 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
       >
         <Link
           href="/"
-          className={`font-semibold tracking-tight hover:text-accent transition-all duration-300 ${
+          className={`font-semibold tracking-tight hover:text-accent transition-all duration-300 min-w-0 flex-1 max-w-[65vw] md:max-w-none truncate ${
             scrolled ? "text-lg" : "text-xl"
           }`}
+          title={userName}
         >
           {userName}
         </Link>
