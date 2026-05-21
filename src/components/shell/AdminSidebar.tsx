@@ -202,7 +202,7 @@ export default function AdminSidebar() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex flex-col text-sm text-zinc-400 z-[70] shadow-lg shadow-zinc-950/40"
+              className="lg:hidden fixed left-0 top-0 h-screen w-[85vw] max-w-[280px] bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex flex-col text-sm text-zinc-400 z-[70] shadow-lg shadow-zinc-950/40"
             >
               <div className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-3 min-w-0">
