@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Target, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ function getLast30Days(today: Date): string[] {
 
 export default function HabitsPublicView({ items }: { items: Habit[] }) {
   const habits = items;
-  const [todayDate] = useState(() => new Date());
+  const todayDate = useMemo(() => new Date(), []);
   const today = useMemo(() => getDateStr(todayDate), [todayDate]);
   const days = useMemo(() => getLast30Days(todayDate), [todayDate]);
 
