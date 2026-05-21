@@ -26,11 +26,16 @@ export default memo(function MaintenanceWidget() {
     fetch("/api/widgets/summary?module_type=maintenance_task", {
       signal: ac.signal,
     })
-      .then((r) => r.json())
-      .then((d) => {
+      .then(async (r) => {
+        const d = await r.json();
         if (ac.signal.aborted) return;
+        if (!r.ok) {
+          setLoadError(true);
+          setSummary(null);
+          return;
+        }
         setLoadError(false);
-        if (!ac.signal.aborted) setSummary(d.data ?? null);
+        setSummary(d.data ?? null);
       })
       .catch(() => {
         if (!ac.signal.aborted) setLoadError(true);
@@ -63,46 +68,67 @@ export default memo(function MaintenanceWidget() {
             variant="warning"
           />
         </motion.div>
-      ) : (
-        summary && (
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="space-y-3"
-          >
-            <WidgetStat
-              value={summary.overdue}
-              label={summary.overdue > 0 ? "overdue tasks" : "all on schedule"}
+      ) : summary ? (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="space-y-3"
+        >
+          <WidgetStat
+            value={summary.overdue}
+            label={summary.overdue > 0 ? "overdue tasks" : "all on schedule"}
+          />
+          {summary.overdue > 0 ? (
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
+              subtext={
+                summary.upcoming > 0
+                  ? `${summary.upcoming} due in the next 30 days`
+                  : "needs immediate attention"
+              }
+              variant="danger"
             />
-            {summary.overdue > 0 ? (
-              <WidgetHighlight
-                icon={AlertTriangle}
-                text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
-                subtext={
-                  summary.upcoming > 0
-                    ? `${summary.upcoming} due in the next 30 days`
-                    : "needs immediate attention"
-                }
-                variant="danger"
-              />
-            ) : summary.upcoming > 0 ? (
-              <WidgetHighlight
-                icon={Clock}
-                text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} due soon`}
-                subtext={`${summary.completedThisMonth} completed this month`}
-                variant="warning"
-              />
-            ) : (
-              <WidgetHighlight
-                icon={Wrench}
-                text={`${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`}
-                subtext={`${summary.completedThisMonth} completed this month`}
-                variant="success"
-              />
-            )}
-          </motion.div>
-        )
+          ) : summary.upcoming > 0 ? (
+            <WidgetHighlight
+              icon={Clock}
+              text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} due soon`}
+              subtext={`${summary.completedThisMonth} completed this month`}
+              variant="warning"
+            />
+          ) : (
+            <WidgetHighlight
+              icon={Wrench}
+              text={
+                summary.total > 0
+                  ? `${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`
+                  : "Add your first maintenance plan today"
+              }
+              subtext={
+                summary.total > 0
+                  ? `${summary.completedThisMonth} completed this month`
+                  : "Track tasks to keep everything on schedule"
+              }
+              variant="success"
+            />
+          )}
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="space-y-3"
+        >
+          <WidgetStat value="0" label="maintenance tasks" />
+          <WidgetHighlight
+            icon={Wrench}
+            text="No maintenance tasks yet"
+            subtext="Add your first maintenance plan to get started"
+            variant="accent"
+          />
+        </motion.div>
       )}
     </WidgetCard>
   );
