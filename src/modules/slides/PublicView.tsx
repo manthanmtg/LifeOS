@@ -52,6 +52,15 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
   const data = (items as DeckItem[]).filter((item) => item.is_public);
   const [viewingIndex, setViewingIndex] = useState<number | null>(null);
 
+  const openDeck = (index: number, event?: { key?: string }) => {
+    if (data[index]?.payload?.deck_url) {
+      if (event?.key && event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      setViewingIndex(index);
+    }
+  };
+
   if (data.length === 0) {
     return (
       <div className="text-center text-zinc-500 py-20">
@@ -79,8 +88,12 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05, duration: 0.3 }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open deck ${item.payload.title}`}
               className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors group cursor-pointer"
-              onClick={() => item.payload.deck_url && setViewingIndex(idx)}
+              onClick={(event) => openDeck(idx, event)}
+              onKeyDown={(e) => openDeck(idx, e)}
             >
               {/* Live Preview */}
               <div className="w-full aspect-video rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center mb-2.5 relative">
