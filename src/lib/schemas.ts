@@ -97,7 +97,11 @@ export const ExpenseSchema = z.object({
     .trim()
     .min(2, "Please provide a brief description")
     .max(200),
-  merchant: z.string().trim().max(100).optional(),
+  merchant: z
+    .string()
+    .trim()
+    .min(1, "Merchant is required when provided")
+    .max(100),
   account: z
     .enum([
       "Cash",
@@ -109,7 +113,12 @@ export const ExpenseSchema = z.object({
     ])
     .default("UPI"),
   category: z.string().trim().min(1, "Category is required").max(80),
-  subcategory: z.string().trim().max(80).optional(),
+  subcategory: z
+    .string()
+    .trim()
+    .min(1, "Subcategory is required when provided")
+    .max(80)
+    .optional(),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
   date: z.string().datetime("Must be a valid ISO Date string"),
   type: z.enum(["income", "expense"]).default("expense"),
