@@ -75,13 +75,13 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 32,
+      "totalSelected": 33,
       "totalCompleted": 31,
       "totalNoop": 1,
-      "totalFailed": 0,
-      "lastCompletedAt": "2026-05-18T16:49:16.972Z",
-      "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-18T16:46:18.301Z"
+      "totalFailed": 1,
+      "lastCompletedAt": "2026-05-21T04:19:09.521Z",
+      "lastOutcome": "failed",
+      "lastSelectedAt": "2026-05-21T04:16:50.468Z"
     },
     "lint_and_purity_doctor_prompt.md": {
       "id": "lint-and-purity-doctor-prompt",
@@ -325,5 +325,5 @@
       "lastSelectedAt": "2026-05-21T04:04:58.225Z"
     }
   },
-  "updatedAt": "2026-05-21T04:13:19.078Z"
+  "updatedAt": "2026-05-21T04:19:09.521Z"
 }
