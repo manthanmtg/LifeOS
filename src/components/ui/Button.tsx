@@ -16,7 +16,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const BUTTON_VARIANTS: Record<NonNullable<ButtonProps["variant"]>, string> = {
   default:
-    "bg-zinc-50 text-zinc-950 hover:bg-zinc-200 shadow-lg shadow-white/5",
+    "bg-zinc-50 text-zinc-950 hover:bg-zinc-200 shadow-lg shadow-zinc-50/5",
   destructive:
     "bg-danger text-zinc-50 hover:bg-danger shadow-lg shadow-danger/10",
   outline:

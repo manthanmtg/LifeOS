@@ -93,7 +93,7 @@ export default function PortfolioShowcase({
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{ y: -2, scale: 1.02 }}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 hover:bg-zinc-100 transition-all text-sm font-bold shadow-xl shadow-white/5"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-50 text-zinc-950 hover:bg-zinc-100 transition-all text-sm font-bold shadow-xl shadow-zinc-50/5"
                 >
                   <Briefcase className="w-3.5 h-3.5" />
                   View Resume
