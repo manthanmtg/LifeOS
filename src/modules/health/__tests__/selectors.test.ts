@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   filterHealthProfiles,
+  getLatestVisit,
+  getMedicationCounts,
+  getSortedDocuments,
+  getSortedLabGroups,
   getHealthFilterOptions,
   getHealthAlerts,
   getNextTimelineItem,
@@ -333,5 +337,193 @@ describe("health selectors", () => {
         heightPercent: 60,
       },
     ]);
+  });
+
+  it("sorts lab results into latest-first groups by test name", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        lab_results: [
+          {
+            id: "lab-1",
+            date: "2026-01-05T00:00:00.000Z",
+            test_name: "HbA1c",
+            value: "5.8",
+            status: "normal",
+          },
+          {
+            id: "lab-2",
+            date: "2025-12-15T00:00:00.000Z",
+            test_name: "HbA1c",
+            value: "6.0",
+            status: "borderline",
+          },
+          {
+            id: "lab-3",
+            date: "2026-02-01T00:00:00.000Z",
+            test_name: "Vitamin D",
+            value: "32",
+            status: "normal",
+          },
+        ],
+      },
+    });
+
+    expect(getSortedLabGroups(profile)).toEqual([
+      [
+        "HbA1c",
+        [
+          {
+            id: "lab-1",
+            date: "2026-01-05T00:00:00.000Z",
+            test_name: "HbA1c",
+            value: "5.8",
+            status: "normal",
+          },
+          {
+            id: "lab-2",
+            date: "2025-12-15T00:00:00.000Z",
+            test_name: "HbA1c",
+            value: "6.0",
+            status: "borderline",
+          },
+        ],
+      ],
+      [
+        "Vitamin D",
+        [
+          {
+            id: "lab-3",
+            date: "2026-02-01T00:00:00.000Z",
+            test_name: "Vitamin D",
+            value: "32",
+            status: "normal",
+          },
+        ],
+      ],
+    ]);
+  });
+
+  it("places untimestamped documents last while sorting documents newest first", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        documents: [
+          {
+            id: "doc-1",
+            type: "lab_report",
+            title: "Missing Date Lab Report",
+            attachments: [],
+          },
+          {
+            id: "doc-2",
+            type: "bill",
+            title: "Recent Invoice",
+            date: "2026-04-10T00:00:00.000Z",
+            attachments: [],
+          },
+          {
+            id: "doc-3",
+            type: "bill",
+            title: "Older Invoice",
+            date: "2026-01-20T00:00:00.000Z",
+            attachments: [],
+          },
+        ],
+      },
+    });
+
+    const sorted = getSortedDocuments(profile);
+
+    expect(sorted.map((document) => document.id)).toEqual([
+      "doc-2",
+      "doc-3",
+      "doc-1",
+    ]);
+  });
+
+  it("reports active and total medication counts", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        medications: [
+          {
+            id: "med-1",
+            name: "Metformin",
+            status: "active",
+          },
+          {
+            id: "med-2",
+            name: "Ibuprofen",
+            status: "completed",
+          },
+          {
+            id: "med-3",
+            name: "Aspirin",
+            status: "active",
+          },
+        ],
+      },
+    });
+
+    expect(getMedicationCounts(profile)).toEqual({
+      active: 2,
+      total: 3,
+    });
+  });
+
+  it("returns the latest visit even when earlier records are invalid", () => {
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        visits: [
+          {
+            id: "visit-1",
+            date: "not-a-date",
+            type: "checkup",
+            currency: "INR",
+          },
+          {
+            id: "visit-2",
+            date: "2026-02-02T00:00:00.000Z",
+            type: "follow_up",
+            currency: "INR",
+          },
+        ],
+      },
+    });
+
+    expect(getLatestVisit(profile)?.id).toBe("visit-2");
+  });
+
+  it("ignores malformed due-date fields when resolving due items", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));
+
+    const profile = makeProfile({
+      payload: {
+        ...makeProfile().payload,
+        medications: [
+          {
+            id: "med-1",
+            name: "Aspirin",
+            status: "active",
+            refill_date: "invalid-date",
+          },
+        ],
+        vaccinations: [
+          {
+            id: "vac-1",
+            name: "Flu",
+            date_administered: "2026-02-02T00:00:00.000Z",
+            next_due: "not-a-date",
+          },
+        ],
+      },
+    });
+
+    expect(getHealthAlerts([profile])).toEqual([]);
+    expect(getNextTimelineItem(profile)).toBeNull();
+    vi.useRealTimers();
   });
 });
