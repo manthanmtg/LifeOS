@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
@@ -54,16 +54,6 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: icon,
     },
     manifest: "/manifest.webmanifest",
-  };
-}
-
-export function generateViewport(): Viewport {
-  return {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    themeColor: "#000000",
   };
 }
 
