@@ -89,6 +89,9 @@ export default function WhiteboardCard({
         <button
           onClick={() => toggleFavorite(board)}
           className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-warning/20 text-zinc-400 hover:text-warning transition-colors"
+          aria-label={
+            board.payload.is_favorite ? "Unfavorite board" : "Favorite board"
+          }
           title="Favorite"
         >
           <Star
@@ -99,6 +102,7 @@ export default function WhiteboardCard({
         <button
           onClick={() => toggleVisibility(board)}
           className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-success/20 text-zinc-400 hover:text-success transition-colors"
+          aria-label={board.is_public ? "Make board private" : "Make board public"}
           title={board.is_public ? "Make private" : "Make public"}
         >
           {board.is_public ? (
@@ -110,6 +114,7 @@ export default function WhiteboardCard({
         <button
           onClick={() => duplicateBoard(board)}
           className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-colors"
+          aria-label="Duplicate board"
           title="Duplicate"
         >
           <Copy className="w-3.5 h-3.5" />
