@@ -22,7 +22,7 @@ describe("LoginPage", () => {
   it("labels the password field and links invalid password feedback", async () => {
     render(<LoginPage />);
 
-    const passwordInput = screen.getByLabelText("Admin password");
+    const passwordInput = await screen.findByLabelText("Admin password");
     fireEvent.change(passwordInput, { target: { value: "wrong-password" } });
     fireEvent.click(
       screen.getByRole("button", { name: "Enter Command Center" }),

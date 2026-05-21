@@ -13,30 +13,34 @@ import {
   toDateInputValue,
 } from "../lib/emi-utils";
 
-const createLoan = (payload: Partial<EmiLoan["payload"]>): EmiLoan => ({
-  _id: "loan-1",
-  created_at: "2026-01-01T00:00:00.000Z",
-  updated_at: "2026-01-01T00:00:00.000Z",
-  payload: {
-    title: "Starter Loan",
-    category: "Personal",
-    currency: "INR",
-    principal: 1200,
-    tenure_months: 3,
-    interest_type: "fixed",
-    annual_interest_rate: 0,
-    monthly_emi: 400,
-    processing_fee_financed: false,
-    start_date: "2026-01-01T00:00:00.000Z",
-    due_day_of_month: 15,
-    recast_strategy: "keep_tenure_adjust_emi",
-    rate_adjustments: [],
-    payments: [],
-    documents: [],
-    status: "active",
-    ...payload,
-  },
-});
+const createLoan = (payload: Partial<EmiLoan["payload"]> & { _id?: string }): EmiLoan => {
+  const { _id = "loan-1", ...remainingPayload } = payload;
+
+  return {
+    _id,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    payload: {
+      title: "Starter Loan",
+      category: "Personal",
+      currency: "INR",
+      principal: 1200,
+      tenure_months: 3,
+      interest_type: "fixed",
+      annual_interest_rate: 0,
+      monthly_emi: 400,
+      processing_fee_financed: false,
+      start_date: "2026-01-01T00:00:00.000Z",
+      due_day_of_month: 15,
+      recast_strategy: "keep_tenure_adjust_emi",
+      rate_adjustments: [],
+      payments: [],
+      documents: [],
+      status: "active",
+      ...remainingPayload,
+    },
+  };
+};
 
 describe("emi-utils", () => {
   it("rounds numbers to the configured precision", () => {
@@ -82,7 +86,7 @@ describe("emi-utils", () => {
   });
 
   it("builds a fixed-rate repayment schedule with expected totals", () => {
-    const result = computeSchedule(createLoan({}), 2);
+    const result = computeSchedule(createLoan({}).payload, 2);
 
     expect(result.rows).toHaveLength(3);
     expect(result.rows[0]).toMatchObject({
@@ -138,7 +142,7 @@ describe("emi-utils", () => {
 
   it("aggregates quick stats for active loans and identifies nearest upcoming due", () => {
     const activeFirst = createLoan({
-      _id: "loan-100" as never,
+      _id: "loan-100",
       title: "First Loan",
       currency: "INR",
       principal: 1200,
@@ -149,7 +153,7 @@ describe("emi-utils", () => {
       first_due_date: "2026-01-05T00:00:00.000Z",
     });
     const activeSecond = createLoan({
-      _id: "loan-101" as never,
+      _id: "loan-101",
       title: "Second Loan",
       currency: "USD",
       principal: 900,
@@ -160,7 +164,7 @@ describe("emi-utils", () => {
       first_due_date: "2026-01-20T00:00:00.000Z",
     });
     const closedLoan = createLoan({
-      _id: "loan-102" as never,
+      _id: "loan-102",
       status: "closed",
       principal: 1000,
       currency: "INR",
