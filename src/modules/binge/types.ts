@@ -1,24 +1,26 @@
+export interface BingeItemPayload {
+  title: string;
+  type: "movie" | "series" | "documentary" | "anime";
+  status: "to_watch" | "watching" | "completed" | "dropped";
+  rating?: number;
+  notes?: string;
+  genre?: string;
+  platform?: string;
+  year?: number;
+  poster_url?: string;
+  recommended_by?: string;
+  rewatched: boolean;
+  rewatch_count: number;
+  // Series only
+  current_season?: number;
+  current_episode?: number;
+  total_seasons?: number;
+}
+
 export interface BingeItem {
   _id: string;
   created_at: string;
-  payload: {
-    title: string;
-    type: "movie" | "series" | "documentary" | "anime";
-    status: "to_watch" | "watching" | "completed" | "dropped";
-    rating?: number;
-    notes?: string;
-    genre?: string;
-    platform?: string;
-    year?: number;
-    poster_url?: string;
-    recommended_by?: string;
-    rewatched: boolean;
-    rewatch_count: number;
-    // Series only
-    current_season?: number;
-    current_episode?: number;
-    total_seasons?: number;
-  };
+  payload: BingeItemPayload;
 }
 
 export const STATUSES = [

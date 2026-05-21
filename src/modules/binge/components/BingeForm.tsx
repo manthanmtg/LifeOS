@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, RefreshCw, Star, Plus, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { BingeItem } from "../types";
+import type { BingeItem, BingeItemPayload } from "../types";
 import { STATUSES, TYPES, STATUS_LABELS, TYPE_LABELS } from "../types";
 
 interface BingeFormProps {
@@ -94,7 +94,7 @@ export default function BingeForm({
       return;
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: Partial<BingeItemPayload> = {
       title: title.trim(),
       type,
       status,
