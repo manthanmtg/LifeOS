@@ -997,7 +997,7 @@ const BingeItemSchema = z.object({
   poster_url: z.string().url().max(500).optional(),
   recommended_by: z.string().trim().max(100).optional(),
   rewatched: z.boolean().default(false),
-  rewatch_count: z.number().int().min(0).default(0),
+  rewatch_count: z.number().int().min(0).max(999).default(0),
   current_season: z.number().int().min(1).max(999).optional(),
   current_episode: z.number().int().min(1).max(10000).optional(),
   total_seasons: z.number().int().min(1).max(999).optional(),
