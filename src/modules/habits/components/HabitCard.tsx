@@ -160,12 +160,12 @@ export default function HabitCard({
           </motion.button>
 
           {/* Edit/Delete */}
-          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0">
+          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-all transform translate-x-1 sm:translate-x-0">
             <button
               onClick={() => onEdit(habit)}
               disabled={isDeletingId === habit._id}
               aria-label="Edit habit"
-              className="p-1.5 text-zinc-600 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors disabled:opacity-50"
+              className="inline-flex h-11 w-11 sm:h-auto sm:w-auto items-center justify-center sm:p-1.5 p-2.5 text-zinc-600 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors disabled:opacity-50"
             >
               <Edit3 className="w-3.5 h-3.5" />
             </button>
@@ -173,7 +173,7 @@ export default function HabitCard({
               onClick={() => onDelete(habit._id)}
               disabled={isDeletingId === habit._id}
               aria-label="Delete habit"
-              className="p-1.5 text-zinc-600 hover:text-danger rounded-lg hover:bg-zinc-800 transition-colors disabled:opacity-50"
+              className="inline-flex h-11 w-11 sm:h-auto sm:w-auto items-center justify-center sm:p-1.5 p-2.5 text-zinc-600 hover:text-danger rounded-lg hover:bg-zinc-800 transition-colors disabled:opacity-50"
             >
               {isDeletingId === habit._id ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
