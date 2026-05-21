@@ -25,7 +25,7 @@ This file provides consolidated guidance to all AI agents (Antigravity, Claude C
 When executing files from `prompts/`, read `prompts/README.md` first and treat it as the run contract. For random autonomous runs, use `prompts/random_selector.md`, update `prompts/prompts_metadata.json` selection and terminal outcome counters in the same branch, include the selected prompt in the commit body, and keep the selected prompt's changes small enough for quick review. If a prompt cannot be completed safely, log the reason in `issues_to_look/` instead of inventing new policy.
 
 - `prompts/random_selector.md` uses eligibility and scheduling from `prompts/prompts_metadata.json`: it selects only `enabled` and `autonomousSafe` prompts where `totalNoop < totalCompleted`, and treats `prompts_optimizer.md` as a rare (~1 in 25) maintenance run.
-- For terminal outcomes, set each prompt's `lastOutcome` and `lastCompletedAt` together with `prompts` and top-level metadata timestamps for `completed`, `noop`, or `failed` runs.
+- For terminal outcomes, increment exactly one of `totalCompleted` / `totalNoop` / `totalFailed`, set `lastOutcome`, `lastCompletedAt`, and refresh the corresponding prompt and top-level `updatedAt` timestamps together.
 
 ### Quality Verification
 
