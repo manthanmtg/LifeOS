@@ -720,9 +720,17 @@ const BillAttachmentContentTypeSchema = z
 
 const GenericAttachmentSchema = z.object({
   id: z.string().trim().min(1).max(100),
-  filename: z.string().trim().min(1).max(255),
-  content_type: z.string().trim().min(1).max(100),
-  data: z.string().min(1), // base64
+  filename: z
+    .string()
+    .trim()
+    .min(1, "Filename is required")
+    .max(255, "Filename is too long"),
+  content_type: z
+    .string()
+    .trim()
+    .min(1, "Content type is required")
+    .max(100, "Content type is too long"),
+  data: z.string().trim().min(1, "Attachment data is required"), // base64
   size: z.number().int().min(0),
   uploaded_at: z
     .string()
