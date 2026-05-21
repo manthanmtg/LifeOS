@@ -8,6 +8,7 @@ import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
+import { WidgetSkeleton } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 
 interface VehicleSummary {
@@ -80,7 +81,9 @@ export default function VehicleWidget() {
         )
       }
     >
-      {loading ? null : hasError || !summary ? (
+      {loading ? (
+        <WidgetSkeleton />
+      ) : hasError || !summary ? (
         <WidgetHighlight
           icon={AlertTriangle}
           text="Unable to load vehicle summary"
