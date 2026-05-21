@@ -155,18 +155,23 @@ export default function ExpenseForm({
 
     setIsSubmitting(true);
     try {
+      const normalizedMerchant = merchant.trim();
+      const normalizedSubcategory = subcategory.trim();
+
       const payload = {
         amount: parsedAmount,
         currency: settings.defaultCurrency,
         description: description.trim(),
-        merchant: merchant.trim(),
         account,
         category,
-        subcategory: subcategory.trim(),
         tags,
         date: new Date(date).toISOString(),
         type,
         is_recurring: isRecurring,
+        ...(normalizedMerchant ? { merchant: normalizedMerchant } : {}),
+        ...(normalizedSubcategory
+          ? { subcategory: normalizedSubcategory }
+          : {}),
       };
 
       const res = await fetch(
