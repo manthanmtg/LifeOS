@@ -13,6 +13,7 @@ const CalendarDateSchema = z
 
 const CurrencyCodeSchema = z
   .string()
+  .trim()
   .regex(/^[A-Z]{3}$/, "Currency must be a 3-letter ISO code");
 
 const ObjectIdStringSchema = z
@@ -88,6 +89,7 @@ export const ExpenseSchema = z.object({
   is_recurring: z.boolean().default(false),
   receipt_url: z
     .string()
+    .trim()
     .url("Must be a valid URL")
     .max(2048, "Receipt URL is too long")
     .optional(),
@@ -363,7 +365,7 @@ const TodoSchema = z.object({
   due_date: z.string().datetime().optional(),
   completed: z.boolean().default(false),
   completed_at: z.string().datetime().optional(),
-  order: z.number().int().optional(),
+  order: z.number().int().min(0).optional(),
 });
 
 // --- 14. SHOPPING LIST MODULE ---
@@ -528,10 +530,22 @@ export const PersonSchema = z.object({
   documents: z
     .array(
       z.object({
-        id: z.string().min(1),
-        name: z.string().min(1),
-        filename: z.string().min(1),
-        content_type: z.string().min(1),
+        id: z
+          .string()
+          .trim()
+          .min(1, "Document id is required")
+          .max(100),
+        name: z.string().trim().min(1, "Document name is required").max(200),
+        filename: z
+          .string()
+          .trim()
+          .min(1, "Filename is required")
+          .max(255),
+        content_type: z
+          .string()
+          .trim()
+          .min(1, "Content type is required")
+          .max(100),
         data: z.string().min(1), // base64
         size: z.number().int().min(0),
         added_at: z
