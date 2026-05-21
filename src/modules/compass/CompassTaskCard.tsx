@@ -51,6 +51,12 @@ export default function CompassTaskCard({
   onDragEnd,
 }: CompassTaskCardProps) {
   const [now, setNow] = useState<number>(() => Date.now());
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60000);
@@ -78,11 +84,16 @@ export default function CompassTaskCard({
       onDragStartCapture={onDragStart}
       onDragEndCapture={onDragEnd}
       onClick={onClick}
+      onKeyDown={handleCardKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${task.payload.title} compass task`}
       whileHover={{ y: -2, scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
         "bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 p-4 rounded-xl cursor-pointer hover:border-zinc-600 transition-colors shadow-sm hover:shadow-xl hover:shadow-accent/5 group relative overflow-hidden",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
         isDragging && "opacity-50 scale-95",
         isStuck && "border-warning/30 bg-warning/5",
         task.payload.priority === "p1" && "border-danger/30 bg-danger/[0.02]",
