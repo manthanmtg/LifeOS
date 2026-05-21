@@ -65,7 +65,7 @@ export default function PersonCard({
           : isHot
             ? "border-success/15 hover:border-success/30"
             : "border-zinc-800/50 hover:border-accent/30",
-        "hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-lg hover:shadow-black/20",
+        "hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-lg hover:shadow-zinc-950/20",
       )}
     >
       {/* Background Decoration */}
