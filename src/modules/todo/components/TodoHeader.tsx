@@ -37,7 +37,7 @@ export default function TodoHeader({
 
         <div className="flex items-center gap-2">
           <div
-            className="hidden sm:flex items-center gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/50"
+            className="flex items-center gap-1 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800/50"
             role="group"
             aria-label="View mode"
           >
@@ -46,7 +46,7 @@ export default function TodoHeader({
               aria-label="List view"
               aria-pressed={viewMode === "list"}
               className={cn(
-                "p-2 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
+                "p-2 rounded-lg transition-all touch-manipulation focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
                 viewMode === "list"
                   ? "bg-accent text-zinc-950 shadow-md"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
@@ -59,7 +59,7 @@ export default function TodoHeader({
               aria-label="Grid view"
               aria-pressed={viewMode === "grid"}
               className={cn(
-                "p-2 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
+                "p-2 rounded-lg transition-all touch-manipulation focus-visible:ring-2 focus-visible:ring-accent/40 outline-none",
                 viewMode === "grid"
                   ? "bg-accent text-zinc-950 shadow-md"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800",
