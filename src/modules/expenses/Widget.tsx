@@ -52,22 +52,23 @@ export default memo(function ExpensesWidget() {
   const budget = settings.monthlyBudget || 0;
   const budgetPercent = budget > 0 ? (totalThisMonth / budget) * 100 : 0;
   const remaining = budget - totalThisMonth;
+  const topCategoryLabel = topCategory
+    ? `${topCategory[0]} (${sym}${formatCurrency(topCategory[1], "", format)})`
+    : null;
   const trendLabel =
     trend === 0
       ? "Stable vs last month"
       : `${Math.abs(trend).toFixed(0)}% ${
           trend > 0 ? "more" : "less"
         } than last month`;
-  const trendSubtext =
+  const subtextBits = [
+    trendLabel,
     budget > 0
-      ? `${trendLabel} · ${
-          remaining >= 0
-            ? `${sym}${formatCurrency(remaining, "", format)} remaining`
-            : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`
-        }`
-      : topCategory
-        ? `${trendLabel} · Top category: ${topCategory[0]}`
-        : trendLabel;
+      ? `${remaining >= 0 ? `${sym}${formatCurrency(remaining, "", format)} remaining` : `${sym}${formatCurrency(Math.abs(remaining), "", format)} over budget`}`
+      : null,
+    topCategoryLabel ? `Top category: ${topCategoryLabel}` : null,
+  ].filter(Boolean);
+  const trendSubtext = subtextBits.join(" · ");
 
   return (
     <WidgetCard
