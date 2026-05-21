@@ -28,13 +28,13 @@
       "category": "documentation",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 30,
-      "totalCompleted": 12,
+      "totalSelected": 32,
+      "totalCompleted": 13,
       "totalNoop": 11,
       "totalFailed": 7,
-      "lastCompletedAt": "2026-05-21T03:38:41.473Z",
-      "lastOutcome": "noop",
-      "lastSelectedAt": "2026-05-21T03:38:36.294Z"
+      "lastOutcome": "completed",
+      "lastSelectedAt": "2026-05-21T04:34:14.178Z",
+      "lastCompletedAt": "2026-05-21T04:34:24.436Z"
     },
     "build_verifier.md": {
       "id": "build-verifier",
@@ -299,13 +299,13 @@
       "category": "feature-quality",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 34,
+      "totalSelected": 35,
       "totalCompleted": 33,
       "totalNoop": 1,
       "totalFailed": 0,
-      "lastSelectedAt": "2026-05-21T04:03:41.712Z",
+      "lastSelectedAt": "2026-05-21T04:34:09.724Z",
       "lastCompletedAt": "2026-05-21T04:03:44.896Z",
-      "lastOutcome": "completed"
+      "lastOutcome": "selected"
     },
     "zod_schema_tightener.md": {
       "id": "zod-schema-tightener",
@@ -322,5 +322,6 @@
       "lastOutcome": "completed",
       "lastSelectedAt": "2026-05-21T04:04:58.225Z"
     }
-  }
+  },
+  "updatedAt": "2026-05-21T04:34:24.436Z"
 }
