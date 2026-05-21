@@ -13,8 +13,19 @@ import { WidgetSkeleton } from "@/components/ui/Skeletons";
 interface VehicleSummary {
   total: number;
   alertCount: number;
-  latestService: { description: string } | null;
+  latestService: { description: string; date?: string } | null;
   fuelCostThisMonth: number;
+}
+
+function formatServiceDate(dateString?: string) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "";
+  return ` on ${date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })}`;
 }
 
 export default function VehicleWidget() {
@@ -40,7 +51,9 @@ export default function VehicleWidget() {
       : "No fuel logs this month";
   const serviceSummary =
     summary && summaryReady && summary.latestService?.description
-      ? `Latest: ${summary.latestService.description}`
+      ? `Latest: ${summary.latestService.description}${formatServiceDate(
+          summary.latestService?.date,
+        )}`
       : "No service logs yet";
 
   return (
