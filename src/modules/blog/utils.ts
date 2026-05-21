@@ -1,4 +1,4 @@
-import { BlogHeading, BlogPost, BlogSummary } from "@/modules/blog/types";
+import { BlogPost, BlogSummary } from "@/modules/blog/types";
 
 export function slugify(value: string): string {
   return value
@@ -63,41 +63,6 @@ export function headingToId(text: string): string {
       .replace(/\s+/g, " ")
       .trim(),
   );
-}
-
-function normalizeHeadingText(raw: string): string {
-  return raw
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/`([^`]*)`/g, "$1")
-    .replace(/<[^>]+>/g, "")
-    .replace(/\\([\\`*_{}\[\]()#+\-.!])/g, "$1")
-    .replace(/[#*_~]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-export function parseHeadingOutline(content: string): BlogHeading[] {
-  const ids = new Map<string, number>();
-  const headings: BlogHeading[] = [];
-
-  for (const line of content.split(/\r?\n/)) {
-    const match = line.match(/^(#{2,3})\s+(.+)$/);
-    if (!match) continue;
-
-    const level = match[1].length as 2 | 3;
-    const text = normalizeHeadingText(match[2]);
-    const baseId = headingToId(text);
-    if (!baseId) continue;
-
-    const count = ids.get(baseId) ?? 0;
-    ids.set(baseId, count + 1);
-    const id = count === 0 ? baseId : `${baseId}-${count + 1}`;
-
-    headings.push({ id, text, level });
-  }
-
-  return headings;
 }
 
 function getPostTimestamp(post: BlogPost): number {
