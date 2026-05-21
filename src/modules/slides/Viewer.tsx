@@ -187,6 +187,8 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
 
             <div className="flex items-center gap-3 pointer-events-auto">
               <button
+                type="button"
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleFullscreen();
@@ -201,6 +203,8 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                 )}
               </button>
               <button
+                type="button"
+                aria-label="Close slide viewer"
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
