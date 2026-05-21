@@ -2,6 +2,16 @@
 
 import { cn } from "@/lib/utils";
 
+const DASHBOARD_SKELETON_KEYS = [...Array(9).keys()];
+const ADMIN_STATS_KEYS = [...Array(4).keys()];
+const BLOG_SOCIAL_LINK_KEYS = [...Array(4).keys()];
+const BLOG_GRID_KEYS = [...Array(4).keys()];
+const BLOG_POST_DETAIL_WIDTHS = [95, 100, 88, 100, 92, 85, 100, 78];
+const BLOG_POST_META_WIDTHS = [100, 90, 82, 100, 75, 95];
+const PUBLIC_MODULE_KEYS = [...Array(6).keys()];
+const PORTFOLIO_SOCIAL_LINK_KEYS = [...Array(4).keys()];
+const PORTFOLIO_SKILL_KEYS = [...Array(8).keys()];
+
 /** Shimmer overlay for skeleton elements */
 function Shimmer() {
   return (
@@ -56,7 +66,7 @@ export function WidgetSkeleton() {
 export function DashboardSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Array.from({ length: 9 }).map((_, i) => (
+      {DASHBOARD_SKELETON_KEYS.map((i) => (
         <WidgetSkeleton key={i} />
       ))}
     </div>
@@ -106,7 +116,7 @@ export function AdminModuleSkeleton({
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {ADMIN_STATS_KEYS.map((i) => (
           <div
             key={i}
             className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 animate-pulse"
@@ -149,7 +159,7 @@ export function BlogListSkeleton() {
         {/* Search */}
         <SkeletonBlock className="h-10 w-full rounded-xl mb-3" />
         <div className="flex flex-wrap gap-2 mb-6">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {BLOG_SOCIAL_LINK_KEYS.map((i) => (
             <SkeletonBlock key={i} className="h-7 w-16 rounded-full" />
           ))}
         </div>
@@ -169,7 +179,7 @@ export function BlogListSkeleton() {
 
         {/* Grid of posts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {BLOG_GRID_KEYS.map((i) => (
             <div
               key={i}
               className="border border-zinc-800 rounded-2xl bg-zinc-900/40 p-5 animate-pulse"
@@ -203,11 +213,11 @@ export function BlogPostSkeleton() {
           <SkeletonBlock className="h-5 w-14 rounded-full" />
         </div>
         <div className="space-y-4">
-          {[95, 100, 88, 100, 92, 85, 100, 78].map((w, i) => (
+          {BLOG_POST_DETAIL_WIDTHS.map((w, i) => (
             <SkeletonBlock key={i} className="h-4" style={{ width: `${w}%` }} />
           ))}
           <SkeletonBlock className="h-48 w-full rounded-xl" />
-          {[100, 90, 82, 100, 75, 95].map((w, i) => (
+          {BLOG_POST_META_WIDTHS.map((w, i) => (
             <SkeletonBlock
               key={`b-${i}`}
               className="h-4"
@@ -230,10 +240,10 @@ export function PublicModuleSkeleton() {
           <SkeletonBlock className="h-4 w-72 max-w-full" />
         </div>
         <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
+            {PUBLIC_MODULE_KEYS.map((i) => (
+              <div
+                key={i}
+                className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
             >
               <SkeletonBlock className="h-4 w-1/3 mb-2" />
               <SkeletonBlock className="h-3 w-2/3" />
@@ -264,7 +274,7 @@ export function PortfolioSkeleton() {
           <SkeletonBlock className="h-6 w-2/3 rounded-lg" />
           {/* Social links */}
           <div className="flex flex-wrap gap-3 pt-4">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {PORTFOLIO_SOCIAL_LINK_KEYS.map((i) => (
               <SkeletonBlock key={i} className="h-10 w-28 rounded-xl" />
             ))}
           </div>
@@ -294,7 +304,7 @@ export function PortfolioSkeleton() {
             <div className="h-px flex-1 bg-zinc-800 hidden md:block" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {PORTFOLIO_SKILL_KEYS.map((i) => (
               <SkeletonBlock key={i} className="h-16 rounded-2xl" />
             ))}
           </div>
