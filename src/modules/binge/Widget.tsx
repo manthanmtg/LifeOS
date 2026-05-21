@@ -33,12 +33,14 @@ export default memo(function BingeWidget() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const ratingToneClass =
-    summary.avgRating >= 8
-      ? "text-success"
-      : summary.avgRating >= 6
-        ? "text-warning"
-        : "text-danger";
+  const ratingBadgeClass =
+    loadError || summary.avgRating === 0
+      ? "text-zinc-500 bg-zinc-800/60 border-zinc-700/60"
+      : summary.avgRating >= 8
+        ? "text-success bg-success/10 border-success/40"
+        : summary.avgRating >= 6
+          ? "text-warning bg-warning/10 border-warning/40"
+          : "text-danger bg-danger/10 border-danger/40";
 
   const footerRating =
     loadError || summary.avgRating === 0 ? "—" : summary.avgRating.toFixed(1);
@@ -71,15 +73,15 @@ export default memo(function BingeWidget() {
       href="/admin/binge"
       footer={
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-          <span className="flex items-center gap-1.5 text-zinc-500">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/60 bg-zinc-800/60 px-2 py-1 text-zinc-400">
             <Tv className="w-3 h-3" /> {summary.total} titles
           </span>
           <span
             className={cn(
-              "inline-flex items-center gap-1",
+              "inline-flex items-center gap-1 rounded-full border px-2 py-1",
               loadError || summary.avgRating === 0
-                ? "text-zinc-500"
-                : ratingToneClass,
+                ? "text-zinc-500 bg-zinc-800/60 border-zinc-700/60"
+                : ratingBadgeClass,
             )}
           >
             <Star
