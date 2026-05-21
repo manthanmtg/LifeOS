@@ -14,6 +14,12 @@ function isPlainObjectArray(arr: unknown): arr is Record<string, unknown>[] {
   );
 }
 
+function stripMongoId(document: Record<string, unknown>) {
+  const withoutId = { ...document };
+  delete withoutId._id;
+  return withoutId;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
@@ -70,11 +76,9 @@ export async function POST(req: NextRequest) {
     if (body.data.content && Array.isArray(body.data.content)) {
       await db.collection("content").deleteMany({});
       if (body.data.content.length > 0) {
-        const docs = body.data.content.map((d: Record<string, unknown>) => {
-          const { _id: _unusedContent, ...rest } = d;
-          void _unusedContent;
-          return rest;
-        });
+        const docs = body.data.content.map((d: Record<string, unknown>) =>
+          stripMongoId(d),
+        );
         await db.collection("content").insertMany(docs);
       }
       results.content = body.data.content.length;
@@ -84,11 +88,9 @@ export async function POST(req: NextRequest) {
     if (body.data.metrics && Array.isArray(body.data.metrics)) {
       await db.collection("metrics").deleteMany({});
       if (body.data.metrics.length > 0) {
-        const docs = body.data.metrics.map((d: Record<string, unknown>) => {
-          const { _id: _unusedMetric, ...rest } = d;
-          void _unusedMetric;
-          return rest;
-        });
+        const docs = body.data.metrics.map((d: Record<string, unknown>) =>
+          stripMongoId(d),
+        );
         await db.collection("metrics").insertMany(docs);
       }
       results.metrics = body.data.metrics.length;
