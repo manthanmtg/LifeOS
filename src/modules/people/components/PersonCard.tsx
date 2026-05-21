@@ -59,13 +59,13 @@ export default function PersonCard({
       exit={{ opacity: 0, scale: 0.97 }}
       onClick={() => onView(person)}
       className={cn(
-        "group relative overflow-hidden bg-zinc-900/40 border p-4 rounded-xl transition-all cursor-pointer",
+        "group relative overflow-hidden bg-zinc-900/40 border p-4 rounded-xl transition-all cursor-pointer backdrop-blur-sm shadow-sm shadow-zinc-950/20 ring-1 ring-zinc-800/20",
         isStale
           ? "border-warning/15 hover:border-warning/30"
           : isHot
             ? "border-success/15 hover:border-success/30"
             : "border-zinc-800/50 hover:border-accent/30",
-        "hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-lg hover:shadow-zinc-950/20",
+        "hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-lg hover:shadow-zinc-950/30",
       )}
     >
       {/* Background Decoration */}
