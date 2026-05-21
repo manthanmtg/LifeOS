@@ -1362,6 +1362,7 @@ export default function RecurringExpensesAdminView() {
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
+                maxLength={2048}
                 placeholder="https://..."
                 disabled={isSubmitting}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
