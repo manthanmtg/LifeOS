@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Trash2,
+  X,
   Edit3,
   Bot,
   CalendarDays,
@@ -703,9 +704,9 @@ export default function AiUsageAdminView() {
               </p>
               <button
                 onClick={() => setSyncResults(null)}
-                className="text-zinc-600 hover:text-zinc-400 text-xs"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-900/40 hover:bg-zinc-800/60 border border-transparent hover:border-zinc-700/80 transition-colors"
               >
-                dismiss
+                <X className="w-3 h-3" /> Dismiss
               </button>
             </div>
             {syncResults.map((r) => (
