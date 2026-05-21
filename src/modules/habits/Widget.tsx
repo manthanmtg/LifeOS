@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Target, Flame, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -45,11 +46,24 @@ export default function HabitsWidget() {
         ? `${Math.abs(summary.weeklyTrend)}% below last week`
         : "Even with last week";
   const highlightVariant =
-    summary.weeklyCompletionRate >= 70
+    summary.totalHabits === 0
+      ? "warning"
+      : summary.weeklyCompletionRate >= 70
       ? "success"
       : summary.weeklyTrend < 0
         ? "warning"
         : "accent";
+  const emptyState = summary.totalHabits === 0;
+  const heroValue = emptyState
+    ? "No habits"
+    : `${summary.completedToday}/${summary.totalHabits}`;
+  const heroLabel = emptyState ? "to track" : "completed today";
+  const highlightText = emptyState
+    ? "No habits configured yet"
+    : `${summary.weeklyCompletionRate}% weekly completion`;
+  const highlightSubtext = emptyState
+    ? "Add your first habit to start building streaks"
+    : `${streakText} · ${trendLabel}`;
 
   return (
     <WidgetCard
@@ -58,18 +72,20 @@ export default function HabitsWidget() {
       loading={loading}
       href="/admin/habits"
     >
-      <div className="space-y-3">
-        <WidgetStat
-          value={`${summary.completedToday}/${summary.totalHabits}`}
-          label="completed today"
-        />
+      <motion.div
+        className="space-y-3"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        <WidgetStat value={heroValue} label={heroLabel} />
         <WidgetHighlight
           icon={summary.bestCurrentStreak > 0 ? Flame : TrendingUp}
-          text={`${summary.weeklyCompletionRate}% weekly completion`}
-          subtext={`${streakText} · ${trendLabel}`}
+          text={highlightText}
+          subtext={highlightSubtext}
           variant={highlightVariant}
         />
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
