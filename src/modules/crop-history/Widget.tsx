@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Wheat, TrendingUp, TrendingDown } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -52,12 +51,7 @@ export default function CropHistoryWidget() {
       href="/admin/crop-history"
       accentColor="success"
     >
-      <motion.div
-        initial={{ opacity: 0.75, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className="space-y-3"
-      >
+      <div className="space-y-3">
         {summary && summary.latestRevenue > 0 ? (
           <>
             <WidgetStat
@@ -90,7 +84,7 @@ export default function CropHistoryWidget() {
             />
           </div>
         )}
-      </motion.div>
+      </div>
     </WidgetCard>
   );
 }
