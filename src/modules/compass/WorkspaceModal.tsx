@@ -301,6 +301,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close task workspace"
             className="p-2 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
@@ -365,6 +366,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     Checklist
                     <button
                       onClick={() => setIsImporting(true)}
+                      aria-label="Open bulk import items panel"
                       className="p-1 text-zinc-600 hover:text-accent transition-colors opacity-0 group-hover:opacity-100"
                       title="Bulk Import Items"
                     >
@@ -382,16 +384,17 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       key={item.id || i}
                       className="flex items-start gap-3 group/item bg-zinc-900/40 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 rounded-lg p-2 transition-all"
                     >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleChecklist(i);
-                        }}
-                        className={cn(
-                          "mt-1 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
-                          item.completed
-                            ? "bg-accent border-accent text-zinc-50"
-                            : "border-zinc-700 hover:border-zinc-500",
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleChecklist(i);
+                      }}
+                      aria-label={`Toggle checklist item ${item.text} complete`}
+                      className={cn(
+                        "mt-1 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
+                        item.completed
+                          ? "bg-accent border-accent text-zinc-50"
+                          : "border-zinc-700 hover:border-zinc-500",
                         )}
                       >
                         {item.completed && <Check className="w-3 h-3" />}
@@ -420,40 +423,43 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 shrink-0">
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moveChecklistItem(i, "up");
+                        }}
+                        disabled={i === 0}
+                        aria-label={`Move checklist item ${item.text} up`}
+                        className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                        title="Move Up"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      </button>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveChecklistItem(i, "up");
-                          }}
-                          disabled={i === 0}
-                          className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
-                          title="Move Up"
-                        >
-                          <ChevronUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            moveChecklistItem(i, "down");
-                          }}
-                          disabled={i === (payload.checklist?.length || 0) - 1}
-                          className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
-                          title="Move Down"
-                        >
-                          <ChevronDown className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeChecklist(i);
-                          }}
-                          className="p-1 text-zinc-500 hover:text-danger transition-colors"
-                          title="Remove Item"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moveChecklistItem(i, "down");
+                        }}
+                        disabled={i === (payload.checklist?.length || 0) - 1}
+                        aria-label={`Move checklist item ${item.text} down`}
+                        className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                        title="Move Down"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeChecklist(i);
+                        }}
+                        aria-label={`Remove checklist item ${item.text}`}
+                        className="p-1 text-zinc-500 hover:text-danger transition-colors"
+                        title="Remove Item"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                     </div>
                   ))}
                 </div>
@@ -469,6 +475,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   />
                   <button
                     onClick={addChecklistItem}
+                    aria-label="Add checklist item"
                     className="px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg transition-colors"
                   >
                     <Plus className="w-4 h-4" />
@@ -679,6 +686,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     {tag}
                     <button
                       onClick={() => removeTag(tag)}
+                      aria-label={`Remove tag ${tag}`}
                       className="text-zinc-500 hover:text-danger"
                     >
                       <X className="w-3 h-3" />
@@ -718,6 +726,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     </a>
                     <button
                       onClick={() => removeLink(i)}
+                      aria-label={`Remove link ${link.label}`}
                       className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-danger shrink-0"
                     >
                       <X className="w-3 h-3" />
@@ -781,6 +790,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
               </h3>
               <button
                 onClick={() => setIsImporting(false)}
+                aria-label="Close bulk import modal"
                 className="text-zinc-500 hover:text-zinc-50"
               >
                 <X className="w-4 h-4" />
