@@ -21,8 +21,8 @@ export default function BingeForm({
   const isEditing = !!editingItem;
 
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<string>("movie");
-  const [status, setStatus] = useState<string>("to_watch");
+  const [type, setType] = useState<(typeof TYPES)[number]>("movie");
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>("to_watch");
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [notes, setNotes] = useState("");
@@ -200,6 +200,7 @@ export default function BingeForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Movie or series title"
+              maxLength={200}
               className={inputClassName}
               autoFocus
               disabled={isSubmitting}
@@ -217,7 +218,7 @@ export default function BingeForm({
             <select
               id="binge-type"
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}
               className={inputClassName}
               disabled={isSubmitting}
             >
@@ -240,7 +241,9 @@ export default function BingeForm({
             <select
               id="binge-status"
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              onChange={(e) => setStatus(
+                e.target.value as (typeof STATUSES)[number],
+              )}
               className={inputClassName}
               disabled={isSubmitting}
             >
@@ -266,6 +269,7 @@ export default function BingeForm({
               value={genre}
               onChange={(e) => setGenre(e.target.value)}
               placeholder="Action, Comedy, Thriller..."
+              maxLength={100}
               className={inputClassName}
               disabled={isSubmitting}
             />
@@ -285,6 +289,7 @@ export default function BingeForm({
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
               placeholder="Netflix, Prime, HBO..."
+              maxLength={100}
               className={inputClassName}
               disabled={isSubmitting}
             />
@@ -325,6 +330,7 @@ export default function BingeForm({
               value={posterUrl}
               onChange={(e) => setPosterUrl(e.target.value)}
               placeholder="https://..."
+              maxLength={500}
               className={inputClassName}
               disabled={isSubmitting}
             />
@@ -344,6 +350,7 @@ export default function BingeForm({
               value={recommendedBy}
               onChange={(e) => setRecommendedBy(e.target.value)}
               placeholder="Friend, Reddit..."
+              maxLength={100}
               className={inputClassName}
               disabled={isSubmitting}
             />
@@ -485,6 +492,7 @@ export default function BingeForm({
               id="binge-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              maxLength={5000}
               rows={3}
               placeholder="Thoughts, review, context..."
               className={cn(inputClassName, "resize-y")}
