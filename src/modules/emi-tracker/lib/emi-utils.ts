@@ -51,8 +51,10 @@ export function roundTo(n: number, decimals: number) {
 export function formatMoney(
   amount: number,
   sym: string,
+  _decimals = 0,
   numberFormat: "western" | "indian" = "western",
 ) {
+  void _decimals;
   const safe = Number.isFinite(amount) ? amount : 0;
   return `${sym}${formatNumber(safe, numberFormat)}`;
 }

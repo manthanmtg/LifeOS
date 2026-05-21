@@ -92,14 +92,12 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
               tabIndex={0}
               aria-label={`Open deck ${item.payload.title}`}
               className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors group cursor-pointer"
-              onClick={(event) => openDeck(idx, event)}
+              onClick={() => openDeck(idx)}
               onKeyDown={(e) => openDeck(idx, e)}
             >
               {/* Live Preview */}
               <div className="w-full aspect-video rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center mb-2.5 relative">
-                <Suspense
-                  fallback={<SlideCardSkeleton />}
-                >
+                <Suspense fallback={<SlideCardSkeleton />}>
                   <DeckPreview deck={item} className="w-full h-full" />
                 </Suspense>
 

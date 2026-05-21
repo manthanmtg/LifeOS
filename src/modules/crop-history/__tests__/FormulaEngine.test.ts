@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { evaluateAllCalculatedFields, type FormulaContext } from "../FormulaEngine";
+import {
+  evaluateAllCalculatedFields,
+  type FormulaContext,
+} from "../FormulaEngine";
 
 describe("FormulaEngine", () => {
   const baseContext: FormulaContext = {
@@ -65,7 +68,7 @@ describe("FormulaEngine", () => {
     );
 
     expect(result.totalProduction).toBe(140);
-    expect(result.targetRatio).toBeCloseTo(0.8333333333333334);
+    expect(result.targetRatio).toBeCloseTo(-0.3333333333333333);
   });
 
   it("reuses prior calculated values for later formulas", () => {

@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Users,
-  Clock,
-  AlertTriangle,
-  Activity,
-} from "lucide-react";
+import { Users, Clock, AlertTriangle, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -96,7 +91,7 @@ export default function PeopleWidget() {
             <WidgetHighlight
               icon={Clock}
               text={`${summary.staleCount} to catch up with`}
-              subtext={`${summary.favorites} favorites; ${summary.upcomingBirthdaysCount} upcoming birthdays in next 30 days`}
+              subtext="Open People to plan the next check-in"
               variant="warning"
             />
           ) : (
