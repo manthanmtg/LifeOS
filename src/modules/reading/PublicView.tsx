@@ -6,7 +6,7 @@ import { ReadingItem } from "./types";
 import { ReadingMetrics } from "./components/ReadingMetrics";
 import { ReadingFilters } from "./components/ReadingFilters";
 import { ReadingPublicItemCard } from "./components/ReadingPublicItemCard";
-import { PRIORITY_ORDER } from "./utils";
+import { PRIORITY_ORDER, parseIsoDate } from "./utils";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function ReadingPublicView({
@@ -57,9 +57,12 @@ export default function ReadingPublicView({
           (PRIORITY_ORDER[a.payload.priority] ?? 1) -
           (PRIORITY_ORDER[b.payload.priority] ?? 1);
         if (prioritySort !== 0) return prioritySort;
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        const aCreated = parseIsoDate(a.created_at);
+        const bCreated = parseIsoDate(b.created_at);
+        if (aCreated === null && bCreated === null) return 0;
+        if (aCreated === null) return 1;
+        if (bCreated === null) return -1;
+        return bCreated - aCreated;
       });
   }, [readings, searchQuery, statusFilter, typeFilter, tagFilter]);
 
