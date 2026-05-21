@@ -65,6 +65,7 @@ export default function ProfileFormModal({
               </h3>
               <button
                 onClick={onClose}
+                aria-label="Close health profile form"
                 className="p-1 rounded-lg hover:bg-zinc-800"
               >
                 <X className="w-5 h-5 text-zinc-400" />
