@@ -30,6 +30,10 @@ const modules: AdminModuleItem[] = [
 ];
 
 describe("module-search", () => {
+  it("returns no entries when there are no modules", () => {
+    expect(getModuleSearchResults([], "expenses")).toEqual([]);
+  });
+
   it("returns every module in registry order for a blank query", () => {
     const results = getModuleSearchResults(modules, "   ");
 
@@ -68,6 +72,28 @@ describe("module-search", () => {
     expect(results[0]?.item.key).toBe("ai-usage");
   });
 
+  it("normalizes case and whitespace in query tokens", () => {
+    const results = getModuleSearchResults(modules, "   TODO   ");
+
+    expect(results[0]?.item.key).toBe("todo");
+    expect(results.length).toBeGreaterThan(0);
+  });
+
+  it("keeps modules with repeated query tokens when they match", () => {
+    const results = getModuleSearchResults(modules, "exp exp");
+
+    expect(results).toHaveLength(1);
+    expect(results[0]?.item.key).toBe("expenses");
+    expect(results[0]?.score).toBeGreaterThan(0);
+  });
+
+  it("supports non-adjacent punctuation-like spacing in query tokens", () => {
+    const results = getModuleSearchResults(modules, "  ai   usage ");
+
+    expect(results).toHaveLength(1);
+    expect(results[0]?.item.key).toBe("ai-usage");
+  });
+
   it("supports subsequence matches without marking substring highlights", () => {
     const results = getModuleSearchResults(modules, "tsk");
 
@@ -95,6 +121,26 @@ describe("module-search", () => {
     ).toEqual([
       { text: "Bud", highlighted: true },
       { text: "get", highlighted: true },
+    ]);
+  });
+
+  it("highlights substring with matching token in the middle", () => {
+    expect(highlightText("Budget", [{ start: 1, end: 3 }])).toEqual([
+      { text: "B", highlighted: false },
+      { text: "ud", highlighted: true },
+      { text: "get", highlighted: false },
+    ]);
+  });
+
+  it("keeps overlapping ranges fully highlighted without gaps", () => {
+    expect(
+      highlightText("Budget", [
+        { start: 0, end: 4 },
+        { start: 2, end: 6 },
+      ]),
+    ).toEqual([
+      { text: "Budg", highlighted: true },
+      { text: "dget", highlighted: true },
     ]);
   });
 });
