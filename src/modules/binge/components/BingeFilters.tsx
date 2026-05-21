@@ -63,7 +63,7 @@ export default function BingeFilters({
         <button
           onClick={() => onStatusFilterChange("all")}
           className={cn(
-            "px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200",
+            "inline-flex min-h-11 items-center justify-center px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200 touch-manipulation",
             statusFilter === "all"
               ? "bg-accent/15 border-accent/35 text-accent"
               : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -76,7 +76,7 @@ export default function BingeFilters({
             key={s}
             onClick={() => onStatusFilterChange(s)}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200",
+              "inline-flex min-h-11 items-center justify-center px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200 touch-manipulation",
               statusFilter === s
                 ? STATUS_STYLES[s]
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -92,7 +92,7 @@ export default function BingeFilters({
         <button
           onClick={() => onTypeFilterChange("all")}
           className={cn(
-            "px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200",
+            "inline-flex min-h-11 items-center justify-center px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200 touch-manipulation",
             typeFilter === "all"
               ? "bg-accent/15 border-accent/35 text-accent"
               : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -105,7 +105,7 @@ export default function BingeFilters({
             key={t}
             onClick={() => onTypeFilterChange(t)}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200",
+              "inline-flex min-h-11 items-center justify-center px-3 py-1.5 rounded-lg text-xs border transition-colors duration-200 touch-manipulation",
               typeFilter === t
                 ? TYPE_STYLES[t]
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
