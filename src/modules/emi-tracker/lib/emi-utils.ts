@@ -472,14 +472,23 @@ function calculateInterestSaved(
   return Math.max(0, originalInterest - currentTotalInterest);
 }
 
+type NearestDueContext = {
+  loan: EmiLoan;
+  row: ScheduleRow;
+};
+
 export function calculateQuickStats(
   loans: EmiLoan[],
   now: Date,
   decimals: number,
-) {
+): {
+  activeCount: number;
+  outstandingByCurrency: Array<{ currency: string; amount: number }>;
+  nearestDue: NearestDueContext | null;
+} {
   const active = loans.filter((l) => l.payload.status === "active");
   const currencies: Record<string, number> = {};
-  let nearest: { loan: EmiLoan; row: ScheduleRow } | null = null;
+  let nearest: NearestDueContext | null = null;
 
   active.forEach((l) => {
     const schedule = computeSchedule(l.payload, decimals);
