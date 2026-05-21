@@ -818,7 +818,7 @@ export const HealthProfileSchema = z.object({
   conditions: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         name: z.string().trim().min(1).max(200),
         diagnosed_date: z.string().datetime().optional(),
         status: z.enum(["active", "managed", "resolved"]).default("active"),
@@ -829,7 +829,7 @@ export const HealthProfileSchema = z.object({
   medications: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         name: z.string().trim().min(1).max(200),
         dosage: z.string().trim().max(100).optional(),
         prescribed_by: z.string().trim().max(200).optional(),
@@ -846,7 +846,7 @@ export const HealthProfileSchema = z.object({
   vaccinations: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         name: z.string().trim().min(1).max(200),
         date_administered: z.string().datetime(),
         next_due: z.string().datetime().optional(),
@@ -859,7 +859,7 @@ export const HealthProfileSchema = z.object({
   visits: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         date: z.string().datetime(),
         type: z
           .enum([
@@ -887,7 +887,7 @@ export const HealthProfileSchema = z.object({
   lab_results: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         date: z.string().datetime(),
         test_name: z.string().trim().min(1).max(200),
         value: z.string().trim().min(1).max(100),
@@ -901,7 +901,7 @@ export const HealthProfileSchema = z.object({
   measurements: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         date: z.string().datetime(),
         height_cm: z.number().positive().optional(),
         weight_kg: z.number().positive().optional(),
@@ -912,7 +912,7 @@ export const HealthProfileSchema = z.object({
   documents: z
     .array(
       z.object({
-        id: z.string().min(1),
+        id: z.string().trim().min(1).max(100),
         type: z
           .enum([
             "prescription",
