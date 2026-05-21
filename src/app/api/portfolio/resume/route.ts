@@ -16,12 +16,17 @@ export async function GET() {
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
-    // 1. Find the active resume
-    const resumeDoc = await contentColl.findOne({
-      module_type: "portfolio_resume",
-      "payload.is_active": true,
-      is_public: true,
-    });
+    const [resumeDoc, profileDoc] = await Promise.all([
+      contentColl.findOne({
+        module_type: "portfolio_resume",
+        "payload.is_active": true,
+        is_public: true,
+      }),
+      contentColl.findOne({
+        module_type: "portfolio_profile",
+        is_public: true,
+      }),
+    ]);
 
     if (!resumeDoc || !resumeDoc.payload) {
       return new Response("Active resume not found", { status: 404 });
@@ -35,12 +40,6 @@ export async function GET() {
     if (!resumePayload.content) {
       return new Response("Resume content missing", { status: 404 });
     }
-
-    // 2. Try to find the profile to get the full name for the filename
-    const profileDoc = await contentColl.findOne({
-      module_type: "portfolio_profile",
-      is_public: true,
-    });
 
     let filename = "resume.pdf";
     if (profileDoc && profileDoc.payload) {
