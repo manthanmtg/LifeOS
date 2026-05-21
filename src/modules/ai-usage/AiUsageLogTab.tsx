@@ -95,6 +95,7 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
             </select>
           </div>
           <button
+            aria-label="Sort by date"
             onClick={() => {
               if (sortBy === "date")
                 setSortDir((d) => (d === "desc" ? "asc" : "desc"));
@@ -114,6 +115,7 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
             <ArrowUpDown className="w-3 h-3" />
           </button>
           <button
+            aria-label="Sort by cost"
             onClick={() => {
               if (sortBy === "cost")
                 setSortDir((d) => (d === "desc" ? "asc" : "desc"));
@@ -130,6 +132,26 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
             )}
           >
             <DollarSign className="w-3.5 h-3.5" />
+            <ArrowUpDown className="w-3 h-3" />
+          </button>
+          <button
+            aria-label="Sort by tokens"
+            onClick={() => {
+              if (sortBy === "tokens")
+                setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+              else {
+                setSortBy("tokens");
+                setSortDir("desc");
+              }
+            }}
+            className={cn(
+              "h-10 px-3 rounded-xl border text-sm flex items-center gap-1.5 transition-colors",
+              sortBy === "tokens"
+                ? "bg-zinc-800 border-zinc-700 text-zinc-200"
+                : "bg-zinc-900 border-zinc-800 text-zinc-500",
+            )}
+          >
+            <Hash className="w-3.5 h-3.5" />
             <ArrowUpDown className="w-3 h-3" />
           </button>
         </div>
