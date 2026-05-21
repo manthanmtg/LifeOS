@@ -45,18 +45,21 @@ export default function IdeasWidget() {
         {summary ? (
           <WidgetStat value={summary.total} label="captured ideas" />
         ) : (
-          <WidgetHighlight
-            icon={AlertTriangle}
-            text={
-              loadError
-                ? "Idea metrics unavailable"
-                : "Preparing your idea board"
-            }
-            subtext={
-              loadError ? "Open Ideas to retry" : "Summary data loading soon"
-            }
-            variant={loadError ? "danger" : "accent"}
-          />
+          <>
+            <WidgetStat value={0} label="captured ideas" />
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text={
+                loadError
+                  ? "Idea metrics unavailable"
+                  : "Preparing your idea board"
+              }
+              subtext={
+                loadError ? "Open Ideas to retry" : "Summary data loading soon"
+              }
+              variant={loadError ? "danger" : "accent"}
+            />
+          </>
         )}
         {summary ? (
           summary.total === 0 ? (
