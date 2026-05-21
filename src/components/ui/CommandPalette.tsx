@@ -196,7 +196,7 @@ export default function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.15 }}
-            className="fixed top-[20%] left-1/2 -translate-x-1/2 w-full max-w-lg z-[101]"
+            className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-lg sm:w-full z-[101]"
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
@@ -276,7 +276,7 @@ export default function CommandPalette() {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-zinc-800 flex items-center gap-4 text-[11px] text-zinc-500">
+              <div className="px-4 py-2.5 border-t border-zinc-800 flex flex-wrap gap-x-4 gap-y-1 items-center text-[11px] text-zinc-500">
                 <span className="flex items-center gap-1">
                   <kbd className="px-1 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono">
                     ↑↓
