@@ -19,6 +19,21 @@ interface ProviderLimitResult {
   error?: string;
 }
 
+const LIMITS_CACHE_TTL_MS = 30_000;
+
+type LimitsCacheEntry = {
+  expiresAt: number;
+  results: ProviderLimitResult[];
+};
+
+let limitsCache: LimitsCacheEntry | null = null;
+let inFlightLimitsFetch: Promise<ProviderLimitResult[]> | null = null;
+
+function getFreshCachedLimits(now = Date.now()): ProviderLimitResult[] | null {
+  if (!limitsCache || now > limitsCache.expiresAt) return null;
+  return limitsCache.results;
+}
+
 function parseAnthropicLimits(headers: Headers): LimitWindow[] {
   const windows: LimitWindow[] = [];
 
@@ -111,60 +126,82 @@ export async function GET() {
     const isAdmin = token ? !!(await verifyToken(token)) : false;
     if (!isAdmin) return ApiError("Unauthorized", 401);
 
-    const db = await getDb();
-    const providers = await db
-      .collection("ai_providers")
-      .find({ is_active: true })
-      .project({ name: 1, provider: 1, admin_api_key: 1 })
-      .toArray();
+    const now = Date.now();
+    const cached = getFreshCachedLimits(now);
+    if (cached) {
+      return ApiSuccess({ results: cached });
+    }
 
-    const results: ProviderLimitResult[] = await Promise.all(
-      providers.map(async (config) => {
-        const base: ProviderLimitResult = {
-          provider_id: config._id.toString(),
-          provider_name: config.name,
-          provider_type: config.provider,
-          windows: [],
-          fetched_at: new Date().toISOString(),
+    if (!inFlightLimitsFetch) {
+      const fetchedAt = new Date().toISOString();
+      inFlightLimitsFetch = (async () => {
+        const db = await getDb();
+        const providers = await db
+          .collection("ai_providers")
+          .find({ is_active: true })
+          .project({ name: 1, provider: 1, admin_api_key: 1 })
+          .toArray();
+
+        const results = await Promise.all(
+          providers.map(async (config) => {
+            const base: ProviderLimitResult = {
+              provider_id: config._id.toString(),
+              provider_name: config.name,
+              provider_type: config.provider,
+              windows: [],
+              fetched_at: fetchedAt,
+            };
+
+            try {
+              if (config.provider === "anthropic") {
+                // A lightweight GET to /v1/models returns rate limit headers
+                const res = await fetch("https://api.anthropic.com/v1/models", {
+                  headers: {
+                    "x-api-key": config.admin_api_key,
+                    "anthropic-version": "2023-06-01",
+                  },
+                });
+                base.windows = parseAnthropicLimits(res.headers);
+                if (!res.ok && base.windows.length === 0) {
+                  const txt = await res.text().catch(() => "");
+                  console.error(`Anthropic API error ${res.status}: ${txt}`);
+                  base.error = "Failed to fetch limits";
+                }
+              } else if (config.provider === "openai") {
+                // Admin keys work for /v1/models list
+                const res = await fetch("https://api.openai.com/v1/models", {
+                  headers: { Authorization: `Bearer ${config.admin_api_key}` },
+                });
+                base.windows = parseOpenAILimits(res.headers);
+                if (!res.ok && base.windows.length === 0) {
+                  const txt = await res.text().catch(() => "");
+                  console.error(`OpenAI API error ${res.status}: ${txt}`);
+                  base.error = "Failed to fetch limits";
+                }
+              }
+            } catch (e) {
+              console.error(`Failed to fetch limits for ${config.name}:`, e);
+              base.error = "Failed to fetch limits";
+            }
+
+            return base;
+          }),
+        );
+
+        limitsCache = {
+          expiresAt: Date.now() + LIMITS_CACHE_TTL_MS,
+          results,
         };
 
-        try {
-          if (config.provider === "anthropic") {
-            // A lightweight GET to /v1/models returns rate limit headers
-            const res = await fetch("https://api.anthropic.com/v1/models", {
-              headers: {
-                "x-api-key": config.admin_api_key,
-                "anthropic-version": "2023-06-01",
-              },
-            });
-            base.windows = parseAnthropicLimits(res.headers);
-            if (!res.ok && base.windows.length === 0) {
-              const txt = await res.text().catch(() => "");
-              console.error(`Anthropic API error ${res.status}: ${txt}`);
-              base.error = "Failed to fetch limits";
-            }
-          } else if (config.provider === "openai") {
-            // Admin keys work for /v1/models list
-            const res = await fetch("https://api.openai.com/v1/models", {
-              headers: { Authorization: `Bearer ${config.admin_api_key}` },
-            });
-            base.windows = parseOpenAILimits(res.headers);
-            if (!res.ok && base.windows.length === 0) {
-              const txt = await res.text().catch(() => "");
-              console.error(`OpenAI API error ${res.status}: ${txt}`);
-              base.error = "Failed to fetch limits";
-            }
-          }
-        } catch (e) {
-          console.error(`Failed to fetch limits for ${config.name}:`, e);
-          base.error = "Failed to fetch limits";
-        }
+        return results;
+      })().finally(() => {
+        inFlightLimitsFetch = null;
+      });
+    }
 
-        return base;
-      }),
-    );
-
+    const results = await inFlightLimitsFetch;
     return ApiSuccess({ results });
+
   } catch (error) {
     console.error("GET /api/ai-usage/limits failed:", error);
     return ApiError("Failed to fetch limits", 500);
