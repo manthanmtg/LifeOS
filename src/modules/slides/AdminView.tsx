@@ -326,9 +326,7 @@ export default function SlidesAdminView() {
 
   const stats = useMemo(() => {
     const total = items.length;
-    const publicDecks = items.filter(
-      (i) => i.payload.visibility === "public",
-    ).length;
+    const publicDecks = items.filter((i) => i.is_public).length;
     const folders = new Set(items.map((i) => i.payload.folder).filter(Boolean));
     return { total, publicDecks, folderCount: folders.size };
   }, [items]);
