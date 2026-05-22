@@ -187,7 +187,16 @@ const ReadingItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(500),
   source_domain: z.string().trim().min(1).max(200).optional(),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
-  type: z.string().trim().min(1).max(50).default("article"),
+  type: z
+    .string()
+    .trim()
+    .min(1, "Type is required")
+    .max(50, "Type is too long")
+    .regex(
+      /^[a-z0-9]+(?:[_-][a-z0-9]+)*$/,
+      "Type must be a lowercase slug using letters, numbers, hyphens, or underscores",
+    )
+    .default("article"),
   is_read: z.boolean().default(false),
   read_at: z.string().datetime().optional(),
   notes: z.string().trim().max(5000).optional(),
