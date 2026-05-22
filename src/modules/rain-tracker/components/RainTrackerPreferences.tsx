@@ -32,7 +32,7 @@ export function RainTrackerPreferences({
           exit={{ opacity: 0, height: 0 }}
           className="overflow-hidden"
         >
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+          <div className="rounded-2xl border border-zinc-800/70 bg-zinc-900/40 p-4 shadow-sm shadow-zinc-950/35 backdrop-blur-sm">
             <div className="mb-4 flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-400">
                 Preferences
@@ -51,7 +51,7 @@ export function RainTrackerPreferences({
                 <label className="block text-xs font-semibold text-zinc-400">
                   Display unit
                 </label>
-                <div className="flex w-fit rounded-xl border border-zinc-800 bg-zinc-900 p-1">
+                <div className="flex w-full flex-wrap gap-1 rounded-xl border border-zinc-800/70 bg-zinc-950/60 p-1 shadow-inner sm:w-fit">
                   {UNIT_OPTIONS.map((unit) => (
                     <button
                       key={unit}
@@ -60,7 +60,7 @@ export function RainTrackerPreferences({
                       className={cn(
                         "rounded-lg px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all",
                         displayUnit === unit
-                          ? "bg-zinc-800 text-accent shadow-sm"
+                          ? "bg-zinc-800/90 text-accent shadow-sm shadow-zinc-950/30"
                           : "text-zinc-500 hover:text-zinc-300",
                       )}
                     >
@@ -78,7 +78,7 @@ export function RainTrackerPreferences({
                 <label className="block text-xs font-semibold text-zinc-400">
                   Chart type
                 </label>
-                <div className="flex w-fit rounded-xl border border-zinc-800 bg-zinc-900 p-1">
+                <div className="flex w-full flex-wrap gap-1 rounded-xl border border-zinc-800/70 bg-zinc-950/60 p-1 shadow-inner sm:w-fit">
                   {CHART_OPTIONS.map((option) => (
                     <button
                       key={option}
@@ -87,7 +87,7 @@ export function RainTrackerPreferences({
                       className={cn(
                         "rounded-lg px-4 py-1.5 text-xs font-bold capitalize tracking-wider transition-all",
                         chartType === option
-                          ? "bg-zinc-800 text-accent shadow-sm"
+                          ? "bg-zinc-800/90 text-accent shadow-sm shadow-zinc-950/30"
                           : "text-zinc-500 hover:text-zinc-300",
                       )}
                     >
