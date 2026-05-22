@@ -246,7 +246,7 @@ export default function EmiTrackerAdminView() {
               </p>
               <button
                 onClick={() => setIsFormOpen(true)}
-                className="mt-8 px-8 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-zinc-50 rounded-2xl text-sm font-bold transition-all shadow-xl"
+                className="mt-8 px-8 py-3 rounded-2xl text-sm font-bold bg-accent text-zinc-950 shadow-lg shadow-accent/25 transition-all duration-200 hover:bg-accent-hover hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45"
               >
                 Get Started
               </button>
