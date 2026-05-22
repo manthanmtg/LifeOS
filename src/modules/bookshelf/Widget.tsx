@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Library, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -51,14 +52,25 @@ export default function BookshelfWidget() {
       href="/admin/bookshelf"
     >
       {loading ? null : hasError || !summary ? (
-        <WidgetHighlight
-          icon={Library}
-          text="Unable to load bookshelf summary"
-          subtext="Check your connection and refresh"
-          variant="warning"
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
+          <WidgetHighlight
+            icon={Library}
+            text="Unable to load bookshelf summary"
+            subtext="Check your connection and refresh"
+            variant="warning"
+          />
+        </motion.div>
       ) : (
-        <div className="space-y-3">
+        <motion.div
+          className="space-y-3"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
           <WidgetStat
             value={total}
             label={`${summary.completedCount} completed`}
@@ -68,6 +80,7 @@ export default function BookshelfWidget() {
               icon={BookOpen}
               text={summary.current.title}
               subtext={`${summary.current.progress}% · ${summary.current.author}`}
+              variant="accent"
             />
           ) : (
             <WidgetHighlight
@@ -81,7 +94,7 @@ export default function BookshelfWidget() {
               variant="default"
             />
           )}
-        </div>
+        </motion.div>
       )}
     </WidgetCard>
   );
