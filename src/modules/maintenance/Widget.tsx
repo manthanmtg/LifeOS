@@ -2,6 +2,7 @@
 
 import { useState, useEffect, memo } from "react";
 import { Wrench, AlertTriangle, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -38,7 +39,11 @@ export default memo(function MaintenanceWidget() {
             label: summary.total > 0 ? "active tasks" : "maintenance tasks",
             tone: "success" as const,
           }
-    : { value: "—" as const, label: "maintenance tasks", tone: "accent" as const };
+    : {
+        value: "—" as const,
+        label: "maintenance tasks",
+        tone: "accent" as const,
+      };
 
   useEffect(() => {
     const ac = new AbortController();
@@ -72,64 +77,67 @@ export default memo(function MaintenanceWidget() {
       loading={loading}
       href="/admin/maintenance"
     >
-      {loadError ? (
-        <div className="space-y-3">
-          <WidgetStat value="—" label="Summary unavailable" />
-          <WidgetHighlight
-            icon={Wrench}
-            text="Unable to load maintenance summary"
-            subtext="Please check API access and retry"
-            variant="warning"
-          />
-        </div>
-      ) : summary ? (
-        <div className="space-y-3">
-          <WidgetStat
-            value={hero.value}
-            label={hero.label}
-          />
-          {summary.overdue > 0 ? (
-            <WidgetHighlight
-              icon={AlertTriangle}
-              text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
-              subtext={
-                summary.upcoming > 0
-                  ? `${summary.upcoming} due in the next 30 days`
-                  : "needs immediate attention"
-              }
-              variant="danger"
-            />
-          ) : summary.upcoming > 0 ? (
-            <WidgetHighlight
-              icon={Clock}
-              text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} due soon`}
-              subtext={`${summary.completedThisMonth} completed this month`}
-              variant="warning"
-            />
-          ) : (
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+      >
+        {loadError ? (
+          <div className="space-y-3">
+            <WidgetStat value="—" label="Summary unavailable" />
             <WidgetHighlight
               icon={Wrench}
-              text={
-                summary.total > 0
-                  ? `${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`
-                  : "Add your first maintenance plan today"
-              }
-              subtext={`${summary.completedThisMonth} completed this month`}
-              variant={hero.tone}
+              text="Unable to load maintenance summary"
+              subtext="Please check API access and retry"
+              variant="warning"
             />
-          )}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <WidgetStat value="0" label="maintenance tasks" />
-          <WidgetHighlight
-            icon={Wrench}
-            text="No maintenance tasks yet"
-            subtext="Add your first maintenance plan to get started"
-            variant="accent"
-          />
-        </div>
-      )}
+          </div>
+        ) : summary ? (
+          <div className="space-y-3">
+            <WidgetStat value={hero.value} label={hero.label} />
+            {summary.overdue > 0 ? (
+              <WidgetHighlight
+                icon={AlertTriangle}
+                text={`${summary.overdue} task${summary.overdue !== 1 ? "s" : ""} past due`}
+                subtext={
+                  summary.upcoming > 0
+                    ? `${summary.upcoming} due in the next 30 days`
+                    : "needs immediate attention"
+                }
+                variant="danger"
+              />
+            ) : summary.upcoming > 0 ? (
+              <WidgetHighlight
+                icon={Clock}
+                text={`${summary.upcoming} task${summary.upcoming !== 1 ? "s" : ""} due soon`}
+                subtext={`${summary.completedThisMonth} completed this month`}
+                variant="warning"
+              />
+            ) : (
+              <WidgetHighlight
+                icon={Wrench}
+                text={
+                  summary.total > 0
+                    ? `${summary.total} task${summary.total !== 1 ? "s" : ""} tracked`
+                    : "Add your first maintenance plan today"
+                }
+                subtext={`${summary.completedThisMonth} completed this month`}
+                variant={hero.tone}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <WidgetStat value="0" label="maintenance tasks" />
+            <WidgetHighlight
+              icon={Wrench}
+              text="No maintenance tasks yet"
+              subtext="Add your first maintenance plan to get started"
+              variant="accent"
+            />
+          </div>
+        )}
+      </motion.div>
     </WidgetCard>
   );
 });
