@@ -96,7 +96,7 @@ export default function LoanForm({
         </div>
         <button
           onClick={onClose}
-          className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 transition-all shadow-lg"
+          className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-700 hover:shadow-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 transition-all shadow-lg"
         >
           <X className="w-5 h-5" />
         </button>
@@ -216,13 +216,13 @@ export default function LoanForm({
                   placeholder={suggestedEmi.toString()}
                   className="w-full bg-transparent text-3xl font-black text-accent focus:outline-none tabular-nums placeholder:text-accent/20"
                 />
-                <button
-                  type="button"
-                  onClick={() => setEmi(suggestedEmi)}
-                  className="w-full py-2 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-zinc-50 transition-all shadow-lg"
-                >
-                  Auto-Calculate Suggestion
-                </button>
+            <button
+              type="button"
+              onClick={() => setEmi(suggestedEmi)}
+              className="w-full py-2 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-accent hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 transition-all shadow-lg"
+            >
+              Auto-Calculate Suggestion
+            </button>
               </div>
             </div>
 
@@ -300,13 +300,13 @@ export default function LoanForm({
             <button
               type="button"
               onClick={onClose}
-              className="px-8 py-3.5 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 font-bold text-sm transition-all"
+              className="px-8 py-3.5 rounded-2xl bg-zinc-800 text-zinc-400 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 hover:bg-zinc-700 font-bold text-sm transition-all"
             >
               Cancel
             </button>
             <button
               disabled={isSaving}
-              className="px-10 py-3.5 rounded-2xl bg-accent text-zinc-50 font-black text-sm shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
+              className="px-10 py-3.5 rounded-2xl bg-accent text-zinc-50 font-black text-sm shadow-xl shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 transition-all disabled:opacity-50 disabled:scale-100"
             >
               {isSaving
                 ? "Synchronizing..."
