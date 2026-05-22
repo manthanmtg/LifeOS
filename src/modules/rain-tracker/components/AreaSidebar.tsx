@@ -233,14 +233,14 @@ export function AreaSidebar({
                 </div>
               </motion.button>
 
-              <div className="absolute right-3 top-3 flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+              <div className="absolute right-3 top-3 flex shrink-0 items-center gap-0.5 rounded-lg border border-zinc-800/60 bg-zinc-950/50 p-0.5 opacity-60 transition-all group-focus-within:opacity-100 group-hover:opacity-100">
                 <button
                   type="button"
                   onClick={(event) => {
                     event.stopPropagation();
                     onEditArea(area);
                   }}
-                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                  className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                   aria-label={`Edit ${area.payload.name}`}
                 >
                   <Edit3 className="h-3 w-3" />
@@ -251,7 +251,7 @@ export function AreaSidebar({
                     event.stopPropagation();
                     onDeleteArea(area._id);
                   }}
-                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/60"
+                  className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/60"
                   aria-label={`Delete ${area.payload.name}`}
                 >
                   <Trash2 className="h-3 w-3" />
