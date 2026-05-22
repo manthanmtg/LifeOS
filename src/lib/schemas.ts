@@ -178,7 +178,7 @@ export const RecurringExpenseSchema = z.object({
   is_active: z.boolean().default(true),
   enable_reminders: z.boolean().default(true),
   notes: z.string().trim().max(2000).optional(),
-  order: z.number().optional(),
+  order: z.number().int().min(0).optional(),
 });
 
 // --- 5. READING QUEUE ---
@@ -639,12 +639,12 @@ export const VehicleSchema = z.object({
   fuel_type: z
     .enum(["petrol", "diesel", "electric", "hybrid", "cng", "lpg", "other"])
     .default("petrol"),
-  odometer_reading: z.number().min(0).default(0),
+  odometer_reading: z.number().int().min(0).default(0),
   odometer_unit: z.enum(["km", "mi"]).default("km"),
   insurance_expiry: z.string().datetime().optional(),
   pollution_certificate_expiry: z.string().datetime().optional(),
   next_service_due: z.string().datetime().optional(),
-  next_service_odometer: z.number().min(0).optional(),
+  next_service_odometer: z.number().int().min(0).optional(),
   service_records: z
     .array(
       z.object({
