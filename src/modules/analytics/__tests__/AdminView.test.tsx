@@ -4,7 +4,6 @@ import AnalyticsAdminView, {
   getAverageSessionFormatted,
   getDeviceData,
 } from "../AdminView";
-import React from "react";
 
 describe("AnalyticsAdminView", () => {
   beforeEach(() => {
