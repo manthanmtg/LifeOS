@@ -46,12 +46,17 @@ Common performance problems:
 - The fix must be clearly an improvement with no behavioral change.
 - If fixing requires restructuring a component, log it to `issues_to_look/` instead.
 
-### 4. Verify
+### 4. No-Op Protocol
+
+- If the component is already highly performant (e.g., no heavy renders, proper memoization, lightweight imports), pick another. If 3 checks come back clean, log "performance is solid" and **stop**.
+- Do NOT add `useMemo` or `useCallback` blindly if the work being memoized is trivial; this adds overhead rather than saving it.
+
+### 5. Verify
 
 - Run `pnpm check` — zero regressions.
 - If possible, verify the improvement is observable (faster load, fewer renders).
 
-### 5. Commit
+### 6. Commit
 
 - Commit with a message like: `perf(dashboard): memoize widget grid to prevent re-renders on tab switch`
 
