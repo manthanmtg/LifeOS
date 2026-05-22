@@ -73,6 +73,7 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
           <input
             type="text"
             placeholder="Search models, providers..."
+            aria-label="Search AI usage logs"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-10 pl-10 pr-4 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-700"
@@ -82,6 +83,7 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
             <select
+              aria-label="Filter by provider"
               value={filterProvider}
               onChange={(e) => setFilterProvider(e.target.value)}
               className="h-10 pl-9 pr-8 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm appearance-none cursor-pointer"
