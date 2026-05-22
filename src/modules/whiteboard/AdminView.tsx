@@ -518,7 +518,7 @@ export default function WhiteboardAdminView() {
         style={{ height: "calc(100vh - 3rem)" }}
       >
         {/* Editor header */}
-        <div className="flex items-center justify-between gap-3 mb-2 shrink-0">
+        <div className="flex items-center justify-between gap-3 mb-2 shrink-0 max-sm:flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
@@ -537,12 +537,12 @@ export default function WhiteboardAdminView() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             {/* Visibility toggle */}
             <button
               onClick={() => toggleVisibility(activeBoard)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border",
+                "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border min-h-[44px] max-sm:px-2.5",
                 activeBoard.is_public
                   ? "bg-success/10 border-success/25 text-success"
                   : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300",
@@ -564,7 +564,7 @@ export default function WhiteboardAdminView() {
             <button
               onClick={() => toggleFavorite(activeBoard)}
               className={cn(
-                "p-2 rounded-xl transition-all border",
+                "p-2 rounded-xl transition-all border min-h-[44px] min-w-[44px] max-sm:p-2.5",
                 activeBoard.payload.is_favorite
                   ? "bg-warning/10 border-warning/25 text-warning"
                   : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300",
@@ -583,7 +583,7 @@ export default function WhiteboardAdminView() {
               onClick={saveWhiteboard}
               disabled={saving}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all",
+                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all min-h-[44px] max-sm:px-3",
                 saving
                   ? "bg-zinc-800 text-zinc-500"
                   : "bg-zinc-50 text-zinc-950 hover:bg-zinc-200",
