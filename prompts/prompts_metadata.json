@@ -328,15 +328,15 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 51,
+      "totalSelected": 52,
       "totalCompleted": 48,
       "totalNoop": 0,
-      "totalFailed": 4,
-      "lastCompletedAt": "2026-05-22T02:48:54.836Z",
-      "lastOutcome": "completed",
-      "lastSelectedAt": "2026-05-22T02:48:37.675Z",
-      "updatedAt": "2026-05-21T18:58:03.961Z"
+      "totalFailed": 5,
+      "lastCompletedAt": "2026-05-22T02:53:40.574Z",
+      "lastOutcome": "failed",
+      "lastSelectedAt": "2026-05-22T02:51:19.190Z",
+      "updatedAt": "2026-05-22T02:53:40.574Z"
     }
   },
-  "updatedAt": "2026-05-22T02:48:54.836Z"
+  "updatedAt": "2026-05-22T02:53:40.574Z"
 }

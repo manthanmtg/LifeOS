@@ -5,6 +5,19 @@ import { Check, X } from "lucide-react";
 import { ReadingSettings, ReadingType, Priority } from "../types";
 
 const PRIORITIES: Priority[] = ["high", "medium", "low"];
+const READING_TYPE_PATTERN = /^[a-z0-9]+(?:[_-][a-z0-9]+)*$/;
+const READING_TYPE_MAX_LENGTH = 50;
+
+function normalizeReadingType(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "")
+    .replace(/[-_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, READING_TYPE_MAX_LENGTH);
+}
 
 interface ReadingSettingsViewProps {
   settings: ReadingSettings;
@@ -20,11 +33,16 @@ export function ReadingSettingsView({
   allTypes,
 }: ReadingSettingsViewProps) {
   const [newType, setNewType] = useState("");
+  const normalizedType = normalizeReadingType(newType);
+  const isTypeValid =
+    Boolean(normalizedType) &&
+    READING_TYPE_PATTERN.test(normalizedType) &&
+    !allTypes.includes(normalizedType);
 
   const handleAddType = () => {
-    const normalized = newType.trim().toLowerCase();
-    if (normalized && !allTypes.includes(normalized)) {
-      updateSettings({ types: [...allTypes, normalized] });
+    if (!isTypeValid) return;
+    if (!allTypes.includes(normalizedType)) {
+      updateSettings({ types: [...allTypes, normalizedType] });
       setNewType("");
     }
   };
@@ -125,11 +143,12 @@ export function ReadingSettingsView({
             }}
             placeholder="New type"
             aria-label="New content type"
+            maxLength={READING_TYPE_MAX_LENGTH}
             className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
           <button
             onClick={handleAddType}
-            disabled={!newType.trim()}
+            disabled={!isTypeValid}
             className="px-4 py-2 bg-accent hover:bg-accent-hover disabled:opacity-40 text-zinc-50 rounded-lg text-sm font-medium transition-colors"
           >
             Add
