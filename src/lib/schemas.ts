@@ -626,16 +626,36 @@ export const PersonSchema = z.object({
 // --- 18. VEHICLE MANAGER ---
 export const VehicleSchema = z.object({
   name: z.string().trim().min(1, "Vehicle name is required").max(100),
-  make: z.string().trim().max(100).optional(),
-  model: z.string().trim().max(100).optional(),
+  make: z
+    .string()
+    .trim()
+    .min(1, "Make name is required if provided")
+    .max(100)
+    .optional(),
+  model: z
+    .string()
+    .trim()
+    .min(1, "Model name is required if provided")
+    .max(100)
+    .optional(),
   year: z
     .number()
     .int()
     .min(1886, "Year must be 1886 or later")
     .max(new Date().getFullYear() + 1, "Year cannot be too far in the future")
     .optional(),
-  registration_number: z.string().trim().max(50).optional(),
-  color: z.string().trim().max(50).optional(),
+  registration_number: z
+    .string()
+    .trim()
+    .min(1, "Registration number is required if provided")
+    .max(50)
+    .optional(),
+  color: z
+    .string()
+    .trim()
+    .min(1, "Color is required if provided")
+    .max(50)
+    .optional(),
   fuel_type: z
     .enum(["petrol", "diesel", "electric", "hybrid", "cng", "lpg", "other"])
     .default("petrol"),

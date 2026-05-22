@@ -346,6 +346,21 @@ function emptyPayload(): VehiclePayload {
   };
 }
 
+function normalizeOptionalText(value?: string): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function normalizeVehiclePayload(formData: VehiclePayload): VehiclePayload {
+  return {
+    ...formData,
+    make: normalizeOptionalText(formData.make),
+    model: normalizeOptionalText(formData.model),
+    registration_number: normalizeOptionalText(formData.registration_number),
+    color: normalizeOptionalText(formData.color),
+  };
+}
+
 function formatFuelRate(
   quantity: number,
   cost: number,
@@ -436,13 +451,14 @@ export default function VehicleAdminView() {
       showToast("Vehicle name is required", "error");
       return;
     }
+    const payload = normalizeVehiclePayload(formData);
     setSaving(true);
     try {
       if (editingVehicle) {
         await fetch(`/api/content/${editingVehicle._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ payload: formData }),
+          body: JSON.stringify({ payload }),
         });
         showToast("Vehicle updated");
       } else {
@@ -452,7 +468,7 @@ export default function VehicleAdminView() {
           body: JSON.stringify({
             module_type: "vehicle",
             is_public: false,
-            payload: formData,
+            payload,
           }),
         });
         showToast("Vehicle added");
@@ -2263,6 +2279,7 @@ export default function VehicleAdminView() {
                           setFormData((f) => ({ ...f, make: e.target.value }))
                         }
                         placeholder="e.g., Hyundai"
+                        maxLength={100}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600"
                       />
                     </div>
@@ -2277,6 +2294,7 @@ export default function VehicleAdminView() {
                           setFormData((f) => ({ ...f, model: e.target.value }))
                         }
                         placeholder="e.g., Creta"
+                        maxLength={100}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600"
                       />
                     </div>
@@ -2317,6 +2335,7 @@ export default function VehicleAdminView() {
                           }))
                         }
                         placeholder="e.g., KA-01-AB-1234"
+                        maxLength={50}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600"
                       />
                     </div>
@@ -2331,6 +2350,7 @@ export default function VehicleAdminView() {
                           setFormData((f) => ({ ...f, color: e.target.value }))
                         }
                         placeholder="e.g., Phantom Black"
+                        maxLength={50}
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-zinc-600"
                       />
                     </div>
