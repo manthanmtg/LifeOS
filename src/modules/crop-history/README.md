@@ -15,12 +15,12 @@ The Crop History module stores periodic crop records in the polymorphic `content
 
 ### Content record (`content` collection)
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `_id` | `string` | Content document id |
-| `module_type` | `"crop_history"` | Discriminator value |
-| `payload` | `object` | Record payload, validated by `CropHistorySchema` |
-| `is_public` | `boolean` | Not currently surfaced in UI |
+| Field         | Type             | Notes                                            |
+| ------------- | ---------------- | ------------------------------------------------ |
+| `_id`         | `string`         | Content document id                              |
+| `module_type` | `"crop_history"` | Discriminator value                              |
+| `payload`     | `object`         | Record payload, validated by `CropHistorySchema` |
+| `is_public`   | `boolean`        | Not currently surfaced in UI                     |
 
 ### `payload`
 
@@ -47,6 +47,7 @@ The Crop History module stores periodic crop records in the polymorphic `content
 - `summary_data`: per-period scalar map `{ [fieldId]: number }`
 - `notes`: optional free-form notes stored with a record
 - `source_data` and `summary_data` default to `{}` and accept numeric strings via Zod coercion.
+- `source_data` and `summary_data` are numeric payload maps in the current UI and API contract. Field configuration can still label fields as `text`, but the spreadsheet renders numeric inputs and the schema coerces stored values to numbers; use `notes` for free-form period context.
 
 Validation rules in `CropHistorySchema` (`src/lib/schemas.ts`):
 
@@ -54,6 +55,7 @@ Validation rules in `CropHistorySchema` (`src/lib/schemas.ts`):
 - `source_data` maps area ids -> field ids -> numeric values.
 - `summary_data` maps field ids -> numeric values.
 - All numeric fields are normalized through `z.coerce.number()`.
+- `notes` is trimmed and capped at 2,000 characters.
 
 ### Crop configuration (system config)
 
@@ -105,6 +107,12 @@ flowchart TD
   - `GET /api/content?module_type=crop_history`
 - Fetch dashboard summary only
   - `GET /api/widgets/summary?module_type=crop_history`
+- Create a new period record
+  - `POST /api/content` with `module_type: "crop_history"` and `is_public: false`
+- Update an existing period record
+  - `PUT /api/content/:id` with a replacement `payload`
+- Delete an existing period record
+  - `DELETE /api/content/:id`
 
 ### Create/update a record (conceptual)
 
