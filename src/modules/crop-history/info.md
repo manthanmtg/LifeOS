@@ -1,21 +1,63 @@
 # Crop History
 
-Track agricultural crop cycles, yields, and seasonal patterns for your farm or garden.
+Track yield, price, and revenue data for multiple crops across configurable areas and periods.
+
+## Overview
+
+Crop History stores `content` documents with `module_type: "crop_history"` and uses module settings (`cropHistorySettings`) for crop/area definitions and formulas.
+
+- Admin route: `/admin/crop-history`
+- Widget route: `/admin` card (via `src/modules/crop-history/Widget.tsx`)
+- No public view is exposed.
+
+## Data Model
+
+Each record payload follows `CropHistorySchema`:
+
+```json
+{
+  "crop_id": "coffee",
+  "schedule_period": "2026-H1",
+  "source_data": {
+    "area-west": {
+      "undried": 1200,
+      "ot": 82
+    }
+  },
+  "summary_data": {
+    "avg_price": 4200
+  },
+  "notes": "Weather was dry this period."
+}
+```
+
+### Module settings (`cropHistorySettings`)
+
+- `crops: CropConfig[]`
+  - `id`, `name`, `scheduleType` (`yearly` / `half-yearly` / `quarterly` / `monthly` / `custom`)
+  - `sourceFields`, `summaryFields`, `calculatedFields`, optional `constants`
+  - optional `analyticsConfig` tags and optional `periodOrder` overrides
+- `sources: AreaDef[]` shared across all crops
 
 ## Features
 
-- Log crops by season with variety, area planted, and sowing/harvest dates
-- Record yield and quality for each harvest
-- Track input costs (seeds, fertilizer, labor) per crop
-- View historical data to compare performance across seasons
-- Notes field for observations on weather, pests, or techniques
+- **Spreadsheet tab** for period-by-period per-area and period-level entry
+- **Settings tab** for crop fields, formulas, constants, and areas
+- **Analytics tab** for computed trend summary
+- **Docs tab** with formula reference and usage notes
+- Dashboard widget summary from `/api/widgets/summary?module_type=crop_history`
 
-## How to Use
+## Smart capabilities
 
-At the start of each planting season, create an entry with the crop variety, area, and sowing date. Update it through the season with any observations. After harvest, log the yield quantity and quality. Over time, build a dataset that helps you make better decisions about what to plant and when.
+- Per-area source fields with auto-aggregation (SUM/AVG/MIN/MAX/COUNT)
+- Cross-area weighted calculations (`WEIGHTED_AVG`)
+- Derived fields from formulas and constants (`ROUND`, arithmetic operators)
+- Optional custom period ordering with `periodOrder`
+- Last-revenue trend displayed in widget (`+/-% vs previous period`)
 
-## Tips
+## API usage
 
-- Record observations during the growing season, not just at harvest time
-- Compare yields across seasons to identify which varieties perform best in your conditions
-- Track input costs alongside yields to understand true profitability per crop
+- Fetch records: `GET /api/content?module_type=crop_history`
+- Fetch summary: `GET /api/widgets/summary?module_type=crop_history`
+
+Use this doc as a quick starting point for operators and for keeping local module notes in sync with implementation.
