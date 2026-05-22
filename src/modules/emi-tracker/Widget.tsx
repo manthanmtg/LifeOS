@@ -38,7 +38,7 @@ const CURR_SYM: Record<string, string> = {
 };
 
 export default function EMITrackerWidget() {
-  const { settings } = useModuleSettings<EmiSettings>("emiTrackerSettings", {
+  const { settings } = useModuleSettings<EmiSettings>("emi-tracker", {
     defaultCurrency: "INR",
     numberFormat: "indian",
     roundingDecimals: 2,
