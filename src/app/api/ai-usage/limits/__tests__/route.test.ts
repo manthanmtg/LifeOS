@@ -32,6 +32,7 @@ describe("/api/ai-usage/limits", () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it("masks internal errors and AI provider errors", async () => {
@@ -66,6 +67,7 @@ describe("/api/ai-usage/limits", () => {
   });
 
   it("masks top-level catch block errors", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(Date.now() + 31_000);
     vi.mocked(getDb).mockRejectedValue(
       new Error("DB Connection string leaked"),
     );
