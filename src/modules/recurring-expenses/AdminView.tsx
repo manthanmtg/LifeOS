@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, memo } from "react";
 import {
   Plus,
   Trash2,
@@ -242,7 +242,7 @@ interface SortableRecurringExpenseCardProps {
   renewalDateLabel: string;
 }
 
-function SortableRecurringExpenseCard({
+const SortableRecurringExpenseCard = memo(function SortableRecurringExpenseCard({
   s,
   sym,
   renewalWarningDays,
@@ -464,7 +464,7 @@ function SortableRecurringExpenseCard({
       </div>
     </div>
   );
-}
+});
 
 function DragPreviewCard({ s, sym }: { s: RecurringExpense; sym: string }) {
   return (
@@ -756,7 +756,7 @@ export default function RecurringExpensesAdminView() {
     }
   };
 
-  const handleEdit = (s: RecurringExpense) => {
+  const handleEdit = useCallback((s: RecurringExpense) => {
     setName(s.payload.name);
     setCost(s.payload.cost.toString());
     setBillingCycle(s.payload.billing_cycle);
@@ -768,9 +768,9 @@ export default function RecurringExpensesAdminView() {
     setNotes(s.payload.notes || "");
     setEditingId(s._id);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm("Delete this expense?")) return;
     setIsProcessingId(id);
     try {
@@ -784,9 +784,9 @@ export default function RecurringExpensesAdminView() {
     } finally {
       setIsProcessingId(null);
     }
-  };
+  }, [fetchSubs]);
 
-  const handleRenew = async (s: RecurringExpense) => {
+  const handleRenew = useCallback(async (s: RecurringExpense) => {
     setIsProcessingId(s._id);
     try {
       const current = new Date(s.payload.next_renewal_date);
@@ -814,9 +814,9 @@ export default function RecurringExpensesAdminView() {
     } finally {
       setIsProcessingId(null);
     }
-  };
+  }, [fetchSubs]);
 
-  const handleDeRenew = async (s: RecurringExpense) => {
+  const handleDeRenew = useCallback(async (s: RecurringExpense) => {
     setIsProcessingId(s._id);
     try {
       const current = new Date(s.payload.next_renewal_date);
@@ -844,9 +844,9 @@ export default function RecurringExpensesAdminView() {
     } finally {
       setIsProcessingId(null);
     }
-  };
+  }, [fetchSubs]);
 
-  const handleDuplicate = async (s: RecurringExpense) => {
+  const handleDuplicate = useCallback(async (s: RecurringExpense) => {
     setIsProcessingId(s._id);
     try {
       const payload = { ...s.payload, name: `${s.payload.name} (Copy)` };
@@ -869,7 +869,7 @@ export default function RecurringExpensesAdminView() {
     } finally {
       setIsProcessingId(null);
     }
-  };
+  }, [fetchSubs]);
 
   const handleReorder = async (newOrder: RecurringExpense[]) => {
     try {
