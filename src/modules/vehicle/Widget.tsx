@@ -34,13 +34,32 @@ export default function VehicleWidget() {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=vehicle")
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(() => {
+    const controller = new AbortController();
+    const loadSummary = async () => {
+      setLoading(true);
+      setHasError(false);
+      try {
+        const response = await fetch("/api/widgets/summary?module_type=vehicle", {
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        setSummary(response.ok === false ? null : data.data || null);
+        if (response.ok === false) {
+          setHasError(true);
+        }
+      } catch (error) {
+        if ((error as { name?: string } | null)?.name === "AbortError") return;
         setHasError(true);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSummary();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const summaryReady = !loading && summary;
