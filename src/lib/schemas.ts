@@ -760,7 +760,12 @@ export const MaintenanceTaskSchema = z.object({
   history: z
     .array(
       z.object({
-        id: z.string().default(() => crypto.randomUUID()),
+        id: z
+          .string()
+          .trim()
+          .min(1, "History entry id is required")
+          .max(100, "History entry id is too long")
+          .default(() => crypto.randomUUID()),
         completed_at: z.string().datetime(), // ISO date
         cost: z.number().min(0).optional(),
         notes: z.string().trim().max(2000).optional(),
@@ -982,7 +987,12 @@ export const DeckSchema = z.object({
     .optional(),
   file_name: z.string().trim().max(255).optional(),
   file_size: z.number().int().min(0).optional(),
-  thumbnail_url: z.string().url().max(500).optional(),
+  thumbnail_url: z
+    .string()
+    .trim()
+    .url()
+    .max(500, "Thumbnail URL is too long")
+    .optional(),
   embed_enabled: z.boolean().default(false),
 });
 
