@@ -18,7 +18,10 @@ export default function TodoHeader({
   return (
     <div className="flex flex-col gap-6 mb-8">
       <div className="flex items-center justify-between">
-        <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1">
+        <nav
+          aria-label="Task breadcrumbs"
+          className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1"
+        >
           <div className="flex items-center gap-1 shrink-0">
             <Link
               href="/admin"
@@ -70,6 +73,7 @@ export default function TodoHeader({
           </div>
           <button
             onClick={onAddTodo}
+            aria-label="New task"
             className="flex items-center gap-2 px-4 py-2 bg-accent text-zinc-950 text-sm font-black rounded-xl hover:bg-accent-hover shadow-lg shadow-accent/20 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
           >
             <Plus className="w-4 h-4" />

@@ -19,6 +19,10 @@ describe("TodoHeader", () => {
   it("keeps the portal breadcrumb as a normal link", () => {
     renderHeader();
 
+    expect(
+      screen.getByRole("navigation", { name: /task breadcrumbs/i }),
+    ).toBeInTheDocument();
+
     const portalLink = screen.getByRole("link", {
       name: /back to admin portal/i,
     });
@@ -37,5 +41,14 @@ describe("TodoHeader", () => {
 
     expect(onViewModeChange).toHaveBeenCalledWith("grid");
     expect(onAddTodo).toHaveBeenCalledTimes(1);
+  });
+
+  it("gives the add task button an explicit accessible name", () => {
+    renderHeader();
+
+    expect(screen.getByRole("button", { name: /new task/i })).toHaveAttribute(
+      "aria-label",
+      "New task",
+    );
   });
 });
