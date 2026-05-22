@@ -772,6 +772,37 @@ export default function VehicleAdminView() {
     };
   }, [selectedVehicle]);
 
+  const vehicleCardSummaries = useMemo(
+    () =>
+      vehicles.map((vehicle) => {
+        const payload = vehicle.payload;
+        const totalServiceCost = (payload.service_records || []).reduce(
+          (sum, record) => sum + (record.cost || 0),
+          0,
+        );
+        const totalFuelCost = (payload.fuel_logs || []).reduce(
+          (sum, log) => sum + log.cost,
+          0,
+        );
+        const hasAlerts =
+          [
+            payload.insurance_expiry,
+            payload.pollution_certificate_expiry,
+            payload.next_service_due,
+          ].some((date) => hasActionableExpiry(date, todayIso)) ||
+          (payload.documents || []).some((doc) =>
+            hasActionableExpiry(doc.expiry_date, todayIso),
+          );
+
+        return {
+          vehicle,
+          totalCost: totalServiceCost + totalFuelCost,
+          hasAlerts,
+        };
+      }),
+    [todayIso, vehicles],
+  );
+
   // ─── Form helpers ────────────────────────────────────────────────────────
 
   const openAddVehicle = () => {
@@ -1500,7 +1531,11 @@ export default function VehicleAdminView() {
                             <p className="text-[11px] text-zinc-600 mt-0.5">
                               Rate:{" "}
                               {log.currency === "INR" ? "₹" : log.currency}{" "}
-                              {formatFuelRate(log.quantity, log.cost, log.fuel_unit)}
+                              {formatFuelRate(
+                                log.quantity,
+                                log.cost,
+                                log.fuel_unit,
+                              )}
                             </p>
                           </div>
                         </div>
@@ -2067,27 +2102,10 @@ export default function VehicleAdminView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {vehicles.map((v) => {
+          {vehicleCardSummaries.map(({ vehicle: v, totalCost, hasAlerts }) => {
             const vp = v.payload;
             const ftConf = FUEL_TYPE_CONFIG[vp.fuel_type];
             const VFuelIcon = FUEL_TYPE_ICON[vp.fuel_type];
-            const totalServiceCost = (vp.service_records || []).reduce(
-              (s, r) => s + (r.cost || 0),
-              0,
-            );
-            const totalFuelCost = (vp.fuel_logs || []).reduce(
-              (s, l) => s + l.cost,
-              0,
-            );
-            const hasAlerts =
-              [
-                vp.insurance_expiry,
-                vp.pollution_certificate_expiry,
-                vp.next_service_due,
-              ].some((d) => hasActionableExpiry(d, todayIso)) ||
-              (vp.documents || []).some((doc) =>
-                hasActionableExpiry(doc.expiry_date, todayIso),
-              );
 
             return (
               <motion.div
@@ -2201,10 +2219,10 @@ export default function VehicleAdminView() {
                     <Fuel className="w-3 h-3" /> {(vp.fuel_logs || []).length}{" "}
                     fills
                   </span>
-                  {totalServiceCost + totalFuelCost > 0 && (
+                  {totalCost > 0 && (
                     <span className="flex items-center gap-1 text-zinc-400">
                       <DollarSign className="w-3 h-3" />{" "}
-                      {(totalServiceCost + totalFuelCost).toLocaleString()}
+                      {totalCost.toLocaleString()}
                     </span>
                   )}
                 </div>
