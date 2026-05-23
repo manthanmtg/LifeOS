@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Target, Flame, TrendingUp } from "lucide-react";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -71,7 +72,12 @@ export default function HabitsWidget() {
       loading={loading}
       href="/admin/habits"
     >
-      <div className="space-y-3">
+      <motion.div
+        className="space-y-3"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+      >
         <WidgetStat value={heroValue} label={heroLabel} />
         <WidgetHighlight
           icon={summary.bestCurrentStreak > 0 ? Flame : TrendingUp}
@@ -79,7 +85,7 @@ export default function HabitsWidget() {
           subtext={highlightSubtext}
           variant={highlightVariant}
         />
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
