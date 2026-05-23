@@ -11,7 +11,7 @@ const getSecretKey = () => {
 const JWT_ISSUER = "lifeos";
 const JWT_AUDIENCE = "lifeos-app";
 
-export async function signToken(payload) {
+async function signToken(payload) {
   const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
