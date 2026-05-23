@@ -2,6 +2,7 @@
 
 import { Calculator, TrendingUp, Landmark, Receipt } from "lucide-react";
 import { useMemo } from "react";
+import { motion } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -84,7 +85,12 @@ export default function CalculatorsWidget() {
         </div>
       }
     >
-      <div className="space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 3 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="space-y-4"
+      >
         <WidgetStat
           value={summary.enabledCalculators.length}
           label="calculators ready"
@@ -100,7 +106,7 @@ export default function CalculatorsWidget() {
             { value: summary.taxCount, label: "Tax", icon: Receipt },
           ]}
         />
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
