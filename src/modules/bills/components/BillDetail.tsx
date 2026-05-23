@@ -266,7 +266,7 @@ export default function BillDetail({
                   return (
                     <div
                       key={att.id}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-zinc-800/60 border border-zinc-800 group hover:border-zinc-700 transition-colors"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/50 group hover:border-accent/30 hover:bg-accent/5 transition-all"
                     >
                       <div
                         className={cn(
