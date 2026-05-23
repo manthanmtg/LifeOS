@@ -697,17 +697,6 @@ html.light[data-theme="nordic-light"] {
 }
 
 /* ========================================================================
-   GLASSMORPHISM UTILITIES
-   ======================================================================== */
-.glass-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 0.75rem;
-}
-
-/* ========================================================================
    ANIMATION UTILITIES
    ======================================================================== */
 @keyframes shimmer {
