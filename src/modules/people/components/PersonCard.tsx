@@ -10,7 +10,7 @@ import {
   Building2,
 } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Person, InteractionType } from "../types";
 import { getDaysSinceDate, getDerivedLastContacted } from "../insights";
@@ -32,7 +32,7 @@ interface PersonCardProps {
   onQuickLog: (person: Person, type: InteractionType) => void;
 }
 
-export default function PersonCard({
+const PersonCard = memo(function PersonCard({
   person,
   onView,
   onToggleFavorite,
@@ -208,4 +208,6 @@ export default function PersonCard({
       </div>
     </motion.div>
   );
-}
+});
+
+export default PersonCard;

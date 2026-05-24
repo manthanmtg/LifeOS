@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Search, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -132,7 +132,7 @@ export default function PeopleAdminView() {
     }
   };
 
-  const handleToggleFavorite = async (person: Person) => {
+  const handleToggleFavorite = useCallback(async (person: Person) => {
     try {
       const res = await fetch(`/api/content/${person._id}`, {
         method: "PUT",
@@ -156,7 +156,7 @@ export default function PeopleAdminView() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   const handleUpdateInteractions = async (
     id: string,
@@ -215,14 +215,20 @@ export default function PeopleAdminView() {
     await handleUpdateInteractions(id, updatedInteractions);
   };
 
-  const handleQuickLog = (person: Person, type: InteractionType) => {
+  const handleQuickLog = useCallback((person: Person, type: InteractionType) => {
     handleLogInteraction(
       person._id,
       type,
       new Date().toISOString().slice(0, 10),
       `Quick Log: ${type}`,
     );
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [people]);
+
+  const handleView = useCallback((p: Person) => {
+    setSelectedPerson(p);
+    setView("profile");
+  }, []);
 
   const handleUpdateDocuments = async (
     person: Person,
@@ -319,10 +325,7 @@ export default function PeopleAdminView() {
                   <PersonCard
                     key={person._id}
                     person={person}
-                    onView={(p) => {
-                      setSelectedPerson(p);
-                      setView("profile");
-                    }}
+                    onView={handleView}
                     onToggleFavorite={handleToggleFavorite}
                     onQuickLog={handleQuickLog}
                   />
