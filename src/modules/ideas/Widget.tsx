@@ -42,16 +42,15 @@ export default function IdeasWidget() {
   const spotlightStatus = summary?.spotlightStatus;
   const hasIdeas = totalIdeas > 0;
 
-  const detailText =
-    loadError
-      ? "Idea metrics unavailable"
-      : hasIdeas && reviewCount > 0
-        ? `${reviewCount} ideas need review`
-        : hasIdeas
-          ? exploringCount > 0
-            ? `${exploringCount} ideas are exploring`
-            : "Review queue is clear."
-          : "No ideas yet";
+  const detailText = loadError
+    ? "Idea metrics unavailable"
+    : hasIdeas && reviewCount > 0
+      ? `${reviewCount} ideas need review`
+      : hasIdeas
+        ? exploringCount > 0
+          ? `${exploringCount} ideas are exploring`
+          : "Review queue is clear."
+        : "No ideas yet";
 
   const detailSubtext = loadError
     ? "Open Ideas to retry"
@@ -82,18 +81,17 @@ export default function IdeasWidget() {
       href="/admin/ideas"
     >
       <motion.div
-        className="space-y-3"
+        className="min-w-0 space-y-3"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <WidgetStat
-          value={totalIdeas}
-          label="captured ideas"
-        />
+        <WidgetStat value={totalIdeas} label="captured ideas" />
         <WidgetHighlight
           icon={detailIcon}
-          text={loadError ? detailText : detailText || "Preparing your idea board"}
+          text={
+            loadError ? detailText : detailText || "Preparing your idea board"
+          }
           subtext={loadError ? detailSubtext : detailSubtext}
           variant={detailVariant}
         />
