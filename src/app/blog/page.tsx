@@ -16,7 +16,9 @@ export default async function BlogPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader initialUserName={userName} />
-      <BlogView />
+      <main className="flex-1">
+        <BlogView />
+      </main>
       <PublicFooter />
     </div>
   );
