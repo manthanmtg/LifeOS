@@ -608,14 +608,14 @@ export default function WhiteboardAdminView() {
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-medium"
             >
               {t}
-                <button
-                  type="button"
-                  onClick={() => removeEditorTag(t)}
-                  aria-label={`Remove tag ${t}`}
-                  className="text-zinc-500 hover:text-zinc-200 transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+              <button
+                type="button"
+                onClick={() => removeEditorTag(t)}
+                aria-label={`Remove tag ${t}`}
+                className="text-zinc-500 hover:text-zinc-200 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </span>
           ))}
           <input
@@ -766,6 +766,7 @@ export default function WhiteboardAdminView() {
 
             <button
               onClick={() => setFavoritesOnly(!favoritesOnly)}
+              aria-pressed={favoritesOnly}
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs border transition-colors inline-flex items-center gap-1.5",
                 favoritesOnly
