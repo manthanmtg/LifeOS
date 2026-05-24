@@ -28,8 +28,8 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
       onSubmit={handleSubmit}
       className="relative group bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-2 transition-all focus-within:border-accent/40 focus-within:shadow-2xl focus-within:shadow-accent/5 mb-8"
     >
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full min-w-0 flex-1">
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <Plus
               className={cn(
@@ -52,7 +52,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
         </div>
 
         <div
-          className="flex items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40"
+          className="flex w-full items-center gap-1 bg-zinc-950/40 p-1 rounded-2xl border border-zinc-800/40 sm:w-auto"
           role="group"
           aria-label="Set task priority"
         >
@@ -65,7 +65,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
               aria-label={`${p} priority`}
               aria-pressed={priority === p}
               className={cn(
-                "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                "flex-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all sm:flex-none",
                 priority === p
                   ? p === "high"
                     ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"
@@ -84,7 +84,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
           type="submit"
           disabled={!title.trim() || isSaving}
           aria-label="Add task"
-          className="flex items-center justify-center w-11 h-11 bg-accent text-zinc-950 rounded-2xl hover:bg-accent-hover transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed active:scale-95 shadow-lg shadow-accent/20"
+          className="flex h-11 w-full items-center justify-center bg-accent text-zinc-950 rounded-2xl hover:bg-accent-hover transition-all disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed active:scale-95 shadow-lg shadow-accent/20 sm:w-11"
         >
           <Command className="w-4 h-4" />
         </button>
