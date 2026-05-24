@@ -137,7 +137,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What will you conquer next?"
-              className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-2xl px-5 py-4 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold text-lg"
+              className="w-full bg-zinc-900/30 border border-zinc-800/50 rounded-2xl px-5 py-4 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold text-lg"
               required
             />
           </div>
@@ -187,7 +187,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full bg-zinc-900/40 border-2 border-zinc-800/50 rounded-2xl px-5 py-3 text-zinc-100 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold [color-scheme:dark]"
+                className="w-full bg-zinc-900/40 border border-zinc-800/50 rounded-2xl px-5 py-3 text-zinc-100 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all font-bold [color-scheme:dark]"
               />
             </div>
           </div>
@@ -205,7 +205,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Strategic details for the operation..."
               rows={4}
-              className="w-full bg-zinc-900/30 border-2 border-zinc-800/50 rounded-[2rem] px-6 py-5 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all resize-none font-medium leading-relaxed"
+              className="w-full bg-zinc-900/30 border border-zinc-800/50 rounded-[2rem] px-6 py-5 text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/10 transition-all resize-none font-medium leading-relaxed"
             />
           </div>
 
