@@ -84,13 +84,17 @@ export default function CommandPalette() {
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasRequestedConfigRef = useRef(false);
 
   useEffect(() => {
+    if (!open || hasRequestedConfigRef.current) return;
+
+    hasRequestedConfigRef.current = true;
     fetch("/api/system")
       .then((r) => r.json())
       .then((d) => setConfig((d.data || null) as SystemConfig | null))
       .catch(() => {});
-  }, []);
+  }, [open]);
 
   const commands: CommandItem[] = useMemo(
     () => [

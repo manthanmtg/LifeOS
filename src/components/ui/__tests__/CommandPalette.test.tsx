@@ -44,6 +44,22 @@ describe("CommandPalette", () => {
     expect(screen.getByText("Go to Blog")).toBeInTheDocument();
   });
 
+  it("defers loading system config until the palette opens", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      json: async () => ({ data: {} }),
+    } as Response);
+
+    render(<CommandPalette />);
+
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    openPalette();
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith("/api/system"),
+    );
+  });
+
   it("filters commands and routes when a result is selected", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       json: async () => ({ data: {} }),
