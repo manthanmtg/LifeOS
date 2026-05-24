@@ -40,7 +40,7 @@ export function RainTrackerPreferences({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-zinc-600 transition-colors hover:text-zinc-400"
+                className="rounded-lg p-1 text-zinc-600 transition-colors hover:bg-zinc-800/60 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                 aria-label="Close preferences"
               >
                 <X className="h-3.5 w-3.5" />
@@ -58,10 +58,10 @@ export function RainTrackerPreferences({
                       type="button"
                       onClick={() => onDisplayUnitChange(unit)}
                       className={cn(
-                        "rounded-lg px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all",
+                        "rounded-lg px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                         displayUnit === unit
                           ? "bg-zinc-800/90 text-accent shadow-sm shadow-zinc-950/30"
-                          : "text-zinc-500 hover:text-zinc-300",
+                          : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300",
                       )}
                     >
                       {unit}
@@ -85,10 +85,10 @@ export function RainTrackerPreferences({
                       type="button"
                       onClick={() => onChartTypeChange(option)}
                       className={cn(
-                        "rounded-lg px-4 py-1.5 text-xs font-bold capitalize tracking-wider transition-all",
+                        "rounded-lg px-4 py-1.5 text-xs font-bold capitalize tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                         chartType === option
                           ? "bg-zinc-800/90 text-accent shadow-sm shadow-zinc-950/30"
-                          : "text-zinc-500 hover:text-zinc-300",
+                          : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300",
                       )}
                     >
                       {option}
