@@ -48,10 +48,14 @@ describe("GET /api/portfolio/resume", () => {
     expect(response.headers.get("Content-Disposition")).toBe(
       'inline; filename="john_doe_resume.pdf"',
     );
-    expect(mockFindOne).toHaveBeenNthCalledWith(2, {
-      module_type: "portfolio_profile",
-      is_public: true,
-    });
+    expect(mockFindOne).toHaveBeenNthCalledWith(
+      2,
+      {
+        module_type: "portfolio_profile",
+        is_public: true,
+      },
+      { projection: { "payload.full_name": 1 } },
+    );
 
     const buffer = await response.arrayBuffer();
     expect(Buffer.from(buffer).toString()).toBe("Hello World");
@@ -72,11 +76,14 @@ describe("GET /api/portfolio/resume", () => {
 
     await GET();
 
-    expect(mockFindOne).toHaveBeenCalledWith({
-      module_type: "portfolio_resume",
-      "payload.is_active": true,
-      is_public: true,
-    });
+    expect(mockFindOne).toHaveBeenCalledWith(
+      {
+        module_type: "portfolio_resume",
+        "payload.is_active": true,
+        is_public: true,
+      },
+      { projection: { "payload.content": 1, "payload.filename": 1 } },
+    );
   });
 
   it("returns 404 if resume content is missing", async () => {

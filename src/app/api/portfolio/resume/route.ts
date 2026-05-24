@@ -17,15 +17,23 @@ export async function GET() {
     const contentColl = db.collection<ContentDocument>("content");
 
     const [resumeDoc, profileDoc] = await Promise.all([
-      contentColl.findOne({
-        module_type: "portfolio_resume",
-        "payload.is_active": true,
-        is_public: true,
-      }),
-      contentColl.findOne({
-        module_type: "portfolio_profile",
-        is_public: true,
-      }),
+      contentColl.findOne(
+        {
+          module_type: "portfolio_resume",
+          "payload.is_active": true,
+          is_public: true,
+        },
+        {
+          projection: { "payload.content": 1, "payload.filename": 1 },
+        },
+      ),
+      contentColl.findOne(
+        {
+          module_type: "portfolio_profile",
+          is_public: true,
+        },
+        { projection: { "payload.full_name": 1 } },
+      ),
     ]);
 
     if (!resumeDoc || !resumeDoc.payload) {
