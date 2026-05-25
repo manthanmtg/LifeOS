@@ -46,6 +46,7 @@ describe("/api/ai-usage/sync", () => {
     vi.mocked(getDb).mockResolvedValue({
       collection: vi.fn().mockReturnValue({
         find: vi.fn().mockReturnValue({
+          project: vi.fn().mockReturnThis(),
           toArray: vi.fn().mockResolvedValue([
             {
               _id: "123",
@@ -82,5 +83,44 @@ describe("/api/ai-usage/sync", () => {
 
     expect(response.status).toBe(500);
     expect(body.error).toBe("Sync failed");
+  });
+
+  it("only reads provider fields needed for syncing", async () => {
+    const project = vi.fn().mockReturnThis();
+    const toArray = vi.fn().mockResolvedValue([
+      {
+        _id: "provider-1",
+        name: "OpenAI",
+        provider: "openai",
+        admin_api_key: "key",
+        is_active: true,
+      },
+    ]);
+    const find = vi.fn().mockReturnValue({ project, toArray });
+    const updateOne = vi.fn().mockResolvedValue({});
+    const deleteMany = vi.fn().mockResolvedValue({});
+
+    vi.mocked(getDb).mockResolvedValue({
+      collection: vi.fn((name: string) => {
+        if (name === "ai_providers") return { find, updateOne };
+        return { deleteMany, insertMany: vi.fn() };
+      }),
+    } as any);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ data: [], next_page: null }),
+    } as any);
+
+    const response = await POST(createRequest({}));
+
+    expect(response.status).toBe(200);
+    expect(project).toHaveBeenCalledWith({
+      _id: 1,
+      name: 1,
+      provider: 1,
+      admin_api_key: 1,
+      is_active: 1,
+    });
   });
 });
