@@ -451,85 +451,96 @@ export default function BlogAdminView() {
     }
   }, [openEditorWithDraft, setFormError]);
 
-  const handleEdit = useCallback((post: BlogPost) => {
-    openEditorWithDraft(
-      {
-        title: post.payload.title,
-        slug: post.payload.slug,
-        content: post.payload.content,
-        status: post.payload.status,
-        tagsInput: (post.payload.tags || []).join(", "),
-        seoDesc: post.payload.seo_description || "",
-        coverImageUrl: post.payload.cover_image_url || "",
-        publishedAt: post.payload.published_at,
-      },
-      post._id,
-      true,
-    );
-  }, [openEditorWithDraft]);
-
-  const handleDelete = useCallback(async (id: string) => {
-    if (!window.confirm("Delete this post? This action cannot be undone.")) {
-      return;
-    }
-    setIsDeletingId(id);
-    try {
-      const response = await fetch(`/api/content/${id}`, { method: "DELETE" });
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload.error || "Delete failed");
-      }
-      if (editingId === id) closeEditor();
-      await fetchPosts();
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete post";
-      alert(message);
-    } finally {
-      setIsDeletingId(null);
-    }
-  }, [closeEditor, editingId, fetchPosts]);
-
-  const handleStatusToggle = useCallback(async (post: BlogPost) => {
-    setIsTogglingStatusId(post._id);
-    try {
-      const nextStatus: PostStatus =
-        post.payload.status === "draft"
-          ? "published"
-          : post.payload.status === "published"
-            ? "archived"
-            : "draft";
-
-      const payload = { ...post.payload, status: nextStatus };
-      if (nextStatus === "published" && !post.payload.published_at) {
-        payload.published_at = new Date().toISOString();
-      }
-
-      const response = await fetch(`/api/content/${post._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Status toggle failed");
-      }
-
-      setPosts((previous) =>
-        sortPostsByNewest(
-          previous.map((item) =>
-            item._id === post._id ? { ...item, payload } : item,
-          ),
-        ),
+  const handleEdit = useCallback(
+    (post: BlogPost) => {
+      openEditorWithDraft(
+        {
+          title: post.payload.title,
+          slug: post.payload.slug,
+          content: post.payload.content,
+          status: post.payload.status,
+          tagsInput: (post.payload.tags || []).join(", "),
+          seoDesc: post.payload.seo_description || "",
+          coverImageUrl: post.payload.cover_image_url || "",
+          publishedAt: post.payload.published_at,
+        },
+        post._id,
+        true,
       );
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to toggle status";
-      alert(message);
-    } finally {
-      setIsTogglingStatusId(null);
-    }
-  }, [setPosts]);
+    },
+    [openEditorWithDraft],
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!window.confirm("Delete this post? This action cannot be undone.")) {
+        return;
+      }
+      setIsDeletingId(id);
+      try {
+        const response = await fetch(`/api/content/${id}`, {
+          method: "DELETE",
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || "Delete failed");
+        }
+        if (editingId === id) closeEditor();
+        await fetchPosts();
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to delete post";
+        alert(message);
+      } finally {
+        setIsDeletingId(null);
+      }
+    },
+    [closeEditor, editingId, fetchPosts],
+  );
+
+  const handleStatusToggle = useCallback(
+    async (post: BlogPost) => {
+      setIsTogglingStatusId(post._id);
+      try {
+        const nextStatus: PostStatus =
+          post.payload.status === "draft"
+            ? "published"
+            : post.payload.status === "published"
+              ? "archived"
+              : "draft";
+
+        const payload = { ...post.payload, status: nextStatus };
+        if (nextStatus === "published" && !post.payload.published_at) {
+          payload.published_at = new Date().toISOString();
+        }
+
+        const response = await fetch(`/api/content/${post._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payload }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Status toggle failed");
+        }
+
+        setPosts((previous) =>
+          sortPostsByNewest(
+            previous.map((item) =>
+              item._id === post._id ? { ...item, payload } : item,
+            ),
+          ),
+        );
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to toggle status";
+        alert(message);
+      } finally {
+        setIsTogglingStatusId(null);
+      }
+    },
+    [setPosts],
+  );
 
   const applyInline = useCallback(
     (prefix: string, suffix = prefix, placeholder = "text") => {
@@ -669,11 +680,17 @@ export default function BlogAdminView() {
         onSetViewMode={setViewMode}
       />
 
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-2">
+      <div
+        className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-2"
+        role="group"
+        aria-label="Filter blog posts by status"
+      >
         {(["all", "draft", "published", "archived"] as StatusFilter[]).map(
           (item) => (
             <button
               key={item}
+              type="button"
+              aria-pressed={statusFilter === item}
               onClick={() => setStatusFilter(item)}
               className={cn(
                 "rounded-xl border px-3 py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
