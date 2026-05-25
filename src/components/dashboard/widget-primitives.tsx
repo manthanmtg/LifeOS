@@ -124,7 +124,7 @@ export const WidgetMiniStats = memo(function WidgetMiniStats({
         return (
           <div
             key={i}
-            className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-2"
+            className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950/50 p-2"
           >
             {stat.icon && (
               <stat.icon
@@ -134,13 +134,13 @@ export const WidgetMiniStats = memo(function WidgetMiniStats({
             )}
             <p
               className={cn(
-                "text-sm font-bold tabular-nums",
+                "truncate text-sm font-bold tabular-nums",
                 TEXT_COLOR[color],
               )}
             >
               {stat.value}
             </p>
-            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-none mt-1">
+            <p className="truncate text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-none mt-1">
               {stat.label}
             </p>
           </div>
