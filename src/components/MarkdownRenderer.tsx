@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,15 @@ interface Props {
 }
 
 const REMARK_PLUGINS = [remarkGfm];
+const MARKDOWN_COMPONENTS: Components = {
+  table({ className, ...props }) {
+    return (
+      <div className="w-full overflow-x-auto">
+        <table className={cn("min-w-max", className)} {...props} />
+      </div>
+    );
+  },
+};
 
 export default memo(function MarkdownRenderer({ content, className }: Props) {
   return (
@@ -27,8 +37,12 @@ export default memo(function MarkdownRenderer({ content, className }: Props) {
         className,
       )}
     >
-      <ReactMarkdown remarkPlugins={REMARK_PLUGINS}>{content}</ReactMarkdown>
+      <ReactMarkdown
+        components={MARKDOWN_COMPONENTS}
+        remarkPlugins={REMARK_PLUGINS}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 });
-

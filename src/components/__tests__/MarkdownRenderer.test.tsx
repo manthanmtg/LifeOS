@@ -54,6 +54,22 @@ describe("MarkdownRenderer", () => {
     expect(within(table).getByRole("cell", { name: "Blog" }));
   });
 
+  it("keeps wide markdown tables scrollable on narrow screens", () => {
+    render(
+      <MarkdownRenderer
+        content={[
+          "| Long module name | Detailed status |",
+          "| --- | --- |",
+          "| Portfolio publishing pipeline | Ready for review |",
+        ].join("\n")}
+      />,
+    );
+
+    const table = screen.getByRole("table");
+
+    expect(table.parentElement).toHaveClass("overflow-x-auto");
+  });
+
   it("supports GitHub-flavored markdown task lists", () => {
     render(<MarkdownRenderer content={"- [x] Tested\n- [ ] Documented"} />);
 
