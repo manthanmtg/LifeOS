@@ -1,7 +1,6 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import VehicleAdminView from "../AdminView";
-import React from "react";
 
 vi.mock("@/components/ui/Skeletons", async () => {
   const React = await import("react");
@@ -25,9 +24,9 @@ describe("VehicleAdminView", () => {
 
     render(<VehicleAdminView />);
 
-    expect(screen.getAllByTestId("vehicle-skeleton-block").length).toBeGreaterThan(
-      3,
-    );
+    expect(
+      screen.getAllByTestId("vehicle-skeleton-block").length,
+    ).toBeGreaterThan(3);
   });
 
   it("renders and interacts with vehicle tabs", async () => {
