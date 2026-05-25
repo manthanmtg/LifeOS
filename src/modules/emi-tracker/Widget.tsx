@@ -105,7 +105,7 @@ export default function EMITrackerWidget() {
         >
           <WidgetStat
             value={`${sym}${formatNumber(amount, settings.numberFormat)}`}
-            label="total principal"
+            label="outstanding balance"
           />
           {summary.nearest ? (
             <WidgetHighlight
