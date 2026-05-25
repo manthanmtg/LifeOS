@@ -26,10 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-import {
-  CATEGORIES,
-  PRIORITIES,
-} from "./types";
+import { CATEGORIES, PRIORITIES } from "./types";
 import type {
   Category,
   Priority,
@@ -217,28 +214,28 @@ export default function MaintenanceAdminView() {
 
   // ── CRUD ──────────────────────────────────────────────────────────────
 
-  const openNew = () => {
+  const openNew = useCallback(() => {
     setForm({ ...EMPTY_FORM });
     setEditingId(null);
     setTagInput("");
     setScheduleMode("completed");
     setShowForm(true);
-  };
+  }, []);
 
-  const openEdit = (task: MaintenanceTask) => {
+  const openEdit = useCallback((task: MaintenanceTask) => {
     setForm({ ...task.payload });
     setEditingId(task._id);
     setTagInput(task.payload.tags.join(", "));
     setScheduleMode(task.payload.last_completed ? "completed" : "future");
     setShowForm(true);
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSearch("");
     setFilterCategory("all");
     setFilterPriority("all");
     setFilterStatus("all");
-  };
+  }, []);
 
   const saveTask = async () => {
     if (!form.name.trim()) return;
@@ -307,23 +304,26 @@ export default function MaintenanceAdminView() {
     }
   };
 
-  const deleteTask = async (id: string) => {
-    try {
-      await fetch(`/api/content/${id}`, { method: "DELETE" });
-      await fetchTasks();
-    } catch {}
-    setDeletingId(null);
-  };
+  const deleteTask = useCallback(
+    async (id: string) => {
+      try {
+        await fetch(`/api/content/${id}`, { method: "DELETE" });
+        await fetchTasks();
+      } catch {}
+      setDeletingId(null);
+    },
+    [fetchTasks],
+  );
 
   // ── Mark Complete ─────────────────────────────────────────────────────
 
-  const openMarkComplete = (task: MaintenanceTask) => {
+  const openMarkComplete = useCallback((task: MaintenanceTask) => {
     setCompletingTask(task);
     setCompletionDate(new Date().toISOString().split("T")[0]);
     setCompletionCost(task.payload.estimated_cost?.toString() || "");
     setCompletionVendor("");
     setCompletionNotes("");
-  };
+  }, []);
 
   const confirmMarkComplete = async () => {
     if (!completingTask) return;
@@ -534,8 +534,8 @@ export default function MaintenanceAdminView() {
               now={now}
               onEdit={openEdit}
               onMarkComplete={openMarkComplete}
-              onDelete={(id) => setDeletingId(id)}
-              onShowHistory={(t) => setHistoryTask(t)}
+              onDelete={setDeletingId}
+              onShowHistory={setHistoryTask}
             />
           ))}
         </div>

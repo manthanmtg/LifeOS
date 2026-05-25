@@ -1,11 +1,30 @@
 "use client";
 
-import { AlertTriangle, Check, CheckCircle2, Edit3, History, Trash2 } from "lucide-react";
+import { memo } from "react";
+import {
+  AlertTriangle,
+  Check,
+  CheckCircle2,
+  Edit3,
+  History,
+  Trash2,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { MaintenanceTask } from "../types";
-import { CATEGORY_COLORS, CATEGORY_ICONS, CURR_SYM, PRIORITY_DOT, STATUS_STYLES } from "../constants";
-import { daysUntilDue, dueProgressPercent, formatDate, formatFrequency } from "../helpers";
+import {
+  CATEGORY_COLORS,
+  CATEGORY_ICONS,
+  CURR_SYM,
+  PRIORITY_DOT,
+  STATUS_STYLES,
+} from "../constants";
+import {
+  daysUntilDue,
+  dueProgressPercent,
+  formatDate,
+  formatFrequency,
+} from "../helpers";
 
 interface TaskCardProps {
   task: MaintenanceTask;
@@ -16,7 +35,7 @@ interface TaskCardProps {
   onShowHistory: (task: MaintenanceTask) => void;
 }
 
-export function TaskCard({
+export const TaskCard = memo(function TaskCard({
   task,
   now,
   onEdit,
@@ -61,7 +80,10 @@ export function TaskCard({
         </div>
         <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
           <span
-            className={cn("w-2 h-2 rounded-full shadow-sm", PRIORITY_DOT[p.priority])}
+            className={cn(
+              "w-2 h-2 rounded-full shadow-sm",
+              PRIORITY_DOT[p.priority],
+            )}
             title={`${p.priority} priority`}
           />
         </div>
@@ -121,7 +143,9 @@ export function TaskCard({
       <div className="space-y-1 text-[11px]">
         <div className="flex items-center justify-between text-zinc-500">
           <span>Last completed</span>
-          <span className="text-zinc-300 font-medium">{formatDate(p.last_completed)}</span>
+          <span className="text-zinc-300 font-medium">
+            {formatDate(p.last_completed)}
+          </span>
         </div>
         {p.status !== "overdue" && (
           <div className="flex items-center justify-between text-zinc-500">
@@ -141,34 +165,44 @@ export function TaskCard({
             </span>
           </div>
         )}
-        {p.service_type === "managed" && p.estimated_cost !== undefined && p.estimated_cost > 0 && (
-          <div className="flex items-center justify-between text-zinc-500">
-            <span>Est. cost</span>
-            <span className="text-zinc-300 font-medium">
-              {CURR_SYM[p.currency] || p.currency} {p.estimated_cost.toLocaleString("en-IN")}
-            </span>
-          </div>
-        )}
+        {p.service_type === "managed" &&
+          p.estimated_cost !== undefined &&
+          p.estimated_cost > 0 && (
+            <div className="flex items-center justify-between text-zinc-500">
+              <span>Est. cost</span>
+              <span className="text-zinc-300 font-medium">
+                {CURR_SYM[p.currency] || p.currency}{" "}
+                {p.estimated_cost.toLocaleString("en-IN")}
+              </span>
+            </div>
+          )}
       </div>
 
       {/* Progress bar */}
-      {p.is_recurring && p.last_completed && p.next_due && p.status !== "overdue" && (
-        <div className="space-y-1 mt-0.5">
-          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-700 ease-out",
-                progress >= 100 ? "bg-danger" : progress >= 75 ? "bg-warning" : "bg-success",
-              )}
-              style={{ width: `${Math.min(progress, 100)}%` }}
-            />
+      {p.is_recurring &&
+        p.last_completed &&
+        p.next_due &&
+        p.status !== "overdue" && (
+          <div className="space-y-1 mt-0.5">
+            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all duration-700 ease-out",
+                  progress >= 100
+                    ? "bg-danger"
+                    : progress >= 75
+                      ? "bg-warning"
+                      : "bg-success",
+                )}
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-tighter text-zinc-600">
+              <span>Progress</span>
+              <span>{Math.round(progress)}% of cycle</span>
+            </div>
           </div>
-          <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-tighter text-zinc-600">
-            <span>Progress</span>
-            <span>{Math.round(progress)}% of cycle</span>
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Tags */}
       {p.tags.length > 0 && (
@@ -224,4 +258,4 @@ export function TaskCard({
       </div>
     </motion.div>
   );
-}
+});
