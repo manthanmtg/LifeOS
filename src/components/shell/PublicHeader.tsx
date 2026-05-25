@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { moduleRegistry } from "@/registry";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,9 +83,13 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
       });
   }, []);
 
-  const navLinks = publicModules
-    .filter((m) => m.slug !== "portfolio")
-    .map((m) => ({ href: `/${m.slug}`, label: m.name }));
+  const navLinks = useMemo(
+    () =>
+      publicModules
+        .filter((m) => m.slug !== "portfolio")
+        .map((m) => ({ href: `/${m.slug}`, label: m.name })),
+    [publicModules],
+  );
 
   if (!mounted) {
     return <div className="h-[69px]" />; // Height of the header to prevent layout shift
