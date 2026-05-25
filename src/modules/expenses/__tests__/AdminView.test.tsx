@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import ExpenseAdminView from "../AdminView";
-import React from "react";
 
 describe("ExpenseAdminView", () => {
   beforeEach(() => {
