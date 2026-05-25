@@ -1,6 +1,5 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import React from "react";
 import HabitsAdminView from "../AdminView";
 import HabitsWidget from "../Widget";
 import {
