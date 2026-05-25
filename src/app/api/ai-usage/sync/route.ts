@@ -391,6 +391,13 @@ export async function POST(request: Request) {
     }
     const providers = (await providersColl
       .find(query)
+      .project({
+        _id: 1,
+        name: 1,
+        provider: 1,
+        admin_api_key: 1,
+        is_active: 1,
+      })
       .toArray()) as unknown as ProviderConfig[];
 
     if (providers.length === 0) {
