@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Users, Clock, AlertTriangle, Activity } from "lucide-react";
-import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -66,50 +65,44 @@ export default function PeopleWidget() {
       loading={loading}
       href="/admin/people"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
-      >
-        <div className="space-y-3">
-          <WidgetStat value={summary.total} label="people you know" />
-          {loadError ? (
-            <WidgetHighlight
-              icon={AlertTriangle}
-              text="People summary unavailable"
-              subtext="Open People to refresh this card"
-              variant="danger"
-            />
-          ) : summary.total === 0 ? (
-            <WidgetHighlight
-              icon={Users}
-              text="No one here yet"
-              subtext="Add a person to begin building your network"
-              variant="accent"
-            />
-          ) : summary.staleCount > 0 ? (
-            <WidgetHighlight
-              icon={Clock}
-              text={`${summary.staleCount} to catch up with`}
-              subtext="Open People to plan the next check-in"
-              variant="warning"
-            />
-          ) : (
-            <WidgetHighlight
-              icon={Activity}
-              text={`Network health: ${summary.healthScore}%`}
-              subtext={`${summary.recentlyContactedCount} contacts in last 14 days`}
-              variant={
-                summary.healthScore >= 85
-                  ? "success"
-                  : summary.healthScore >= 60
-                    ? "warning"
-                    : "danger"
-              }
-            />
-          )}
-        </div>
-      </motion.div>
+      <div className="space-y-3">
+        <WidgetStat value={summary.total} label="people you know" />
+        {loadError ? (
+          <WidgetHighlight
+            icon={AlertTriangle}
+            text="People summary unavailable"
+            subtext="Open People to refresh this card"
+            variant="danger"
+          />
+        ) : summary.total === 0 ? (
+          <WidgetHighlight
+            icon={Users}
+            text="No one here yet"
+            subtext="Add a person to begin building your network"
+            variant="accent"
+          />
+        ) : summary.staleCount > 0 ? (
+          <WidgetHighlight
+            icon={Clock}
+            text={`${summary.staleCount} to catch up with`}
+            subtext="Open People to plan the next check-in"
+            variant="warning"
+          />
+        ) : (
+          <WidgetHighlight
+            icon={Activity}
+            text={`Network health: ${summary.healthScore}%`}
+            subtext={`${summary.recentlyContactedCount} contacts in last 14 days`}
+            variant={
+              summary.healthScore >= 85
+                ? "success"
+                : summary.healthScore >= 60
+                  ? "warning"
+                  : "danger"
+            }
+          />
+        )}
+      </div>
     </WidgetCard>
   );
 }
