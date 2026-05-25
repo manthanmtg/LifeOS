@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import RecurringExpensesAdminView from "../AdminView";
-import React from "react";
 
 const mockResponse = (data: unknown): Promise<Response> =>
   Promise.resolve({
