@@ -693,7 +693,7 @@ export default function BlogAdminView() {
               aria-pressed={statusFilter === item}
               onClick={() => setStatusFilter(item)}
               className={cn(
-                "rounded-xl border px-3 py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
+                "rounded-xl border px-4 py-2.5 sm:px-3 sm:py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
                 statusFilter === item
                   ? "border-accent/40 bg-accent/15 text-accent"
                   : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300",
