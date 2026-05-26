@@ -17,10 +17,12 @@ import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
-import { SpreadsheetTab } from "./SpreadsheetTab";
-import { AnalyticsTab } from "./AnalyticsTab";
-import { SettingsTab } from "./SettingsTab";
-import { DocsTab } from "./DocsTab";
+import dynamic from "next/dynamic";
+
+const SpreadsheetTab = dynamic(() => import("./SpreadsheetTab").then((mod) => mod.SpreadsheetTab));
+const AnalyticsTab = dynamic(() => import("./AnalyticsTab").then((mod) => mod.AnalyticsTab));
+const SettingsTab = dynamic(() => import("./SettingsTab").then((mod) => mod.SettingsTab));
+const DocsTab = dynamic(() => import("./DocsTab").then((mod) => mod.DocsTab));
 
 // --- Types ---
 export interface FieldDef {
