@@ -177,7 +177,7 @@ export const RecurringExpenseSchema = z.object({
     .optional(),
   is_active: z.boolean().default(true),
   enable_reminders: z.boolean().default(true),
-  notes: z.string().trim().max(2000).optional(),
+  notes: z.string().trim().min(1).max(2000).optional(),
   order: z.number().int().min(0).optional(),
 });
 
@@ -207,7 +207,7 @@ const ReadingItemSchema = z.object({
 const BookSchema = z.object({
   title: z.string().trim().min(1, "Book title is required").max(300),
   author: z.string().trim().min(1, "Author is required").max(200),
-  isbn: z.string().trim().max(20).optional(),
+  isbn: z.string().trim().min(1).max(20).optional(),
   cover_url: z.string().trim().url().max(2048).optional(),
   status: z
     .enum(["want_to_read", "reading", "completed", "abandoned"])
@@ -217,8 +217,8 @@ const BookSchema = z.object({
   rating: z.number().int().min(1).max(5).optional(),
   started_at: z.string().datetime().optional(),
   finished_at: z.string().datetime().optional(),
-  summary: z.string().trim().max(5000).optional(),
-  notes: z.string().trim().max(5000).optional(),
+  summary: z.string().trim().min(1).max(5000).optional(),
+  notes: z.string().trim().min(1).max(5000).optional(),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
 });
 
@@ -249,7 +249,7 @@ export const SnippetSchema = z.object({
 // --- 9. HABIT TRACKER ---
 const HabitSchema = z.object({
   name: z.string().trim().min(1, "Habit name is required").max(100),
-  description: z.string().trim().max(500).optional(),
+  description: z.string().trim().min(1).max(500).optional(),
   frequency: z.enum(["daily", "weekly"]).default("daily"),
   target_count: z.number().int().positive().default(1),
   color: z
