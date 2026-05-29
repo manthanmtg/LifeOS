@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CheckSquare, ListTodo } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -34,28 +35,45 @@ export default function TodoWidget() {
       loading={loading}
       href="/admin/todo"
     >
-      {summary && (
-        <div className="space-y-3">
-          <WidgetStat
-            value={summary.activeCount}
-            label={summary.activeCount === 0 ? "all clear" : "pending"}
-          />
-          {summary.topActive.length > 0 ? (
-            <WidgetList
-              items={summary.topActive.map((t) => ({
-                label: t.title,
-                icon: ListTodo,
-              }))}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="space-y-3"
+      >
+        {summary ? (
+          <>
+            <WidgetStat
+              value={summary.activeCount}
+              label={summary.activeCount === 0 ? "all clear" : "pending"}
             />
-          ) : (
+            {summary.topActive.length > 0 ? (
+              <WidgetList
+                items={summary.topActive.map((t) => ({
+                  label: t.title,
+                  icon: ListTodo,
+                }))}
+              />
+            ) : (
+              <WidgetHighlight
+                icon={CheckSquare}
+                text="No pending tasks"
+                variant="success"
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <WidgetStat value={0} label="tasks" />
             <WidgetHighlight
               icon={CheckSquare}
-              text="No pending tasks"
-              variant="success"
+              text="No tasks available"
+              subtext="Create a task to get started"
+              variant="default"
             />
-          )}
-        </div>
-      )}
+          </>
+        )}
+      </motion.div>
     </WidgetCard>
   );
 }
