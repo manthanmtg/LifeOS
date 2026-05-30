@@ -34,14 +34,16 @@ export default function HabitsPublicView({ items }: { items: Habit[] }) {
   return (
     <div className="space-y-4">
       {habits.map((habit, i) => {
+        const targetCount = habit.payload.target_count || 1;
         const completionSet = new Set(
           habit.payload.completions
-            .filter((c) => c.count > 0)
+            .filter((c) => c.count >= targetCount)
             .map((c) => c.date),
         );
-        const streakInfo = getStreak(habit.payload.completions, today);
+        const streakInfo = getStreak(habit.payload.completions, targetCount, today);
         const rate30 = getCompletionRateForDays(
           habit.payload.completions,
+          targetCount,
           days,
         );
         const completedToday = completionSet.has(today);

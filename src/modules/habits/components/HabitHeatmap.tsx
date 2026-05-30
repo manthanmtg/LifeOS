@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface HabitHeatmapProps {
-  completions: Set<string>;
+  completions: Map<string, number>;
+  targetCount: number;
   color: string;
   days: string[];
   todayStr: string;
@@ -42,6 +43,7 @@ export function buildHeatmapWeeks(
 
 export default function HabitHeatmap({
   completions,
+  targetCount,
   color,
   days,
   todayStr,
@@ -113,25 +115,34 @@ export default function HabitHeatmap({
               <div key={weekIdx} className="flex flex-col gap-[3px]">
                 {week.map((date, dayIdx) => {
                   if (!date) return <div key={dayIdx} className="w-3 h-3" />;
-                  const isCompleted = completions.has(date);
+                  const count = completions.get(date) || 0;
+                  const ratio = targetCount > 0 ? Math.min(count / targetCount, 1) : 0;
+                  const isCompleted = count > 0;
+                  const isFullyCompleted = ratio >= 1;
                   const isToday = date === todayStr;
                   const isLogging = isLoggingDay === date;
+
+                  let tileOpacity = undefined;
+                  if (isCompleted) {
+                    tileOpacity = Math.max(0.3, ratio * 0.9);
+                  }
 
                   return (
                     <motion.button
                       key={dayIdx}
                       onClick={() => onToggleDay(date)}
                       disabled={isLogging}
-                      title={`${date}${isCompleted ? " ✓" : ""}`}
-                      aria-label={`${date}${isCompleted ? ", Completed" : ", Not completed"}${isToday ? ", Today" : ""}`}
+                      title={`${date}${isFullyCompleted ? " ✓" : isCompleted ? ` (${count}/${targetCount})` : ""}`}
+                      aria-label={`${date}${isFullyCompleted ? ", Completed" : isCompleted ? `, Partially completed ${count} of ${targetCount}` : ", Not completed"}${isToday ? ", Today" : ""}`}
                       className={cn(
                         "w-3 h-3 rounded-[2px] transition-all disabled:opacity-50",
                         isToday && "ring-1 ring-zinc-500 ring-offset-1 ring-offset-zinc-950",
-                        isCompleted && "shadow-[0_0_8px_currentColor] opacity-90 hover:opacity-100",
+                        isCompleted && "shadow-[0_0_8px_currentColor] hover:opacity-100",
                       )}
                       style={{
                         backgroundColor: isCompleted ? color : "var(--zinc-800)",
                         color: isCompleted ? color : "transparent",
+                        opacity: tileOpacity,
                       }}
                       whileHover={{ scale: 1.4, zIndex: 10 }}
                       whileTap={{ scale: 0.9 }}

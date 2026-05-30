@@ -40,24 +40,27 @@ export default function HabitCard({
   isDeletingId,
   isLoggingId,
 }: HabitCardProps) {
-  const completionDates = useMemo(
-    () =>
-      new Set(
-        habit.payload.completions.filter((c) => c.count > 0).map((c) => c.date),
-      ),
-    [habit.payload.completions],
-  );
+  const targetCount = habit.payload.target_count || 1;
+
+  const completionCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    habit.payload.completions.forEach((c) => {
+      if (c.count > 0) map.set(c.date, c.count);
+    });
+    return map;
+  }, [habit.payload.completions]);
 
   const streakInfo = useMemo(
-    () => getStreak(habit.payload.completions, todayStr),
-    [habit.payload.completions, todayStr],
+    () => getStreak(habit.payload.completions, targetCount, todayStr),
+    [habit.payload.completions, targetCount, todayStr],
   );
 
-  const completedToday = completionDates.has(todayStr);
+  const countToday = completionCounts.get(todayStr) || 0;
+  const isFullyCompletedToday = countToday >= targetCount;
 
   const last30Rate = useMemo(
-    () => getCompletionRateForDays(habit.payload.completions, days.slice(-30)),
-    [days, habit.payload.completions],
+    () => getCompletionRateForDays(habit.payload.completions, targetCount, days.slice(-30)),
+    [days, habit.payload.completions, targetCount],
   );
 
   const loggingKey = isLoggingId === habit._id + todayStr ? todayStr : null;
@@ -138,25 +141,27 @@ export default function HabitCard({
             onClick={() => onToggleDay(habit, todayStr)}
             disabled={isLoggingId === habit._id + todayStr}
             aria-label={
-              completedToday
+              isFullyCompletedToday
                 ? "Mark habit as not done today"
                 : "Mark habit as done today"
             }
             className={cn(
               "px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm",
-              completedToday
+              isFullyCompletedToday
                 ? "bg-success/20 text-success border border-success/30 shadow-[0_0_15px_rgba(52,211,153,0.15)]"
-                : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 border border-zinc-700/50",
+                : countToday > 0
+                  ? "bg-accent/20 text-accent border border-accent/30 shadow-[0_0_10px_rgba(var(--color-accent-rgb),0.1)]"
+                  : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 border border-zinc-700/50",
             )}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             {isLoggingId === habit._id + todayStr ? (
               <RefreshCw className="w-3 h-3 animate-spin" />
-            ) : completedToday ? (
+            ) : isFullyCompletedToday ? (
               <Check className="w-3 h-3 stroke-[3]" />
             ) : null}
-            {completedToday ? "Done" : "Log"}
+            {isFullyCompletedToday ? "Done" : countToday > 0 ? `${countToday}/${targetCount}` : "Log"}
           </motion.button>
 
           {/* Edit/Delete */}
@@ -188,7 +193,8 @@ export default function HabitCard({
       {/* Heatmap */}
       <div className="px-5 pb-4">
         <HabitHeatmap
-          completions={completionDates}
+          completions={completionCounts}
+          targetCount={targetCount}
           color={habit.payload.color}
           days={days}
           todayStr={todayStr}
