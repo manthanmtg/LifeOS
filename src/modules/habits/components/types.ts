@@ -84,10 +84,11 @@ export function getDaysArray(
 
 export function getStreak(
   completions: HabitCompletion[],
+  targetCount: number = 1,
   today: Date | string = new Date(),
 ): StreakInfo {
   const dateSet = new Set(
-    completions.filter((c) => c.count > 0).map((c) => c.date),
+    completions.filter((c) => c.count >= targetCount).map((c) => c.date),
   );
   const currentDay = asDate(today);
   let current = 0;
@@ -116,12 +117,13 @@ export function getStreak(
 
 export function getCompletionRateForDays(
   completions: HabitCompletion[],
+  targetCount: number = 1,
   days: string[],
 ): number {
   if (days.length === 0) return 0;
 
   const completionDates = new Set(
-    completions.filter((c) => c.count > 0).map((c) => c.date),
+    completions.filter((c) => c.count >= targetCount).map((c) => c.date),
   );
   const completedDays = days.filter((day) => completionDates.has(day)).length;
 
@@ -147,13 +149,14 @@ export function computeMetrics(
   let lastWeekTotal = 0;
 
   for (const habit of habits) {
+    const target = habit.payload.target_count || 1;
     const completionDates = new Set(
-      habit.payload.completions.filter((c) => c.count > 0).map((c) => c.date),
+      habit.payload.completions.filter((c) => c.count >= target).map((c) => c.date),
     );
 
     if (completionDates.has(todayStr)) completedToday++;
 
-    const streakInfo = getStreak(habit.payload.completions, todayStr);
+    const streakInfo = getStreak(habit.payload.completions, target, todayStr);
     if (streakInfo.current > bestCurrentStreak) {
       bestCurrentStreak = streakInfo.current;
     }

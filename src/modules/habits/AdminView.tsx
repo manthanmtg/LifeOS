@@ -133,8 +133,14 @@ export default function HabitsAdminView() {
     async (habit: Habit, date: string) => {
       const completions = [...habit.payload.completions];
       const idx = completions.findIndex((c) => c.date === date);
+      const target = habit.payload.target_count || 1;
+
       if (idx >= 0) {
-        completions.splice(idx, 1);
+        if (completions[idx].count < target) {
+          completions[idx].count += 1;
+        } else {
+          completions.splice(idx, 1);
+        }
       } else {
         completions.push({ date, count: 1 });
       }
