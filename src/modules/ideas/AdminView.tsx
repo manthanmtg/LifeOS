@@ -629,9 +629,10 @@ export default function IdeasAdminView() {
     () => getIdeaCategoryOptions(ideas, settings.categories),
     [ideas, settings.categories],
   );
-  const activeIdea = activeId
-    ? ideas.find((idea) => idea._id === activeId)
-    : null;
+  const activeIdea = useMemo(
+    () => (activeId ? ideas.find((idea) => idea._id === activeId) : null),
+    [activeId, ideas]
+  );
   const sortedFiltered = useMemo(
     () => sortIdeasForReview(filtered),
     [filtered],
