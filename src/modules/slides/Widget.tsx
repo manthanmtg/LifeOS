@@ -2,6 +2,7 @@
 
 import { memo, useState, useEffect } from "react";
 import { Presentation } from "lucide-react";
+import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
   WidgetStat,
@@ -43,7 +44,12 @@ const SlidesWidget = memo(function SlidesWidget() {
       loading={loading}
       href="/admin/slides"
     >
-      <div className="space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="space-y-3"
+      >
         <WidgetStat value={summary?.total ?? 0} label="decks uploaded" />
         {summary?.latest ? (
           <WidgetHighlight
@@ -54,7 +60,7 @@ const SlidesWidget = memo(function SlidesWidget() {
         ) : (
           <WidgetHighlight icon={Presentation} text="No decks yet" />
         )}
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 });
