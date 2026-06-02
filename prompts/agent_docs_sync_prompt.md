@@ -49,7 +49,7 @@ Check one small area per run:
 
 ### 5. Verify
 
-- Run `pnpm format:check`.
+- Format the files you edited (e.g., `npx prettier --write AGENTS.md`). Do not run the full-repo `pnpm format:check` to avoid failing on unrelated baseline drift.
 - If any code-adjacent examples changed, run `pnpm check`.
 - Confirm all links and referenced file paths exist.
 
