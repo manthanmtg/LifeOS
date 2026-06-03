@@ -13,8 +13,10 @@ import BookshelfMetrics from "./components/BookshelfMetrics";
 import BookshelfFilters from "./components/BookshelfFilters";
 import type { SortField, SortDirection } from "./components/BookshelfFilters";
 import BookCard from "./components/BookCard";
-import BookForm from "./components/BookForm";
-import BookshelfSettingsPanel from "./components/BookshelfSettings";
+import dynamic from "next/dynamic";
+
+const BookForm = dynamic(() => import("./components/BookForm"));
+const BookshelfSettingsPanel = dynamic(() => import("./components/BookshelfSettings"));
 import BookSkeleton from "./components/BookSkeleton";
 
 export default function BookshelfAdminView() {
