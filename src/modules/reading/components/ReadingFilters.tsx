@@ -56,6 +56,7 @@ export function ReadingFilters({
             <button
               key={item.key}
               onClick={() => setStatusFilter(item.key)}
+              aria-pressed={statusFilter === item.key}
               className={cn(
                 filterButtonBase,
                 statusFilter === item.key
@@ -71,6 +72,7 @@ export function ReadingFilters({
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => setTypeFilter("all")}
+            aria-pressed={typeFilter === "all"}
             className={cn(
               filterButtonBase,
               typeFilter === "all"
@@ -84,6 +86,7 @@ export function ReadingFilters({
             <button
               key={item}
               onClick={() => setTypeFilter(item)}
+              aria-pressed={typeFilter === item}
               className={cn(
                 filterButtonBase + " capitalize",
                 typeFilter === item
@@ -106,6 +109,7 @@ export function ReadingFilters({
             </div>
             <button
               onClick={() => setTagFilter("all")}
+              aria-pressed={tagFilter === "all"}
               className={cn(
                 filterButtonBase + " px-2.5 py-1",
                 tagFilter === "all"
@@ -119,6 +123,7 @@ export function ReadingFilters({
               <button
                 key={tag}
                 onClick={() => setTagFilter(tag)}
+                aria-pressed={tagFilter === tag}
                 className={cn(
                   filterButtonBase + " px-2.5 py-1",
                   tagFilter === tag
