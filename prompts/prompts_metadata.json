@@ -331,14 +331,14 @@
       "enabled": true,
       "autonomousSafe": true,
       "totalSelected": 54,
-      "totalCompleted": 49,
+      "totalCompleted": 50,
       "totalNoop": 0,
       "totalFailed": 5,
-      "lastCompletedAt": "2026-05-27T04:08:09.616Z",
-      "lastOutcome": "selected",
+      "lastCompletedAt": "2026-06-04T00:06:42.493Z",
+      "lastOutcome": "completed",
       "lastSelectedAt": "2026-06-04T00:01:05.680Z",
       "updatedAt": "2026-05-22T02:53:40.574Z"
     }
   },
-  "updatedAt": "2026-06-04T00:01:05.680Z"
+  "updatedAt": "2026-06-04T00:06:42.493Z"
 }
