@@ -1005,16 +1005,16 @@ export const DeckSchema = z.object({
     .default("url"),
   visibility: z.enum(["public", "private", "link_only"]).default("private"),
   tags: z.array(z.string().trim().min(1).max(50)).max(20).default([]),
-  author: z.string().trim().max(100).optional(),
-  topic: z.string().trim().max(100).optional(),
-  folder: z.string().trim().max(100).optional(),
+  author: z.string().trim().min(1).max(100).optional(),
+  topic: z.string().trim().min(1).max(100).optional(),
+  folder: z.string().trim().min(1).max(100).optional(),
   deck_url: z
     .string()
     .trim()
     .url()
     .max(DeckUrlMaxLength, "Deck URL or upload data is too large")
     .optional(),
-  file_name: z.string().trim().max(255).optional(),
+  file_name: z.string().trim().min(1).max(255).optional(),
   file_size: z.number().int().min(0).optional(),
   thumbnail_url: z
     .string()
