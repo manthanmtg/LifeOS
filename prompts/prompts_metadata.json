@@ -330,15 +330,15 @@
       "category": "verification",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 54,
-      "totalCompleted": 50,
+      "totalSelected": 55,
+      "totalCompleted": 51,
       "totalNoop": 0,
       "totalFailed": 5,
-      "lastCompletedAt": "2026-06-04T00:06:42.493Z",
+      "lastCompletedAt": "2026-06-05T12:08:02.286Z",
       "lastOutcome": "completed",
-      "lastSelectedAt": "2026-06-04T00:01:05.680Z",
+      "lastSelectedAt": "2026-06-05T12:01:03.149Z",
       "updatedAt": "2026-05-22T02:53:40.574Z"
     }
   },
-  "updatedAt": "2026-06-05T04:07:23.000Z"
+  "updatedAt": "2026-06-05T12:08:02.287Z"
 }

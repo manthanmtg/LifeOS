@@ -141,6 +141,7 @@ const BlogPostSchema = z.object({
   title: z.string().trim().min(3, "Post title is required").max(200),
   slug: z
     .string()
+    .trim()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be URL-friendly")
     .max(200),
   content: z.string().min(1, "Post cannot be empty").max(1000000),
@@ -558,8 +559,8 @@ export const PersonSchema = z.object({
     .max(320, "Email is too long")
     .optional()
     .or(z.literal("")),
-  company: z.string().trim().max(100).optional(),
-  role: z.string().trim().max(100).optional(),
+  company: z.string().trim().min(1).max(100).optional(),
+  role: z.string().trim().min(1).max(100).optional(),
   birthday: CalendarDateSchema.optional(),
   avatar_url: z
     .string()
@@ -855,7 +856,7 @@ const BillAttachmentSchema = GenericAttachmentSchema.extend({
 export const HealthProfileSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   type: z.enum(["self", "family", "pet"]).default("self"),
-  relation: z.string().trim().max(100).optional(),
+  relation: z.string().trim().min(1).max(100).optional(),
   date_of_birth: z.string().datetime().optional(),
   blood_group: z
     .enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "unknown"])
@@ -873,8 +874,8 @@ export const HealthProfileSchema = z.object({
       content_type: MimeTypeSchema,
     })
     .optional(),
-  emergency_contact: z.string().trim().max(200).optional(),
-  insurance_info: z.string().trim().max(500).optional(),
+  emergency_contact: z.string().trim().min(1).max(200).optional(),
+  insurance_info: z.string().trim().min(1).max(500).optional(),
   allergies: z.array(z.string().trim().min(1).max(100)).max(50).default([]),
   conditions: z
     .array(
@@ -1123,11 +1124,11 @@ const BingeItemSchema = z.object({
     .default("to_watch"),
   rating: z.number().int().min(1).max(10).optional(),
   notes: z.string().trim().max(5000).optional(),
-  genre: z.string().trim().max(100).optional(),
-  platform: z.string().trim().max(100).optional(),
+  genre: z.string().trim().min(1).max(100).optional(),
+  platform: z.string().trim().min(1).max(100).optional(),
   year: z.number().int().min(1900).max(2100).optional(),
   poster_url: z.string().trim().url().max(500).optional(),
-  recommended_by: z.string().trim().max(100).optional(),
+  recommended_by: z.string().trim().min(1).max(100).optional(),
   rewatched: z.boolean().default(false),
   rewatch_count: z.number().int().min(0).max(999).default(0),
   current_season: z.number().int().min(1).max(999).optional(),
