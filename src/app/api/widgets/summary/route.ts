@@ -414,9 +414,22 @@ export async function GET(request: Request) {
       bill: { "payload.attachments": 1, created_at: 1 },
     };
 
+    const query: Record<string, unknown> = { module_type };
+
+    if (module_type === "expense") {
+      const now = new Date();
+      const firstDayOfLastMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        1,
+      );
+      // We only need expenses from last month and this month for the summary calculations
+      query["payload.date"] = { $gte: firstDayOfLastMonth.toISOString() };
+    }
+
     const docs = (await contentColl
       .find(
-        { module_type },
+        query,
         { projection: PROJECTIONS[module_type] || {} },
       )
       .toArray()) as ContentDocument<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
