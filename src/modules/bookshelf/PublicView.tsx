@@ -1,29 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
-import { Library, Search, Star, BookOpen } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Library, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   STATUS_LABELS,
   STATUS_STYLES,
   type BookStatus,
+  type Book,
 } from "./components/types";
-
-interface Book {
-  _id: string;
-  payload: {
-    title: string;
-    author: string;
-    status: BookStatus;
-    total_pages?: number;
-    current_page: number;
-    rating?: number;
-    cover_url?: string;
-    summary?: string;
-    tags: string[];
-  };
-}
+import BookCard from "./components/BookCard";
 
 const STATUS_ORDER: BookStatus[] = [
   "reading",
@@ -93,6 +80,8 @@ export default function BookshelfPublicView({
     return map;
   }, [filtered]);
 
+  const now = useMemo(() => new Date(), []);
+
   if (books.length === 0) {
     return (
       <div className="text-center text-zinc-500 py-20">
@@ -103,47 +92,56 @@ export default function BookshelfPublicView({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 sm:p-8">
+    <div className="animate-fade-in-up space-y-6">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6">
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
         <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
 
-        <div className="relative space-y-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">
-            A curated bookshelf of what I am learning.
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Books</p>
-              <p className="text-lg font-semibold text-zinc-50">
-                {stats.total}
+        <div className="relative space-y-5">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-50">
+                Bookshelf
+              </h2>
+              <p className="text-sm text-zinc-400 mt-1">
+                A curated collection of what I am reading and learning.
               </p>
             </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Reading</p>
-              <p className="text-lg font-semibold text-warning">
-                {stats.reading}
-              </p>
-            </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Completed</p>
-              <p className="text-lg font-semibold text-success">
-                {stats.completed}
-              </p>
-            </div>
-            <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5">
-              <p className="text-xs text-zinc-500">Avg Rating</p>
-              <p className="text-lg font-semibold text-zinc-50">
-                {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "N/A"}
-              </p>
+            
+            <div className="grid grid-cols-4 gap-2 text-center md:text-left">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Books</p>
+                <p className="text-lg font-semibold text-zinc-50 leading-tight">
+                  {stats.total}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Reading</p>
+                <p className="text-lg font-semibold text-warning leading-tight">
+                  {stats.reading}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Done</p>
+                <p className="text-lg font-semibold text-success leading-tight">
+                  {stats.completed}
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Rating</p>
+                <p className="text-lg font-semibold text-zinc-50 leading-tight">
+                  {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "N/A"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Filters */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
@@ -151,9 +149,9 @@ export default function BookshelfPublicView({
               type="text"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search title, author, tags"
-              aria-label="Search books by title, author, or tags"
-              className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-10 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
+              placeholder="Search title, author, tags..."
+              aria-label="Search books"
+              className="w-full bg-zinc-950/70 border border-zinc-800 rounded-xl pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35 transition-shadow"
             />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -163,7 +161,7 @@ export default function BookshelfPublicView({
               aria-label="Show all books"
               aria-pressed={statusFilter === "all"}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-xs border transition-colors",
+                "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
                 statusFilter === "all"
                   ? "bg-accent/15 border-accent/35 text-accent"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -179,7 +177,7 @@ export default function BookshelfPublicView({
                 aria-label={`Show ${STATUS_LABELS[status].toLowerCase()} books`}
                 aria-pressed={statusFilter === status}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs border transition-colors",
+                  "px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors",
                   statusFilter === status
                     ? STATUS_STYLES[status]
                     : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -192,11 +190,16 @@ export default function BookshelfPublicView({
         </div>
       </div>
 
+      {/* Book List */}
       {filtered.length === 0 ? (
-        <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40"
+        >
           <Library className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>No books found for current filters.</p>
-        </div>
+        </motion.div>
       ) : (
         <div className="space-y-8">
           {STATUS_ORDER.map((status) => {
@@ -205,13 +208,13 @@ export default function BookshelfPublicView({
 
             return (
               <section key={status} className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2">
                   <h3 className="text-lg font-semibold text-zinc-50">
                     {STATUS_LABELS[status]}
                   </h3>
                   <span
                     className={cn(
-                      "text-[10px] px-2 py-0.5 rounded-full border",
+                      "text-[10px] px-2 py-0.5 rounded-full border font-medium",
                       STATUS_STYLES[status],
                     )}
                   >
@@ -220,101 +223,16 @@ export default function BookshelfPublicView({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {sectionBooks.map((book) => {
-                    const total = book.payload.total_pages || 0;
-                    const current = book.payload.current_page || 0;
-                    const progress =
-                      total > 0 ? Math.min(100, (current / total) * 100) : 0;
-
-                    return (
-                      <article
+                  <AnimatePresence mode="popLayout">
+                    {sectionBooks.map((book, i) => (
+                      <BookCard
                         key={book._id}
-                        className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 hover:border-zinc-700 transition-colors"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="w-14 h-20 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
-                            {book.payload.cover_url ? (
-                              <div className="relative w-full h-full">
-                                <Image
-                                  src={book.payload.cover_url}
-                                  alt={book.payload.title}
-                                  fill
-                                  unoptimized
-                                  className="object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <BookOpen className="w-4 h-4 text-zinc-500" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-zinc-50 line-clamp-2">
-                              {book.payload.title}
-                            </p>
-                            <p className="text-xs text-zinc-500 mt-0.5 truncate">
-                              {book.payload.author}
-                            </p>
-                            {book.payload.rating ? (
-                              <div className="flex items-center gap-0.5 mt-1.5">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star
-                                    key={star}
-                                    className={cn(
-                                      "w-3.5 h-3.5",
-                                      star <= (book.payload.rating || 0)
-                                        ? "text-warning"
-                                        : "text-zinc-700",
-                                    )}
-                                    fill={
-                                      star <= (book.payload.rating || 0)
-                                        ? "currentColor"
-                                        : "none"
-                                    }
-                                  />
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        {total > 0 && status === "reading" && (
-                          <div>
-                            <div className="flex items-center justify-between text-xs text-zinc-500 mb-1">
-                              <span>
-                                {current}/{total} pages
-                              </span>
-                              <span>{progress.toFixed(0)}%</span>
-                            </div>
-                            <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-                              <div
-                                className="h-full bg-accent rounded-full transition-all"
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {book.payload.summary && (
-                          <p className="text-xs text-zinc-400 line-clamp-2">
-                            {book.payload.summary}
-                          </p>
-                        )}
-
-                        {book.payload.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-auto">
-                            {book.payload.tags.slice(0, 4).map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-[10px]"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </article>
-                    );
-                  })}
+                        book={book}
+                        index={i}
+                        now={now}
+                      />
+                    ))}
+                  </AnimatePresence>
                 </div>
               </section>
             );
