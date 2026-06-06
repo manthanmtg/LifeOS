@@ -29,12 +29,12 @@ This runs lint, typecheck, build, and tests in sequence. If it passes cleanly, y
 
 If `pnpm check` fails, identify the stage:
 
-| Stage     | Command        | Common Issues                                     |
-| --------- | -------------- | ------------------------------------------------- |
-| Lint      | `pnpm lint`    | Unused imports, `any` types, missing deps         |
-| Typecheck | `tsc --noEmit` | Type mismatches, missing properties               |
-| Build     | `next build`   | Import errors, missing modules, SSR issues        |
-| Test      | `pnpm test`    | Failing assertions (delegate to `test_corrector`) |
+| Stage     | Command          | Common Issues                                     |
+| --------- | ---------------- | ------------------------------------------------- |
+| Lint      | `pnpm lint`      | Unused imports, `any` types, missing deps         |
+| Typecheck | `pnpm typecheck` | Type mismatches, missing properties               |
+| Build     | `pnpm build`     | Import errors, missing modules, SSR issues        |
+| Test      | `pnpm test`      | Failing assertions (delegate to `test_corrector`) |
 
 ### 3. Fix (Minimal, Targeted)
 
