@@ -16,9 +16,9 @@ import { STATUS_LABELS, STATUS_STYLES, type Book } from "./types";
 
 interface BookCardProps {
   book: Book;
-  onEdit: (book: Book) => void;
-  onDelete: (id: string) => void;
-  isDeletingId: string | null;
+  onEdit?: (book: Book) => void;
+  onDelete?: (id: string) => void;
+  isDeletingId?: string | null;
   index: number;
   now: Date;
 }
@@ -204,30 +204,36 @@ function BookCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
-          <button
-            onClick={() => onEdit(book)}
-            disabled={isDeleting}
-            aria-label="Edit book"
-            title="Edit book"
-            className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => onDelete(book._id)}
-            disabled={isDeleting}
-            aria-label="Delete book"
-            title="Delete book"
-            className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
-          >
-            {isDeleting ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Trash2 className="w-3.5 h-3.5" />
+        {(onEdit || onDelete) && (
+          <div className="flex items-center gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(book)}
+                disabled={isDeleting}
+                aria-label="Edit book"
+                title="Edit book"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
             )}
-          </button>
-        </div>
+            {onDelete && (
+              <button
+                onClick={() => onDelete(book._id)}
+                disabled={isDeleting}
+                aria-label="Delete book"
+                title="Delete book"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-zinc-500 hover:text-danger hover:bg-zinc-800 disabled:opacity-50 transition-colors sm:h-auto sm:w-auto sm:p-1.5"
+              >
+                {isDeleting ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Date info */}
