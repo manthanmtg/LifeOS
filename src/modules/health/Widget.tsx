@@ -60,31 +60,6 @@ export default memo(function HealthWidget() {
     return `${visitType} on ${visitDate}`;
   }, [summary]);
 
-  if (loading) {
-    return (
-      <WidgetCard
-        title="Health"
-        icon={HeartPulse}
-        loading={loading}
-        href="/admin/health"
-      >
-        <motion.div
-          initial={{ opacity: 0.6 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            repeat: Number.POSITIVE_INFINITY,
-            repeatType: "reverse",
-            duration: 1.2,
-          }}
-          className="space-y-3"
-        >
-          <div className="h-11 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
-          <div className="h-16 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
-        </motion.div>
-      </WidgetCard>
-    );
-  }
-
   return (
     <WidgetCard
       title="Health"

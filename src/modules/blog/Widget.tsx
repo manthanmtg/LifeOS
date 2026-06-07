@@ -36,22 +36,6 @@ export default function BlogWidget() {
     return () => controller.abort();
   }, []);
 
-  if (loading) {
-    return (
-      <WidgetCard
-        title="Blog"
-        icon={Sparkles}
-        loading={loading}
-        href="/admin/blog"
-      >
-        <div className="space-y-3">
-          <div className="h-11 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
-          <div className="h-16 rounded-xl bg-zinc-200/60 dark:bg-zinc-700/60 animate-pulse" />
-        </div>
-      </WidgetCard>
-    );
-  }
-
   return (
     <WidgetCard
       title="Blog"
