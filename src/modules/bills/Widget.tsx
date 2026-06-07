@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Receipt } from "lucide-react";
+import { Receipt, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -70,9 +70,10 @@ export default function BillsWidget() {
           />
           {error ? (
             <WidgetHighlight
-              icon={Receipt}
+              icon={AlertTriangle}
               text="Couldn’t refresh bills summary"
               subtext="Please retry dashboard load"
+              variant="danger"
             />
           ) : stats?.recentBill ? (
             <WidgetHighlight
