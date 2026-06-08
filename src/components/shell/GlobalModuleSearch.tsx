@@ -211,13 +211,15 @@ export default function GlobalModuleSearch({
                   : "Search modules by name, description, or tag"
               }
               aria-label="Search modules"
-                className={cn(
-                  "min-w-0 flex-1 bg-transparent text-zinc-100 placeholder:text-zinc-600 outline-none transition-all",
-                  isSidebar ? "text-[13px]" : "text-sm sm:text-[15px]",
-                )}
-                aria-activedescendant={selectedResultId}
-                aria-controls="module-search-results"
-                role="combobox"
+              aria-expanded={showResults}
+              aria-autocomplete="list"
+              className={cn(
+                "min-w-0 flex-1 bg-transparent text-zinc-100 placeholder:text-zinc-600 outline-none transition-all",
+                isSidebar ? "text-[13px]" : "text-sm sm:text-[15px]",
+              )}
+              aria-activedescendant={selectedResultId}
+              aria-controls="module-search-results"
+              role="combobox"
               />
             {query.length > 0 && (
               <button
