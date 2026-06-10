@@ -205,7 +205,7 @@ export default function CommandPalette() {
             aria-modal="true"
             aria-label="Command palette"
           >
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="bg-zinc-900/90 backdrop-blur-2xl border border-zinc-800/50 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
               {/* Search input */}
               <div className="flex items-center gap-3 px-4 border-b border-zinc-800">
                 <Search className="w-5 h-5 text-zinc-500 shrink-0" />
