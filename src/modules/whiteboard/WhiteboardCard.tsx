@@ -191,6 +191,7 @@ export default function WhiteboardCard({
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <input
             type="text"
+            aria-label="Board name"
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
             onKeyDown={(e) => {
@@ -204,6 +205,9 @@ export default function WhiteboardCard({
             className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-accent/50"
           />
           <button
+            type="button"
+            aria-label="Save board name"
+            title="Save"
             onClick={() => handleRename(board._id)}
             className="p-1.5 rounded-lg bg-zinc-50 text-zinc-950 hover:bg-zinc-200"
           >
