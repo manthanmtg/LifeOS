@@ -101,22 +101,22 @@ export function RainEntryList({
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="flex shrink-0 items-center gap-1 opacity-100 transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                 <button
                   type="button"
                   onClick={() => onEditEntry(item.entry)}
-                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-accent"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:text-accent sm:p-1.5"
                   aria-label={`Edit ${item.dateLabel} entry`}
                 >
-                  <Edit3 className="h-3.5 w-3.5" />
+                  <Edit3 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onDeleteEntry(item.entry._id)}
-                  className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:text-danger"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:text-danger sm:p-1.5"
                   aria-label={`Delete ${item.dateLabel} entry`}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </button>
               </div>
             </motion.div>
