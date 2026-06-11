@@ -56,7 +56,7 @@ export default function PeopleAdminView() {
     }
   };
 
-  const upsertPersonInState = (updatedPerson: Person) => {
+  const upsertPersonInState = useCallback((updatedPerson: Person) => {
     setPeople((current) => {
       const exists = current.some((person) => person._id === updatedPerson._id);
       const next = exists
@@ -69,12 +69,12 @@ export default function PeopleAdminView() {
     setSelectedPerson((current) =>
       current?._id === updatedPerson._id ? updatedPerson : current,
     );
-  };
+  }, []);
 
-  const removePersonFromState = (id: string) => {
+  const removePersonFromState = useCallback((id: string) => {
     setPeople((current) => current.filter((person) => person._id !== id));
     setSelectedPerson((current) => (current?._id === id ? null : current));
-  };
+  }, []);
 
   useEffect(() => {
     fetchPeople();
@@ -156,15 +156,12 @@ export default function PeopleAdminView() {
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [upsertPersonInState]);
 
-  const handleUpdateInteractions = async (
-    id: string,
+  const handleUpdateInteractions = useCallback(async (
+    person: Person,
     interactions: Interaction[],
   ) => {
-    const person = people.find((p) => p._id === id);
-    if (!person) return;
-
     // Calculate last_contacted as the max date from all interactions
     const last_contacted =
       interactions.length > 0
@@ -173,7 +170,7 @@ export default function PeopleAdminView() {
           )[0].date
         : undefined;
 
-    const res = await fetch(`/api/content/${id}`, {
+    const res = await fetch(`/api/content/${person._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -195,35 +192,31 @@ export default function PeopleAdminView() {
         last_contacted,
       },
     });
-  };
+  }, [upsertPersonInState]);
 
-  const handleLogInteraction = async (
-    id: string,
+  const handleLogInteraction = useCallback(async (
+    person: Person,
     type: InteractionType,
     date: string,
     note?: string,
   ) => {
-    const person = people.find((p) => p._id === id);
-    if (!person) return;
-
     const newInteraction = { date, type, note };
     const updatedInteractions = [
       ...(person.payload.interactions || []),
       newInteraction,
     ];
 
-    await handleUpdateInteractions(id, updatedInteractions);
-  };
+    await handleUpdateInteractions(person, updatedInteractions);
+  }, [handleUpdateInteractions]);
 
   const handleQuickLog = useCallback((person: Person, type: InteractionType) => {
     handleLogInteraction(
-      person._id,
+      person,
       type,
       new Date().toISOString().slice(0, 10),
       `Quick Log: ${type}`,
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [people]);
+  }, [handleLogInteraction]);
 
   const handleView = useCallback((p: Person) => {
     setSelectedPerson(p);
@@ -368,9 +361,9 @@ export default function PeopleAdminView() {
                 }}
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
-                onLogInteraction={handleLogInteraction}
+                onLogInteraction={(_, type, date, note) => handleLogInteraction(selectedPerson, type, date, note)}
                 onUpdateInteractions={(interactions) =>
-                  handleUpdateInteractions(selectedPerson._id, interactions)
+                  handleUpdateInteractions(selectedPerson, interactions)
                 }
                 onUpdateDocuments={handleUpdateDocuments}
               />
