@@ -37,12 +37,17 @@ Pick one category per run:
 - Remove **at most 5 dead items** per run.
 - If removing something requires changing other files, keep the total diff under 30 lines.
 
-### 4. Verify
+### 4. No-Op Conditions
+
+- If you scan the codebase and find no dead code in the selected category, log "no dead code found in [category]" and stop.
+- If the only dead code found is deliberately kept for future reference (e.g., explicitly marked WIP comments) or ambiguous, no-op.
+
+### 5. Verify
 
 - Run `pnpm check` — must pass cleanly.
 - If anything breaks, revert immediately and log to `issues_to_look/`.
 
-### 5. Commit
+### 6. Commit
 
 - Commit with a message like: `chore: remove unused formatCurrency export from utils`
 - List what was removed and why in the commit body.
