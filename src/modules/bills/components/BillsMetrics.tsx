@@ -47,7 +47,7 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
 
     const countTrend =
       lastMonthBills.length === 0
-        ? 100
+        ? currentMonthBills.length === 0 ? 0 : 100
         : Math.round(
             ((currentMonthBills.length - lastMonthBills.length) /
               lastMonthBills.length) *
@@ -55,7 +55,7 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
           );
     const amountTrend =
       lastTotal === 0
-        ? 100
+        ? currentTotal === 0 ? 0 : 100
         : Math.round(((currentTotal - lastTotal) / lastTotal) * 100);
 
     return {
