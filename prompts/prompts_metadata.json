@@ -251,14 +251,14 @@
       "category": "testing",
       "enabled": true,
       "autonomousSafe": true,
-      "totalSelected": 57,
+      "totalSelected": 58,
       "totalCompleted": 56,
       "totalNoop": 0,
-      "totalFailed": 1,
-      "lastOutcome": "completed",
+      "totalFailed": 2,
+      "lastOutcome": "failed",
       "updatedAt": "2026-05-25T01:23:10.285Z",
-      "lastSelectedAt": "2026-06-09T04:01:00.314Z",
-      "lastCompletedAt": "2026-06-09T04:13:27.077Z"
+      "lastSelectedAt": "2026-06-14T04:00:55.822Z",
+      "lastCompletedAt": "2026-06-14T04:13:07.443Z"
     },
     "theme_strictness_enforcer.md": {
       "id": "theme-strictness-enforcer",
@@ -340,5 +340,5 @@
       "updatedAt": "2026-05-22T02:53:40.574Z"
     }
   },
-  "updatedAt": "2026-06-14T00:06:52.284Z"
+  "updatedAt": "2026-06-14T04:13:07.443Z"
 }
