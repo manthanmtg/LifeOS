@@ -306,6 +306,7 @@ export default function BillDetail({
                         <button
                           onClick={() => handleDeleteAttachment(att.id)}
                           disabled={deletingAttachmentId === att.id}
+                          aria-label="Delete attachment"
                           title="Delete"
                           className="p-1.5 text-zinc-500 hover:text-danger rounded-lg hover:bg-danger/10 transition-colors disabled:opacity-50"
                         >
@@ -392,6 +393,7 @@ export default function BillDetail({
                     </button>
                     <button
                       onClick={() => setPreviewAttachment(null)}
+                      aria-label="Close preview"
                       className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 rounded-xl hover:bg-zinc-700 transition-colors"
                       title="Close (Esc)"
                     >
