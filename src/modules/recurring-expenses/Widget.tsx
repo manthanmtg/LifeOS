@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AlertTriangle, Sparkles, Timer } from "lucide-react";
+import { motion } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -126,7 +127,12 @@ export default function RecurringExpensesWidget() {
       loading={loading}
       href="/admin/recurring-expenses"
     >
-      <div className="space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="space-y-3"
+      >
         <WidgetStat
           value={
             summaryError
@@ -141,7 +147,7 @@ export default function RecurringExpensesWidget() {
           subtext={detail.subtext}
           variant={detail.variant}
         />
-      </div>
+      </motion.div>
     </WidgetCard>
   );
 }
