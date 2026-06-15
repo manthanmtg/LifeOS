@@ -44,7 +44,7 @@ export default function CalculatorCard({
   );
 
   return (
-    <article className="group rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-[0_10px_40px_-20px_rgba(0,0,0,0.7)] overflow-hidden">
+    <article className="group rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-[0_10px_40px_-20px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-300 hover:border-zinc-700/50 hover:shadow-2xl hover:shadow-black/60">
       <div className="relative p-4 sm:p-5 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
         <div className="flex items-start justify-between gap-3">
