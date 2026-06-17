@@ -197,17 +197,17 @@ export default function BookshelfAdminView() {
   return (
     <div className="animate-fade-in-up space-y-6">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+      <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-4 sm:p-6">
         <div className="absolute -top-16 right-0 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
         <div className="absolute -bottom-16 left-1/4 h-44 w-44 rounded-full bg-accent/10 blur-3xl" />
 
         <div className="relative space-y-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-50">
                 Bookshelf
               </h1>
-              <p className="text-zinc-400 mt-1">
+              <p className="text-zinc-400 mt-1 text-sm sm:text-base">
                 Track reading momentum, completion velocity, and yearly goals.
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function BookshelfAdminView() {
                 aria-label="Bookshelf settings"
                 title="Bookshelf settings"
                 className={cn(
-                  "px-3 py-2.5 rounded-xl text-sm transition-colors shrink-0",
+                  "flex items-center justify-center px-3 py-2.5 min-h-[44px] rounded-xl text-sm transition-colors shrink-0",
                   showSettings
                     ? "bg-accent/15 text-accent"
                     : "bg-zinc-800 text-zinc-400 hover:text-zinc-300",
@@ -227,7 +227,7 @@ export default function BookshelfAdminView() {
               </button>
               <button
                 onClick={handleOpenNewForm}
-                className="flex items-center justify-center flex-1 md:flex-none gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 rounded-xl text-sm transition-colors"
+                className="flex items-center justify-center flex-1 md:flex-none gap-2 bg-accent hover:bg-accent-hover text-zinc-50 font-medium px-4 py-2.5 min-h-[44px] rounded-xl text-sm transition-colors"
               >
                 <Plus className="w-4 h-4" /> Add Book
               </button>
