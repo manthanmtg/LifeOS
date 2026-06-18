@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { CalendarDays, CreditCard, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
@@ -51,9 +52,59 @@ export default function RecurringExpensesPublicView({
 }: {
   items: Record<string, unknown>[];
 }) {
-  const subs = (items as unknown as RecurringExpense[]).filter(
-    (s) => s.payload.is_active,
-  );
+  const {
+    subs,
+    totalMonthly,
+    totalYearly,
+    hasSingleCurrency,
+    primaryCurrency,
+    nextUp,
+    byCategory
+  } = useMemo(() => {
+    const activeSubs = (items as unknown as RecurringExpense[]).filter(
+      (s) => s.payload.is_active,
+    );
+
+    const enrichedSubs = activeSubs.map(sub => {
+      const dateObj = new Date(sub.payload.next_renewal_date);
+      return {
+        ...sub,
+        _parsedDate: dateObj.getTime(),
+        _formattedDate: dateObj.toLocaleDateString(),
+        _monthlyCost: monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle)
+      };
+    });
+
+    const totalMonthly = enrichedSubs.reduce((s, sub) => s + sub._monthlyCost, 0);
+    const totalYearly = totalMonthly * 12;
+
+    const currencies = new Set(enrichedSubs.map((sub) => sub.payload.currency));
+    const hasSingleCurrency = currencies.size <= 1;
+    const primaryCurrency = enrichedSubs[0]?.payload.currency ?? "USD";
+
+    const nextUp = [...enrichedSubs]
+      .sort((a, b) => a._parsedDate - b._parsedDate)
+      .slice(0, 3);
+
+    const byCategory = Object.entries(
+      enrichedSubs.reduce<Record<string, number>>((acc, item) => {
+        acc[item.payload.category] = (acc[item.payload.category] || 0) + item._monthlyCost;
+        return acc;
+      }, {})
+    )
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+
+    return {
+      subs: enrichedSubs,
+      totalMonthly,
+      totalYearly,
+      hasSingleCurrency,
+      primaryCurrency,
+      nextUp,
+      byCategory
+    };
+  }, [items]);
 
   if (subs.length === 0) {
     return (
@@ -63,35 +114,6 @@ export default function RecurringExpensesPublicView({
       </div>
     );
   }
-
-  const totalMonthly = subs.reduce(
-    (s, sub) =>
-      s + monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle),
-    0,
-  );
-  const totalYearly = totalMonthly * 12;
-  const currencies = new Set(subs.map((sub) => sub.payload.currency));
-  const hasSingleCurrency = currencies.size <= 1;
-  const primaryCurrency = subs[0]?.payload.currency ?? "USD";
-  const nextUp = [...subs]
-    .sort(
-      (a, b) =>
-        new Date(a.payload.next_renewal_date).getTime() -
-        new Date(b.payload.next_renewal_date).getTime(),
-    )
-    .slice(0, 3);
-  const byCategory = Object.entries(
-    subs.reduce<Record<string, number>>((acc, item) => {
-      const monthly = monthlyEquivalent(
-        item.payload.cost,
-        item.payload.billing_cycle,
-      );
-      acc[item.payload.category] = (acc[item.payload.category] || 0) + monthly;
-      return acc;
-    }, {}),
-  )
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -131,8 +153,7 @@ export default function RecurringExpensesPublicView({
                 key={item._id}
                 className="text-xs px-2.5 py-1 rounded-full border border-zinc-700 bg-zinc-800/80 text-zinc-300"
               >
-                {item.payload.name} ·{" "}
-                {new Date(item.payload.next_renewal_date).toLocaleDateString()}
+                {item.payload.name} · {item._formattedDate}
               </span>
             ))}
           </div>
@@ -193,17 +214,10 @@ export default function RecurringExpensesPublicView({
             <div className="mt-3 pt-3 border-t border-zinc-800 text-xs text-zinc-400 flex items-center justify-between">
               <span className="inline-flex items-center gap-1">
                 <CalendarDays className="w-3 h-3" />
-                {new Date(s.payload.next_renewal_date).toLocaleDateString()}
+                {s._formattedDate}
               </span>
               <span>
-                {formatRecurringAmount(
-                  monthlyEquivalent(
-                    s.payload.cost,
-                    s.payload.billing_cycle,
-                  ),
-                  s.payload.currency,
-                )}
-                  /mo
+                {formatRecurringAmount(s._monthlyCost, s.payload.currency)}/mo
               </span>
             </div>
           </div>
