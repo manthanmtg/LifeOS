@@ -58,7 +58,7 @@ function Toast({
           className={`fixed left-4 right-4 bottom-4 sm:left-auto sm:right-8 sm:bottom-8 z-[10000] flex items-center gap-3 px-4 py-3 border rounded-2xl shadow-2xl backdrop-blur-md min-w-0 sm:min-w-[300px] max-w-[calc(100%-2rem)] sm:max-w-md ${colors}`}
         >
           <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
-          <p className="text-sm font-semibold flex-1 leading-tight">
+          <p className="text-sm font-semibold flex-1 leading-tight min-w-0 break-words">
             {message}
           </p>
 
