@@ -49,6 +49,27 @@ const editLoan: EmiLoan = {
 };
 
 describe("LoanEditor", () => {
+  it("shows an accessible saving state while the final save is in progress", () => {
+    render(
+      <LoanEditor
+        editLoan={editLoan}
+        settings={settings}
+        isSaving={true}
+        formError={null}
+        onClose={vi.fn()}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /terms/i }));
+    fireEvent.click(screen.getByRole("button", { name: /review/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /saving loan changes/i,
+    );
+    expect(screen.getByRole("button", { name: /saving/i })).toBeDisabled();
+  });
+
   it("edits lender, constrains due day, exposes interest type, and preserves nested arrays", async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 

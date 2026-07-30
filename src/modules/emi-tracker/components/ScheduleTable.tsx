@@ -16,6 +16,9 @@ interface ScheduleTableProps {
   onPrintPDF: () => void;
 }
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 export default function ScheduleTable({
   schedule,
   currencySymbol,
@@ -42,14 +45,22 @@ export default function ScheduleTable({
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={onExportCSV}
-            className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+            className={cn(
+              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
+              PRESSABLE,
+            )}
           >
             <Download className="w-4 h-4" /> CSV
           </button>
           <button
+            type="button"
             onClick={onPrintPDF}
-            className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+            className={cn(
+              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
+              PRESSABLE,
+            )}
           >
             <Printer className="w-4 h-4" /> PDF
           </button>

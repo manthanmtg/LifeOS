@@ -37,6 +37,9 @@ const VALID_SECTIONS: LoanSection[] = [
   "documents",
 ];
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 function isLoanSection(value: string | null): value is LoanSection {
   return !!value && VALID_SECTIONS.includes(value as LoanSection);
 }
@@ -66,6 +69,9 @@ export default function EmiTrackerAdminView() {
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [pendingNavigationLabel, setPendingNavigationLabel] = useState<
+    string | null
+  >(null);
   const [statusFilter, setStatusFilter] =
     useState<PortfolioStatusFilter>("active");
   const [now] = useState(() => new Date());
@@ -133,6 +139,10 @@ export default function EmiTrackerAdminView() {
       setFetchError("Loan not found. Showing your portfolio.");
     }
   }, [loading, loans.length, selectedId, selectedLoan, setUrlState]);
+
+  useEffect(() => {
+    setPendingNavigationLabel(null);
+  }, [selectedId, activeSection]);
 
   const portfolioModel = useMemo(
     () => buildPortfolioViewModel(loans, now, settings.roundingDecimals),
@@ -249,7 +259,10 @@ export default function EmiTrackerAdminView() {
         <button
           type="button"
           onClick={openCreate}
-          className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-2xl bg-accent px-4 py-2 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+          className={cn(
+            "flex min-h-[44px] shrink-0 items-center gap-2 rounded-2xl bg-accent px-4 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+            PRESSABLE,
+          )}
         >
           <Plus className="h-4 w-4" />
           Add loan
@@ -270,11 +283,28 @@ export default function EmiTrackerAdminView() {
           <button
             type="button"
             onClick={() => void fetchLoans({ keepExisting: loans.length > 0 })}
-            className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-warning/30 px-4 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning"
+            className={cn(
+              "flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-warning/30 px-4 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning",
+              PRESSABLE,
+            )}
           >
             <RotateCcw className="h-4 w-4" />
             Retry
           </button>
+        </div>
+      )}
+
+      {pendingNavigationLabel && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent shadow-lg shadow-zinc-950/20"
+        >
+          <span
+            aria-hidden="true"
+            className="h-3.5 w-3.5 rounded-full border-2 border-accent/25 border-t-accent motion-safe:animate-spin"
+          />
+          {pendingNavigationLabel}
         </div>
       )}
 
@@ -322,7 +352,8 @@ export default function EmiTrackerAdminView() {
                   type="button"
                   onClick={() => setStatusFilter(id)}
                   className={cn(
-                    "min-h-[44px] rounded-2xl border px-3 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                    "min-h-[44px] rounded-2xl border px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                    PRESSABLE,
                     statusFilter === id
                       ? "border-accent/30 bg-accent/10 text-accent"
                       : "border-zinc-800 bg-zinc-950/35 text-zinc-400 hover:text-zinc-100",
@@ -337,7 +368,13 @@ export default function EmiTrackerAdminView() {
           <LoanList
             loanCards={loanCards}
             selectedId={selectedLoan?._id ?? null}
-            onSelect={(id) => setUrlState({ loan: id, section: "overview" })}
+            onSelect={(id) => {
+              const loanTitle =
+                loanCards.find(({ loan }) => loan._id === id)?.loan.payload
+                  .title ?? "loan";
+              setPendingNavigationLabel(`Opening ${loanTitle}…`);
+              setUrlState({ loan: id, section: "overview" });
+            }}
             decimals={settings.roundingDecimals}
             numberFormat={settings.numberFormat}
             loading={false}

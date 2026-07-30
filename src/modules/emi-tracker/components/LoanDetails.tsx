@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   CalendarClock,
@@ -47,6 +48,10 @@ const SECTIONS: Array<{ id: LoanSection; label: string }> = [
   { id: "documents", label: "Documents" },
 ];
 
+function pressableClass() {
+  return "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
+}
+
 export default function LoanDetails({
   loan,
   settings,
@@ -58,6 +63,9 @@ export default function LoanDetails({
   isSubmitting,
 }: LoanDetailsProps) {
   const [extraMonthly, setExtraMonthly] = useState(0);
+  const [pendingSection, setPendingSection] = useState<LoanSection | null>(
+    null,
+  );
   const [now] = useState(() => new Date());
   const decimals = settings.roundingDecimals;
   const numberFormat = settings.numberFormat;
@@ -67,6 +75,20 @@ export default function LoanDetails({
     [loan, extraMonthly, now, decimals],
   );
   const warning = model.schedule.warnings[0];
+  const unsettledPendingSection =
+    pendingSection !== activeSection ? pendingSection : null;
+  const pendingSectionLabel = unsettledPendingSection
+    ? SECTIONS.find((section) => section.id === unsettledPendingSection)?.label
+    : null;
+  const isSectionPending =
+    unsettledPendingSection !== null;
+  const isWorkspaceBusy = isSubmitting || isSectionPending;
+
+  const selectSection = (section: LoanSection) => {
+    if (section === activeSection) return;
+    setPendingSection(section);
+    onSectionChange(section);
+  };
 
   const facts = [
     {
@@ -119,7 +141,10 @@ export default function LoanDetails({
         <button
           type="button"
           onClick={onBack}
-          className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:hidden"
+          className={cn(
+            "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-3 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:hidden",
+            pressableClass(),
+          )}
         >
           <ArrowLeft className="h-4 w-4" />
           Loans
@@ -136,7 +161,10 @@ export default function LoanDetails({
         <button
           type="button"
           onClick={onEdit}
-          className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-3 py-2 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+          className={cn(
+            "flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-3 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+            pressableClass(),
+          )}
         >
           <Edit3 className="h-4 w-4" />
           <span className="hidden sm:inline">Edit loan</span>
@@ -211,9 +239,10 @@ export default function LoanDetails({
             role="tab"
             aria-selected={activeSection === section.id}
             aria-controls={`emi-section-${section.id}`}
-            onClick={() => onSectionChange(section.id)}
+            onClick={() => selectSection(section.id)}
             className={cn(
-              "min-h-[44px] rounded-2xl px-4 py-2 text-sm font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              "min-h-[44px] rounded-2xl px-4 py-2 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              pressableClass(),
               activeSection === section.id
                 ? "bg-accent text-zinc-50"
                 : "text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-100",
@@ -224,85 +253,114 @@ export default function LoanDetails({
         ))}
       </div>
 
-      <section
-        id={`emi-section-${activeSection}`}
-        role="tabpanel"
-        className="min-w-0"
-      >
-        {activeSection === "overview" && (
-          <LoanOverviewTab
-            loan={loan}
-            baselineSchedule={model.schedule}
-            simulatedSchedule={model.simulatedSchedule}
-            extraMonthly={extraMonthly}
-            setExtraMonthly={setExtraMonthly}
-            sym={sym}
-            numberFormat={numberFormat}
-            decimals={decimals}
-            interestSavedTotal={model.interestSaved}
-            tenureSaved={model.tenureSavedMonths}
-          />
+      <div className="relative">
+        {isWorkspaceBusy && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-3 flex items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent shadow-lg shadow-zinc-950/20"
+          >
+            <span
+              aria-hidden="true"
+              className="h-3.5 w-3.5 rounded-full border-2 border-accent/25 border-t-accent motion-safe:animate-spin"
+            />
+            {isSubmitting
+              ? "Saving loan updates…"
+              : `Loading ${pendingSectionLabel ?? "section"}…`}
+          </div>
         )}
-        {activeSection === "insights" && (
-          <LoanAnalysis
-            loan={loan}
-            schedule={model.schedule}
-            currencySymbol={sym}
-            numberFormat={numberFormat}
-            decimals={decimals}
-          />
-        )}
-        {activeSection === "schedule" && (
-          <ScheduleTable
-            schedule={model.schedule}
-            currencySymbol={sym}
-            decimals={decimals}
-            numberFormat={numberFormat}
-            onExportCSV={() => {
-              const csv = toCSV(model.schedule.rows);
-              downloadTextFile(
-                `${loan.payload.title}_schedule.csv`,
-                csv,
-                "text/csv",
-              );
-            }}
-            onPrintPDF={() => {
-              exportSchedulePDF(
-                loan.payload.title,
-                model.schedule,
-                sym,
-                decimals,
-                numberFormat,
-              );
-            }}
-          />
-        )}
-        {activeSection === "activity" && (
-          <ActivityTab
-            loan={loan}
-            currencySymbol={sym}
-            decimals={decimals}
-            numberFormat={numberFormat}
-            isSubmitting={isSubmitting}
-            onUpdatePayments={updatePayments}
-            onUpdateAdjustments={updateAdjustments}
-          />
-        )}
-        {activeSection === "documents" && (
-          <DocumentList
-            documents={loan.payload.documents}
-            isSubmitting={isSubmitting}
-            onAdd={async (document) => {
-              await updateDocuments([...loan.payload.documents, document]);
-            }}
-            onDelete={async (index) => {
-              const next = [...loan.payload.documents];
-              next.splice(index, 1);
-              await updateDocuments(next);
-            }}
-          />
-        )}
-      </section>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.section
+            key={`${loan._id}-${activeSection}`}
+            id={`emi-section-${activeSection}`}
+            role="tabpanel"
+            aria-busy={isWorkspaceBusy}
+            className={cn(
+              "min-w-0 will-change-transform",
+              isSectionPending && "pointer-events-none opacity-75",
+            )}
+            initial={{ opacity: 0, y: 10, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.995 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            {activeSection === "overview" && (
+              <LoanOverviewTab
+                loan={loan}
+                baselineSchedule={model.schedule}
+                simulatedSchedule={model.simulatedSchedule}
+                extraMonthly={extraMonthly}
+                setExtraMonthly={setExtraMonthly}
+                sym={sym}
+                numberFormat={numberFormat}
+                decimals={decimals}
+                interestSavedTotal={model.interestSaved}
+                tenureSaved={model.tenureSavedMonths}
+              />
+            )}
+            {activeSection === "insights" && (
+              <LoanAnalysis
+                loan={loan}
+                schedule={model.schedule}
+                currencySymbol={sym}
+                numberFormat={numberFormat}
+                decimals={decimals}
+              />
+            )}
+            {activeSection === "schedule" && (
+              <ScheduleTable
+                schedule={model.schedule}
+                currencySymbol={sym}
+                decimals={decimals}
+                numberFormat={numberFormat}
+                onExportCSV={() => {
+                  const csv = toCSV(model.schedule.rows);
+                  downloadTextFile(
+                    `${loan.payload.title}_schedule.csv`,
+                    csv,
+                    "text/csv",
+                  );
+                }}
+                onPrintPDF={() => {
+                  exportSchedulePDF(
+                    loan.payload.title,
+                    model.schedule,
+                    sym,
+                    decimals,
+                    numberFormat,
+                  );
+                }}
+              />
+            )}
+            {activeSection === "activity" && (
+              <ActivityTab
+                loan={loan}
+                currencySymbol={sym}
+                decimals={decimals}
+                numberFormat={numberFormat}
+                isSubmitting={isSubmitting}
+                onUpdatePayments={updatePayments}
+                onUpdateAdjustments={updateAdjustments}
+              />
+            )}
+            {activeSection === "documents" && (
+              <DocumentList
+                documents={loan.payload.documents}
+                isSubmitting={isSubmitting}
+                onAdd={async (document) => {
+                  await updateDocuments([...loan.payload.documents, document]);
+                }}
+                onDelete={async (index) => {
+                  const next = [...loan.payload.documents];
+                  next.splice(index, 1);
+                  await updateDocuments(next);
+                }}
+              />
+            )}
+          </motion.section>
+        </AnimatePresence>
+      </div>
     </article>
   );
 }

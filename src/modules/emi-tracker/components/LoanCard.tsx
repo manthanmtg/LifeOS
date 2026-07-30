@@ -22,6 +22,9 @@ function statusLabel(status: EmiLoan["payload"]["status"]) {
   return "Active";
 }
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 export default function LoanCard({
   loan,
   outstanding,
@@ -41,10 +44,11 @@ export default function LoanCard({
       onClick={() => onClick(loan._id)}
       aria-current={isSelected ? "true" : undefined}
       className={cn(
-        "relative min-h-[148px] w-full overflow-hidden rounded-3xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+        "group relative min-h-[148px] w-full overflow-hidden rounded-3xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+        PRESSABLE,
         isSelected
-          ? "border-accent/40 bg-zinc-800/85"
-          : "border-zinc-800 bg-zinc-900/55 hover:border-zinc-700 hover:bg-zinc-900/80",
+          ? "border-accent/40 bg-zinc-800/85 shadow-lg shadow-accent/10"
+          : "border-zinc-800 bg-zinc-900/55 hover:-translate-y-0.5 hover:border-zinc-700 hover:bg-zinc-900/80 hover:shadow-xl hover:shadow-zinc-950/20",
       )}
     >
       {isSelected && (
@@ -73,7 +77,7 @@ export default function LoanCard({
             {loan.payload.category}
           </p>
         </div>
-        <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-zinc-500" />
+        <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-zinc-500 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none" />
       </div>
 
       <div className="mt-4">

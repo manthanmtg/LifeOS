@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import EmiTrackerAdminView from "../AdminView";
 import React from "react";
@@ -159,5 +159,58 @@ describe("EmiTrackerAdminView", () => {
     // Wait for the data to be rendered (e.g. check for lender name)
     const el = await screen.findByText(/HDFC/i, {}, { timeout: 10000 });
     expect(el).toBeTruthy();
+  }, 15000);
+
+  it("shows pending feedback when opening a loan workspace", async () => {
+    const mockData = {
+      success: true,
+      data: [
+        {
+          _id: "loan-1",
+          module_type: "emi_loan",
+          is_public: false,
+          created_at: "2024-01-01T00:00:00.000Z",
+          updated_at: "2024-01-01T00:00:00.000Z",
+          payload: {
+            title: "Home Loan",
+            lender_name: "HDFC",
+            category: "Home",
+            principal: 5000000,
+            currency: "INR",
+            tenure_months: 240,
+            annual_interest_rate: 8.5,
+            interest_type: "floating",
+            monthly_emi: 43391,
+            start_date: "2024-01-01",
+            due_day_of_month: 5,
+            processing_fee_financed: false,
+            status: "active",
+            payments: [],
+            documents: [],
+            rate_adjustments: [],
+            recast_strategy: "keep_tenure_adjust_emi",
+          },
+        },
+      ],
+    };
+
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockData),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      } as Response);
+    });
+
+    render(<EmiTrackerAdminView />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /home loan/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(/opening home loan/i);
   }, 15000);
 });

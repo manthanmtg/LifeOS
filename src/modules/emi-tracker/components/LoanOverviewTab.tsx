@@ -7,6 +7,9 @@ import { formatMoney, roundTo } from "../lib/emi-utils";
 import type { EmiLoan, ScheduleResult } from "../types";
 import PayoffChart from "./PayoffChart";
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 interface LoanOverviewTabProps {
   loan: EmiLoan;
   baselineSchedule: ScheduleResult;
@@ -65,7 +68,10 @@ export default function LoanOverviewTab({
               <button
                 type="button"
                 onClick={() => setExtraMonthly(0)}
-                className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                className={cn(
+                  "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  PRESSABLE,
+                )}
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset
@@ -114,7 +120,10 @@ export default function LoanOverviewTab({
                     key={preset.label}
                     type="button"
                     onClick={() => setExtraMonthly(preset.value)}
-                    className="min-h-[44px] rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                    className={cn(
+                      "min-h-[44px] rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                      PRESSABLE,
+                    )}
                   >
                     {preset.label}
                   </button>
@@ -180,7 +189,10 @@ export default function LoanOverviewTab({
         <button
           type="button"
           onClick={() => setTermsOpen((open) => !open)}
-          className="flex min-h-[44px] w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:pointer-events-none"
+          className={cn(
+            "flex min-h-[44px] w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:pointer-events-none",
+            PRESSABLE,
+          )}
         >
           <div>
             <h3 className="text-lg font-black text-zinc-100">Loan terms</h3>

@@ -40,7 +40,11 @@ function todayInputValue() {
 }
 
 function fieldClass() {
-  return "mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 shadow-inner outline-none transition-colors placeholder:text-zinc-600 focus:border-accent/60 focus:ring-2 focus:ring-accent/20 md:text-sm";
+  return "mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 shadow-inner outline-none transition-all duration-200 ease-out placeholder:text-zinc-600 focus:border-accent/60 focus:ring-2 focus:ring-accent/20 md:text-sm motion-reduce:transition-none";
+}
+
+function pressableClass() {
+  return "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
 }
 
 export default function LoanEditor({
@@ -239,6 +243,7 @@ export default function LoanEditor({
               onClick={() => setStep(index as Step)}
               className={cn(
                 "min-h-[44px] flex-1 rounded-2xl border px-3 py-2 text-sm font-bold transition-colors",
+                pressableClass(),
                 step === index
                   ? "border-accent/30 bg-accent/10 text-accent"
                   : "border-zinc-800 bg-zinc-900/60 text-zinc-400",
@@ -468,7 +473,10 @@ export default function LoanEditor({
               <button
                 type="button"
                 onClick={() => setMonthlyEmi(suggestedEmi)}
-                className="mt-3 min-h-[44px] rounded-2xl border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-bold text-accent transition-colors hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                className={cn(
+                  "mt-3 min-h-[44px] rounded-2xl border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-bold text-accent hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  pressableClass(),
+                )}
               >
                 Use suggested EMI
               </button>
@@ -574,13 +582,29 @@ export default function LoanEditor({
           </section>
         )}
 
-        <div className="sticky bottom-0 -mx-5 flex items-center justify-between gap-3 border-t border-zinc-800 bg-zinc-950/95 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="sticky bottom-0 -mx-5 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 bg-zinc-950/95 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] backdrop-blur">
+          {isSaving && (
+            <p
+              role="status"
+              aria-live="polite"
+              className="order-first flex w-full items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm font-bold text-accent sm:order-none sm:w-auto"
+            >
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-3.5 rounded-full border-2 border-accent/25 border-t-accent motion-safe:animate-spin"
+              />
+              Saving loan changes…
+            </p>
+          )}
           <button
             type="button"
             onClick={() =>
               step === 0 ? onClose() : setStep((step - 1) as Step)
             }
-            className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+            className={cn(
+              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              pressableClass(),
+            )}
           >
             <ArrowLeft className="h-4 w-4" />
             {step === 0 ? "Cancel" : "Back"}
@@ -588,7 +612,10 @@ export default function LoanEditor({
           <button
             type="submit"
             disabled={isSaving}
-            className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50"
+            className={cn(
+              "flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50 disabled:active:scale-100",
+              pressableClass(),
+            )}
           >
             {step < 2 ? (
               <>

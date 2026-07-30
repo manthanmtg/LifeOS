@@ -19,6 +19,9 @@ interface ActivityTabProps {
   ) => Promise<void>;
 }
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 export default function ActivityTab({
   loan,
   currencySymbol,
@@ -43,7 +46,8 @@ export default function ActivityTab({
             type="button"
             onClick={() => setView(id as ActivityView)}
             className={cn(
-              "min-h-[36px] rounded-xl px-4 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              "min-h-[36px] rounded-xl px-4 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              PRESSABLE,
               view === id
                 ? "bg-accent text-zinc-50"
                 : "text-zinc-400 hover:text-zinc-100",

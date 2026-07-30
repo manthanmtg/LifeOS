@@ -15,6 +15,9 @@ interface ScheduleCardsProps {
   initialCount?: number;
 }
 
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 function groupByYear(rows: ScheduleRow[]) {
   return rows.reduce<Record<string, ScheduleRow[]>>((groups, row) => {
     const year = new Date(row.due_date).getFullYear().toString();
@@ -51,7 +54,10 @@ export default function ScheduleCards({
                 key={row.index}
                 type="button"
                 onClick={() => setExpanded(isOpen ? null : row.index)}
-                className="w-full rounded-2xl border border-zinc-800 bg-zinc-900/55 p-4 text-left transition-colors hover:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                className={cn(
+                  "w-full rounded-2xl border border-zinc-800 bg-zinc-900/55 p-4 text-left hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  PRESSABLE,
+                )}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -160,7 +166,10 @@ export default function ScheduleCards({
         <button
           type="button"
           onClick={() => setVisibleCount((count) => count + initialCount)}
-          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-sm font-bold text-zinc-200 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          className={cn(
+            "flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-sm font-bold text-zinc-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+            PRESSABLE,
+          )}
         >
           Show more
           <ChevronDown className="h-4 w-4" />

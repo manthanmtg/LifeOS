@@ -1,6 +1,7 @@
 "use client";
 
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { cn } from "@/lib/utils";
 import LoanCard from "./LoanCard";
 import type { EmiLoan, ScheduleRow } from "../types";
 
@@ -21,6 +22,9 @@ interface LoanListProps {
   emptyActionLabel?: string;
   onEmptyAction?: () => void;
 }
+
+const PRESSABLE =
+  "transition-all duration-200 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100";
 
 export default function LoanList({
   loanCards,
@@ -71,7 +75,10 @@ export default function LoanList({
           <button
             type="button"
             onClick={onEmptyAction}
-            className="mt-5 min-h-[44px] rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+            className={cn(
+              "mt-5 min-h-[44px] rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+              PRESSABLE,
+            )}
           >
             {emptyActionLabel}
           </button>
