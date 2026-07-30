@@ -2,24 +2,31 @@
 
 import { useMemo } from "react";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { ScheduleRow } from "../types";
 import { formatMoney } from "../lib/emi-utils";
+import type { ScheduleRow } from "../types";
 
 interface PayoffChartProps {
-  schedule: ScheduleRow[];
+  baselineSchedule: ScheduleRow[];
+  simulatedSchedule: ScheduleRow[];
   currencySymbol: string;
   numberFormat: "western" | "indian";
 }
 
-const CustomTooltip = ({
+type TooltipPayload = Array<{
+  dataKey: string;
+  value: number;
+  name: string;
+}>;
+
+function CustomTooltip({
   active,
   payload,
   label,
@@ -27,114 +34,128 @@ const CustomTooltip = ({
   numberFormat,
 }: {
   active?: boolean;
-  payload?: { value: number }[];
+  payload?: TooltipPayload;
   label?: string;
   currencySymbol: string;
   numberFormat: "western" | "indian";
-}) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 p-3 rounded-xl shadow-2xl">
-        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">
-          Month {label}
-        </p>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-zinc-400">Balance:</span>
-            <span className="text-xs font-bold text-zinc-50">
-              {formatMoney(payload[0].value, currencySymbol, 0, numberFormat)}
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-950/95 p-3 shadow-2xl">
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
+        Payment {label}
+      </p>
+      <div className="space-y-1.5">
+        {payload.map((item) => (
+          <div
+            key={item.dataKey}
+            className="flex items-center justify-between gap-6"
+          >
+            <span className="text-sm text-zinc-400">{item.name}</span>
+            <span className="font-mono text-sm font-black text-zinc-50">
+              {formatMoney(item.value, currencySymbol, 0, numberFormat)}
             </span>
           </div>
-          <div className="h-px bg-zinc-800 my-1" />
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-zinc-400">Interest:</span>
-            <span className="text-xs font-bold text-danger">
-              {formatMoney(payload[1].value, currencySymbol, 0, numberFormat)}
-            </span>
-          </div>
-        </div>
+        ))}
       </div>
-    );
-  }
-  return null;
-};
+    </div>
+  );
+}
 
 export default function PayoffChart({
-  schedule,
+  baselineSchedule,
+  simulatedSchedule,
   currencySymbol,
   numberFormat,
 }: PayoffChartProps) {
   const data = useMemo(() => {
-    // Sample down if schedule is too long for the chart
-    const step = Math.max(1, Math.floor(schedule.length / 60));
-    return schedule
-      .filter((_, i) => i % step === 0 || i === schedule.length - 1)
-      .map((r) => ({
-        month: r.index,
-        date: r.due_date.slice(0, 10),
-        balance: Math.round(r.closing_balance),
-        interestPaid: Math.round(r.interest),
-        principalPaid: Math.round(r.principal),
-      }));
-  }, [schedule]);
+    const maxLength = Math.max(
+      baselineSchedule.length,
+      simulatedSchedule.length,
+    );
+    const step = Math.max(1, Math.floor(maxLength / 72));
+    const rows = [];
+    for (let index = 0; index < maxLength; index += step) {
+      const baseline =
+        baselineSchedule[index] ??
+        baselineSchedule[baselineSchedule.length - 1];
+      const simulated =
+        simulatedSchedule[index] ??
+        simulatedSchedule[simulatedSchedule.length - 1];
+      if (!baseline && !simulated) continue;
+      rows.push({
+        month: index + 1,
+        baseline: Math.max(0, Math.round(baseline?.closing_balance ?? 0)),
+        simulated: Math.max(0, Math.round(simulated?.closing_balance ?? 0)),
+      });
+    }
+    if (maxLength > 0 && rows.at(-1)?.month !== maxLength) {
+      rows.push({
+        month: maxLength,
+        baseline: Math.max(
+          0,
+          Math.round(baselineSchedule.at(-1)?.closing_balance ?? 0),
+        ),
+        simulated: Math.max(
+          0,
+          Math.round(simulatedSchedule.at(-1)?.closing_balance ?? 0),
+        ),
+      });
+    }
+    return rows;
+  }, [baselineSchedule, simulatedSchedule]);
 
   return (
-    <div className="relative mt-4 h-[300px] w-full overflow-hidden rounded-[28px] border border-zinc-800/80 bg-gradient-to-br from-zinc-900/90 via-zinc-950/70 to-zinc-900/90 shadow-[0_24px_80px_rgba(var(--color-accent),0.12)]">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-12 top-6 h-28 w-28 rounded-full bg-accent/15 blur-3xl" />
-        <div className="absolute bottom-4 right-10 h-24 w-24 rounded-full bg-danger/10 blur-3xl" />
-        <div className="absolute inset-[1px] rounded-[27px] border border-zinc-50/5" />
-        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-zinc-50/5 to-transparent" />
-      </div>
-
-      <div className="relative h-full w-full px-3 py-4">
+    <div className="mt-5">
+      <p className="mb-3 text-sm text-zinc-500">
+        Baseline payoff has {baselineSchedule.length} payments. Current
+        simulation has {simulatedSchedule.length} payments.
+      </p>
+      <div className="h-[240px] overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/35 p-2 md:h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
-              <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="baselineBalance" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-accent)"
-                  stopOpacity={0.36}
+                  stopColor="var(--color-warning)"
+                  stopOpacity={0.22}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-accent)"
+                  stopColor="var(--color-warning)"
                   stopOpacity={0}
                 />
               </linearGradient>
-              <linearGradient id="colorInterest" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="simulatedBalance" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-danger)"
-                  stopOpacity={0.24}
+                  stopColor="var(--color-accent)"
+                  stopOpacity={0.28}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-danger)"
+                  stopColor="var(--color-accent)"
                   stopOpacity={0}
                 />
               </linearGradient>
             </defs>
             <CartesianGrid
-              strokeDasharray="3 3"
               vertical={false}
-              stroke="rgba(255,255,255,0.07)"
+              stroke="var(--color-zinc-800)"
+              strokeOpacity={0.55}
             />
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#a1a1aa", fontSize: 10, fontWeight: 800 }}
+              tick={{
+                fill: "var(--color-zinc-500)",
+                fontSize: 11,
+                fontWeight: 700,
+              }}
             />
-            <YAxis
-              hide
-              domain={["auto", "auto"]}
-              axisLine={false}
-              tickFormatter={(value) =>
-                `${currencySymbol}${value > 1000 ? (value / 1000).toFixed(0) + "k" : value}`
-              }
-            />
+            <YAxis hide domain={["auto", "auto"]} />
             <Tooltip
               content={
                 <CustomTooltip
@@ -145,24 +166,35 @@ export default function PayoffChart({
             />
             <Area
               type="monotone"
-              dataKey="balance"
-              stroke="var(--color-accent)"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#colorBalance)"
-              animationDuration={1500}
+              dataKey="baseline"
+              name="Baseline"
+              stroke="var(--color-warning)"
+              strokeDasharray="5 5"
+              strokeWidth={2}
+              fill="url(#baselineBalance)"
+              animationDuration={250}
             />
             <Area
               type="monotone"
-              dataKey="interestPaid"
-              stroke="var(--color-danger)"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorInterest)"
-              animationDuration={2000}
+              dataKey="simulated"
+              name="Simulated"
+              stroke="var(--color-accent)"
+              strokeWidth={3}
+              fill="url(#simulatedBalance)"
+              animationDuration={250}
             />
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-3 text-xs font-semibold text-zinc-500">
+        <span className="inline-flex items-center gap-2">
+          <span className="h-0.5 w-6 border-t border-dashed border-warning" />
+          Baseline
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="h-1 w-6 rounded-full bg-accent" />
+          Simulated
+        </span>
       </div>
     </div>
   );

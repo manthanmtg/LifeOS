@@ -61,7 +61,11 @@ export const HABIT_DEFAULTS: HabitSettings = {
 // --- Utility functions ---
 
 export function getDateStr(d: Date): string {
-  return d.toISOString().split("T")[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function asDate(date: Date | string): Date {
@@ -151,7 +155,9 @@ export function computeMetrics(
   for (const habit of habits) {
     const target = habit.payload.target_count || 1;
     const completionDates = new Set(
-      habit.payload.completions.filter((c) => c.count >= target).map((c) => c.date),
+      habit.payload.completions
+        .filter((c) => c.count >= target)
+        .map((c) => c.date),
     );
 
     if (completionDates.has(todayStr)) completedToday++;

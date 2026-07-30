@@ -1,161 +1,248 @@
 "use client";
 
-import { Info, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, RotateCcw, TrendingDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { formatMoney, roundTo } from "../lib/emi-utils";
-import { EmiLoan, ScheduleResult } from "../types";
+import type { EmiLoan, ScheduleResult } from "../types";
 import PayoffChart from "./PayoffChart";
 
 interface LoanOverviewTabProps {
   loan: EmiLoan;
+  baselineSchedule: ScheduleResult;
   simulatedSchedule: ScheduleResult;
   extraMonthly: number;
   setExtraMonthly: (val: number) => void;
   sym: string;
   numberFormat: "western" | "indian";
+  decimals: number;
   interestSavedTotal: number;
   tenureSaved: number;
 }
 
 export default function LoanOverviewTab({
   loan,
+  baselineSchedule,
   simulatedSchedule,
   extraMonthly,
   setExtraMonthly,
   sym,
   numberFormat,
+  decimals,
   interestSavedTotal,
   tenureSaved,
 }: LoanOverviewTabProps) {
+  const [termsOpen, setTermsOpen] = useState(false);
+  const maxExtra = Math.max(loan.payload.monthly_emi * 2, 1);
+  const step = Math.max(1, roundTo(loan.payload.monthly_emi / 20, 0));
+  const presets = [0.05, 0.1, 0.25, 0.5].map((pct) => ({
+    label: `+${Math.round(pct * 100)}%`,
+    value: roundTo(loan.payload.monthly_emi * pct, 0),
+  }));
+  const baselinePayoff = baselineSchedule.rows.at(-1)?.due_date.slice(0, 10);
+  const simulatedPayoff = simulatedSchedule.rows.at(-1)?.due_date.slice(0, 10);
+
+  const setClampedExtra = (value: number) => {
+    setExtraMonthly(
+      Math.min(maxExtra, Math.max(0, Number.isFinite(value) ? value : 0)),
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-bold text-zinc-300">Payoff Projection</h3>
-            <p className="text-[10px] text-zinc-500 font-medium italic mt-1 uppercase tracking-widest">
-              Principal vs. Interest distribution
-            </p>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="space-y-6">
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="text-xl font-black text-zinc-100">
+                What if I pay more?
+              </h3>
+              <p className="mt-1 text-sm text-zinc-500">
+                Test a monthly extra payment without changing saved loan data.
+              </p>
+            </div>
+            {extraMonthly > 0 && (
+              <button
+                type="button"
+                onClick={() => setExtraMonthly(0)}
+                className="flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset
+              </button>
+            )}
           </div>
-        </div>
-        <PayoffChart
-          schedule={simulatedSchedule.rows}
-          currencySymbol={sym}
-          numberFormat={numberFormat}
-        />
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+            <div>
+              <label
+                htmlFor="extra-monthly"
+                className="text-sm font-bold text-zinc-300"
+              >
+                Extra each month
+              </label>
+              <input
+                id="extra-monthly"
+                type="number"
+                min={0}
+                max={maxExtra}
+                inputMode="decimal"
+                value={extraMonthly}
+                onBlur={() => setClampedExtra(extraMonthly)}
+                onChange={(event) =>
+                  setClampedExtra(Number(event.target.value))
+                }
+                className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base font-bold text-zinc-100 outline-none transition-colors focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              />
+            </div>
+            <div className="min-w-0 space-y-4">
+              <input
+                aria-label="Extra monthly payment"
+                type="range"
+                min={0}
+                max={maxExtra}
+                step={step}
+                value={extraMonthly}
+                onChange={(event) =>
+                  setClampedExtra(Number(event.target.value))
+                }
+                className="mt-7 w-full accent-accent"
+              />
+              <div className="flex flex-wrap gap-2">
+                {presets.map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => setExtraMonthly(preset.value)}
+                    className="min-h-[44px] rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-accent/20 bg-accent/10 p-4">
+              <div className="mb-2 flex items-center gap-2 text-accent">
+                <TrendingDown className="h-4 w-4" />
+                <p className="text-xs font-bold uppercase tracking-[0.14em]">
+                  Payoff impact
+                </p>
+              </div>
+              <p className="text-lg font-black text-zinc-50">
+                {tenureSaved > 0
+                  ? `Finish ${tenureSaved} ${tenureSaved === 1 ? "month" : "months"} earlier`
+                  : "This amount does not change the projected payoff yet."}
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">
+                {baselinePayoff ?? "—"} → {simulatedPayoff ?? "—"}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-success/20 bg-success/10 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-success">
+                Interest saved
+              </p>
+              <p className="mt-2 font-mono text-2xl font-black text-zinc-50">
+                {formatMoney(interestSavedTotal, sym, decimals, numberFormat)}
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">
+                Baseline interest{" "}
+                {formatMoney(
+                  baselineSchedule.totals.total_interest,
+                  sym,
+                  decimals,
+                  numberFormat,
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+          <h3 className="text-lg font-black text-zinc-100">
+            Baseline vs faster payoff
+          </h3>
+          <p className="mt-1 text-sm text-zinc-500">
+            Closing balance over time for the saved loan and current simulation.
+          </p>
+          <PayoffChart
+            baselineSchedule={baselineSchedule.rows}
+            simulatedSchedule={simulatedSchedule.rows}
+            currencySymbol={sym}
+            numberFormat={numberFormat}
+          />
+        </section>
       </div>
 
-      <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg">
-        <h3 className="text-sm font-bold text-zinc-300 mb-6 flex items-center gap-2">
-          <Info className="w-4 h-4 text-accent" />
-          Technical Profile
-        </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+        <button
+          type="button"
+          onClick={() => setTermsOpen((open) => !open)}
+          className="flex min-h-[44px] w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:pointer-events-none"
+        >
+          <div>
+            <h3 className="text-lg font-black text-zinc-100">Loan terms</h3>
+            <p className="text-sm text-zinc-500">
+              Source terms used for projections.
+            </p>
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-5 w-5 text-zinc-500 transition-transform xl:hidden",
+              termsOpen && "rotate-180",
+            )}
+          />
+        </button>
+
+        <dl
+          className={cn(
+            "mt-5 grid gap-4 text-sm xl:grid",
+            termsOpen ? "grid" : "hidden xl:grid",
+          )}
+        >
           {[
-            {
-              label: "Interest Type",
-              value: loan.payload.interest_type,
-              sub: "Rate model",
-            },
-            {
-              label: "Processing Fee",
-              value: loan.payload.processing_fee_amount
+            ["Interest type", loan.payload.interest_type],
+            [
+              "Processing fee",
+              loan.payload.processing_fee_amount
                 ? formatMoney(
                     loan.payload.processing_fee_amount,
                     sym,
-                    0,
+                    decimals,
                     numberFormat,
                   )
-                : "None",
-              sub: loan.payload.processing_fee_financed ? "Financed" : "Upfront",
-            },
-            {
-              label: "Recast Strategy",
-              value:
-                loan.payload.recast_strategy === "keep_tenure_adjust_emi"
-                  ? "Keep Tenure"
-                  : "Keep EMI",
-              sub: "Default behavior",
-            },
-            {
-              label: "Start Date",
-              value: loan.payload.start_date.slice(0, 10),
-              sub: "Initial disbursement",
-            },
-          ].map((item, i) => (
-            <div key={i} className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                {item.label}
-              </p>
-              <p className="text-sm font-bold text-zinc-200 capitalize">
-                {item.value}
-              </p>
-              <p className="text-[10px] text-zinc-500 font-medium italic">
-                {item.sub}
-              </p>
+                : loan.payload.processing_fee_percent
+                  ? `${loan.payload.processing_fee_percent}%`
+                  : "None",
+            ],
+            [
+              "Fee financed",
+              loan.payload.processing_fee_financed ? "Yes" : "No",
+            ],
+            [
+              "Rate behavior",
+              loan.payload.recast_strategy === "keep_tenure_adjust_emi"
+                ? "Keep payoff date, change EMI"
+                : "Keep EMI, change payoff date",
+            ],
+            ["Start date", loan.payload.start_date.slice(0, 10)],
+            ["Tenure", `${loan.payload.tenure_months} months`],
+            ["Due day", `${loan.payload.due_day_of_month}`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-zinc-800 bg-zinc-950/35 p-4"
+            >
+              <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
+                {label}
+              </dt>
+              <dd className="mt-1 font-semibold text-zinc-100">{value}</dd>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-6 shadow-lg space-y-6">
-          <div>
-            <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-accent" />
-              &quot;What If&quot; Simulator
-            </h3>
-            <p className="text-xs text-zinc-500 mt-1">
-              Visualize how extra monthly payments impact your loan tenure and interest.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs font-bold px-1">
-              <span className="text-zinc-400 uppercase tracking-widest">
-                Extra Monthly Payment
-              </span>
-              <span className="text-accent text-sm font-black tabular-nums">
-                {formatMoney(extraMonthly, sym, 0, numberFormat)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max={loan.payload.monthly_emi * 2}
-              step={roundTo(loan.payload.monthly_emi / 20, 0)}
-              value={extraMonthly}
-              onChange={(e) => setExtraMonthly(Number(e.target.value))}
-              className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
-            />
-          </div>
-        </div>
-
-        <div className="bg-accent/5 border border-accent/20 rounded-3xl p-6 shadow-xl flex flex-col justify-center gap-6 relative overflow-hidden group">
-          <div className="relative z-10">
-            <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-              Potential Savings
-            </p>
-            <h4 className="text-3xl font-black text-zinc-50 tracking-tight">
-              {formatMoney(interestSavedTotal, sym, 0, numberFormat)}
-            </h4>
-            <p className="text-xs text-zinc-400 font-medium mt-2">
-              Total Interest Saved
-            </p>
-          </div>
-          <div className="relative z-10 pt-4 border-t border-accent/10">
-            <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] mb-1">
-              Tenure Reduction
-            </p>
-            <h4 className="text-2xl font-black text-zinc-50 tracking-tight">
-              {tenureSaved}{" "}
-              <span className="text-lg font-bold text-accent/80">Months</span>
-            </h4>
-            <p className="text-xs text-zinc-400 font-medium mt-2 italic">
-              Earlier payoff date
-            </p>
-          </div>
-        </div>
-      </div>
+        </dl>
+      </section>
     </div>
   );
 }

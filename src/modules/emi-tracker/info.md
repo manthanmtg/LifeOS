@@ -1,21 +1,28 @@
 # EMI Tracker
 
-Track loans, EMI payments, prepayments, and view amortization schedules for all your debt.
+Track what remains, what is due next, and how extra payments change your
+payoff date.
 
-## Features
+## What you can do
 
-- Add loans with principal, interest rate, tenure, and start date
-- Auto-generated amortization schedule showing principal vs. interest split
-- Log prepayments and see their impact on remaining tenure and interest saved
-- Track multiple loans simultaneously (home, car, personal, etc.)
-- View total outstanding balance and upcoming EMI dates
+- Add fixed-rate or floating-rate loans.
+- Track outstanding balance and next EMI at a glance.
+- Use the Payoff Runway to see progress from start date to projected payoff.
+- Simulate extra monthly payments and compare interest saved.
+- Review amortization schedules, export CSV/PDF, and use mobile schedule cards.
+- Log EMI payments, prepayments, and floating-rate changes.
+- Keep sanction letters, certificates, receipts, and NOCs with the loan.
 
-## How to Use
+## Sections
 
-Create a new loan entry with the principal amount, annual interest rate, and tenure in months. The module generates the full amortization schedule automatically. As you make payments or prepayments, log them to keep the schedule up to date. The overview shows how much total interest you'll save with prepayments.
+- **Overview** — payoff simulator, results, comparison chart, and loan terms.
+- **Insights** — paid/remaining split, balance trend, and cost summary.
+- **Schedule** — amortization table on larger screens and cards on phones.
+- **Activity** — payments and rate history.
+- **Documents** — loan files and document filters.
 
-## Tips
+## Notes
 
-- Log prepayments immediately to see updated interest savings
-- Compare loans side by side to decide which to prepay first (highest interest rate usually wins)
-- Use the amortization view to understand how much of each EMI goes to interest vs. principal
+- Mixed-currency portfolios are shown separately; totals are not converted.
+- Due day is constrained to 1–28 so every month has a valid EMI date.
+- Deleting records asks for confirmation before changing saved data.

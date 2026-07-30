@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Plus, Trash2, TrendingUp } from "lucide-react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast from "@/components/ui/Toast";
 import { parseDateInputToISO } from "../lib/emi-utils";
 import { EmiLoan } from "../types";
 
@@ -23,6 +25,8 @@ export default function RateAdjustmentList({
   );
   const [adjRate, setAdjRate] = useState("");
   const [adjNote, setAdjNote] = useState("");
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,56 +41,55 @@ export default function RateAdjustmentList({
 
     setAdjRate("");
     setAdjNote("");
+    setToast("Rate change added");
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5 shadow-inner">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4">
-          Log Rate Change (Floating)
-        </h3>
+        <h3 className="text-xl font-black text-zinc-100 mb-4">Rate history</h3>
         <form
           onSubmit={handleAdd}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               Effective Date
             </label>
             <input
               type="date"
               value={adjDate}
               onChange={(e) => setAdjDate(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               New Rate (% p.a.)
             </label>
             <input
               placeholder="0.00"
               value={adjRate}
               onChange={(e) => setAdjRate(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono shadow-inner"
             />
           </div>
           <div className="">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               Note
             </label>
             <input
               placeholder="e.g. RBI Repo Rate Update"
               value={adjNote}
               onChange={(e) => setAdjNote(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
             />
           </div>
           <div className="flex items-end">
             <button
               type="submit"
               disabled={isSubmitting || !adjRate}
-              className="w-full bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Log Change
             </button>
@@ -116,26 +119,47 @@ export default function RateAdjustmentList({
                     <p className="text-sm font-bold text-zinc-100">
                       {adj.annual_interest_rate}%
                     </p>
-                    <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest font-mono">
+                    <span className="text-xs text-zinc-500 font-black uppercase tracking-widest font-mono">
                       p.a.
                     </span>
                   </div>
-                  <p className="text-[10px] text-zinc-500 mt-1 font-medium">
+                  <p className="text-xs text-zinc-500 mt-1 font-medium">
                     Effective: {adj.effective_date.slice(0, 10)}{" "}
                     {adj.note ? `· ${adj.note}` : ""}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => onDelete(idx)}
-                className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
+                onClick={() => setDeleteIndex(idx)}
+                aria-label="Delete rate change"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           ))
         )}
       </div>
+      <ConfirmDialog
+        isOpen={deleteIndex !== null}
+        title="Delete rate change?"
+        description="This rate history record will be removed from the loan."
+        confirmLabel="Delete"
+        onClose={() => setDeleteIndex(null)}
+        onConfirm={() => {
+          if (deleteIndex !== null) {
+            void onDelete(deleteIndex).then(() =>
+              setToast("Rate change deleted"),
+            );
+          }
+        }}
+      />
+      <Toast
+        message={toast ?? ""}
+        type="success"
+        isVisible={!!toast}
+        onClose={() => setToast(null)}
+      />
     </div>
   );
 }

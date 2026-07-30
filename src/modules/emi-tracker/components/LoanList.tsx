@@ -1,9 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
 import LoanCard from "./LoanCard";
-import { EmiLoan, ScheduleRow } from "../types";
+import type { EmiLoan, ScheduleRow } from "../types";
 
 interface LoanListProps {
   loanCards: Array<{
@@ -17,6 +16,10 @@ interface LoanListProps {
   decimals: number;
   numberFormat: "western" | "indian";
   loading: boolean;
+  emptyTitle?: string;
+  emptyBody?: string;
+  emptyActionLabel?: string;
+  onEmptyAction?: () => void;
 }
 
 export default function LoanList({
@@ -26,14 +29,18 @@ export default function LoanList({
   decimals,
   numberFormat,
   loading,
+  emptyTitle = "No matching loans",
+  emptyBody = "Try another search or show all loans.",
+  emptyActionLabel = "Clear filters",
+  onEmptyAction,
 }: LoanListProps) {
   if (loading) {
     return (
       <div className="space-y-3" aria-label="Loading loans">
-        {[1, 2].map((i) => (
+        {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="w-full border border-zinc-800 rounded-2xl bg-zinc-900/50 p-4 animate-pulse"
+            className="w-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-3 flex-1">
@@ -55,34 +62,38 @@ export default function LoanList({
 
   if (loanCards.length === 0) {
     return (
-      <div className="bg-zinc-900/40 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 text-center shadow-lg">
-        <p className="text-zinc-500 text-sm font-medium">
-          No loans yet. Add your first loan to get started.
+      <div className="rounded-3xl border border-zinc-800 bg-zinc-900/50 p-7 text-center">
+        <h3 className="text-lg font-black text-zinc-100">{emptyTitle}</h3>
+        <p className="mx-auto mt-2 max-w-xs text-sm text-zinc-500">
+          {emptyBody}
         </p>
+        {onEmptyAction && (
+          <button
+            type="button"
+            onClick={onEmptyAction}
+            className="mt-5 min-h-[44px] rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+          >
+            {emptyActionLabel}
+          </button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {loanCards.map(({ loan, outstanding, nextDue, progress }, i) => (
-        <motion.div
+    <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-1">
+      {loanCards.map(({ loan, outstanding, nextDue, progress }) => (
+        <LoanCard
           key={loan._id}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.05 }}
-        >
-          <LoanCard
-            loan={loan}
-            outstanding={outstanding}
-            nextDue={nextDue}
-            progress={progress}
-            isSelected={selectedId === loan._id}
-            onClick={onSelect}
-            decimals={decimals}
-            numberFormat={numberFormat}
-          />
-        </motion.div>
+          loan={loan}
+          outstanding={outstanding}
+          nextDue={nextDue}
+          progress={progress}
+          isSelected={selectedId === loan._id}
+          onClick={onSelect}
+          decimals={decimals}
+          numberFormat={numberFormat}
+        />
       ))}
     </div>
   );

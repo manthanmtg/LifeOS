@@ -47,14 +47,20 @@ describe("emi-utils", () => {
 
   describe("amountInWords", () => {
     it("should correctly convert numeric strings to Indian words", () => {
-      expect(amountInWords("1234")).toBe("One Thousand Two Hundred Thirty Four Rupees");
+      expect(amountInWords("1234")).toBe(
+        "One Thousand Two Hundred Thirty Four Rupees",
+      );
       expect(amountInWords("100000")).toBe("One Lakh Rupees");
-      expect(amountInWords("150.50")).toBe("One Hundred Fifty Rupees and Fifty Paise");
+      expect(amountInWords("150.50")).toBe(
+        "One Hundred Fifty Rupees and Fifty Paise",
+      );
       expect(amountInWords("0")).toBe("Zero Rupees");
     });
 
     it("should strip non-numeric characters", () => {
-      expect(amountInWords("$1,234.00")).toBe("One Thousand Two Hundred Thirty Four Rupees");
+      expect(amountInWords("$1,234.00")).toBe(
+        "One Thousand Two Hundred Thirty Four Rupees",
+      );
     });
 
     it("should return empty string if no numbers are present", () => {

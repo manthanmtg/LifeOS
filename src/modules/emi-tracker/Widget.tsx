@@ -84,7 +84,7 @@ export default function EMITrackerWidget() {
 
   return (
     <WidgetCard
-      title="Loans & EMIs"
+      title="EMI Tracker"
       icon={Landmark}
       loading={loading}
       href="/admin/emi-tracker"
@@ -105,7 +105,7 @@ export default function EMITrackerWidget() {
         >
           <WidgetStat
             value={`${sym}${formatNumber(amount, settings.numberFormat)}`}
-            label="outstanding balance"
+            label="balance left"
           />
           {summary.nearest ? (
             <WidgetHighlight

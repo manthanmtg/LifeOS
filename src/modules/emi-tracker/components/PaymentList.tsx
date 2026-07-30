@@ -1,9 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Link as LinkIcon } from "lucide-react";
+import {
+  ArrowDownToLine,
+  CreditCard,
+  Link as LinkIcon,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast from "@/components/ui/Toast";
 import { formatMoney, parseDateInputToISO } from "../lib/emi-utils";
-import { PaymentKind, EmiLoan } from "../types";
+import type { EmiLoan, PaymentKind } from "../types";
 
 interface PaymentListProps {
   payments: EmiLoan["payload"]["payments"];
@@ -31,12 +39,13 @@ export default function PaymentList({
   const [payKind, setPayKind] = useState<PaymentKind>("emi");
   const [payNote, setPayNote] = useState("");
   const [payReceipt, setPayReceipt] = useState("");
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(payAmount);
     if (!payDate || !Number.isFinite(amt) || amt <= 0) return;
-
     await onAdd({
       date: parseDateInputToISO(payDate),
       amount: amt,
@@ -44,114 +53,124 @@ export default function PaymentList({
       note: payNote.trim() || undefined,
       receipt_url: payReceipt.trim() || undefined,
     });
-
     setPayAmount("");
     setPayNote("");
     setPayReceipt("");
+    setToast("Payment logged");
   };
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4">
-          Log New Repayment
-        </h3>
+      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-xl font-black text-zinc-100">Payments</h3>
+            <p className="text-sm text-zinc-500">{payments.length} records</p>
+          </div>
+        </div>
         <form
           onSubmit={handleAdd}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"
         >
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label
+              htmlFor="payment-date"
+              className="text-sm font-bold text-zinc-300"
+            >
               Date
             </label>
             <input
+              id="payment-date"
               type="date"
               value={payDate}
               onChange={(e) => setPayDate(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label
+              htmlFor="payment-amount"
+              className="text-sm font-bold text-zinc-300"
+            >
               Amount
             </label>
             <input
-              placeholder="0.00"
+              id="payment-amount"
+              inputMode="decimal"
               value={payAmount}
               onChange={(e) => setPayAmount(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              placeholder="0"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label
+              htmlFor="payment-kind"
+              className="text-sm font-bold text-zinc-300"
+            >
               Type
             </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-900 border border-zinc-800 rounded-xl">
-              {(["emi", "prepayment"] as PaymentKind[]).map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  onClick={() => setPayKind(k)}
-                  className={`py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${
-                    payKind === k
-                      ? "bg-accent text-zinc-50"
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  {k}
-                </button>
-              ))}
-            </div>
+            <select
+              id="payment-kind"
+              value={payKind}
+              onChange={(e) => setPayKind(e.target.value as PaymentKind)}
+              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+            >
+              <option value="emi">EMI</option>
+              <option value="prepayment">Prepayment</option>
+            </select>
           </div>
-          <div className="lg:col-span-2">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
-              Note (Optional)
+          <div className="md:col-span-2">
+            <label
+              htmlFor="payment-note"
+              className="text-sm font-bold text-zinc-300"
+            >
+              Note
             </label>
             <input
-              placeholder="Add a reference note..."
+              id="payment-note"
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              placeholder="Optional reference"
             />
           </div>
           <div className="flex items-end">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" /> Log Payment
+              <Plus className="h-4 w-4" />
+              {isSubmitting ? "Saving…" : "Add payment"}
             </button>
           </div>
         </form>
-      </div>
+      </section>
 
-      <div className="space-y-3">
-        <h3 className="text-sm font-bold text-zinc-300 px-1">
-          Repayment History
-        </h3>
-        {payments.length === 0 ? (
-          <div className="bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center">
-            <p className="text-zinc-500 text-sm italic font-medium">
-              No payments logged yet.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3">
-            {payments.map((p, idx) => (
+      {payments.length === 0 ? (
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+          <h3 className="text-lg font-black text-zinc-100">No payments yet</h3>
+          <p className="mt-2 text-sm text-zinc-500">
+            Log EMI payments and prepayments as they happen.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {payments.map((p, idx) => {
+            const Icon = p.kind === "prepayment" ? ArrowDownToLine : CreditCard;
+            return (
               <div
-                key={idx}
-                className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group"
+                key={`${p.date}-${idx}`}
+                className="flex items-start justify-between gap-4 rounded-3xl border border-zinc-800 bg-zinc-900/55 p-4"
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`p-2.5 rounded-xl ${p.kind === "prepayment" ? "bg-accent/10 text-accent" : "bg-zinc-800 text-zinc-400"}`}
-                  >
-                    <CreditCard className="w-4 h-4" />
+                <div className="flex min-w-0 gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950/50 text-accent">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold text-zinc-100">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-mono text-base font-black text-zinc-50">
                         {formatMoney(
                           p.amount,
                           currencySymbol,
@@ -159,65 +178,60 @@ export default function PaymentList({
                           numberFormat,
                         )}
                       </p>
-                      <span
-                        className={`text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest ${
-                          p.kind === "prepayment"
-                            ? "bg-accent/10 text-accent border border-accent/20"
-                            : "bg-zinc-800 text-zinc-500 border border-zinc-700"
-                        }`}
-                      >
-                        {p.kind}
+                      <span className="rounded-full border border-zinc-700 bg-zinc-950/40 px-2 py-1 text-xs font-bold text-zinc-400">
+                        {p.kind === "prepayment" ? "Prepayment" : "EMI"}
                       </span>
                     </div>
-                    <p className="text-[10px] text-zinc-500 mt-1 font-medium">
-                      Date: {p.date.slice(0, 10)} {p.note ? `· ${p.note}` : ""}
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {p.date.slice(0, 10)} {p.note ? `· ${p.note}` : ""}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                   {p.receipt_url && (
                     <a
                       href={p.receipt_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all shadow-md"
+                      aria-label="Open receipt"
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-zinc-800 text-zinc-400 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                     >
-                      <LinkIcon className="w-3.5 h-3.5" />
+                      <LinkIcon className="h-4 w-4" />
                     </a>
                   )}
                   <button
-                    onClick={() => onDelete(idx)}
-                    className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
+                    type="button"
+                    onClick={() => setDeleteIndex(idx)}
+                    aria-label="Delete payment"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-danger/20 bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+            );
+          })}
+        </div>
+      )}
 
-// Inline Icon placeholder for and credit card
-function CreditCard({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="20" height="14" x="2" y="5" rx="2" />
-      <line x1="2" x2="22" y1="10" y2="10" />
-    </svg>
+      <ConfirmDialog
+        isOpen={deleteIndex !== null}
+        title="Delete payment?"
+        description="This payment record will be removed from the loan."
+        confirmLabel="Delete"
+        onClose={() => setDeleteIndex(null)}
+        onConfirm={() => {
+          if (deleteIndex !== null) {
+            void onDelete(deleteIndex).then(() => setToast("Payment deleted"));
+          }
+        }}
+      />
+      <Toast
+        message={toast ?? ""}
+        type="success"
+        isVisible={!!toast}
+        onClose={() => setToast(null)}
+      />
+    </div>
   );
 }

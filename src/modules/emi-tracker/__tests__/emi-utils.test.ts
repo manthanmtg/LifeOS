@@ -13,7 +13,9 @@ import {
   toDateInputValue,
 } from "../lib/emi-utils";
 
-const createLoan = (payload: Partial<EmiLoan["payload"]> & { _id?: string }): EmiLoan => {
+const createLoan = (
+  payload: Partial<EmiLoan["payload"]> & { _id?: string },
+): EmiLoan => {
   const { _id = "loan-1", ...remainingPayload } = payload;
 
   return {
@@ -80,7 +82,7 @@ describe("emi-utils", () => {
 
     expect(csv).toBe(
       "name,note,note2\n" +
-        "\"ac,me\",\"has \"\"quotes\"\"\",\"line\nbreak\"\n" +
+        '"ac,me","has ""quotes""","line\nbreak"\n' +
         "plain,safe,",
     );
   });
@@ -131,7 +133,10 @@ describe("emi-utils", () => {
         annual_rate: 12,
       },
     ];
-    const result = getOutstandingAsOf(schedule, new Date("2026-02-15T00:00:00.000Z"));
+    const result = getOutstandingAsOf(
+      schedule,
+      new Date("2026-02-15T00:00:00.000Z"),
+    );
 
     expect(result).toEqual({
       outstanding: 690,

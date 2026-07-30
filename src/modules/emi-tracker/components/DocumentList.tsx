@@ -8,6 +8,8 @@ import {
   UploadCloud,
   Link as LinkIcon,
 } from "lucide-react";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast from "@/components/ui/Toast";
 import { EmiLoan, DocType } from "../types";
 
 interface DocumentListProps {
@@ -28,12 +30,17 @@ export default function DocumentList({
   const [docUrl, setDocUrl] = useState("");
   const [docIssuedAt, setDocIssuedAt] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<DocType | "all">("all");
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
+    setUploadError(null);
     if (!docTitle) setDocTitle(file.name);
 
     const reader = new FileReader();
@@ -42,7 +49,7 @@ export default function DocumentList({
       setIsUploading(false);
     };
     reader.onerror = () => {
-      alert("Failed to read file");
+      setUploadError("Failed to read file. Try another file or paste a URL.");
       setIsUploading(false);
     };
     reader.readAsDataURL(file);
@@ -63,37 +70,66 @@ export default function DocumentList({
     setDocTitle("");
     setDocUrl("");
     setDocIssuedAt("");
+    setToast("Document saved");
   };
+
+  const visibleDocuments =
+    filter === "all"
+      ? documents
+      : documents.filter((document) => document.type === filter);
 
   return (
     <div className="space-y-6">
       <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-zinc-300 mb-4">
-          Attach Documents
-        </h3>
+        <h3 className="text-xl font-black text-zinc-100 mb-2">Documents</h3>
+        <p className="mb-5 text-sm text-zinc-500">
+          Add sanction letters, certificates, receipts, or your NOC.
+        </p>
+        <div className="mb-5 flex flex-wrap gap-2">
+          {[
+            ["all", "All"],
+            ["sanction_letter", "Sanction letters"],
+            ["interest_certificate", "Certificates"],
+            ["noc", "NOCs"],
+            ["other", "Other"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setFilter(id as DocType | "all")}
+              className={`min-h-[44px] rounded-2xl border px-4 py-2 text-sm font-bold transition-colors ${
+                filter === id
+                  ? "border-accent/30 bg-accent/10 text-accent"
+                  : "border-zinc-800 bg-zinc-950/35 text-zinc-400 hover:text-zinc-100"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <form
           onSubmit={handleAdd}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           <div className="lg:col-span-2">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               Document Title
             </label>
             <input
               placeholder="e.g. Sanction Letter / NOC / Certificate"
               value={docTitle}
               onChange={(e) => setDocTitle(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               Type
             </label>
             <select
               value={docType}
               onChange={(e) => setDocType(e.target.value as DocType)}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
             >
               <option value="sanction_letter">Sanction Letter</option>
               <option value="noc">NOC</option>
@@ -102,11 +138,11 @@ export default function DocumentList({
             </select>
           </div>
           <div className="lg:col-span-2">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
+            <label className="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5 px-0.5">
               Upload File
             </label>
             <div className="flex items-center gap-2">
-              <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-zinc-800 hover:border-accent/40 hover:bg-zinc-900/50 rounded-xl p-2.5 cursor-pointer transition-all group">
+              <label className="flex-1 min-h-[44px] flex items-center justify-center gap-2 border-2 border-dashed border-zinc-800 hover:border-accent/40 hover:bg-zinc-900/50 rounded-xl p-3 cursor-pointer transition-all group">
                 <input
                   type="file"
                   className="hidden"
@@ -121,12 +157,20 @@ export default function DocumentList({
                 )}
               </label>
             </div>
+            {uploadError && (
+              <p
+                role="alert"
+                className="mt-2 text-sm font-semibold text-danger"
+              >
+                {uploadError}
+              </p>
+            )}
           </div>
           <div className="flex items-end">
             <button
               type="submit"
               disabled={isSubmitting || !docUrl || !docTitle}
-              className="w-full bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Save Document
             </button>
@@ -135,53 +179,79 @@ export default function DocumentList({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {documents.length === 0 ? (
+        {visibleDocuments.length === 0 ? (
           <div className="md:col-span-2 bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center shadow-lg">
-            <p className="text-zinc-500 text-sm italic font-medium">
-              No documents attached yet.
+            <h3 className="text-lg font-black text-zinc-100">
+              Keep loan documents together
+            </h3>
+            <p className="mt-2 text-zinc-500 text-sm font-medium">
+              Add sanction letters, certificates, receipts, or your NOC.
             </p>
           </div>
         ) : (
-          documents.map((doc, idx) => (
-            <div
-              key={idx}
-              className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group shadow-md"
-            >
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
-                  <FileText className="w-5 h-5" />
+          visibleDocuments.map((doc) => {
+            const idx = documents.indexOf(doc);
+            return (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group shadow-md"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-zinc-100 line-clamp-1">
+                      {doc.title}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-1 font-black uppercase tracking-widest">
+                      {doc.type.replace("_", " ")}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-zinc-100 line-clamp-1">
-                    {doc.title}
-                  </p>
-                  <p className="text-[10px] text-zinc-500 mt-1 font-black uppercase tracking-widest">
-                    {doc.type.replace("_", " ")}
-                  </p>
+                <div className="flex items-center gap-2 px-1">
+                  <a
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all shadow-md"
+                    aria-label="Open document"
+                    title="View Document"
+                  >
+                    <LinkIcon className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    onClick={() => setDeleteIndex(idx)}
+                    aria-label="Delete document"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+                    title="Delete Document"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-1">
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all shadow-md"
-                  title="View Document"
-                >
-                  <LinkIcon className="w-3.5 h-3.5" />
-                </a>
-                <button
-                  onClick={() => onDelete(idx)}
-                  className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all opacity-0 group-hover:opacity-100 shadow-md"
-                  title="Delete Document"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
+      <ConfirmDialog
+        isOpen={deleteIndex !== null}
+        title="Delete document?"
+        description="This document reference will be removed from the loan."
+        confirmLabel="Delete"
+        onClose={() => setDeleteIndex(null)}
+        onConfirm={() => {
+          if (deleteIndex !== null) {
+            void onDelete(deleteIndex).then(() => setToast("Document deleted"));
+          }
+        }}
+      />
+      <Toast
+        message={toast ?? ""}
+        type="success"
+        isVisible={!!toast}
+        onClose={() => setToast(null)}
+      />
     </div>
   );
 }
