@@ -74,6 +74,35 @@ uses `recurringExpenseSettings.defaultNotificationOffsetsDays` or `[1]`.
 - Supports drag-and-drop ordering with mouse, touch, and keyboard sensors.
 - Provides quick actions for external links, previous cycle, mark renewed,
   duplicate, edit, and delete.
+- Provides an analytics modal from the header `ChartPie` action without
+  navigation or another content fetch.
+
+## Analytics Modal
+
+The analytics modal is opened from the icon immediately to the left of Settings.
+It is lazy-loaded on first use and receives the already-loaded `subs` array from
+`AdminView.tsx`; it does not call `/api/content`, `/api/system`, or any external
+analytics service.
+
+All analytics are active-only and scoped to exactly one currency at a time.
+LifeOS does not fetch exchange rates, so records with different currency codes
+are never summed together. If active records contain multiple currencies, the
+modal shows a currency selector and an explicit no-conversion disclosure.
+
+Derived analytics live in [`analytics.ts`](analytics.ts):
+
+- `monthlyEquivalent()` preserves the existing factors: yearly `/ 12`,
+  quarterly `/ 3`, weekly `* 4.33`, daily `* 30.44`, monthly unchanged.
+- Category allocation uses monthly equivalent spend, sorted by value, with at
+  most five named categories plus a single `Other` row.
+- Billing cadence groups monthly impact by daily, weekly, monthly, quarterly,
+  and yearly cycles.
+- Renewal horizon buckets the next scheduled charge into overdue, 0-7 days,
+  8-30 days, 31-90 days, and 91+ days.
+- Largest cost drivers are ranked by normalized monthly equivalent.
+
+The modal includes visible chart legends/labels and native data-table fallbacks
+so chart values are available without relying on color or hover alone.
 
 ## Settings
 
@@ -113,6 +142,37 @@ Admins can add or remove categories, choose the default currency, set the
 renewal warning window, toggle reminder defaults, configure default renewal
 notification timing, choose western or Indian number formatting, and persist a
 default sort.
+
+## Default Currency Browser Cache
+
+`useModuleSettings` accepts an optional browser-cache adapter. Recurring
+Expenses passes [`settings-cache.ts`](settings-cache.ts), which stores only:
+
+```json
+{
+  "defaultCurrency": "INR"
+}
+```
+
+The localStorage key is:
+
+```text
+lifeos:recurring-expenses:default-currency:v1
+```
+
+The cache is a first-paint optimization only:
+
+- Initial React state remains the shared defaults for deterministic hydration.
+- After mount, a valid cached three-letter uppercase currency is merged
+  immediately.
+- `/api/system` still revalidates in the background.
+- A valid server value replaces stale cache and refreshes localStorage.
+- A valid server response without `recurringExpenseSettings` restores defaults.
+- GET failures, non-OK responses, malformed responses, storage errors, and
+  malformed cache payloads degrade safely without blocking the UI.
+
+The dashboard widget uses the same adapter, so the widget and admin module show
+the cached default currency consistently while server settings revalidate.
 
 ## Smart Capabilities
 
@@ -210,10 +270,16 @@ curl '/api/widgets/summary?module_type=recurring_expense'
 
 ## File Map
 
-| File                                                           | Purpose                                                                       |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [`AdminView.tsx`](AdminView.tsx)                               | Main admin UI, CRUD flows, settings, sorting, filtering, and renewal actions. |
-| [`Widget.tsx`](Widget.tsx)                                     | Bento Grid summary card for monthly burn and next renewal.                    |
-| [`PublicView.tsx`](PublicView.tsx)                             | Read-only public snapshot for active shared expenses.                         |
-| [`info.md`](info.md)                                           | Short module description shown by repository tooling.                         |
-| [`__tests__/AdminView.test.tsx`](__tests__/AdminView.test.tsx) | Basic admin render coverage.                                                  |
+| File                                                                                             | Purpose                                                                         |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [`AdminView.tsx`](AdminView.tsx)                                                                 | Main admin UI, CRUD flows, settings, sorting, filtering, and renewal actions.   |
+| [`analytics.ts`](analytics.ts)                                                                   | Pure active-only, currency-scoped analytics calculations.                       |
+| [`config.ts`](config.ts)                                                                         | Shared billing cycles, categories, currency symbols, and settings defaults.     |
+| [`settings-cache.ts`](settings-cache.ts)                                                         | Versioned browser cache adapter for default currency only.                      |
+| [`types.ts`](types.ts)                                                                           | Shared recurring expense, settings, cycle, and sort types.                      |
+| [`Widget.tsx`](Widget.tsx)                                                                       | Bento Grid summary card for monthly burn and next renewal.                      |
+| [`PublicView.tsx`](PublicView.tsx)                                                               | Read-only public snapshot for active shared expenses.                           |
+| [`components/RecurringExpenseAnalyticsModal.tsx`](components/RecurringExpenseAnalyticsModal.tsx) | Lazy analytics dialog with charts, insights, focus management, and data tables. |
+| [`components/AnalyticsModalSkeleton.tsx`](components/AnalyticsModalSkeleton.tsx)                 | First-use loading skeleton for the analytics dialog chunk.                      |
+| [`info.md`](info.md)                                                                             | Short module description shown by repository tooling.                           |
+| [`__tests__/AdminView.test.tsx`](__tests__/AdminView.test.tsx)                                   | Basic admin render coverage.                                                    |

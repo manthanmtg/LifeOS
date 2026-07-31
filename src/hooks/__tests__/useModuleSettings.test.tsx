@@ -63,6 +63,124 @@ describe("useModuleSettings", () => {
     });
   });
 
+  it("applies browser cache before server settings resolve, then reconciles to the server value", async () => {
+    let resolveGet: (value: Response) => void = () => {};
+    const getPromise = new Promise<Response>((resolve) => {
+      resolveGet = resolve;
+    });
+    const browserCache = {
+      read: vi.fn(() => ({ defaultCurrency: "INR" })),
+      write: vi.fn(),
+    };
+
+    vi.mocked(global.fetch).mockImplementationOnce(() => getPromise);
+
+    const { result } = renderHook(() =>
+      useModuleSettings(
+        "widgetSettings",
+        {
+          defaultCurrency: "USD",
+          theme: "ocean",
+        },
+        browserCache,
+      ),
+    );
+
+    await waitFor(() =>
+      expect(result.current.settings.defaultCurrency).toBe("INR"),
+    );
+    expect(result.current.loaded).toBe(false);
+
+    resolveGet(
+      new Response(
+        JSON.stringify({
+          data: {
+            widgetSettings: {
+              defaultCurrency: "EUR",
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      defaultCurrency: "EUR",
+      theme: "ocean",
+    });
+    expect(browserCache.write).toHaveBeenCalledWith({
+      defaultCurrency: "EUR",
+      theme: "ocean",
+    });
+  });
+
+  it("resets a stale browser cache when the server succeeds without module settings", async () => {
+    const browserCache = {
+      read: vi.fn(() => ({ defaultCurrency: "INR" })),
+      write: vi.fn(),
+    };
+
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ data: {} }),
+    } as Response);
+
+    const { result } = renderHook(() =>
+      useModuleSettings(
+        "widgetSettings",
+        {
+          defaultCurrency: "USD",
+          theme: "ocean",
+        },
+        browserCache,
+      ),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      defaultCurrency: "USD",
+      theme: "ocean",
+    });
+    expect(browserCache.write).toHaveBeenCalledWith({
+      defaultCurrency: "USD",
+      theme: "ocean",
+    });
+  });
+
+  it("retains browser cache when system revalidation fails", async () => {
+    const browserCache = {
+      read: vi.fn(() => ({ defaultCurrency: "INR" })),
+      write: vi.fn(),
+    };
+
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error("network down"));
+
+    const { result } = renderHook(() =>
+      useModuleSettings(
+        "widgetSettings",
+        {
+          defaultCurrency: "USD",
+          theme: "ocean",
+        },
+        browserCache,
+      ),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+
+    expect(result.current.settings).toEqual({
+      defaultCurrency: "INR",
+      theme: "ocean",
+    });
+    expect(browserCache.write).not.toHaveBeenCalled();
+  });
+
   it("dedupes initial system fetches across multiple hook instances", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       json: async () => ({
@@ -256,6 +374,49 @@ describe("useModuleSettings", () => {
     await waitFor(() => expect(result.current.saving).toBe(false), {
       timeout: 1500,
     });
+  });
+
+  it("writes browser cache optimistically when settings change", async () => {
+    const browserCache = {
+      read: vi.fn(() => null),
+      write: vi.fn(),
+    };
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: {} }),
+      } as Response)
+      .mockResolvedValueOnce({ ok: false, status: 500 } as Response);
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const { result } = renderHook(() =>
+      useModuleSettings(
+        "widgetSettings",
+        {
+          defaultCurrency: "USD",
+          theme: "ocean",
+        },
+        browserCache,
+      ),
+    );
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+    browserCache.write.mockClear();
+
+    await act(async () => {
+      await result.current.updateSettings({ defaultCurrency: "GBP" });
+    });
+
+    expect(result.current.settings).toEqual({
+      defaultCurrency: "GBP",
+      theme: "ocean",
+    });
+    expect(browserCache.write).toHaveBeenCalledWith({
+      defaultCurrency: "GBP",
+      theme: "ocean",
+    });
+
+    consoleSpy.mockRestore();
   });
 
   it("keeps settings optimistic and clears saving when save fails", async () => {

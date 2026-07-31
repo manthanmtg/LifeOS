@@ -148,6 +148,7 @@ vi.mock("framer-motion", () => {
       scrollY: { get: () => 0 },
       scrollYProgress: { get: () => 0 },
     }),
+    useReducedMotion: () => false,
   };
 });
 

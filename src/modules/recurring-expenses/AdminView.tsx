@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useRef, memo } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Plus,
   Trash2,
@@ -19,6 +20,7 @@ import {
   Search,
   CalendarDays,
   AlertTriangle,
+  ChartPie,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -46,92 +48,36 @@ import { CSS } from "@dnd-kit/utilities";
 
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
-import type { NotificationPreferences } from "@/lib/notifications/contracts";
-import { DEFAULT_RECURRING_NOTIFICATION_OFFSETS } from "@/lib/notifications/contracts";
+import { formatNumber } from "@/lib/formatters";
 import {
   buildRecurringRenewalNotificationPreferences,
   getRecurringRenewalOffsets,
   normalizeNotificationOffsetsDays,
   resolveRecurringExpenseNotificationPreferences,
 } from "@/lib/notifications/recurring-preferences";
+import { monthlyEquivalent } from "./analytics";
+import {
+  BILLING_CYCLES,
+  RECURRING_EXPENSE_CURRENCIES,
+  RECURRING_EXPENSE_SETTINGS_DEFAULTS,
+  getRecurringCurrencySymbol,
+} from "./config";
+import { recurringExpenseCurrencyCache } from "./settings-cache";
+import type {
+  BillingCycle,
+  RecurringExpense,
+  RecurringExpenseSettings,
+  RecurringSortMode,
+} from "./types";
+import AnalyticsModalSkeleton from "./components/AnalyticsModalSkeleton";
 
-const BILLING_CYCLES = [
-  "monthly",
-  "yearly",
-  "weekly",
-  "daily",
-  "quarterly",
-] as const;
-const DEFAULT_CATEGORIES = [
-  "Streaming",
-  "Cloud/SaaS",
-  "Music",
-  "News",
-  "Gaming",
-  "Fitness",
-  "Productivity",
-  "Insurance",
-  "Investment",
-  "Housing",
-  "Utilities",
-  "Memberships",
-  "Education",
-  "Health",
-  "EMI",
-  "Other",
-];
-const CURRENCIES = [
-  "USD",
-  "EUR",
-  "GBP",
-  "INR",
-  "JPY",
-  "AUD",
-  "CAD",
-  "CHF",
-  "CNY",
-  "BRL",
-];
-const CURR_SYM: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  INR: "₹",
-  JPY: "¥",
-  AUD: "A$",
-  CAD: "C$",
-  CHF: "CHF",
-  CNY: "¥",
-  BRL: "R$",
-};
-
-const SUB_DEFAULTS = {
-  categories: DEFAULT_CATEGORIES,
-  defaultCurrency: "USD",
-  renewalWarningDays: 7,
-  enableReminders: true,
-  defaultNotificationOffsetsDays: DEFAULT_RECURRING_NOTIFICATION_OFFSETS,
-  numberFormat: "western",
-  defaultSort: "custom",
-};
-
-interface RecurringExpense {
-  _id: string;
-  payload: {
-    name: string;
-    cost: number;
-    currency: string;
-    billing_cycle: string;
-    next_renewal_date: string;
-    category: string;
-    url?: string;
-    is_active: boolean;
-    enable_reminders: boolean;
-    notifications?: NotificationPreferences;
-    notes?: string;
-    order?: number;
-  };
-}
+const RecurringExpenseAnalyticsModal = dynamic(
+  () => import("./components/RecurringExpenseAnalyticsModal"),
+  {
+    ssr: false,
+    loading: () => <AnalyticsModalSkeleton />,
+  },
+);
 
 interface VisibleRecurringExpense {
   expense: RecurringExpense;
@@ -149,14 +95,6 @@ function daysUntil(date: string, now: number): number {
 
 function formatRenewalDate(date: string): string {
   return new Date(date).toLocaleDateString();
-}
-
-function monthlyEquivalent(cost: number, cycle: string): number {
-  if (cycle === "yearly") return cost / 12;
-  if (cycle === "quarterly") return cost / 3;
-  if (cycle === "weekly") return cost * 4.33;
-  if (cycle === "daily") return cost * 30.44;
-  return cost;
 }
 
 function cycleApproxDays(cycle: string): number {
@@ -513,8 +451,14 @@ export default function RecurringExpensesAdminView() {
     updateSettings,
     saving: settingsSaving,
     loaded: settingsLoaded,
-  } = useModuleSettings("recurringExpenseSettings", SUB_DEFAULTS);
+  } = useModuleSettings<RecurringExpenseSettings>(
+    "recurringExpenseSettings",
+    RECURRING_EXPENSE_SETTINGS_DEFAULTS,
+    recurringExpenseCurrencyCache,
+  );
   const [showSettings, setShowSettings] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [hasRequestedAnalytics, setHasRequestedAnalytics] = useState(false);
   const [newCat, setNewCat] = useState("");
   const [subs, setSubs] = useState<RecurringExpense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -523,7 +467,7 @@ export default function RecurringExpensesAdminView() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
-  const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
+  const sym = getRecurringCurrencySymbol(settings.defaultCurrency);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
@@ -538,7 +482,7 @@ export default function RecurringExpensesAdminView() {
   // Form
   const [name, setName] = useState("");
   const [cost, setCost] = useState("");
-  const [billingCycle, setBillingCycle] = useState<string>("monthly");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const [nextRenewal, setNextRenewal] = useState(todayIso);
   const [category, setCategory] = useState<string>(
     settings.categories[0] || "Other",
@@ -557,18 +501,7 @@ export default function RecurringExpensesAdminView() {
     useState(false);
   const [notes, setNotes] = useState("");
   const [formError, setFormError] = useState("");
-  const [sortBy, setSortBy] = useState<
-    | "custom"
-    | "name-asc"
-    | "name-desc"
-    | "cost-asc"
-    | "cost-desc"
-    | "monthly-eq-asc"
-    | "monthly-eq-desc"
-    | "renewal-asc"
-    | "renewal-desc"
-    | "category"
-  >("custom");
+  const [sortBy, setSortBy] = useState<RecurringSortMode>("custom");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "overdue" | "warning" | "inactive"
@@ -579,7 +512,7 @@ export default function RecurringExpensesAdminView() {
       const res = await fetch("/api/content?module_type=recurring_expense");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch expenses");
-      const unsorted = data.data || [];
+      const unsorted = (data.data || []) as RecurringExpense[];
 
       let sorted: RecurringExpense[] = [];
 
@@ -691,7 +624,7 @@ export default function RecurringExpensesAdminView() {
   useEffect(() => {
     if (settingsLoaded && !initializedSort.current) {
       if (settings.defaultSort) {
-        setSortBy(settings.defaultSort as typeof sortBy);
+        setSortBy(settings.defaultSort);
       }
       initializedSort.current = true;
     }
@@ -1066,18 +999,44 @@ export default function RecurringExpensesAdminView() {
             </p>
           </div>
           <div className="flex items-center gap-2 md:pt-1 md:shrink-0">
+            <Tooltip content="Analytics">
+              <button
+                type="button"
+                aria-label="Open recurring expense analytics"
+                aria-haspopup="dialog"
+                aria-expanded={showAnalytics}
+                onClick={() => {
+                  setHasRequestedAnalytics(true);
+                  setShowAnalytics(true);
+                }}
+                className={cn(
+                  "inline-flex h-11 w-11 items-center justify-center rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/45",
+                  showAnalytics
+                    ? "bg-accent/15 text-accent"
+                    : "bg-zinc-800 text-zinc-400 hover:text-zinc-300",
+                )}
+              >
+                <ChartPie className="w-4 h-4" />
+              </button>
+            </Tooltip>
+            <Tooltip content="Settings">
+              <button
+                type="button"
+                aria-label="Recurring expense settings"
+                aria-expanded={showSettings}
+                onClick={() => setShowSettings(!showSettings)}
+                className={cn(
+                  "inline-flex h-11 w-11 items-center justify-center rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/45",
+                  showSettings
+                    ? "bg-accent/15 text-accent"
+                    : "bg-zinc-800 text-zinc-400 hover:text-zinc-300",
+                )}
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            </Tooltip>
             <button
-              onClick={() => setShowSettings(!showSettings)}
-              className={cn(
-                "px-3 py-2.5 rounded-xl text-sm transition-colors",
-                showSettings
-                  ? "bg-accent/15 text-accent"
-                  : "bg-zinc-800 text-zinc-400 hover:text-zinc-300",
-              )}
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-            <button
+              type="button"
               onClick={() => {
                 resetForm();
                 setShowForm(true);
@@ -1095,7 +1054,7 @@ export default function RecurringExpensesAdminView() {
               {sym}
               {formatNumber(
                 recurringSummary.monthlyBurn,
-                settings.numberFormat as "western" | "indian",
+                settings.numberFormat,
               )}
             </p>
           </div>
@@ -1103,10 +1062,7 @@ export default function RecurringExpensesAdminView() {
             <p className="text-xs text-zinc-500">Annualized Burn</p>
             <p className="text-lg font-semibold text-zinc-50">
               {sym}
-              {formatNumber(
-                recurringSummary.yearlyBurn,
-                settings.numberFormat as "western" | "indian",
-              )}
+              {formatNumber(recurringSummary.yearlyBurn, settings.numberFormat)}
             </p>
           </div>
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2.5">
@@ -1161,9 +1117,9 @@ export default function RecurringExpensesAdminView() {
                 }
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
-                {CURRENCIES.map((c) => (
+                {RECURRING_EXPENSE_CURRENCIES.map((c) => (
                   <option key={c} value={c}>
-                    {c} ({CURR_SYM[c] || c})
+                    {c} ({getRecurringCurrencySymbol(c)})
                   </option>
                 ))}
               </select>
@@ -1180,7 +1136,8 @@ export default function RecurringExpensesAdminView() {
                 value={settings.numberFormat}
                 onChange={(e) =>
                   updateSettings({
-                    numberFormat: e.target.value as "western" | "indian",
+                    numberFormat: e.target
+                      .value as RecurringExpenseSettings["numberFormat"],
                   })
                 }
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
@@ -1244,7 +1201,7 @@ export default function RecurringExpensesAdminView() {
               Categories
             </label>
             <div className="flex flex-wrap gap-2 mb-3">
-              {settings.categories.map((cat: string) => (
+              {settings.categories.map((cat) => (
                 <span
                   key={cat}
                   className="flex items-center gap-1 px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-300"
@@ -1254,7 +1211,7 @@ export default function RecurringExpensesAdminView() {
                     onClick={() =>
                       updateSettings({
                         categories: settings.categories.filter(
-                          (c: string) => c !== cat,
+                          (c) => c !== cat,
                         ),
                       })
                     }
@@ -1373,7 +1330,9 @@ export default function RecurringExpensesAdminView() {
               <select
                 id="expense-billing-cycle"
                 value={billingCycle}
-                onChange={(e) => setBillingCycle(e.target.value)}
+                onChange={(e) =>
+                  setBillingCycle(e.target.value as BillingCycle)
+                }
                 disabled={isSubmitting}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
@@ -1398,7 +1357,7 @@ export default function RecurringExpensesAdminView() {
                 disabled={isSubmitting}
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
-                {settings.categories.map((c: string) => (
+                {settings.categories.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -1552,7 +1511,7 @@ export default function RecurringExpensesAdminView() {
               <select
                 value={sortBy}
                 onChange={(e) => {
-                  const val = e.target.value as typeof sortBy;
+                  const val = e.target.value as RecurringSortMode;
                   setSortBy(val);
                   updateSettings({ defaultSort: val });
                 }}
@@ -1609,7 +1568,7 @@ export default function RecurringExpensesAdminView() {
                   renewalWarningDays={settings.renewalWarningDays}
                   isAnyDragging={activeDragId !== null}
                   dragEnabled={true}
-                  numberFormat={settings.numberFormat as "western" | "indian"}
+                  numberFormat={settings.numberFormat}
                   onDeRenew={handleDeRenew}
                   onRenew={handleRenew}
                   onDuplicate={handleDuplicate}
@@ -1629,40 +1588,16 @@ export default function RecurringExpensesAdminView() {
           </DragOverlay>
         </DndContext>
       )}
+      {hasRequestedAnalytics && (
+        <RecurringExpenseAnalyticsModal
+          isOpen={showAnalytics}
+          expenses={subs}
+          defaultCurrency={settings.defaultCurrency}
+          numberFormat={settings.numberFormat}
+          now={now}
+          onClose={() => setShowAnalytics(false)}
+        />
+      )}
     </div>
   );
-}
-
-function formatNumber(
-  num: number,
-  format: "western" | "indian" = "western",
-): string {
-  if (format === "indian") {
-    // Indian numbering system: 1,23,45,678
-    const numStr = Math.round(num).toString();
-    if (numStr.length <= 3) return numStr;
-
-    let result = "";
-    let remaining = numStr;
-
-    // Last 3 digits
-    if (remaining.length > 3) {
-      result = "," + remaining.slice(-3);
-      remaining = remaining.slice(0, -3);
-    } else {
-      return remaining;
-    }
-
-    // Process in groups of 2 from right to left
-    while (remaining.length > 2) {
-      result = "," + remaining.slice(-2) + result;
-      remaining = remaining.slice(0, -2);
-    }
-
-    result = remaining + result;
-    return result;
-  } else {
-    // Western numbering system: 12,345,678
-    return Math.round(num).toLocaleString("en-US");
-  }
 }

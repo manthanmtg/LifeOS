@@ -2,23 +2,46 @@
 
 import { useState, useEffect, useCallback } from "react";
 
+export interface ModuleSettingsBrowserCache<T extends Record<string, unknown>> {
+  read(): Partial<T> | null;
+  write(settings: T): void;
+}
+
+type SystemConfigFetchResult =
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false };
+
 /* ---------- In-memory fetch deduplication ----------
  * When the dashboard mounts, 10+ widgets call useModuleSettings simultaneously.
  * Without dedup, each fires its own GET /api/system.  With dedup, only ONE
  * request is made and all callers share the same promise/response.
  */
-let _promise: Promise<Record<string, unknown>> | null = null;
+let _promise: Promise<SystemConfigFetchResult> | null = null;
 let _cacheTime = 0;
 const CACHE_TTL = 5_000; // 5 seconds
 
-function fetchSystemConfigOnce(): Promise<Record<string, unknown>> {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function fetchSystemConfigOnce(): Promise<SystemConfigFetchResult> {
   const now = Date.now();
   if (_promise && now - _cacheTime < CACHE_TTL) return _promise;
 
   _promise = fetch("/api/system")
-    .then((r) => r.json())
-    .then((d) => (d.data ?? {}) as Record<string, unknown>)
-    .catch(() => ({}) as Record<string, unknown>);
+    .then(async (response) => {
+      if ("ok" in response && !response.ok) {
+        throw new Error(`Failed to load system settings: ${response.status}`);
+      }
+
+      const body: unknown = await response.json();
+      if (!isRecord(body) || !("data" in body) || !isRecord(body.data)) {
+        throw new Error("Malformed system settings response");
+      }
+
+      return { ok: true, data: body.data };
+    })
+    .catch(() => ({ ok: false }));
 
   _cacheTime = now;
   return _promise;
@@ -40,6 +63,7 @@ export function _resetSystemCache() {
 export function useModuleSettings<T extends Record<string, unknown>>(
   settingsKey: string,
   defaults: T,
+  browserCache?: ModuleSettingsBrowserCache<T>,
 ) {
   const [settings, setSettings] = useState<T>(defaults);
   const [saving, setSaving] = useState(false);
@@ -48,12 +72,31 @@ export function useModuleSettings<T extends Record<string, unknown>>(
   useEffect(() => {
     let cancelled = false;
 
+    try {
+      const cached = browserCache?.read();
+      if (cached && isRecord(cached)) {
+        setSettings({ ...defaults, ...cached });
+      }
+    } catch {
+      // Browser cache is an optional first-paint optimization.
+    }
+
     fetchSystemConfigOnce()
-      .then((data) => {
+      .then((result) => {
         if (cancelled) return;
-        const stored = data[settingsKey];
-        if (stored) {
-          setSettings({ ...defaults, ...(stored as Partial<T>) });
+        if (!result.ok) return;
+
+        const stored = result.data[settingsKey];
+        const nextSettings = isRecord(stored)
+          ? { ...defaults, ...(stored as Partial<T>) }
+          : defaults;
+
+        setSettings(nextSettings);
+
+        try {
+          browserCache?.write(nextSettings);
+        } catch {
+          // Browser cache write failures should not affect server-backed settings.
         }
       })
       .finally(() => {
@@ -70,13 +113,21 @@ export function useModuleSettings<T extends Record<string, unknown>>(
     async (updates: Partial<T>) => {
       const merged = { ...settings, ...updates };
       setSettings(merged);
+      try {
+        browserCache?.write(merged);
+      } catch {
+        // Browser cache is best-effort and must never block saving.
+      }
       setSaving(true);
       try {
-        await fetch("/api/system", {
+        const response = await fetch("/api/system", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ [settingsKey]: merged }),
         });
+        if ("ok" in response && !response.ok) {
+          throw new Error(`Failed to save system settings: ${response.status}`);
+        }
         // Invalidate the shared cache so next read picks up the new data
         _resetSystemCache();
       } catch (e) {
@@ -85,7 +136,7 @@ export function useModuleSettings<T extends Record<string, unknown>>(
         setTimeout(() => setSaving(false), 500);
       }
     },
-    [settings, settingsKey],
+    [browserCache, settings, settingsKey],
   );
 
   return { settings, updateSettings, saving, loaded };

@@ -9,14 +9,13 @@ import {
   WidgetStat,
   WidgetHighlight,
 } from "@/components/dashboard/widget-primitives";
-import { formatNumber, type NumberFormat } from "@/lib/formatters";
-
-interface RecurringExpenseSettings {
-  defaultCurrency: string;
-  enableReminders: boolean;
-  numberFormat: NumberFormat;
-  [key: string]: unknown;
-}
+import { formatNumber } from "@/lib/formatters";
+import {
+  RECURRING_EXPENSE_SETTINGS_DEFAULTS,
+  getRecurringCurrencySymbol,
+} from "./config";
+import { recurringExpenseCurrencyCache } from "./settings-cache";
+import type { RecurringExpenseSettings } from "./types";
 
 interface RecurringSummary {
   activeCount: number;
@@ -27,29 +26,17 @@ interface RecurringSummary {
   daysUntilNext: number | null;
 }
 
-const CURR_SYM: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  INR: "₹",
-  JPY: "¥",
-  AUD: "A$",
-  CAD: "C$",
-  CHF: "CHF",
-  CNY: "¥",
-  BRL: "R$",
-};
-
 export default function RecurringExpensesWidget() {
   const { settings } = useModuleSettings<RecurringExpenseSettings>(
     "recurringExpenseSettings",
-    { defaultCurrency: "USD", enableReminders: true, numberFormat: "western" },
+    RECURRING_EXPENSE_SETTINGS_DEFAULTS,
+    recurringExpenseCurrencyCache,
   );
 
   const [summary, setSummary] = useState<RecurringSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
-  const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
+  const sym = getRecurringCurrencySymbol(settings.defaultCurrency);
   const format = settings.numberFormat || "western";
 
   useEffect(() => {
@@ -135,9 +122,7 @@ export default function RecurringExpensesWidget() {
       >
         <WidgetStat
           value={
-            summaryError
-              ? "—"
-              : `${sym}${formatNumber(totalBurn, format)}`
+            summaryError ? "—" : `${sym}${formatNumber(totalBurn, format)}`
           }
           label={`monthly · ${summaryLabel}`}
         />
