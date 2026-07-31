@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { THEMES } from "@/components/ThemeProvider";
 import {
+  Bell,
   Check,
   Palette,
   Eye,
@@ -33,21 +35,25 @@ import {
   Trash2,
 } from "lucide-react";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { NotificationSettingsTab } from "@/components/settings/NotificationSettingsTab";
 import { cn } from "@/lib/utils";
 import { moduleRegistry } from "@/registry";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 
-const MarkdownRenderer = dynamic(() => import("@/components/MarkdownRenderer"), {
-  loading: () => (
-    <div className="space-y-4 animate-pulse">
-      <SkeletonBlock className="h-6 w-1/3 rounded" />
-      <SkeletonBlock className="h-4 w-full rounded" />
-      <SkeletonBlock className="h-4 w-2/3 rounded" />
-      <SkeletonBlock className="h-4 w-full rounded" />
-      <SkeletonBlock className="h-4 w-1/2 rounded" />
-    </div>
-  ),
-});
+const MarkdownRenderer = dynamic(
+  () => import("@/components/MarkdownRenderer"),
+  {
+    loading: () => (
+      <div className="space-y-4 animate-pulse">
+        <SkeletonBlock className="h-6 w-1/3 rounded" />
+        <SkeletonBlock className="h-4 w-full rounded" />
+        <SkeletonBlock className="h-4 w-2/3 rounded" />
+        <SkeletonBlock className="h-4 w-full rounded" />
+        <SkeletonBlock className="h-4 w-1/2 rounded" />
+      </div>
+    ),
+  },
+);
 
 const THEME_META: Record<string, { label: string; colors: string[] }> = {
   "one-dark": { label: "One Dark", colors: ["#161b26", "#61afef", "#f2f4f8"] },
@@ -158,7 +164,7 @@ const ICON_PRESETS = [
   { label: "Atom", emoji: "⚛️", value: emojiToSvg("⚛️") },
 ];
 
-type SettingsTab = "themes" | "modules" | "branding" | "data";
+type SettingsTab = "themes" | "modules" | "branding" | "notifications" | "data";
 
 const TABS: {
   id: SettingsTab;
@@ -168,11 +174,13 @@ const TABS: {
   { id: "themes", label: "Themes", icon: Palette },
   { id: "modules", label: "Modules", icon: LayoutGrid },
   { id: "branding", label: "Branding", icon: Globe },
+  { id: "notifications", label: "Notifications", icon: Bell },
   { id: "data", label: "Data", icon: Database },
 ];
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [moduleOrder, setModuleOrder] = useState<string[]>([]);
@@ -213,6 +221,13 @@ export default function SettingsPage() {
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const requestedTab = searchParams.get("tab");
+    if (TABS.some((tab) => tab.id === requestedTab)) {
+      setActiveTab(requestedTab as SettingsTab);
+    }
+  }, [searchParams]);
 
   const sortedModuleKeys = (() => {
     if (!config) return moduleOrder;
@@ -451,7 +466,7 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="text-zinc-400">
-          Manage themes, modules, branding, and data.
+          Manage themes, modules, branding, notifications, and data.
         </p>
       </header>
 
@@ -1293,74 +1308,77 @@ export default function SettingsPage() {
                             className="hidden"
                           />
                         </button>
-                          <AnimatePresence>
-                            {uploadSuccess && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                className="absolute inset-0 flex items-center justify-center bg-success/[0.06] rounded-2xl border-2 border-success/30 backdrop-blur-sm"
-                              >
-                                <div className="flex items-center gap-2.5">
-                                  <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{
-                                      type: "spring",
-                                      stiffness: 400,
-                                      damping: 15,
-                                      delay: 0.1,
-                                    }}
-                                    className="w-8 h-8 bg-success/20 rounded-full flex items-center justify-center"
-                                  >
-                                    <CheckCircle2 className="w-5 h-5 text-success" />
-                                  </motion.div>
-                                  <span className="text-sm font-semibold text-success">
-                                    Icon uploaded!
-                                  </span>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </div>
-
-                      {/* Custom URL Input */}
-                      <div>
-                        <label
-                          htmlFor="site-icon-url"
-                          className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2"
-                        >
-                          Or paste image URL
-                        </label>
-                        <div className="relative">
-                          <Link className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                          <input
-                            id="site-icon-url"
-                            type="text"
-                            value={isCustomUrl ? config.site_icon : ""}
-                            onChange={(e) =>
-                              saveConfig({ site_icon: e.target.value })
-                            }
-                            placeholder="https://example.com/icon.png"
-                            className="w-full bg-zinc-950/50 border border-zinc-800/80 rounded-xl pl-10 pr-14 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-1 focus:ring-accent/50 shadow-inner placeholder:text-zinc-700"
-                          />
-                          {isCustomUrl && (
-                            <motion.img
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              src={config.site_icon}
-                              alt=""
-                              className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md object-contain border border-zinc-700/40"
-                            />
+                        <AnimatePresence>
+                          {uploadSuccess && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              className="absolute inset-0 flex items-center justify-center bg-success/[0.06] rounded-2xl border-2 border-success/30 backdrop-blur-sm"
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 400,
+                                    damping: 15,
+                                    delay: 0.1,
+                                  }}
+                                  className="w-8 h-8 bg-success/20 rounded-full flex items-center justify-center"
+                                >
+                                  <CheckCircle2 className="w-5 h-5 text-success" />
+                                </motion.div>
+                                <span className="text-sm font-semibold text-success">
+                                  Icon uploaded!
+                                </span>
+                              </div>
+                            </motion.div>
                           )}
-                        </div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+
+                    {/* Custom URL Input */}
+                    <div>
+                      <label
+                        htmlFor="site-icon-url"
+                        className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2"
+                      >
+                        Or paste image URL
+                      </label>
+                      <div className="relative">
+                        <Link className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <input
+                          id="site-icon-url"
+                          type="text"
+                          value={isCustomUrl ? config.site_icon : ""}
+                          onChange={(e) =>
+                            saveConfig({ site_icon: e.target.value })
+                          }
+                          placeholder="https://example.com/icon.png"
+                          className="w-full bg-zinc-950/50 border border-zinc-800/80 rounded-xl pl-10 pr-14 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-1 focus:ring-accent/50 shadow-inner placeholder:text-zinc-700"
+                        />
+                        {isCustomUrl && (
+                          <motion.img
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            src={config.site_icon}
+                            alt=""
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md object-contain border border-zinc-700/40"
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
+                </div>
               </div>
             </section>
           )}
+
+          {/* ─── NOTIFICATIONS TAB ─── */}
+          {activeTab === "notifications" && <NotificationSettingsTab />}
 
           {/* ─── DATA TAB ─── */}
           {activeTab === "data" && (
@@ -1529,23 +1547,23 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between mt-3 text-xs">
                     <span className="text-zinc-500">
                       Used:{" "}
-                      {dbStatsLoading
-                        ? (
-                          <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
-                        )
-                        : dbStats
-                          ? `${(dbStats.database?.storageSize / 1024 / 1024).toFixed(1)} MB`
-                          : "—"}
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
+                      ) : dbStats ? (
+                        `${(dbStats.database?.storageSize / 1024 / 1024).toFixed(1)} MB`
+                      ) : (
+                        "—"
+                      )}
                     </span>
                     <span className="text-zinc-500">
                       Limit:{" "}
-                      {dbStatsLoading
-                        ? (
-                          <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
-                        )
-                        : dbStats
-                          ? `${(dbStats.limits?.estimated / 1024 / 1024).toFixed(0)} MB`
-                          : "~512 MB"}
+                      {dbStatsLoading ? (
+                        <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
+                      ) : dbStats ? (
+                        `${(dbStats.limits?.estimated / 1024 / 1024).toFixed(0)} MB`
+                      ) : (
+                        "~512 MB"
+                      )}
                     </span>
                   </div>
                 </div>
@@ -1579,42 +1597,44 @@ export default function SettingsPage() {
                 )}
 
                 {/* Collection Breakdown */}
-                {!dbStatsLoading && dbStats && dbStats.collections.length > 0 && (
-                  <div className="bg-zinc-950/30 border border-zinc-800/30 rounded-2xl overflow-hidden relative z-10">
-                    <div className="px-5 py-4 border-b border-zinc-800/30">
-                      <h3 className="text-sm font-semibold text-zinc-300">
-                        Collection Breakdown
-                      </h3>
-                    </div>
-                    <div className="max-h-48 overflow-y-auto">
-                      {dbStats.collections.map((col, idx) => (
-                        <div
-                          key={col.name}
-                          className={cn(
-                            "flex items-center justify-between px-5 py-3",
-                            idx !== dbStats.collections.length - 1 &&
-                              "border-b border-zinc-800/20",
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-accent/60" />
-                            <span className="text-sm font-medium text-zinc-400">
-                              {col.name}
-                            </span>
+                {!dbStatsLoading &&
+                  dbStats &&
+                  dbStats.collections.length > 0 && (
+                    <div className="bg-zinc-950/30 border border-zinc-800/30 rounded-2xl overflow-hidden relative z-10">
+                      <div className="px-5 py-4 border-b border-zinc-800/30">
+                        <h3 className="text-sm font-semibold text-zinc-300">
+                          Collection Breakdown
+                        </h3>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {dbStats.collections.map((col, idx) => (
+                          <div
+                            key={col.name}
+                            className={cn(
+                              "flex items-center justify-between px-5 py-3",
+                              idx !== dbStats.collections.length - 1 &&
+                                "border-b border-zinc-800/20",
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 rounded-full bg-accent/60" />
+                              <span className="text-sm font-medium text-zinc-400">
+                                {col.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-6 text-xs">
+                              <span className="text-zinc-500">
+                                {col.documentCount.toLocaleString()} docs
+                              </span>
+                              <span className="text-zinc-400 font-medium w-16 text-right">
+                                {(col.size / 1024).toFixed(1)} KB
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-6 text-xs">
-                            <span className="text-zinc-500">
-                              {col.documentCount.toLocaleString()} docs
-                            </span>
-                            <span className="text-zinc-400 font-medium w-16 text-right">
-                              {(col.size / 1024).toFixed(1)} KB
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               {/* Data Integrity Section */}

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NotificationPreferencesSchema } from "@/lib/notifications/schemas";
 
 const CalendarDateSchema = z
   .string()
@@ -62,11 +63,7 @@ const SocialLinkSchema = z.object({
     .trim()
     .min(1, "Platform name is required (e.g., GitHub, LinkedIn)")
     .max(50),
-  url: z
-    .string()
-    .trim()
-    .url("Must be a valid URL")
-    .max(500, "URL is too long"),
+  url: z.string().trim().url("Must be a valid URL").max(500, "URL is too long"),
 });
 
 const PortfolioProfileSchema = z.object({
@@ -177,6 +174,7 @@ export const RecurringExpenseSchema = z.object({
     .optional(),
   is_active: z.boolean().default(true),
   enable_reminders: z.boolean().default(true),
+  notifications: NotificationPreferencesSchema.optional(),
   notes: z.string().trim().min(1).max(2000).optional(),
   order: z.number().int().min(0).optional(),
 });
@@ -391,11 +389,7 @@ export const EmiLoanSchema = z.object({
           .enum(["sanction_letter", "noc", "interest_certificate", "other"])
           .default("other"),
         title: z.string().trim().min(1).max(200),
-        url: z
-          .string()
-          .trim()
-          .url()
-          .max(2048, "Document URL is too long"),
+        url: z.string().trim().url().max(2048, "Document URL is too long"),
         issued_at: z.string().datetime().optional(),
         added_at: z
           .string()
@@ -466,10 +460,7 @@ export const RainEntrySchema = z.object({
   rainfall_unit: z.enum(["mm", "cm", "in"]).default("mm"),
   date: z.string().datetime("Must be a valid ISO date-time"),
   notes: z.string().trim().max(2000).optional(),
-  source: z
-    .enum(["manual", "sensor", "imported"])
-    .default("manual")
-    .optional(),
+  source: z.enum(["manual", "sensor", "imported"]).default("manual").optional(),
 });
 
 // --- 15. PORTFOLIO RESUME ---
@@ -609,17 +600,9 @@ export const PersonSchema = z.object({
   documents: z
     .array(
       z.object({
-        id: z
-          .string()
-          .trim()
-          .min(1, "Document id is required")
-          .max(100),
+        id: z.string().trim().min(1, "Document id is required").max(100),
         name: z.string().trim().min(1, "Document name is required").max(200),
-        filename: z
-          .string()
-          .trim()
-          .min(1, "Filename is required")
-          .max(255),
+        filename: z.string().trim().min(1, "Filename is required").max(255),
         content_type: MimeTypeSchema,
         data: z.string().min(1), // base64
         size: z.number().int().min(0),

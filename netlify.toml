@@ -9,6 +9,9 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+[functions."notifications-dispatch"]
+  schedule = "@hourly"
+
 [[headers]]
   for = "/*"
   [headers.values]

@@ -5,27 +5,29 @@ The `src/lib` directory is the shared service layer for LifeOS. It provides:
 - Content schema validation contracts used by API routes.
 - Data and persistence helpers for system state and MongoDB.
 - Module ordering/search utilities for admin shell features.
+- Notification contracts, adapters, source registries, encryption, and dispatch.
 - Lightweight UI utility helpers for analytics, formatting, and class merging.
 
 Keep changes in this directory small and API-oriented; most module behavior should remain in `src/modules` and `src/app`.
 
 ## Module map
 
-| File | Responsibility | Key exports |
-| --- | --- | --- |
-| `schemas.ts` | Authoritative Zod payload contracts and module schema registry | `SchemaRegistry`, `*Schema` exports |
-| `types.ts` | Shared interfaces used by API contracts and content typing | `SystemConfig`, `ContentDocument`, `BlogPostPayload` |
-| `admin-modules.ts` | Module registry filtering + sorting for dashboard navigation | `getDisabledModules`, `getOrderedAdminModules` |
-| `mongodb.ts` | MongoDB client caching and database factory | `getDb` |
-| `seed.ts` | First-run bootstrap for system config and indexes | `ensureSystemConfig` |
-| `auth.ts` | JWT sign/verify helpers for admin auth middleware/API auth | `signToken`, `verifyToken` |
-| `api-response.ts` | Shared NextResponse helpers for consistent JSON shape | `ApiSuccess`, `ApiError`, `ApiValidationError`, `ApiNotFound` |
-| `module-search.ts` | Tokenized matching for module search with score and highlights | `getModuleSearchResults`, `highlightText` |
-| `analytics.ts` | Client-side analytics event sender used by widgets and feature actions | `trackEvent` |
-| `metrics-cache.ts` | Cached metric aggregation for visit-tier sorting and dashboards | `getTieredVisits` |
-| `formatters.ts` | Currency/number formatting helpers | `formatNumber`, `formatCurrency` |
-| `utils.ts` | Tailwind class merge helper | `cn` |
-| `cropImage.ts` | Browser-side image crop utility for image upload/edit flows | `getCroppedImg` |
+| File               | Responsibility                                                         | Key exports                                                   |
+| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `schemas.ts`       | Authoritative Zod payload contracts and module schema registry         | `SchemaRegistry`, `*Schema` exports                           |
+| `types.ts`         | Shared interfaces used by API contracts and content typing             | `SystemConfig`, `ContentDocument`, `BlogPostPayload`          |
+| `admin-modules.ts` | Module registry filtering + sorting for dashboard navigation           | `getDisabledModules`, `getOrderedAdminModules`                |
+| `mongodb.ts`       | MongoDB client caching and database factory                            | `getDb`                                                       |
+| `seed.ts`          | First-run bootstrap for system config and indexes                      | `ensureSystemConfig`                                          |
+| `auth.ts`          | JWT sign/verify helpers for admin auth middleware/API auth             | `signToken`, `verifyToken`                                    |
+| `api-response.ts`  | Shared NextResponse helpers for consistent JSON shape                  | `ApiSuccess`, `ApiError`, `ApiValidationError`, `ApiNotFound` |
+| `module-search.ts` | Tokenized matching for module search with score and highlights         | `getModuleSearchResults`, `highlightText`                     |
+| `analytics.ts`     | Client-side analytics event sender used by widgets and feature actions | `trackEvent`                                                  |
+| `metrics-cache.ts` | Cached metric aggregation for visit-tier sorting and dashboards        | `getTieredVisits`                                             |
+| `formatters.ts`    | Currency/number formatting helpers                                     | `formatNumber`, `formatCurrency`                              |
+| `utils.ts`         | Tailwind class merge helper                                            | `cn`                                                          |
+| `cropImage.ts`     | Browser-side image crop utility for image upload/edit flows            | `getCroppedImg`                                               |
+| `notifications/`   | Shared notification platform with Telegram v1 support                  | `runNotificationDispatch`, source and adapter registries      |
 
 ## Zod schema registry (`SchemaRegistry`)
 
@@ -151,6 +153,22 @@ trackEvent({
 
 - Uses `jose` HMAC HS256 with issuer/audience constants.
 - Requires `JWT_SECRET` from environment variables.
+
+### `notifications/`
+
+- `contracts.ts` and `schemas.ts` define browser-safe notification DTOs,
+  settings, and item preference contracts.
+- `crypto.ts` encrypts adapter credentials with AES-256-GCM using
+  `NOTIFICATION_ENCRYPTION_KEY`.
+- `repositories.ts` owns the `notification_channels` and
+  `notification_deliveries` collections, including dedupe, claim, retry, and
+  TTL indexes.
+- `sources/recurring-expenses.ts` turns due recurring-expense renewals into
+  provider-neutral candidates.
+- `adapters/telegram.ts` validates Telegram bot connections and sends plain
+  text messages.
+- `dispatcher.ts` is the shared scheduled/manual entry point used by the
+  Netlify function and `/api/notifications/dispatch`.
 
 ## Related docs
 

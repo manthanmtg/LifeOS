@@ -42,6 +42,7 @@ export default async function proxy(request: NextRequest) {
     path.startsWith("/api/import") ||
     path.startsWith("/api/db-stats") ||
     path.startsWith("/api/widgets") ||
+    path.startsWith("/api/notifications") ||
     path.startsWith("/api/maintenance") ||
     path.startsWith("/api/module-info") ||
     (path.startsWith("/api/metrics") && request.method === "GET") ||

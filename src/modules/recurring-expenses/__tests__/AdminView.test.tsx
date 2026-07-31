@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import RecurringExpensesAdminView from "../AdminView";
 
@@ -72,5 +72,25 @@ describe("RecurringExpensesAdminView", () => {
 
     expect(actionToolbar).toHaveClass("flex-wrap", "justify-end");
     expect(editButton).toHaveClass("min-h-11", "min-w-11");
+  });
+
+  it("shows renewal notification offsets when notify is enabled", async () => {
+    render(<RecurringExpensesAdminView />);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Loading/i)).toBeNull();
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /add recurring expense/i }),
+    );
+
+    expect(
+      screen.getByRole("checkbox", { name: "Notify of renewal" }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "1 day before" }),
+    ).toBeChecked();
+    expect(screen.getByLabelText(/custom day offset/i)).toBeInTheDocument();
   });
 });

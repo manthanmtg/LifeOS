@@ -6,6 +6,12 @@ vi.mock("../mongodb", () => ({
   getDb: vi.fn(),
 }));
 
+vi.mock("server-only", () => ({}));
+
+vi.mock("../notifications/repositories", () => ({
+  ensureNotificationIndexes: vi.fn(),
+}));
+
 vi.mock("@/registry", () => ({
   moduleRegistry: {
     expenses: { defaultPublic: true },
@@ -134,6 +140,8 @@ describe("ensureSystemConfig", () => {
 
   it("creates the expected query indexes on content and metrics", async () => {
     const { getDb } = await import("../mongodb");
+    const { ensureNotificationIndexes } =
+      await import("../notifications/repositories");
     const { ensureSystemConfig } = await import("../seed");
     const mocks = createDbMocks();
 
@@ -164,6 +172,7 @@ describe("ensureSystemConfig", () => {
       path: 1,
       timestamp: -1,
     });
+    expect(ensureNotificationIndexes).toHaveBeenCalledWith(mocks.db);
   });
 
   it("swallows initialization errors after logging them", async () => {

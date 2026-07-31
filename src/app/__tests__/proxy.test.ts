@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import proxy from "@/proxy";
@@ -72,6 +73,17 @@ describe("proxy middleware", () => {
 
   it("returns unauthorized for protected API route without token", async () => {
     const request = new NextRequest("http://localhost/api/system");
+    const response = await proxy(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body).toEqual({ error: "Unauthorized" });
+  });
+
+  it("protects notification API routes", async () => {
+    const request = new NextRequest(
+      "http://localhost/api/notifications/overview",
+    );
     const response = await proxy(request);
     const body = await response.json();
 

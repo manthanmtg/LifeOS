@@ -95,12 +95,15 @@
 │  ├── /api/auth/login — JWT Authentication                   │
 │  ├── /api/system — Global config                            │
 │  ├── /api/metrics — Self-hosted analytics                  │
+│  ├── /api/notifications — Adapter config + dispatch         │
 │  └── /api/export / import — Data portability               │
 ├─────────────────────────────────────────────────────────────┤
 │  Database (MongoDB)                                        │
 │  ├── system (config)                                        │
 │  ├── content (polymorphic: module_type + payload)          │
-│  └── metrics (analytics events)                            │
+│  ├── metrics (analytics events)                            │
+│  ├── notification_channels (encrypted adapters)             │
+│  └── notification_deliveries (90-day delivery history)      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -134,6 +137,14 @@ Edit `.env.local`:
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/lifeos?retryWrites=true&w=majority
 ADMIN_PASSWORD=YourSecurePassword123
 JWT_SECRET=some-long-random-secret-string
+NOTIFICATION_ENCRYPTION_KEY=base64-32-byte-key-from-openssl-rand
+```
+
+`NOTIFICATION_ENCRYPTION_KEY` is required only when using the Notifications
+feature. Generate it with:
+
+```bash
+openssl rand -base64 32
 ```
 
 ### 3. Run
@@ -164,7 +175,9 @@ Set environment variables in Vercel dashboard.
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/manthanmtg/LifeOS)
 
-Set `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET` in Netlify dashboard.
+Set `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`, and
+`NOTIFICATION_ENCRYPTION_KEY` in Netlify dashboard. Netlify runs the
+`notifications-dispatch` scheduled function hourly on published deploys.
 
 ### Self-Host (Docker/Railway/Render)
 

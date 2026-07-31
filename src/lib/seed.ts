@@ -3,6 +3,7 @@ import "server-only";
 import { getDb } from "./mongodb";
 import { SystemConfig } from "./types";
 import { moduleRegistry as appModules } from "../registry";
+import { ensureNotificationIndexes } from "./notifications/repositories";
 
 export async function ensureSystemConfig() {
   try {
@@ -68,6 +69,8 @@ export async function ensureSystemConfig() {
     const metricsColl = db.collection("metrics");
     await metricsColl.createIndex({ timestamp: -1 });
     await metricsColl.createIndex({ path: 1, timestamp: -1 });
+
+    await ensureNotificationIndexes(db);
   } catch (error) {
     console.error("[Seed] Could not initialize system config:", error);
   }

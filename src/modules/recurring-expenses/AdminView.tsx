@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useRef, memo } from "react";
+import Link from "next/link";
 import {
   Plus,
   Trash2,
@@ -44,6 +45,15 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
+import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
+import type { NotificationPreferences } from "@/lib/notifications/contracts";
+import { DEFAULT_RECURRING_NOTIFICATION_OFFSETS } from "@/lib/notifications/contracts";
+import {
+  buildRecurringRenewalNotificationPreferences,
+  getRecurringRenewalOffsets,
+  normalizeNotificationOffsetsDays,
+  resolveRecurringExpenseNotificationPreferences,
+} from "@/lib/notifications/recurring-preferences";
 
 const BILLING_CYCLES = [
   "monthly",
@@ -100,6 +110,7 @@ const SUB_DEFAULTS = {
   defaultCurrency: "USD",
   renewalWarningDays: 7,
   enableReminders: true,
+  defaultNotificationOffsetsDays: DEFAULT_RECURRING_NOTIFICATION_OFFSETS,
   numberFormat: "western",
   defaultSort: "custom",
 };
@@ -116,6 +127,7 @@ interface RecurringExpense {
     url?: string;
     is_active: boolean;
     enable_reminders: boolean;
+    notifications?: NotificationPreferences;
     notes?: string;
     order?: number;
   };
@@ -242,229 +254,231 @@ interface SortableRecurringExpenseCardProps {
   renewalDateLabel: string;
 }
 
-const SortableRecurringExpenseCard = memo(function SortableRecurringExpenseCard({
-  s,
-  sym,
-  renewalWarningDays,
-  isAnyDragging,
-  dragEnabled,
-  numberFormat,
-  onDeRenew,
-  onRenew,
-  onDuplicate,
-  onEdit,
-  onDelete,
-  isProcessingId,
-  daysUntilRenewal,
-  renewalDateLabel,
-}: SortableRecurringExpenseCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: s._id, disabled: !dragEnabled });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const state = renewalState(
-    daysUntilRenewal,
+const SortableRecurringExpenseCard = memo(
+  function SortableRecurringExpenseCard({
+    s,
+    sym,
     renewalWarningDays,
-    s.payload.enable_reminders !== false,
-  );
-  const monthly = monthlyEquivalent(s.payload.cost, s.payload.billing_cycle);
-  const annual = monthly * 12;
-  const progress = renewalProgress(daysUntilRenewal, s.payload.billing_cycle);
+    isAnyDragging,
+    dragEnabled,
+    numberFormat,
+    onDeRenew,
+    onRenew,
+    onDuplicate,
+    onEdit,
+    onDelete,
+    isProcessingId,
+    daysUntilRenewal,
+    renewalDateLabel,
+  }: SortableRecurringExpenseCardProps) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: s._id, disabled: !dragEnabled });
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3 hover:border-zinc-700 transition-colors group/card relative z-10 overflow-hidden",
-        isDragging &&
-          "ring-2 ring-accent/70 border-accent/70 shadow-2xl cursor-grabbing",
-        isAnyDragging && !isDragging && "opacity-95",
-        !s.payload.is_active && "opacity-50",
-      )}
-    >
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    const state = renewalState(
+      daysUntilRenewal,
+      renewalWarningDays,
+      s.payload.enable_reminders !== false,
+    );
+    const monthly = monthlyEquivalent(s.payload.cost, s.payload.billing_cycle);
+    const annual = monthly * 12;
+    const progress = renewalProgress(daysUntilRenewal, s.payload.billing_cycle);
+
+    return (
       <div
-        className={cn("absolute top-0 left-0 right-0 h-0.5", state.lineClass)}
-      />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-2">
-          <button
-            type="button"
-            aria-label={`Drag ${s.payload.name}`}
-            {...attributes}
-            {...listeners}
-            disabled={!dragEnabled}
-            className={cn(
-              "p-1 -ml-1 transition-colors touch-none",
-              dragEnabled
-                ? "text-zinc-700 hover:text-zinc-400 cursor-grab active:cursor-grabbing"
-                : "text-zinc-800 cursor-not-allowed",
-            )}
-          >
-            <GripVertical className="w-4 h-4" />
-          </button>
-          <div className="min-w-0">
-            <p className="break-words text-sm font-semibold text-zinc-50">
-              {s.payload.name}
-            </p>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
-                {s.payload.category}
-              </span>
-              <span
-                className={cn(
-                  "text-[11px] px-2 py-0.5 rounded-full border",
-                  s.payload.is_active
-                    ? "bg-success/10 border-success/25 text-success"
-                    : "bg-zinc-800 border-zinc-700 text-zinc-400",
-                )}
-              >
-                {s.payload.is_active ? "Active" : "Paused"}
-              </span>
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3 hover:border-zinc-700 transition-colors group/card relative z-10 overflow-hidden",
+          isDragging &&
+            "ring-2 ring-accent/70 border-accent/70 shadow-2xl cursor-grabbing",
+          isAnyDragging && !isDragging && "opacity-95",
+          !s.payload.is_active && "opacity-50",
+        )}
+      >
+        <div
+          className={cn("absolute top-0 left-0 right-0 h-0.5", state.lineClass)}
+        />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 items-start gap-2">
+            <button
+              type="button"
+              aria-label={`Drag ${s.payload.name}`}
+              {...attributes}
+              {...listeners}
+              disabled={!dragEnabled}
+              className={cn(
+                "p-1 -ml-1 transition-colors touch-none",
+                dragEnabled
+                  ? "text-zinc-700 hover:text-zinc-400 cursor-grab active:cursor-grabbing"
+                  : "text-zinc-800 cursor-not-allowed",
+              )}
+            >
+              <GripVertical className="w-4 h-4" />
+            </button>
+            <div className="min-w-0">
+              <p className="break-words text-sm font-semibold text-zinc-50">
+                {s.payload.name}
+              </p>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
+                  {s.payload.category}
+                </span>
+                <span
+                  className={cn(
+                    "text-[11px] px-2 py-0.5 rounded-full border",
+                    s.payload.is_active
+                      ? "bg-success/10 border-success/25 text-success"
+                      : "bg-zinc-800 border-zinc-700 text-zinc-400",
+                  )}
+                >
+                  {s.payload.is_active ? "Active" : "Paused"}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-1 sm:flex-nowrap sm:shrink-0">
-          {s.payload.url && (
-            <Tooltip content="Open URL">
-              <a
-                href={s.payload.url}
-                target="_blank"
-                rel="noopener"
-                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 sm:min-h-0 sm:min-w-0"
+          <div className="flex flex-wrap items-center justify-end gap-1 sm:flex-nowrap sm:shrink-0">
+            {s.payload.url && (
+              <Tooltip content="Open URL">
+                <a
+                  href={s.payload.url}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 sm:min-h-0 sm:min-w-0"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </Tooltip>
+            )}
+            <Tooltip content="Go Back one cycle">
+              <button
+                onClick={() => onDeRenew(s)}
+                disabled={isProcessingId === s._id}
+                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
+                aria-label="Previous billing cycle"
               >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+                {isProcessingId === s._id ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="w-3.5 h-3.5" />
+                )}
+              </button>
             </Tooltip>
-          )}
-          <Tooltip content="Go Back one cycle">
-            <button
-              onClick={() => onDeRenew(s)}
-              disabled={isProcessingId === s._id}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
-              aria-label="Previous billing cycle"
-            >
-              {isProcessingId === s._id ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <RotateCcw className="w-3.5 h-3.5" />
-              )}
-            </button>
-          </Tooltip>
-          <Tooltip content="Mark as Renewed">
-            <button
-              onClick={() => onRenew(s)}
-              disabled={isProcessingId === s._id}
-              className={cn(
-                "inline-flex min-h-11 min-w-11 items-center justify-center p-1 transition-colors disabled:opacity-50 sm:min-h-0 sm:min-w-0",
-                daysUntilRenewal <= 0
-                  ? "text-accent hover:text-accent-hover"
-                  : "text-zinc-500 hover:text-zinc-300",
-              )}
-              aria-label="Mark as renewed"
-            >
-              {isProcessingId === s._id ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <RotateCw className="w-3.5 h-3.5" />
-              )}
-            </button>
-          </Tooltip>
-          <Tooltip content="Duplicate Expense">
-            <button
-              onClick={() => onDuplicate(s)}
-              disabled={isProcessingId === s._id}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
-              aria-label="Duplicate expense"
-            >
-              {isProcessingId === s._id ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Copy className="w-3.5 h-3.5" />
-              )}
-            </button>
-          </Tooltip>
-          <Tooltip content="Edit Expense">
-            <button
-              onClick={() => onEdit(s)}
-              disabled={isProcessingId === s._id}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
-              aria-label="Edit expense"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-            </button>
-          </Tooltip>
-          <Tooltip content="Delete Expense">
-            <button
-              onClick={() => onDelete(s._id)}
-              disabled={isProcessingId === s._id}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-danger disabled:opacity-50 sm:min-h-0 sm:min-w-0"
-              aria-label="Delete expense"
-            >
-              {isProcessingId === s._id ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Trash2 className="w-3.5 h-3.5" />
-              )}
-            </button>
-          </Tooltip>
+            <Tooltip content="Mark as Renewed">
+              <button
+                onClick={() => onRenew(s)}
+                disabled={isProcessingId === s._id}
+                className={cn(
+                  "inline-flex min-h-11 min-w-11 items-center justify-center p-1 transition-colors disabled:opacity-50 sm:min-h-0 sm:min-w-0",
+                  daysUntilRenewal <= 0
+                    ? "text-accent hover:text-accent-hover"
+                    : "text-zinc-500 hover:text-zinc-300",
+                )}
+                aria-label="Mark as renewed"
+              >
+                {isProcessingId === s._id ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RotateCw className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </Tooltip>
+            <Tooltip content="Duplicate Expense">
+              <button
+                onClick={() => onDuplicate(s)}
+                disabled={isProcessingId === s._id}
+                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
+                aria-label="Duplicate expense"
+              >
+                {isProcessingId === s._id ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </Tooltip>
+            <Tooltip content="Edit Expense">
+              <button
+                onClick={() => onEdit(s)}
+                disabled={isProcessingId === s._id}
+                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-zinc-300 disabled:opacity-50 sm:min-h-0 sm:min-w-0"
+                aria-label="Edit expense"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+            </Tooltip>
+            <Tooltip content="Delete Expense">
+              <button
+                onClick={() => onDelete(s._id)}
+                disabled={isProcessingId === s._id}
+                className="inline-flex min-h-11 min-w-11 items-center justify-center p-1 text-zinc-500 hover:text-danger disabled:opacity-50 sm:min-h-0 sm:min-w-0"
+                aria-label="Delete expense"
+              >
+                {isProcessingId === s._id ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </Tooltip>
+          </div>
         </div>
-      </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-zinc-50">
-          {sym}
-          {formatNumber(s.payload.cost, numberFormat)}
-        </span>
-        <span className="text-xs text-zinc-500">
-          /{s.payload.billing_cycle}
-        </span>
-      </div>
-      <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-        <div
-          className={cn("h-full transition-all", state.lineClass)}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2">
-          <p className="text-zinc-500">Monthly Eq.</p>
-          <p className="text-zinc-300 font-medium">
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-zinc-50">
             {sym}
-            {formatNumber(monthly, numberFormat)}
-          </p>
+            {formatNumber(s.payload.cost, numberFormat)}
+          </span>
+          <span className="text-xs text-zinc-500">
+            /{s.payload.billing_cycle}
+          </span>
         </div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2">
-          <p className="text-zinc-500">Annual Impact</p>
-          <p className="text-zinc-300 font-medium">
-            {sym}
-            {formatNumber(annual, numberFormat)}
-          </p>
+        <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+          <div
+            className={cn("h-full transition-all", state.lineClass)}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2">
+            <p className="text-zinc-500">Monthly Eq.</p>
+            <p className="text-zinc-300 font-medium">
+              {sym}
+              {formatNumber(monthly, numberFormat)}
+            </p>
+          </div>
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2">
+            <p className="text-zinc-500">Annual Impact</p>
+            <p className="text-zinc-300 font-medium">
+              {sym}
+              {formatNumber(annual, numberFormat)}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-xs mt-auto pt-2 border-t border-zinc-800">
+          <span
+            className={cn("px-2 py-0.5 rounded-full border", state.chipClass)}
+          >
+            {state.label}
+          </span>
+          <span className="text-zinc-500 inline-flex items-center gap-1">
+            <CalendarDays className="w-3 h-3" />
+            {renewalDateLabel}
+          </span>
         </div>
       </div>
-      <div className="flex items-center justify-between text-xs mt-auto pt-2 border-t border-zinc-800">
-        <span
-          className={cn("px-2 py-0.5 rounded-full border", state.chipClass)}
-        >
-          {state.label}
-        </span>
-        <span className="text-zinc-500 inline-flex items-center gap-1">
-          <CalendarDays className="w-3 h-3" />
-          {renewalDateLabel}
-        </span>
-      </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 function DragPreviewCard({ s, sym }: { s: RecurringExpense; sym: string }) {
   return (
@@ -534,6 +548,13 @@ export default function RecurringExpensesAdminView() {
   const [enableReminders, setEnableReminders] = useState(
     settings.enableReminders,
   );
+  const [notificationOffsetsDays, setNotificationOffsetsDays] = useState<
+    number[]
+  >(() =>
+    normalizeNotificationOffsetsDays(settings.defaultNotificationOffsetsDays),
+  );
+  const [usingInheritedNotifications, setUsingInheritedNotifications] =
+    useState(false);
   const [notes, setNotes] = useState("");
   const [formError, setFormError] = useState("");
   const [sortBy, setSortBy] = useState<
@@ -693,6 +714,10 @@ export default function RecurringExpensesAdminView() {
     setUrl("");
     setIsActive(true);
     setEnableReminders(settings.enableReminders);
+    setNotificationOffsetsDays(
+      normalizeNotificationOffsetsDays(settings.defaultNotificationOffsetsDays),
+    );
+    setUsingInheritedNotifications(false);
     setNotes("");
     setEditingId(null);
     setFormError("");
@@ -714,6 +739,10 @@ export default function RecurringExpensesAdminView() {
 
     setIsSubmitting(true);
     try {
+      const notifications = buildRecurringRenewalNotificationPreferences(
+        enableReminders,
+        notificationOffsetsDays,
+      );
       const payload = {
         name: name.trim(),
         cost: costVal,
@@ -723,7 +752,8 @@ export default function RecurringExpensesAdminView() {
         category,
         url: url.trim() || undefined,
         is_active: isActive,
-        enable_reminders: enableReminders,
+        enable_reminders: notifications.enabled,
+        notifications,
         notes: notes.trim() || undefined,
       };
 
@@ -756,120 +786,150 @@ export default function RecurringExpensesAdminView() {
     }
   };
 
-  const handleEdit = useCallback((s: RecurringExpense) => {
-    setName(s.payload.name);
-    setCost(s.payload.cost.toString());
-    setBillingCycle(s.payload.billing_cycle);
-    setNextRenewal(s.payload.next_renewal_date.slice(0, 10));
-    setCategory(s.payload.category);
-    setUrl(s.payload.url || "");
-    setIsActive(s.payload.is_active);
-    setEnableReminders(s.payload.enable_reminders ?? true);
-    setNotes(s.payload.notes || "");
-    setEditingId(s._id);
-    setShowForm(true);
-  }, []);
+  const handleEdit = useCallback(
+    (s: RecurringExpense) => {
+      const defaultOffsets = normalizeNotificationOffsetsDays(
+        settings.defaultNotificationOffsetsDays,
+      );
+      const preferences = resolveRecurringExpenseNotificationPreferences(
+        s.payload,
+        defaultOffsets,
+      );
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm("Delete this expense?")) return;
-    setIsProcessingId(id);
-    try {
-      const res = await fetch(`/api/content/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Delete failed");
-      await fetchSubs();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to delete";
-      alert(message);
-    } finally {
-      setIsProcessingId(null);
-    }
-  }, [fetchSubs]);
+      setName(s.payload.name);
+      setCost(s.payload.cost.toString());
+      setBillingCycle(s.payload.billing_cycle);
+      setNextRenewal(s.payload.next_renewal_date.slice(0, 10));
+      setCategory(s.payload.category);
+      setUrl(s.payload.url || "");
+      setIsActive(s.payload.is_active);
+      setEnableReminders(preferences.enabled);
+      setNotificationOffsetsDays(
+        getRecurringRenewalOffsets(preferences, defaultOffsets),
+      );
+      setUsingInheritedNotifications(!s.payload.notifications);
+      setNotes(s.payload.notes || "");
+      setEditingId(s._id);
+      setShowForm(true);
+    },
+    [settings.defaultNotificationOffsetsDays],
+  );
 
-  const handleRenew = useCallback(async (s: RecurringExpense) => {
-    setIsProcessingId(s._id);
-    try {
-      const current = new Date(s.payload.next_renewal_date);
-      const cycle = s.payload.billing_cycle;
-      const next = new Date(current);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!confirm("Delete this expense?")) return;
+      setIsProcessingId(id);
+      try {
+        const res = await fetch(`/api/content/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Delete failed");
+        await fetchSubs();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to delete";
+        alert(message);
+      } finally {
+        setIsProcessingId(null);
+      }
+    },
+    [fetchSubs],
+  );
 
-      if (cycle === "daily") next.setDate(current.getDate() + 1);
-      else if (cycle === "weekly") next.setDate(current.getDate() + 7);
-      else if (cycle === "monthly") next.setMonth(current.getMonth() + 1);
-      else if (cycle === "quarterly") next.setMonth(current.getMonth() + 3);
-      else if (cycle === "yearly") next.setFullYear(current.getFullYear() + 1);
+  const handleRenew = useCallback(
+    async (s: RecurringExpense) => {
+      setIsProcessingId(s._id);
+      try {
+        const current = new Date(s.payload.next_renewal_date);
+        const cycle = s.payload.billing_cycle;
+        const next = new Date(current);
 
-      const payload = { ...s.payload, next_renewal_date: next.toISOString() };
-      const res = await fetch(`/api/content/${s._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Renewal failed");
-      await fetchSubs();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to renew";
-      alert(message);
-    } finally {
-      setIsProcessingId(null);
-    }
-  }, [fetchSubs]);
+        if (cycle === "daily") next.setDate(current.getDate() + 1);
+        else if (cycle === "weekly") next.setDate(current.getDate() + 7);
+        else if (cycle === "monthly") next.setMonth(current.getMonth() + 1);
+        else if (cycle === "quarterly") next.setMonth(current.getMonth() + 3);
+        else if (cycle === "yearly")
+          next.setFullYear(current.getFullYear() + 1);
 
-  const handleDeRenew = useCallback(async (s: RecurringExpense) => {
-    setIsProcessingId(s._id);
-    try {
-      const current = new Date(s.payload.next_renewal_date);
-      const cycle = s.payload.billing_cycle;
-      const prev = new Date(current);
+        const payload = { ...s.payload, next_renewal_date: next.toISOString() };
+        const res = await fetch(`/api/content/${s._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payload }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Renewal failed");
+        await fetchSubs();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to renew";
+        alert(message);
+      } finally {
+        setIsProcessingId(null);
+      }
+    },
+    [fetchSubs],
+  );
 
-      if (cycle === "daily") prev.setDate(current.getDate() - 1);
-      else if (cycle === "weekly") prev.setDate(current.getDate() - 7);
-      else if (cycle === "monthly") prev.setMonth(current.getMonth() - 1);
-      else if (cycle === "quarterly") prev.setMonth(current.getMonth() - 3);
-      else if (cycle === "yearly") prev.setFullYear(current.getFullYear() - 1);
+  const handleDeRenew = useCallback(
+    async (s: RecurringExpense) => {
+      setIsProcessingId(s._id);
+      try {
+        const current = new Date(s.payload.next_renewal_date);
+        const cycle = s.payload.billing_cycle;
+        const prev = new Date(current);
 
-      const payload = { ...s.payload, next_renewal_date: prev.toISOString() };
-      const res = await fetch(`/api/content/${s._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "De-renewal failed");
-      await fetchSubs();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to de-renew";
-      alert(message);
-    } finally {
-      setIsProcessingId(null);
-    }
-  }, [fetchSubs]);
+        if (cycle === "daily") prev.setDate(current.getDate() - 1);
+        else if (cycle === "weekly") prev.setDate(current.getDate() - 7);
+        else if (cycle === "monthly") prev.setMonth(current.getMonth() - 1);
+        else if (cycle === "quarterly") prev.setMonth(current.getMonth() - 3);
+        else if (cycle === "yearly")
+          prev.setFullYear(current.getFullYear() - 1);
 
-  const handleDuplicate = useCallback(async (s: RecurringExpense) => {
-    setIsProcessingId(s._id);
-    try {
-      const payload = { ...s.payload, name: `${s.payload.name} (Copy)` };
-      const res = await fetch("/api/content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          module_type: "recurring_expense",
-          is_public: false,
-          payload,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Duplicate failed");
-      await fetchSubs();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to duplicate";
-      alert(message);
-    } finally {
-      setIsProcessingId(null);
-    }
-  }, [fetchSubs]);
+        const payload = { ...s.payload, next_renewal_date: prev.toISOString() };
+        const res = await fetch(`/api/content/${s._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payload }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "De-renewal failed");
+        await fetchSubs();
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to de-renew";
+        alert(message);
+      } finally {
+        setIsProcessingId(null);
+      }
+    },
+    [fetchSubs],
+  );
+
+  const handleDuplicate = useCallback(
+    async (s: RecurringExpense) => {
+      setIsProcessingId(s._id);
+      try {
+        const payload = { ...s.payload, name: `${s.payload.name} (Copy)` };
+        const res = await fetch("/api/content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            module_type: "recurring_expense",
+            is_public: false,
+            payload,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Duplicate failed");
+        await fetchSubs();
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to duplicate";
+        alert(message);
+      } finally {
+        setIsProcessingId(null);
+      }
+    },
+    [fetchSubs],
+  );
 
   const handleReorder = async (newOrder: RecurringExpense[]) => {
     try {
@@ -1167,6 +1227,17 @@ export default function RecurringExpensesAdminView() {
                 Enable reminders for new items by default
               </label>
             </div>
+            <RelativeDateNotificationFields
+              enabled={true}
+              eventLabel="Renewal"
+              offsetsDays={normalizeNotificationOffsetsDays(
+                settings.defaultNotificationOffsetsDays,
+              )}
+              onEnabledChange={() => undefined}
+              onOffsetsChange={(offsetsDays) =>
+                updateSettings({ defaultNotificationOffsetsDays: offsetsDays })
+              }
+            />
           </div>
           <div>
             <label className="block text-xs text-zinc-500 mb-2">
@@ -1368,7 +1439,7 @@ export default function RecurringExpensesAdminView() {
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/40"
               />
             </div>
-            <div className="md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="md:col-span-2 space-y-4">
               <div className="flex flex-wrap gap-4">
                 <label
                   htmlFor="expense-is-active"
@@ -1384,22 +1455,33 @@ export default function RecurringExpensesAdminView() {
                   />
                   Active
                 </label>
-                <label
-                  htmlFor="expense-reminders"
-                  className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer"
-                >
-                  <input
-                    id="expense-reminders"
-                    type="checkbox"
-                    checked={enableReminders}
-                    onChange={(e) => setEnableReminders(e.target.checked)}
-                    disabled={isSubmitting}
-                    className="w-4 h-4 rounded border-zinc-700 accent-accent"
-                  />
-                  Notify of renewal
-                </label>
               </div>
-              <div className="flex items-center gap-3 self-end">
+              <RelativeDateNotificationFields
+                enabled={enableReminders}
+                eventLabel="Renewal"
+                offsetsDays={notificationOffsetsDays}
+                disabled={isSubmitting}
+                onEnabledChange={(enabled) => {
+                  setEnableReminders(enabled);
+                  setUsingInheritedNotifications(false);
+                }}
+                onOffsetsChange={(offsetsDays) => {
+                  setNotificationOffsetsDays(offsetsDays);
+                  setUsingInheritedNotifications(false);
+                }}
+              />
+              <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-500">
+                {usingInheritedNotifications
+                  ? "Using module default timing until you save this item."
+                  : "External delivery starts after Telegram is connected in Settings."}{" "}
+                <Link
+                  href="/admin/settings?tab=notifications"
+                  className="text-accent hover:text-accent-hover"
+                >
+                  Open notification settings
+                </Link>
+              </div>
+              <div className="flex items-center justify-end gap-3">
                 {formError && (
                   <span className="text-danger text-xs">{formError}</span>
                 )}

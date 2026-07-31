@@ -12,6 +12,12 @@ export interface SystemConfig {
   moduleOrder?: string[];
   orderingStrategy?: "custom" | "name" | "visits";
   visitSortScope?: "admin" | "public" | "all";
+  notificationSettings?: {
+    enabled: boolean;
+    timezone: string;
+    deliveryHour: number;
+    catchUpHours: number;
+  };
   tieredVisits?: Record<
     string,
     {

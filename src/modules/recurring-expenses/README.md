@@ -25,19 +25,37 @@ stored in the shared MongoDB `content` collection with
 
 `payload` fields are validated by `RecurringExpenseSchema`.
 
-| Field               | Type                                                          | Notes                                                  |
-| ------------------- | ------------------------------------------------------------- | ------------------------------------------------------ |
-| `name`              | `string`                                                      | Required expense or subscription name.                 |
-| `cost`              | `number`                                                      | Required positive billing amount.                      |
-| `currency`          | `string`                                                      | Three-letter currency code, default `USD`.             |
-| `billing_cycle`     | `"daily" \| "weekly" \| "monthly" \| "quarterly" \| "yearly"` | Controls renewal math and monthly equivalent values.   |
-| `next_renewal_date` | ISO datetime                                                  | Required next billing date.                            |
-| `category`          | `string`                                                      | Required category such as `Streaming` or `Utilities`.  |
-| `url`               | URL                                                           | Optional service or billing link.                      |
-| `is_active`         | `boolean`                                                     | Defaults to `true`; inactive records are paused.       |
-| `enable_reminders`  | `boolean`                                                     | Defaults to `true`; disables urgency chips when false. |
-| `notes`             | `string`                                                      | Optional notes, trimmed and capped at 2,000 chars.     |
-| `order`             | `number`                                                      | Optional custom dashboard ordering value.              |
+| Field               | Type                                                          | Notes                                                         |
+| ------------------- | ------------------------------------------------------------- | ------------------------------------------------------------- |
+| `name`              | `string`                                                      | Required expense or subscription name.                        |
+| `cost`              | `number`                                                      | Required positive billing amount.                             |
+| `currency`          | `string`                                                      | Three-letter currency code, default `USD`.                    |
+| `billing_cycle`     | `"daily" \| "weekly" \| "monthly" \| "quarterly" \| "yearly"` | Controls renewal math and monthly equivalent values.          |
+| `next_renewal_date` | ISO datetime                                                  | Required next billing date.                                   |
+| `category`          | `string`                                                      | Required category such as `Streaming` or `Utilities`.         |
+| `url`               | URL                                                           | Optional service or billing link.                             |
+| `is_active`         | `boolean`                                                     | Defaults to `true`; inactive records are paused.              |
+| `enable_reminders`  | `boolean`                                                     | Compatibility flag synchronized with `notifications.enabled`. |
+| `notifications`     | `NotificationPreferences`                                     | Optional nested renewal notification rules.                   |
+| `notes`             | `string`                                                      | Optional notes, trimmed and capped at 2,000 chars.            |
+| `order`             | `number`                                                      | Optional custom dashboard ordering value.                     |
+
+`notifications` uses the shared LifeOS notification contract:
+
+```ts
+{
+  enabled: boolean;
+  rules: Array<{
+    event: "renewal";
+    offsets_days: number[];
+    channel_ids?: string[];
+  }>;
+}
+```
+
+Existing records without nested preferences still work. When
+`enable_reminders !== false`, the notification source treats them as enabled and
+uses `recurringExpenseSettings.defaultNotificationOffsetsDays` or `[1]`.
 
 ## Admin Features
 
@@ -85,14 +103,16 @@ stored in the shared MongoDB `content` collection with
   defaultCurrency: "USD",
   renewalWarningDays: 7,
   enableReminders: true,
+  defaultNotificationOffsetsDays: [1],
   numberFormat: "western",
   defaultSort: "custom",
 }
 ```
 
 Admins can add or remove categories, choose the default currency, set the
-renewal warning window, toggle reminder defaults, choose western or Indian
-number formatting, and persist a default sort.
+renewal warning window, toggle reminder defaults, configure default renewal
+notification timing, choose western or Indian number formatting, and persist a
+default sort.
 
 ## Smart Capabilities
 
@@ -101,8 +121,9 @@ number formatting, and persist a default sort.
 - The admin list highlights overdue and warning-window items and keeps inactive
   records visible for review without counting them in active totals.
 - The module can duplicate records and reorder active subscriptions with drag-and-drop.
-- Reminder flags alter dashboard cues: reminders disabled in settings remove warning
-  states in both list and widget views.
+- Reminder flags now feed the shared Notifications platform. The old
+  `enable_reminders` field remains synchronized for compatibility, while new
+  saves write nested `notifications` preferences.
 
 ## Component Usage
 

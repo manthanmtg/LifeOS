@@ -50,7 +50,7 @@ All module data lives in a **single MongoDB `content` collection** using a discr
 - `is_public` — controls public visibility
 - Timestamps (`created_at`, `updated_at`) are ISO strings managed by the API
 
-Four MongoDB collections are used for core workflows: `system` (global config), `content` (all module data), `metrics` (analytics events), and `ai_providers` (AI provider configuration and sync metadata). See `src/lib/types.ts` for `SystemConfig` and `ContentDocument` interfaces.
+Core workflows use these MongoDB collections: `system` (global config), `content` (all module data), `metrics` (analytics events), `ai_providers` (AI provider configuration and sync metadata), `notification_channels` (encrypted notification adapter connections), and `notification_deliveries` (90-day delivery ledger). See `src/lib/types.ts` for `SystemConfig` and `ContentDocument` interfaces.
 
 ### Module System
 
@@ -108,13 +108,14 @@ Reference implementation: `src/modules/_template/Widget.tsx`
 - `/api/metrics` — GET / POST analytics events
 - `/api/db-stats` — GET database collection stats for admin diagnostics
 - `/api/export` / `/api/import` — Backup and restore
+- `/api/notifications/*` — Notification settings, Telegram channels, deliveries, and manual dispatch
 - `/api/bills/*` — Bill, folder, move, and attachment operations backed by `content`
 - `/api/ai-usage/*` — Provider, sync, limits, and debug operations backed by `content`
 - Maintenance task CRUD uses `/api/content?module_type=maintenance_task`; there are currently no dedicated `/api/maintenance/*` route files.
 
 ### Auth & Middleware
 
-`src/proxy.ts` is the Next.js middleware. It protects `/admin/*`, admin-only API families (`/api/system`, `/api/ai-usage`, `/api/export`, `/api/import`, `/api/db-stats`, `/api/widgets`, `/api/maintenance`, `/api/module-info`, `/api/bills`), GET analytics, and non-GET `/api/content` requests using JWT tokens (jose library) stored in the `lifeos_token` HTTP-only cookie. GET requests to `/api/content` remain public.
+`src/proxy.ts` is the Next.js middleware. It protects `/admin/*`, admin-only API families (`/api/system`, `/api/ai-usage`, `/api/export`, `/api/import`, `/api/db-stats`, `/api/widgets`, `/api/notifications`, `/api/maintenance`, `/api/module-info`, `/api/bills`), GET analytics, and non-GET `/api/content` requests using JWT tokens (jose library) stored in the `lifeos_token` HTTP-only cookie. GET requests to `/api/content` remain public.
 
 `/api/maintenance` does not currently map to dedicated route files in `src/app/api`; maintenance tasks are read/written through `/api/content?module_type=maintenance_task`.
 
@@ -234,3 +235,6 @@ After making UI changes, use the **Playwright MCP** to visually verify that noth
 ## Environment Variables
 
 Required in `.env.local`: `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`
+
+Required for notification channels and dispatch: `NOTIFICATION_ENCRYPTION_KEY`
+(base64 32-byte key; generate with `openssl rand -base64 32`).

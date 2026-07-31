@@ -15,6 +15,7 @@ import {
   WhiteboardNoteSchema,
   BillSchema,
   BillFolderSchema,
+  RecurringExpenseSchema,
   SchemaRegistry,
 } from "../schemas";
 
@@ -113,6 +114,28 @@ describe("schemas", () => {
       };
       const result = ExpenseSchema.safeParse(expense);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("RecurringExpenseSchema", () => {
+    it("accepts nested renewal notification preferences", () => {
+      const expense = {
+        name: "Netflix",
+        cost: 649,
+        currency: "INR",
+        billing_cycle: "monthly",
+        next_renewal_date: new Date().toISOString(),
+        category: "Streaming",
+        enable_reminders: true,
+        notifications: {
+          enabled: true,
+          rules: [{ event: "renewal", offsets_days: [1, 7] }],
+        },
+      };
+
+      const result = RecurringExpenseSchema.safeParse(expense);
+
+      expect(result.success).toBe(true);
     });
   });
 
