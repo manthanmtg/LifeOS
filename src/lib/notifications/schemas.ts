@@ -31,6 +31,13 @@ const UrlSchema = z
     return protocol === "http:" || protocol === "https:";
   }, "Must be an HTTP or HTTPS URL");
 
+const NotificationEventSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(80)
+  .regex(/^[a-z0-9_-]+$/, "Event must be lowercase slug text");
+
 export const NotificationMessageSchema = z.object({
   title: z.string().trim().min(1).max(200),
   body: z.string().trim().min(1).max(3000),
@@ -39,18 +46,14 @@ export const NotificationMessageSchema = z.object({
 
 export const NotificationRuleSchema = z
   .object({
-    event: z
-      .string()
-      .trim()
-      .min(1)
-      .max(80)
-      .regex(/^[a-z0-9_-]+$/, "Event must be lowercase slug text"),
+    event: NotificationEventSchema,
     offsets_days: z
       .array(z.number().int().min(0).max(365))
       .min(1)
       .max(10)
       .transform((offsets) => [...offsets].sort((a, b) => a - b)),
     channel_ids: z.array(ObjectIdStringSchema).min(1).max(20).optional(),
+    cadence_days: z.number().int().min(1).max(3650).optional(),
   })
   .superRefine((rule, ctx) => {
     if (new Set(rule.offsets_days).size !== rule.offsets_days.length) {
@@ -66,13 +69,21 @@ export const NotificationPreferencesSchema = z
   .object({
     enabled: z.boolean(),
     rules: z.array(NotificationRuleSchema).max(10),
+    disabled_events: z.array(NotificationEventSchema).max(10).optional(),
   })
   .superRefine((preferences, ctx) => {
-    if (preferences.enabled && preferences.rules.length === 0) {
+    const disabledEvents = preferences.disabled_events ?? [];
+
+    if (
+      preferences.enabled &&
+      preferences.rules.length === 0 &&
+      disabledEvents.length === 0
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["rules"],
-        message: "Enabled preferences require at least one rule",
+        message:
+          "Enabled preferences require at least one rule or disabled event",
       });
     }
 
@@ -82,6 +93,26 @@ export const NotificationPreferencesSchema = z
         code: "custom",
         path: ["rules"],
         message: "Each notification event may appear only once",
+      });
+    }
+
+    if (new Set(disabledEvents).size !== disabledEvents.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["disabled_events"],
+        message: "Disabled events must be unique",
+      });
+    }
+
+    const eventSet = new Set(events);
+    const disabledAndConfigured = disabledEvents.find((event) =>
+      eventSet.has(event),
+    );
+    if (disabledAndConfigured) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["disabled_events"],
+        message: "Disabled events cannot also have notification rules",
       });
     }
   });

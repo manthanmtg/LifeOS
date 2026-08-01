@@ -8,11 +8,13 @@ export interface NotificationRule {
   event: string;
   offsets_days: number[];
   channel_ids?: string[];
+  cadence_days?: number;
 }
 
 export interface NotificationPreferences {
   enabled: boolean;
   rules: NotificationRule[];
+  disabled_events?: string[];
 }
 
 export interface NotificationSettings {

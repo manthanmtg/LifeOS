@@ -16,7 +16,7 @@ function fakeDb(records: unknown[]) {
   };
 }
 
-function makeSystemConfig(peopleSettings: PeopleSettings) {
+function makeSystemConfig(peopleSettings: Partial<PeopleSettings>) {
   return {
     _id: "global" as const,
     site_title: "Life OS",
@@ -121,7 +121,11 @@ describe("peopleNotificationSource", () => {
     expect(db.find).toHaveBeenCalledWith(
       {
         module_type: "person",
-        "payload.birthday": { $exists: true },
+        $or: [
+          { "payload.birthday": { $exists: true } },
+          { "payload.last_contacted": { $exists: true } },
+          { "payload.interactions.0": { $exists: true } },
+        ],
       },
       {
         projection: {
@@ -129,6 +133,8 @@ describe("peopleNotificationSource", () => {
           "payload.name": 1,
           "payload.relationship": 1,
           "payload.birthday": 1,
+          "payload.last_contacted": 1,
+          "payload.interactions": 1,
           "payload.notifications": 1,
         },
       },
@@ -229,6 +235,118 @@ describe("peopleNotificationSource", () => {
       explicit_count: 2,
       inherited_count: 1,
     });
+  });
+
+  it("collects due and overdue contact reminders", async () => {
+    const db = fakeDb([
+      {
+        _id: new ObjectId("64f0f0f0f0f0f0f0f0f0f010"),
+        module_type: "person",
+        payload: {
+          name: "Ally",
+          relationship: "friend",
+          last_contacted: "2026-07-03",
+          interactions: [],
+        },
+      },
+      {
+        _id: new ObjectId("64f0f0f0f0f0f0f0f0f0f011"),
+        module_type: "person",
+        payload: {
+          name: "Bri",
+          relationship: "family",
+          last_contacted: "2026-06-20",
+          interactions: [],
+        },
+      },
+      {
+        _id: new ObjectId("64f0f0f0f0f0f0f0f0f0f012"),
+        module_type: "person",
+        payload: {
+          name: "Casey",
+          relationship: "friend",
+          interactions: [{ date: "2026-07-25", type: "message" }],
+          notifications: {
+            enabled: true,
+            rules: [
+              {
+                event: "contact_reminder",
+                offsets_days: [2],
+                cadence_days: 10,
+                channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+              },
+            ],
+          },
+        },
+      },
+    ]);
+
+    const result = await peopleNotificationSource.collectCandidates({
+      db: db as never,
+      now: new Date("2026-08-02T12:00:00.000Z"),
+      settings: {
+        enabled: true,
+        timezone: "UTC",
+        deliveryHour: 9,
+        catchUpHours: 36,
+      },
+      systemConfig: makeSystemConfig({
+        birthdayNotifications: {
+          default: { enabled: false, rules: [] },
+          relationships: {},
+        },
+        contactNotifications: {
+          default: {
+            enabled: true,
+            rules: [
+              {
+                event: "contact_reminder",
+                offsets_days: [0],
+                cadence_days: 30,
+              },
+            ],
+          },
+          relationships: {
+            family: { enabled: false, rules: [] },
+          },
+        },
+      }),
+    });
+
+    expect(result.items_skipped).toBe(0);
+    expect(result.candidates).toHaveLength(2);
+    expect(result.candidates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: {
+            module_type: "person",
+            document_id: "64f0f0f0f0f0f0f0f0f0f010",
+            event: "contact_reminder",
+            event_date: "2026-08-02",
+          },
+          scheduled_date: "2026-08-02",
+          offset_days: 0,
+          message: expect.objectContaining({
+            title: "Contact Ally today",
+            body: "Last contacted 30 days ago · Friend · every 30 days",
+          }),
+        }),
+        expect.objectContaining({
+          source: {
+            module_type: "person",
+            document_id: "64f0f0f0f0f0f0f0f0f0f012",
+            event: "contact_reminder",
+            event_date: "2026-08-04",
+          },
+          scheduled_date: "2026-08-02",
+          offset_days: 2,
+          channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+          message: expect.objectContaining({
+            title: "Contact Casey in 2 days",
+          }),
+        }),
+      ]),
+    );
   });
 
   it("propagates channel ids and handles leap-day birthdays", async () => {

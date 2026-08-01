@@ -8,6 +8,7 @@ import {
   Building2,
   Camera,
   Cake,
+  Clock,
   Heart,
   Mail,
   Phone,
@@ -25,11 +26,19 @@ import ImageCropper from "@/components/ui/ImageCropper";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
 import { normalizeNotificationOffsetsDays } from "@/lib/notifications/preferences";
 import {
+  buildPeopleNotificationPreferences,
   buildBirthdayNotificationPreferences,
+  buildContactReminderNotificationPreferences,
   getBirthdayNotificationRule,
+  getContactReminderNotificationRule,
+  normalizePeopleContactReminderCadenceDays,
   resolvePeopleBirthdayNotificationPreferences,
+  resolvePeopleContactReminderNotificationPreferences,
 } from "@/lib/notifications/people-preferences";
-import type { PeopleSettings } from "@/modules/people/config";
+import {
+  DEFAULT_CONTACT_REMINDER_CADENCE_DAYS,
+  type PeopleSettings,
+} from "@/modules/people/config";
 import type { Person, PersonPayload, Relationship, SocialLink } from "../types";
 import { RELATIONSHIPS } from "../types";
 
@@ -45,14 +54,17 @@ interface PersonFormProps {
 const inputCls =
   "w-full bg-zinc-900/40 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/5 transition-all";
 
-function formatReminderOffsets(offsetsDays: number[]) {
+function formatReminderOffsets(
+  offsetsDays: number[],
+  zeroLabel = "on birthday",
+) {
   if (offsetsDays.length === 0) {
     return "No reminder days";
   }
 
   return offsetsDays
     .map((offset) => {
-      if (offset === 0) return "on birthday";
+      if (offset === 0) return zeroLabel;
       if (offset === 1) return "1 day before";
       return `${offset} days before`;
     })
@@ -97,17 +109,38 @@ export default function PersonForm({
     if (!person?.payload.notifications) return undefined;
     return getBirthdayNotificationRule(person.payload.notifications);
   }, [person]);
+  const explicitContactRule = useMemo(() => {
+    if (!person?.payload.notifications) return undefined;
+    return getContactReminderNotificationRule(person.payload.notifications);
+  }, [person]);
 
   const [notificationMode, setNotificationMode] = useState<NotificationMode>(
     () => {
       if (!person?.payload.notifications) return "inherit";
-      if (!person.payload.notifications.enabled || !explicitRule) {
+      if (person.payload.notifications.disabled_events?.includes("birthday")) {
         return "off";
+      }
+      if (!person.payload.notifications.enabled || !explicitRule) {
+        return person.payload.notifications.enabled ? "inherit" : "off";
       }
 
       return "custom";
     },
   );
+  const [contactNotificationMode, setContactNotificationMode] =
+    useState<NotificationMode>(() => {
+      if (!person?.payload.notifications) return "inherit";
+      if (
+        person.payload.notifications.disabled_events?.includes(
+          "contact_reminder",
+        )
+      ) {
+        return "off";
+      }
+      if (!person.payload.notifications.enabled) return "off";
+      if (!explicitContactRule) return "inherit";
+      return "custom";
+    });
 
   const [birthdayReminderOffsets, setBirthdayReminderOffsets] = useState(() => {
     if (person?.payload.notifications?.enabled && explicitRule) {
@@ -119,23 +152,33 @@ export default function PersonForm({
   const [birthdayReminderChannelIds, setBirthdayReminderChannelIds] = useState<
     string[]
   >(() => (explicitRule?.channel_ids ? [...explicitRule.channel_ids] : []));
+  const [contactReminderOffsets, setContactReminderOffsets] = useState(() => {
+    if (person?.payload.notifications?.enabled && explicitContactRule) {
+      return explicitContactRule.offsets_days;
+    }
+
+    return [0];
+  });
+  const [contactReminderCadenceDays, setContactReminderCadenceDays] = useState(
+    () =>
+      normalizePeopleContactReminderCadenceDays(
+        explicitContactRule?.cadence_days,
+      ),
+  );
+  const [contactReminderChannelIds, setContactReminderChannelIds] = useState<
+    string[]
+  >(() =>
+    explicitContactRule?.channel_ids
+      ? [...explicitContactRule.channel_ids]
+      : [],
+  );
 
   const [error, setError] = useState("");
 
   const hasBirthday = birthday.trim().length > 0;
 
   const draftEffectivePreferences = useMemo(() => {
-    if (!hasBirthday) {
-      return resolvePeopleBirthdayNotificationPreferences(
-        {
-          relationship,
-          notifications: undefined,
-        },
-        peopleSettings,
-      );
-    }
-
-    if (notificationMode === "inherit") {
+    if (!hasBirthday || notificationMode === "inherit") {
       return resolvePeopleBirthdayNotificationPreferences(
         {
           relationship,
@@ -149,7 +192,9 @@ export default function PersonForm({
       return resolvePeopleBirthdayNotificationPreferences(
         {
           relationship,
-          notifications: { enabled: false, rules: [] },
+          notifications: buildPeopleNotificationPreferences({
+            birthday: { mode: "off" },
+          }),
         },
         peopleSettings,
       );
@@ -158,14 +203,18 @@ export default function PersonForm({
     return resolvePeopleBirthdayNotificationPreferences(
       {
         relationship,
-        notifications: buildBirthdayNotificationPreferences(
-          true,
-          birthdayReminderOffsets,
-        ),
+        notifications: buildPeopleNotificationPreferences({
+          birthday: {
+            mode: "custom",
+            offsetsDays: birthdayReminderOffsets,
+            channelIds: birthdayReminderChannelIds,
+          },
+        }),
       },
       peopleSettings,
     );
   }, [
+    birthdayReminderChannelIds,
     birthdayReminderOffsets,
     hasBirthday,
     notificationMode,
@@ -177,13 +226,63 @@ export default function PersonForm({
     draftEffectivePreferences.preferences,
   );
 
+  const draftEffectiveContactPreferences = useMemo(() => {
+    if (contactNotificationMode === "inherit") {
+      return resolvePeopleContactReminderNotificationPreferences(
+        {
+          relationship,
+          notifications: undefined,
+        },
+        peopleSettings,
+      );
+    }
+
+    if (contactNotificationMode === "off") {
+      return resolvePeopleContactReminderNotificationPreferences(
+        {
+          relationship,
+          notifications: buildPeopleNotificationPreferences({
+            contactReminder: { mode: "off" },
+          }),
+        },
+        peopleSettings,
+      );
+    }
+
+    return resolvePeopleContactReminderNotificationPreferences(
+      {
+        relationship,
+        notifications: buildPeopleNotificationPreferences({
+          contactReminder: {
+            mode: "custom",
+            cadenceDays: contactReminderCadenceDays,
+            offsetsDays: contactReminderOffsets,
+            channelIds: contactReminderChannelIds,
+          },
+        }),
+      },
+      peopleSettings,
+    );
+  }, [
+    contactNotificationMode,
+    contactReminderCadenceDays,
+    contactReminderChannelIds,
+    contactReminderOffsets,
+    peopleSettings,
+    relationship,
+  ]);
+
+  const draftEffectiveContactRule = getContactReminderNotificationRule(
+    draftEffectiveContactPreferences.preferences,
+  );
+
   const reminderSummary = useMemo(() => {
     if (!hasBirthday) {
       return "Add a birthday to enable reminders.";
     }
 
     if (notificationMode === "off") {
-      return "Person-level reminders are disabled.";
+      return "Person-level birthday reminders are disabled.";
     }
 
     if (notificationMode === "custom") {
@@ -215,6 +314,54 @@ export default function PersonForm({
     notificationMode,
   ]);
 
+  const contactReminderSummary = useMemo(() => {
+    if (contactNotificationMode === "off") {
+      return "Person-level contact reminders are disabled.";
+    }
+
+    if (contactNotificationMode === "custom") {
+      const rule = getContactReminderNotificationRule(
+        buildContactReminderNotificationPreferences(
+          true,
+          contactReminderCadenceDays,
+          contactReminderOffsets,
+        ),
+      );
+      const offsets = normalizeNotificationOffsetsDays(
+        rule?.offsets_days ?? [0],
+        [0],
+      );
+      return `Custom reminder: every ${
+        rule?.cadence_days ?? DEFAULT_CONTACT_REMINDER_CADENCE_DAYS
+      } days, ${formatReminderOffsets(offsets, "on due date")}.`;
+    }
+
+    if (!draftEffectiveContactRule) {
+      return "No inherited contact reminder configured.";
+    }
+
+    const sourceLabel =
+      draftEffectiveContactPreferences.origin.kind === "relationship"
+        ? `${draftEffectiveContactPreferences.origin.relationship} relationship`
+        : "People default";
+    return `Inherited from ${sourceLabel}: every ${
+      draftEffectiveContactRule.cadence_days ??
+      DEFAULT_CONTACT_REMINDER_CADENCE_DAYS
+    } days, ${formatReminderOffsets(
+      normalizeNotificationOffsetsDays(
+        draftEffectiveContactRule.offsets_days,
+        [0],
+      ),
+      "on due date",
+    )}.`;
+  }, [
+    contactNotificationMode,
+    contactReminderCadenceDays,
+    contactReminderOffsets,
+    draftEffectiveContactPreferences.origin,
+    draftEffectiveContactRule,
+  ]);
+
   const handleRelationshipChange = (nextRelationship: Relationship) => {
     setRelationship(nextRelationship);
   };
@@ -233,6 +380,27 @@ export default function PersonForm({
     }
 
     setNotificationMode(nextMode);
+  };
+
+  const handleContactNotificationModeChange = (nextMode: NotificationMode) => {
+    if (nextMode === "custom" && contactNotificationMode !== "custom") {
+      const nextOffsets = draftEffectiveContactRule?.offsets_days.length
+        ? draftEffectiveContactRule.offsets_days
+        : [0];
+      setContactReminderOffsets(nextOffsets);
+      setContactReminderCadenceDays(
+        normalizePeopleContactReminderCadenceDays(
+          draftEffectiveContactRule?.cadence_days,
+        ),
+      );
+      setContactReminderChannelIds(
+        draftEffectiveContactRule?.channel_ids
+          ? [...draftEffectiveContactRule.channel_ids]
+          : [],
+      );
+    }
+
+    setContactNotificationMode(nextMode);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -273,20 +441,34 @@ export default function PersonForm({
       documents: person?.payload.documents || [],
     };
 
-    if (hasBirthday) {
-      if (notificationMode === "custom") {
-        payload.notifications = buildBirthdayNotificationPreferences(
-          true,
-          normalizeNotificationOffsetsDays(birthdayReminderOffsets),
-          birthdayReminderChannelIds,
-        );
-      } else if (notificationMode === "off") {
-        payload.notifications = buildBirthdayNotificationPreferences(false, []);
-      }
+    const notifications = buildPeopleNotificationPreferences({
+      birthday: hasBirthday
+        ? notificationMode === "custom"
+          ? {
+              mode: "custom",
+              offsetsDays: normalizeNotificationOffsetsDays(
+                birthdayReminderOffsets,
+              ),
+              channelIds: birthdayReminderChannelIds,
+            }
+          : { mode: notificationMode }
+        : { mode: "inherit" },
+      contactReminder:
+        contactNotificationMode === "custom"
+          ? {
+              mode: "custom",
+              cadenceDays: contactReminderCadenceDays,
+              offsetsDays: normalizeNotificationOffsetsDays(
+                contactReminderOffsets,
+                [0],
+              ),
+              channelIds: contactReminderChannelIds,
+            }
+          : { mode: contactNotificationMode },
+    });
 
-      if (notificationMode === "custom" && !payload.notifications?.enabled) {
-        payload.notifications = buildBirthdayNotificationPreferences(true, [1]);
-      }
+    if (notifications) {
+      payload.notifications = notifications;
     }
 
     try {
@@ -571,6 +753,97 @@ export default function PersonForm({
               >
                 open People notification settings
               </a>
+            </p>
+          </fieldset>
+
+          <fieldset className="space-y-3">
+            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+              <Clock className="w-3 h-3" /> Contact reminders
+            </legend>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  Contact cadence
+                  <input
+                    aria-label="Contact cadence"
+                    type="number"
+                    min={1}
+                    max={3650}
+                    value={contactReminderCadenceDays}
+                    onChange={(event) =>
+                      setContactReminderCadenceDays(
+                        normalizePeopleContactReminderCadenceDays(
+                          Number(event.target.value),
+                        ),
+                      )
+                    }
+                    className={cn(inputCls, "mt-1")}
+                  />
+                </label>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  Contact reminders
+                </label>
+                <div className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={contactNotificationMode === "inherit"}
+                      onChange={() =>
+                        handleContactNotificationModeChange("inherit")
+                      }
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Inherit
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={contactNotificationMode === "custom"}
+                      onChange={() =>
+                        handleContactNotificationModeChange("custom")
+                      }
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Custom
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={contactNotificationMode === "off"}
+                      onChange={() =>
+                        handleContactNotificationModeChange("off")
+                      }
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Off
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-500">{contactReminderSummary}</p>
+
+            <RelativeDateNotificationFields
+              enabled={contactNotificationMode === "custom"}
+              offsetsDays={contactReminderOffsets}
+              eventLabel="Contact due date"
+              onEnabledChange={(enabled) =>
+                handleContactNotificationModeChange(enabled ? "custom" : "off")
+              }
+              onOffsetsChange={(offsetsDays) => {
+                setContactReminderOffsets(
+                  normalizeNotificationOffsetsDays(offsetsDays, [0]),
+                );
+              }}
+            />
+
+            <p className="text-[10px] text-zinc-500">
+              Contact reminders use the latest interaction date or
+              last-contacted date. A person with no logged contact date will not
+              dispatch until you log one.
             </p>
           </fieldset>
 

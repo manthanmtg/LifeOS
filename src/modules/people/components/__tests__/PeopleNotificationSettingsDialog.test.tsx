@@ -62,7 +62,7 @@ describe("PeopleNotificationSettingsDialog", () => {
 
   it("seeds a relationship override from a disabled default as enabled one-day reminder", async () => {
     const { onSave } = renderDialog();
-    const friendRow = screen.getByRole("group", { name: /Friend/i });
+    const friendRow = screen.getByRole("group", { name: /Birthday Friend/i });
 
     fireEvent.click(
       within(friendRow).getByRole("radio", { name: /Override/i }),
@@ -89,9 +89,13 @@ describe("PeopleNotificationSettingsDialog", () => {
           },
         },
       },
+      contactNotifications: {
+        default: { enabled: false, rules: [] },
+        relationships: {},
+      },
     };
     const { onSave } = renderDialog(settings);
-    const friendRow = screen.getByRole("group", { name: /Friend/i });
+    const friendRow = screen.getByRole("group", { name: /Birthday Friend/i });
 
     fireEvent.click(within(friendRow).getByRole("button", { name: /Reset/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Save$/i }));
@@ -100,6 +104,77 @@ describe("PeopleNotificationSettingsDialog", () => {
     expect(
       savedSettings(onSave).birthdayNotifications.relationships.friend,
     ).toBeUndefined();
+  });
+
+  it("saves contact reminder defaults and relationship overrides", async () => {
+    const { onSave } = renderDialog();
+    const contactDefault = screen.getByRole("group", {
+      name: /Contact default/i,
+    });
+    fireEvent.click(
+      within(contactDefault).getByLabelText(/Notify of contact due date/i),
+    );
+    const enabledContactDefault = screen.getByRole("group", {
+      name: /Contact default/i,
+    });
+    fireEvent.change(
+      within(enabledContactDefault).getByLabelText(/Contact cadence/i),
+      {
+        target: { value: "60" },
+      },
+    );
+    fireEvent.click(
+      within(
+        screen.getByRole("group", {
+          name: /Contact Friend/i,
+        }),
+      ).getByRole("radio", { name: /Override/i }),
+    );
+    await waitFor(() =>
+      expect(
+        within(
+          screen.getByRole("group", {
+            name: /Contact Friend/i,
+          }),
+        ).getByRole("radio", { name: /Override/i }),
+      ).toBeChecked(),
+    );
+    const overriddenContactFriend = screen.getByRole("group", {
+      name: /Contact Friend/i,
+    });
+    fireEvent.change(
+      within(overriddenContactFriend).getByLabelText(/Contact cadence/i),
+      {
+        target: { value: "30" },
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Save$/i }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+    expect(savedSettings(onSave).contactNotifications).toEqual({
+      default: {
+        enabled: true,
+        rules: [
+          {
+            event: "contact_reminder",
+            offsets_days: [0],
+            cadence_days: 60,
+          },
+        ],
+      },
+      relationships: {
+        friend: {
+          enabled: true,
+          rules: [
+            {
+              event: "contact_reminder",
+              offsets_days: [0],
+              cadence_days: 30,
+            },
+          ],
+        },
+      },
+    });
   });
 
   it("keeps the dialog open and announces save failure", async () => {

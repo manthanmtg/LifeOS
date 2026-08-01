@@ -193,12 +193,13 @@ show version, build time, local context, and any Git revision that can be read.
   TTL indexes.
 - `preferences.ts` owns shared relative-day offset normalization used by
   recurring expenses and People.
-- `people-preferences.ts` normalizes People birthday settings and resolves
-  person, relationship, and default inheritance.
+- `people-preferences.ts` normalizes People birthday/contact reminder settings
+  and resolves person, relationship, and default inheritance per event.
 - `sources/recurring-expenses.ts` turns due recurring-expense renewals into
   provider-neutral candidates.
-- `sources/people.ts` turns due People birthdays into provider-neutral
-  candidates without loading contact details, notes, documents, or images.
+- `sources/people.ts` turns due People birthdays and contact-cadence reminders
+  into provider-neutral candidates without loading contact details, notes,
+  documents, or images.
 - `adapters/telegram.ts` validates Telegram bot connections and sends plain
   text messages.
 - `dispatcher.ts` is the shared scheduled/manual entry point used by the

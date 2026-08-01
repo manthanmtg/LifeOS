@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -81,6 +87,10 @@ describe("PersonForm", () => {
         },
         relationships: {},
       },
+      contactNotifications: {
+        default: { enabled: false, rules: [] },
+        relationships: {},
+      },
     };
 
     render(
@@ -92,7 +102,12 @@ describe("PersonForm", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("radio", { name: /Custom/i }));
+    const birthdayGroup = screen.getByRole("group", {
+      name: /Birthday reminders/i,
+    });
+    fireEvent.click(
+      within(birthdayGroup).getByRole("radio", { name: /Custom/i }),
+    );
 
     const payload = await submitAndWait(onSave);
     expect(payload.notifications).toEqual({
@@ -107,7 +122,7 @@ describe("PersonForm", () => {
     });
   });
 
-  it("stores explicit opt-out preferences when reminders are off", async () => {
+  it("stores explicit birthday opt-out without disabling contact inheritance", async () => {
     const onSave = vi.fn(async (payload: Person["payload"]) => {
       void payload;
     });
@@ -121,10 +136,67 @@ describe("PersonForm", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("radio", { name: /Off/i }));
+    const birthdayGroup = screen.getByRole("group", {
+      name: /Birthday reminders/i,
+    });
+    fireEvent.click(within(birthdayGroup).getByRole("radio", { name: /Off/i }));
 
     const payload = await submitAndWait(onSave);
-    expect(payload.notifications).toEqual({ enabled: false, rules: [] });
+    expect(payload.notifications).toEqual({
+      enabled: true,
+      disabled_events: ["birthday"],
+      rules: [],
+    });
+  });
+
+  it("stores custom contact reminder preferences without forcing birthday override", async () => {
+    const onSave = vi.fn(async (payload: Person["payload"]) => {
+      void payload;
+    });
+
+    render(
+      <PersonForm
+        peopleSettings={DEFAULT_PEOPLE_SETTINGS}
+        person={makePerson()}
+        onClose={() => {}}
+        onSave={onSave}
+      />,
+    );
+
+    fireEvent.click(
+      within(
+        screen.getByRole("group", {
+          name: /Contact reminders/i,
+        }),
+      ).getByRole("radio", { name: /Custom/i }),
+    );
+    await waitFor(() =>
+      expect(
+        within(
+          screen.getByRole("group", {
+            name: /Contact reminders/i,
+          }),
+        ).getByRole("radio", { name: /Custom/i }),
+      ).toBeChecked(),
+    );
+    const contactGroup = screen.getByRole("group", {
+      name: /Contact reminders/i,
+    });
+    fireEvent.change(within(contactGroup).getByLabelText(/Contact cadence/i), {
+      target: { value: "45" },
+    });
+
+    const payload = await submitAndWait(onSave);
+    expect(payload.notifications).toEqual({
+      enabled: true,
+      rules: [
+        {
+          event: "contact_reminder",
+          offsets_days: [0],
+          cadence_days: 45,
+        },
+      ],
+    });
   });
 
   it("omits notifications when the birthday is removed", async () => {

@@ -72,7 +72,7 @@ describe("PeopleAdminView", () => {
     expect(screen.getByText(/friend/i)).toBeTruthy();
   });
 
-  it("opens birthday settings and persists relationship overrides", async () => {
+  it("opens people reminder settings and persists relationship overrides", async () => {
     global.fetch = vi.fn().mockImplementation((url, init) => {
       if (url === "/api/system" && init?.method === "PUT") {
         return Promise.resolve({ ok: true });
@@ -95,9 +95,11 @@ describe("PeopleAdminView", () => {
     render(<PeopleAdminView />);
 
     fireEvent.click(
-      await screen.findByRole("button", { name: /Birthday reminders/i }),
+      await screen.findByRole("button", { name: /People reminders/i }),
     );
-    const friendRow = await screen.findByRole("group", { name: /Friend/i });
+    const friendRow = await screen.findByRole("group", {
+      name: /Birthday Friend/i,
+    });
     fireEvent.click(
       within(friendRow).getByRole("radio", { name: /Override/i }),
     );

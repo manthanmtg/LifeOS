@@ -289,6 +289,7 @@ export default function PeopleAdminView() {
   const handleSavePeopleNotificationSettings = async (next: PeopleSettings) => {
     return updatePeopleSettings({
       birthdayNotifications: next.birthdayNotifications,
+      contactNotifications: next.contactNotifications,
     });
   };
 
@@ -299,7 +300,7 @@ export default function PeopleAdminView() {
       <PeopleHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onOpenBirthdaySettings={() => setShowNotificationSettings(true)}
+        onOpenNotificationSettings={() => setShowNotificationSettings(true)}
         peopleSettingsLoading={!peopleSettingsLoaded}
         onAddPerson={() => {
           setEditingPerson(undefined);

@@ -78,6 +78,16 @@ describe("NotificationPreferencesSchema", () => {
 
     expect(parsed.success).toBe(true);
   });
+
+  it("allows event-specific disabled preferences without rules", () => {
+    const parsed = NotificationPreferencesSchema.safeParse({
+      enabled: true,
+      disabled_events: ["birthday"],
+      rules: [],
+    });
+
+    expect(parsed.success).toBe(true);
+  });
 });
 
 describe("NotificationSettingsSchema", () => {

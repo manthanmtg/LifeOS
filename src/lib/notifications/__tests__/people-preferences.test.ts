@@ -2,12 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import {
   DEFAULT_BIRTHDAY_NOTIFICATION_PREFERENCES,
+  DEFAULT_CONTACT_REMINDER_NOTIFICATION_PREFERENCES,
   DEFAULT_PEOPLE_SETTINGS,
 } from "@/modules/people/config";
 import {
+  buildPeopleNotificationPreferences,
   getBirthdayNotificationRule,
+  getContactReminderNotificationRule,
   normalizePeopleSettings,
   resolvePeopleBirthdayNotificationPreferences,
+  resolvePeopleContactReminderNotificationPreferences,
 } from "../people-preferences";
 
 describe("people notification preferences", () => {
@@ -25,6 +29,10 @@ describe("people notification preferences", () => {
     expect(normalized).toEqual({
       birthdayNotifications: {
         default: DEFAULT_BIRTHDAY_NOTIFICATION_PREFERENCES,
+        relationships: {},
+      },
+      contactNotifications: {
+        default: DEFAULT_CONTACT_REMINDER_NOTIFICATION_PREFERENCES,
         relationships: {},
       },
     });
@@ -78,7 +86,7 @@ describe("people notification preferences", () => {
     expect(resolved.preferences.enabled).toBe(true);
   });
 
-  it("treats explicit non-birthday preferences as person-level disabled", () => {
+  it("lets missing explicit event rules inherit other people reminder categories", () => {
     const settings = normalizePeopleSettings({
       birthdayNotifications: {
         default: {
@@ -99,17 +107,22 @@ describe("people notification preferences", () => {
         relationship: "family",
         notifications: {
           enabled: true,
-          rules: [{ event: "renewal", offsets_days: [1] }],
+          rules: [
+            { event: "contact_reminder", offsets_days: [0], cadence_days: 30 },
+          ],
         },
       },
       settings,
     );
 
     expect(resolved.origin).toEqual({
-      kind: "person",
+      kind: "relationship",
+      relationship: "family",
     });
-    expect(resolved.preferences.enabled).toBe(false);
-    expect(getBirthdayNotificationRule(resolved.preferences)).toBeNull();
+    expect(getBirthdayNotificationRule(resolved.preferences)).toMatchObject({
+      event: "birthday",
+      offsets_days: [2],
+    });
   });
 
   it("uses relationship overrides before the People default", () => {
@@ -197,6 +210,103 @@ describe("people notification preferences", () => {
         enabled: true,
         rules: [{ event: "birthday", offsets_days: [14] }],
       },
+    });
+  });
+
+  it("resolves contact reminders from person, relationship, and default settings", () => {
+    const settings = normalizePeopleSettings({
+      birthdayNotifications: {
+        default: DEFAULT_BIRTHDAY_NOTIFICATION_PREFERENCES,
+        relationships: {},
+      },
+      contactNotifications: {
+        default: {
+          enabled: true,
+          rules: [
+            {
+              event: "contact_reminder",
+              offsets_days: [0],
+              cadence_days: 90,
+            },
+          ],
+        },
+        relationships: {
+          friend: {
+            enabled: true,
+            rules: [
+              {
+                event: "contact_reminder",
+                offsets_days: [3, 0],
+                cadence_days: 30,
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const inherited = resolvePeopleContactReminderNotificationPreferences(
+      { relationship: "friend", notifications: undefined },
+      settings,
+    );
+    expect(inherited.origin).toEqual({
+      kind: "relationship",
+      relationship: "friend",
+    });
+    expect(getContactReminderNotificationRule(inherited.preferences)).toEqual({
+      event: "contact_reminder",
+      offsets_days: [0, 3],
+      cadence_days: 30,
+    });
+
+    const explicit = resolvePeopleContactReminderNotificationPreferences(
+      {
+        relationship: "friend",
+        notifications: {
+          enabled: true,
+          rules: [
+            {
+              event: "contact_reminder",
+              offsets_days: [7],
+              cadence_days: 14,
+              channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+            },
+          ],
+        },
+      },
+      settings,
+    );
+    expect(explicit.origin).toEqual({ kind: "person" });
+    expect(getContactReminderNotificationRule(explicit.preferences)).toEqual({
+      event: "contact_reminder",
+      offsets_days: [7],
+      cadence_days: 14,
+      channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+    });
+  });
+
+  it("builds combined person preferences with per-event opt-outs", () => {
+    expect(
+      buildPeopleNotificationPreferences({
+        birthday: {
+          mode: "off",
+        },
+        contactReminder: {
+          mode: "custom",
+          cadenceDays: 45,
+          offsetsDays: [0, 7],
+        },
+      }),
+    ).toEqual({
+      enabled: true,
+      disabled_events: ["birthday"],
+      rules: [
+        {
+          event: "contact_reminder",
+          offsets_days: [0, 7],
+          cadence_days: 45,
+        },
+      ],
     });
   });
 });

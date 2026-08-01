@@ -5,7 +5,7 @@ import { Home, Bell, ChevronRight, Plus, Search } from "lucide-react";
 
 interface PeopleHeaderProps {
   onAddPerson: () => void;
-  onOpenBirthdaySettings: () => void;
+  onOpenNotificationSettings: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   peopleSettingsLoading: boolean;
@@ -13,7 +13,7 @@ interface PeopleHeaderProps {
 
 export default function PeopleHeader({
   onAddPerson,
-  onOpenBirthdaySettings,
+  onOpenNotificationSettings,
   searchQuery,
   onSearchChange,
   peopleSettingsLoading,
@@ -49,12 +49,12 @@ export default function PeopleHeader({
             />
           </div>
           <button
-            onClick={onOpenBirthdaySettings}
+            onClick={onOpenNotificationSettings}
             disabled={peopleSettingsLoading}
             className="flex items-center gap-2 px-4 py-2.5 border border-zinc-800 rounded-xl text-sm font-black text-zinc-200 hover:text-zinc-100 hover:border-accent/30 hover:bg-accent/10 transition-all disabled:cursor-not-allowed disabled:opacity-60 shrink-0"
           >
             <Bell className="w-4 h-4" />
-            <span className="hidden sm:inline">Birthday reminders</span>
+            <span className="hidden sm:inline">People reminders</span>
           </button>
           <button
             onClick={onAddPerson}

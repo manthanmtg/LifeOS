@@ -19,5 +19,5 @@ Add people you want to stay in touch with. Fill in their details, birthday, and 
 - Log interactions right after they happen while details are fresh
 - Add context notes (e.g., "loves hiking, has two kids") to personalize future conversations
 - Review the list monthly to spot relationships that need nurturing
-- Use Birthday reminders to configure People-wide defaults, relationship overrides, or a per-person birthday rule
+- Use People reminders to configure People-wide defaults, relationship overrides, or per-person birthday/contact reminder rules
 - Leave a person's reminder mode on Inherit when you want future relationship-level changes to apply automatically

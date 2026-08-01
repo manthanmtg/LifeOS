@@ -2,31 +2,46 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, RefreshCw, Save, X } from "lucide-react";
+import { Bell, Clock, RefreshCw, Save, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
 import { normalizeNotificationOffsetsDays } from "@/lib/notifications/preferences";
 import {
   buildBirthdayNotificationPreferences,
+  buildContactReminderNotificationPreferences,
   getBirthdayNotificationRule,
+  getContactReminderNotificationRule,
+  normalizePeopleContactReminderCadenceDays,
   normalizePeopleSettings,
 } from "@/lib/notifications/people-preferences";
-import type { PeopleSettings } from "../config";
+import {
+  DEFAULT_CONTACT_REMINDER_CADENCE_DAYS,
+  type PeopleSettings,
+} from "../config";
 import { RELATIONSHIPS, type Relationship } from "../types";
 
-interface RelationshipDraft {
-  mode: "inherit" | "override";
+type ReminderKind = "birthday" | "contact";
+
+interface ReminderDraft {
   enabled: boolean;
   offsetsDays: number[];
   channelIds: string[];
+  cadenceDays: number;
+}
+
+interface RelationshipDraft extends ReminderDraft {
+  mode: "inherit" | "override";
+}
+
+interface CategoryDraft {
+  default: ReminderDraft;
+  relationships: Record<Relationship, RelationshipDraft>;
 }
 
 interface DraftState {
-  defaultEnabled: boolean;
-  defaultOffsetsDays: number[];
-  defaultChannelIds: string[];
-  relationships: Record<Relationship, RelationshipDraft>;
+  birthday: CategoryDraft;
+  contact: CategoryDraft;
 }
 
 interface PeopleNotificationSettingsDialogProps {
@@ -36,55 +51,73 @@ interface PeopleNotificationSettingsDialogProps {
   onSave: (settings: PeopleSettings) => Promise<boolean>;
 }
 
-function defaultRelationshipDraft(): RelationshipDraft {
+const DEFAULT_BIRTHDAY_OFFSETS = [1];
+const DEFAULT_CONTACT_OFFSETS = [0];
+
+function fallbackOffsets(kind: ReminderKind) {
+  return kind === "contact"
+    ? DEFAULT_CONTACT_OFFSETS
+    : DEFAULT_BIRTHDAY_OFFSETS;
+}
+
+function defaultReminderDraft(kind: ReminderKind): ReminderDraft {
   return {
-    mode: "inherit",
     enabled: false,
-    offsetsDays: [1],
+    offsetsDays: fallbackOffsets(kind),
     channelIds: [],
+    cadenceDays: DEFAULT_CONTACT_REMINDER_CADENCE_DAYS,
   };
 }
 
-function buildDraftFromSettings(settings: PeopleSettings): DraftState {
-  const normalized = normalizePeopleSettings(settings);
-  const defaultRule = getBirthdayNotificationRule(
-    normalized.birthdayNotifications.default,
-  );
+function defaultRelationshipDraft(kind: ReminderKind): RelationshipDraft {
+  return {
+    ...defaultReminderDraft(kind),
+    mode: "inherit",
+  };
+}
 
-  const defaultEnabled = normalized.birthdayNotifications.default.enabled;
-  const defaultOffsetsDays = normalizeNotificationOffsetsDays(
-    defaultRule?.offsets_days,
-    [1],
-  );
-  const defaultChannelIds = defaultRule?.channel_ids ?? [];
+function buildReminderDraft(
+  kind: ReminderKind,
+  preferences: PeopleSettings["birthdayNotifications"]["default"],
+): ReminderDraft {
+  const rule =
+    kind === "contact"
+      ? getContactReminderNotificationRule(preferences)
+      : getBirthdayNotificationRule(preferences);
+
+  if (!rule) {
+    return defaultReminderDraft(kind);
+  }
+
+  return {
+    enabled: preferences.enabled,
+    offsetsDays: normalizeNotificationOffsetsDays(
+      rule.offsets_days,
+      fallbackOffsets(kind),
+    ),
+    channelIds: rule.channel_ids?.length ? [...rule.channel_ids] : [],
+    cadenceDays: normalizePeopleContactReminderCadenceDays(rule.cadence_days),
+  };
+}
+
+function buildCategoryDraft(
+  kind: ReminderKind,
+  category: PeopleSettings["birthdayNotifications"],
+): CategoryDraft {
+  const defaultDraft = buildReminderDraft(kind, category.default);
 
   const relationships = RELATIONSHIPS.reduce(
     (acc, relationship) => {
-      const configured =
-        normalized.birthdayNotifications.relationships[relationship];
-      if (!configured)
-        return { ...acc, [relationship]: defaultRelationshipDraft() };
-
-      const rule = getBirthdayNotificationRule(configured);
-      if (!rule) {
-        return {
-          ...acc,
-          [relationship]: {
-            mode: "override",
-            enabled: false,
-            offsetsDays: [1],
-            channelIds: [],
-          },
-        };
+      const configured = category.relationships[relationship];
+      if (!configured) {
+        return { ...acc, [relationship]: defaultRelationshipDraft(kind) };
       }
 
       return {
         ...acc,
         [relationship]: {
+          ...buildReminderDraft(kind, configured),
           mode: "override",
-          enabled: configured.enabled,
-          offsetsDays: normalizeNotificationOffsetsDays(rule.offsets_days),
-          channelIds: rule.channel_ids?.length ? [...rule.channel_ids] : [],
         },
       };
     },
@@ -92,41 +125,123 @@ function buildDraftFromSettings(settings: PeopleSettings): DraftState {
   );
 
   return {
-    defaultEnabled,
-    defaultOffsetsDays,
-    defaultChannelIds,
+    default: defaultDraft,
     relationships,
   };
 }
 
-function toSettings(draft: DraftState): PeopleSettings {
-  const relationships: PeopleSettings["birthdayNotifications"]["relationships"] =
-    RELATIONSHIPS.reduce((acc, relationship) => {
-      const row = draft.relationships[relationship];
-      if (row.mode === "inherit") return acc;
-
-      const preferences = buildBirthdayNotificationPreferences(
-        row.enabled,
-        row.offsetsDays,
-        row.channelIds,
-      );
-      return { ...acc, [relationship]: preferences };
-    }, {});
+function buildDraftFromSettings(settings: PeopleSettings): DraftState {
+  const normalized = normalizePeopleSettings(settings);
 
   return {
+    birthday: buildCategoryDraft("birthday", normalized.birthdayNotifications),
+    contact: buildCategoryDraft("contact", normalized.contactNotifications),
+  };
+}
+
+function toReminderPreferences(kind: ReminderKind, draft: ReminderDraft) {
+  if (kind === "contact") {
+    return buildContactReminderNotificationPreferences(
+      draft.enabled,
+      draft.cadenceDays,
+      draft.offsetsDays,
+      draft.channelIds,
+    );
+  }
+
+  return buildBirthdayNotificationPreferences(
+    draft.enabled,
+    draft.offsetsDays,
+    draft.channelIds,
+  );
+}
+
+function toRelationshipSettings(
+  kind: ReminderKind,
+  relationships: Record<Relationship, RelationshipDraft>,
+) {
+  return RELATIONSHIPS.reduce(
+    (acc, relationship) => {
+      const row = relationships[relationship];
+      if (row.mode === "inherit") return acc;
+
+      return {
+        ...acc,
+        [relationship]: toReminderPreferences(kind, row),
+      };
+    },
+    {} as PeopleSettings["birthdayNotifications"]["relationships"],
+  );
+}
+
+function toSettings(draft: DraftState): PeopleSettings {
+  return {
     birthdayNotifications: {
-      default: buildBirthdayNotificationPreferences(
-        draft.defaultEnabled,
-        draft.defaultOffsetsDays,
-        draft.defaultChannelIds,
+      default: toReminderPreferences("birthday", draft.birthday.default),
+      relationships: toRelationshipSettings(
+        "birthday",
+        draft.birthday.relationships,
       ),
-      relationships,
+    },
+    contactNotifications: {
+      default: toReminderPreferences("contact", draft.contact.default),
+      relationships: toRelationshipSettings(
+        "contact",
+        draft.contact.relationships,
+      ),
     },
   };
 }
 
 function labelForRelationship(relationship: Relationship) {
   return relationship.charAt(0).toUpperCase() + relationship.slice(1);
+}
+
+function formatReminderOffsets(kind: ReminderKind, offsetsDays: number[]) {
+  if (offsetsDays.length === 0) return "No reminder days";
+
+  return offsetsDays
+    .map((offset) => {
+      if (offset === 0) {
+        return kind === "contact" ? "on due date" : "on birthday";
+      }
+      if (offset === 1) return "1 day before";
+      return `${offset} days before`;
+    })
+    .join(", ");
+}
+
+function buildSummary(kind: ReminderKind, draft: ReminderDraft) {
+  if (!draft.enabled) return "Disabled by default";
+
+  const timing = formatReminderOffsets(kind, draft.offsetsDays);
+  if (kind === "contact") {
+    return `Every ${draft.cadenceDays} days · ${timing}`;
+  }
+
+  return `Notifies ${timing}`;
+}
+
+function seedRelationshipDraft(
+  kind: ReminderKind,
+  row: RelationshipDraft,
+  defaultDraft: ReminderDraft,
+): RelationshipDraft {
+  if (row.mode === "override") {
+    return row;
+  }
+
+  return {
+    mode: "override",
+    enabled: true,
+    offsetsDays: defaultDraft.enabled
+      ? defaultDraft.offsetsDays
+      : fallbackOffsets(kind),
+    channelIds: defaultDraft.enabled ? defaultDraft.channelIds : [],
+    cadenceDays: defaultDraft.enabled
+      ? defaultDraft.cadenceDays
+      : DEFAULT_CONTACT_REMINDER_CADENCE_DAYS,
+  };
 }
 
 export default function PeopleNotificationSettingsDialog({
@@ -147,6 +262,36 @@ export default function PeopleNotificationSettingsDialog({
   const updateDraft = (updater: (prev: DraftState) => DraftState) =>
     setDraft((prev) => updater(prev));
 
+  const updateDefault = (
+    kind: ReminderKind,
+    updater: (prev: ReminderDraft) => ReminderDraft,
+  ) => {
+    updateDraft((prev) => ({
+      ...prev,
+      [kind]: {
+        ...prev[kind],
+        default: updater(prev[kind].default),
+      },
+    }));
+  };
+
+  const updateRelationship = (
+    kind: ReminderKind,
+    relationship: Relationship,
+    updater: (prev: RelationshipDraft) => RelationshipDraft,
+  ) => {
+    updateDraft((prev) => ({
+      ...prev,
+      [kind]: {
+        ...prev[kind],
+        relationships: {
+          ...prev[kind].relationships,
+          [relationship]: updater(prev[kind].relationships[relationship]),
+        },
+      },
+    }));
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setStatus("");
@@ -155,7 +300,7 @@ export default function PeopleNotificationSettingsDialog({
       const ok = await onSave(nextSettings);
 
       if (ok) {
-        setStatus("People birthday reminders saved");
+        setStatus("People reminders saved");
         onClose();
       } else {
         setStatus("Failed to save people notification settings");
@@ -167,30 +312,230 @@ export default function PeopleNotificationSettingsDialog({
     }
   };
 
-  const resetRelationship = (relationship: Relationship) => {
-    updateDraft((prev) => ({
-      ...prev,
-      relationships: {
-        ...prev.relationships,
-        [relationship]: defaultRelationshipDraft(),
-      },
-    }));
+  const resetRelationship = (
+    kind: ReminderKind,
+    relationship: Relationship,
+  ) => {
+    updateRelationship(kind, relationship, () =>
+      defaultRelationshipDraft(kind),
+    );
   };
 
   const isBusy = saving;
 
-  const defaultSummary = useMemo(() => {
-    if (!draft.defaultEnabled) return "Disabled by default";
-    return `Notifies on ${draft.defaultOffsetsDays
-      .map((offset) =>
-        offset === 0
-          ? "birthday"
-          : offset === 1
-            ? "1 day before"
-            : `${offset} days before`,
-      )
-      .join(", ")}`;
-  }, [draft.defaultEnabled, draft.defaultOffsetsDays]);
+  const defaultSummaries = useMemo(
+    () => ({
+      birthday: buildSummary("birthday", draft.birthday.default),
+      contact: buildSummary("contact", draft.contact.default),
+    }),
+    [draft.birthday.default, draft.contact.default],
+  );
+
+  const renderDefaultSection = (
+    kind: ReminderKind,
+    title: string,
+    eventLabel: string,
+    description: string,
+  ) => {
+    const row = draft[kind].default;
+
+    return (
+      <fieldset className="space-y-3" aria-label={`${title} default`}>
+        <legend className="sr-only">{title} default</legend>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+              {kind === "contact" ? (
+                <Clock className="h-4 w-4 text-accent" />
+              ) : (
+                <Bell className="h-4 w-4 text-accent" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
+              <p className="text-xs text-zinc-500">{description}</p>
+            </div>
+          </div>
+
+          {kind === "contact" && (
+            <label className="block text-xs font-medium text-zinc-400">
+              Contact cadence
+              <input
+                aria-label="Contact cadence"
+                type="number"
+                min={1}
+                max={3650}
+                value={row.cadenceDays}
+                disabled={isBusy}
+                onChange={(event) =>
+                  updateDefault(kind, (prev) => ({
+                    ...prev,
+                    cadenceDays: normalizePeopleContactReminderCadenceDays(
+                      Number(event.target.value),
+                    ),
+                  }))
+                }
+                className="mt-1 w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
+              />
+            </label>
+          )}
+
+          <RelativeDateNotificationFields
+            enabled={row.enabled}
+            offsetsDays={row.offsetsDays}
+            eventLabel={eventLabel}
+            onEnabledChange={(enabled) =>
+              updateDefault(kind, (prev) => ({
+                ...prev,
+                enabled,
+                offsetsDays:
+                  enabled && prev.offsetsDays.length === 0
+                    ? fallbackOffsets(kind)
+                    : prev.offsetsDays,
+              }))
+            }
+            onOffsetsChange={(offsetsDays) =>
+              updateDefault(kind, (prev) => ({
+                ...prev,
+                offsetsDays: normalizeNotificationOffsetsDays(
+                  offsetsDays,
+                  fallbackOffsets(kind),
+                ),
+              }))
+            }
+          />
+
+          <p className="text-xs text-zinc-500">{defaultSummaries[kind]}</p>
+        </div>
+      </fieldset>
+    );
+  };
+
+  const renderRelationshipSection = (
+    kind: ReminderKind,
+    title: string,
+    eventLabel: string,
+  ) => (
+    <div className="space-y-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        {title} relationship overrides
+      </h3>
+      {RELATIONSHIPS.map((relationship) => {
+        const row =
+          draft[kind].relationships[relationship] ??
+          defaultRelationshipDraft(kind);
+        const isInherited = row.mode === "inherit";
+        const relationshipLabel = labelForRelationship(relationship);
+
+        return (
+          <fieldset
+            key={`${kind}-${relationship}`}
+            className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 space-y-3"
+          >
+            <legend className="px-2 text-[10px] uppercase tracking-wider text-zinc-400">
+              {title} {relationshipLabel}
+            </legend>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="inline-flex items-center gap-2 text-sm text-zinc-300">
+                <input
+                  type="radio"
+                  name={`${kind}-${relationship}-source`}
+                  checked={isInherited}
+                  disabled={isBusy}
+                  onChange={() => {
+                    updateRelationship(kind, relationship, (prev) => ({
+                      ...prev,
+                      mode: "inherit",
+                    }));
+                  }}
+                  className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                />
+                Inherit People default
+              </label>
+              <label className="inline-flex items-center gap-2 text-sm text-zinc-300">
+                <input
+                  type="radio"
+                  name={`${kind}-${relationship}-source`}
+                  checked={!isInherited}
+                  disabled={isBusy}
+                  onChange={() => {
+                    updateRelationship(kind, relationship, (prev) =>
+                      seedRelationshipDraft(kind, prev, draft[kind].default),
+                    );
+                  }}
+                  className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                />
+                Override
+              </label>
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={() => resetRelationship(kind, relationship)}
+                className="inline-flex items-center gap-2 text-xs rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-300 min-h-10"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Reset
+              </button>
+            </div>
+
+            {!isInherited && (
+              <div className="space-y-3">
+                {kind === "contact" && (
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Contact cadence
+                    <input
+                      aria-label="Contact cadence"
+                      type="number"
+                      min={1}
+                      max={3650}
+                      value={row.cadenceDays}
+                      disabled={isBusy}
+                      onChange={(event) =>
+                        updateRelationship(kind, relationship, (prev) => ({
+                          ...prev,
+                          cadenceDays:
+                            normalizePeopleContactReminderCadenceDays(
+                              Number(event.target.value),
+                            ),
+                        }))
+                      }
+                      className="mt-1 w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent/40"
+                    />
+                  </label>
+                )}
+
+                <RelativeDateNotificationFields
+                  enabled={row.enabled}
+                  offsetsDays={row.offsetsDays}
+                  eventLabel={eventLabel}
+                  onEnabledChange={(enabled) => {
+                    updateRelationship(kind, relationship, (prev) => ({
+                      ...prev,
+                      enabled,
+                      offsetsDays:
+                        enabled && prev.offsetsDays.length === 0
+                          ? fallbackOffsets(kind)
+                          : prev.offsetsDays,
+                    }));
+                  }}
+                  onOffsetsChange={(offsetsDays) => {
+                    updateRelationship(kind, relationship, (prev) => ({
+                      ...prev,
+                      offsetsDays: normalizeNotificationOffsetsDays(
+                        offsetsDays,
+                        fallbackOffsets(kind),
+                      ),
+                    }));
+                  }}
+                />
+              </div>
+            )}
+          </fieldset>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center md:p-4">
@@ -215,173 +560,38 @@ export default function PeopleNotificationSettingsDialog({
             </div>
             <div>
               <h2 className="text-sm font-semibold text-zinc-100">
-                People birthday reminders
+                People reminders
               </h2>
               <p className="text-xs text-zinc-500">
-                Configure default and relationship-based birthday notifications.
+                Configure birthday and contact cadence notifications.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Close people birthday settings"
+            aria-label="Close people notification settings"
             className="p-2 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-lg transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar">
-          <RelativeDateNotificationFields
-            enabled={draft.defaultEnabled}
-            offsetsDays={draft.defaultOffsetsDays}
-            eventLabel="Birthday"
-            onEnabledChange={(enabled) =>
-              updateDraft((prev) => ({
-                ...prev,
-                defaultEnabled: enabled,
-              }))
-            }
-            onOffsetsChange={(offsetsDays) =>
-              updateDraft((prev) => ({
-                ...prev,
-                defaultOffsetsDays:
-                  normalizeNotificationOffsetsDays(offsetsDays),
-              }))
-            }
-          />
+        <div className="p-4 space-y-5 overflow-y-auto custom-scrollbar">
+          {renderDefaultSection(
+            "birthday",
+            "Birthday",
+            "Birthday",
+            "Default reminder timing for saved birthdays.",
+          )}
+          {renderRelationshipSection("birthday", "Birthday", "Birthday")}
 
-          <p className="text-xs text-zinc-500">{defaultSummary}</p>
-
-          <div className="space-y-3">
-            {RELATIONSHIPS.map((relationship) => {
-              const row =
-                draft.relationships[relationship] ?? defaultRelationshipDraft();
-              const isInherited = row.mode === "inherit";
-              return (
-                <fieldset
-                  key={relationship}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 space-y-3"
-                >
-                  <legend className="px-2 text-[10px] uppercase tracking-wider text-zinc-400">
-                    {labelForRelationship(relationship)}
-                  </legend>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <label className="inline-flex items-center gap-2 text-sm text-zinc-300">
-                      <input
-                        type="radio"
-                        name={`${relationship}-source`}
-                        checked={isInherited}
-                        disabled={isBusy}
-                        onChange={() => {
-                          updateDraft((prev) => ({
-                            ...prev,
-                            relationships: {
-                              ...prev.relationships,
-                              [relationship]: {
-                                ...prev.relationships[relationship],
-                                mode: "inherit",
-                              },
-                            },
-                          }));
-                        }}
-                        className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
-                      />
-                      Inherit People default
-                    </label>
-                    <label className="inline-flex items-center gap-2 text-sm text-zinc-300">
-                      <input
-                        type="radio"
-                        name={`${relationship}-source`}
-                        checked={!isInherited}
-                        disabled={isBusy}
-                        onChange={() => {
-                          updateDraft((prev) => {
-                            const row = prev.relationships[relationship];
-                            const defaultOffsets = prev.defaultEnabled
-                              ? prev.defaultOffsetsDays
-                              : [1];
-                            const seed =
-                              row.offsetsDays.length > 0 &&
-                              row.mode === "override"
-                                ? row.offsetsDays
-                                : defaultOffsets;
-                            const channelIds =
-                              row.mode === "override"
-                                ? row.channelIds
-                                : prev.defaultEnabled
-                                  ? prev.defaultChannelIds
-                                  : [];
-
-                            return {
-                              ...prev,
-                              relationships: {
-                                ...prev.relationships,
-                                [relationship]: {
-                                  mode: "override",
-                                  enabled:
-                                    row.mode === "override"
-                                      ? row.enabled
-                                      : true,
-                                  offsetsDays: seed,
-                                  channelIds,
-                                },
-                              },
-                            };
-                          });
-                        }}
-                        className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
-                      />
-                      Override
-                    </label>
-                    <button
-                      type="button"
-                      disabled={isBusy}
-                      onClick={() => resetRelationship(relationship)}
-                      className="inline-flex items-center gap-2 text-xs rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-300 min-h-10"
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      Reset
-                    </button>
-                  </div>
-
-                  {!isInherited && (
-                    <RelativeDateNotificationFields
-                      enabled={row.enabled}
-                      offsetsDays={row.offsetsDays}
-                      eventLabel="Birthday"
-                      onEnabledChange={(enabled) => {
-                        updateDraft((prev) => ({
-                          ...prev,
-                          relationships: {
-                            ...prev.relationships,
-                            [relationship]: {
-                              ...prev.relationships[relationship],
-                              enabled,
-                            },
-                          },
-                        }));
-                      }}
-                      onOffsetsChange={(offsetsDays) => {
-                        updateDraft((prev) => ({
-                          ...prev,
-                          relationships: {
-                            ...prev.relationships,
-                            [relationship]: {
-                              ...prev.relationships[relationship],
-                              offsetsDays:
-                                normalizeNotificationOffsetsDays(offsetsDays),
-                            },
-                          },
-                        }));
-                      }}
-                    />
-                  )}
-                </fieldset>
-              );
-            })}
-          </div>
+          {renderDefaultSection(
+            "contact",
+            "Contact",
+            "Contact due date",
+            "Default stay-in-touch cadence based on the latest logged contact.",
+          )}
+          {renderRelationshipSection("contact", "Contact", "Contact due date")}
 
           {status && (
             <p

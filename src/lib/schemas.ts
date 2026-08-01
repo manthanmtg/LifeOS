@@ -58,25 +58,61 @@ const DeckUrlMaxLength = 14 * 1024 * 1024;
 
 const PersonNotificationPreferencesSchema =
   NotificationPreferencesSchema.superRefine((preferences, ctx) => {
+    const peopleEvents = new Set(["birthday", "contact_reminder"]);
+
     for (let index = 0; index < preferences.rules.length; index += 1) {
       const rule = preferences.rules[index];
-      if (rule.event !== "birthday") {
+      if (!peopleEvents.has(rule.event)) {
         ctx.addIssue({
           code: "custom",
           path: ["rules", index, "event"],
-          message: "People notifications only support the birthday event",
+          message:
+            "People notifications only support birthday and contact_reminder events",
+        });
+      }
+
+      if (rule.event === "birthday" && rule.cadence_days !== undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["rules", index, "cadence_days"],
+          message: "Birthday notification rules do not use cadence_days",
+        });
+      }
+
+      if (
+        rule.event === "contact_reminder" &&
+        rule.cadence_days === undefined
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["rules", index, "cadence_days"],
+          message: "Contact reminder rules require cadence_days",
+        });
+      }
+    }
+
+    const disabledEvents = preferences.disabled_events ?? [];
+    for (let index = 0; index < disabledEvents.length; index += 1) {
+      if (!peopleEvents.has(disabledEvents[index])) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["disabled_events", index],
+          message:
+            "People notifications only support birthday and contact_reminder events",
         });
       }
     }
 
     if (
       preferences.enabled &&
-      !preferences.rules.some((rule) => rule.event === "birthday")
+      !preferences.rules.some((rule) => peopleEvents.has(rule.event)) &&
+      !disabledEvents.some((event) => peopleEvents.has(event))
     ) {
       ctx.addIssue({
         code: "custom",
         path: ["rules"],
-        message: "People notifications require at least one birthday rule",
+        message:
+          "People notifications require at least one people notification rule or disabled event",
       });
     }
   });
