@@ -35,6 +35,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { AboutSettingsTab } from "@/components/settings/AboutSettingsTab";
 import { NotificationSettingsTab } from "@/components/settings/NotificationSettingsTab";
 import { cn } from "@/lib/utils";
 import { moduleRegistry } from "@/registry";
@@ -164,7 +165,13 @@ const ICON_PRESETS = [
   { label: "Atom", emoji: "⚛️", value: emojiToSvg("⚛️") },
 ];
 
-type SettingsTab = "themes" | "modules" | "branding" | "notifications" | "data";
+type SettingsTab =
+  | "themes"
+  | "modules"
+  | "branding"
+  | "notifications"
+  | "data"
+  | "about";
 
 const TABS: {
   id: SettingsTab;
@@ -176,6 +183,7 @@ const TABS: {
   { id: "branding", label: "Branding", icon: Globe },
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "data", label: "Data", icon: Database },
+  { id: "about", label: "About", icon: Info },
 ];
 
 export default function SettingsPage() {
@@ -466,21 +474,32 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="text-zinc-400">
-          Manage themes, modules, branding, notifications, and data.
+          Manage your workspace and system settings.
         </p>
       </header>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-2xl mb-8 w-full sm:w-fit overflow-x-auto no-scrollbar">
+      <div
+        role="tablist"
+        aria-label="Settings sections"
+        className="flex items-center gap-1 bg-zinc-950/50 border border-zinc-800/80 p-1 rounded-2xl mb-8 w-full sm:w-fit overflow-x-auto no-scrollbar"
+      >
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          const tabId = `settings-${tab.id}-tab`;
+          const panelId = `settings-${tab.id}-panel`;
           return (
             <button
               key={tab.id}
+              id={tabId}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={panelId}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
+                "relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                 isActive ? "text-accent" : "text-zinc-500 hover:text-zinc-300",
               )}
             >
@@ -491,7 +510,7 @@ export default function SettingsPage() {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <Icon className="w-4 h-4 relative z-10" />
+              <Icon className="w-4 h-4 relative z-10" aria-hidden="true" />
               <span className="relative z-10">{tab.label}</span>
             </button>
           );
@@ -502,6 +521,9 @@ export default function SettingsPage() {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
+          id={`settings-${activeTab}-panel`}
+          role="tabpanel"
+          aria-labelledby={`settings-${activeTab}-tab`}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
@@ -1380,6 +1402,9 @@ export default function SettingsPage() {
           {/* ─── NOTIFICATIONS TAB ─── */}
           {activeTab === "notifications" && <NotificationSettingsTab />}
 
+          {/* ─── ABOUT TAB ─── */}
+          {activeTab === "about" && <AboutSettingsTab />}
+
           {/* ─── DATA TAB ─── */}
           {activeTab === "data" && (
             <section className="space-y-6">
@@ -1436,13 +1461,13 @@ export default function SettingsPage() {
                         Collections
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                    <div className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
                       {dbStatsLoading ? (
                         <SkeletonBlock className="h-8 w-14 rounded" />
                       ) : (
                         dbStats?.database.collections || 0
                       )}
-                    </p>
+                    </div>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -1451,13 +1476,13 @@ export default function SettingsPage() {
                         Documents
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                    <div className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
                       {dbStatsLoading ? (
                         <SkeletonBlock className="h-8 w-16 rounded" />
                       ) : (
                         dbStats?.database.documents.toLocaleString() || 0
                       )}
-                    </p>
+                    </div>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -1466,7 +1491,7 @@ export default function SettingsPage() {
                         Data Size
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                    <div className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
                       {dbStatsLoading ? (
                         <SkeletonBlock className="h-8 w-20 rounded" />
                       ) : dbStats ? (
@@ -1474,7 +1499,7 @@ export default function SettingsPage() {
                       ) : (
                         "0 MB"
                       )}
-                    </p>
+                    </div>
                   </div>
                   <div className="bg-zinc-950/50 border border-zinc-800/50 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -1483,7 +1508,7 @@ export default function SettingsPage() {
                         Storage
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
+                    <div className="text-2xl font-bold text-zinc-200 min-h-[2rem]">
                       {dbStatsLoading ? (
                         <SkeletonBlock className="h-8 w-20 rounded" />
                       ) : dbStats ? (
@@ -1491,7 +1516,7 @@ export default function SettingsPage() {
                       ) : (
                         "0 MB"
                       )}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -1506,7 +1531,7 @@ export default function SettingsPage() {
                         • Estimated limit based on tier
                       </span>
                     </div>
-                    <span
+                    <div
                       className={cn(
                         "text-sm font-bold",
                         (dbStats?.limits?.usagePercent || 0) > 80
@@ -1521,7 +1546,7 @@ export default function SettingsPage() {
                       ) : (
                         `${dbStats?.limits?.usagePercent?.toFixed(1) || "0.0"}%`
                       )}
-                    </span>
+                    </div>
                   </div>
                   {dbStatsLoading ? (
                     <SkeletonBlock className="h-3 w-full rounded-full" />
@@ -1545,7 +1570,7 @@ export default function SettingsPage() {
                     </div>
                   )}
                   <div className="flex items-center justify-between mt-3 text-xs">
-                    <span className="text-zinc-500">
+                    <div className="text-zinc-500">
                       Used:{" "}
                       {dbStatsLoading ? (
                         <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
@@ -1554,8 +1579,8 @@ export default function SettingsPage() {
                       ) : (
                         "—"
                       )}
-                    </span>
-                    <span className="text-zinc-500">
+                    </div>
+                    <div className="text-zinc-500">
                       Limit:{" "}
                       {dbStatsLoading ? (
                         <SkeletonBlock className="inline-block h-3 w-16 align-middle" />
@@ -1564,7 +1589,7 @@ export default function SettingsPage() {
                       ) : (
                         "~512 MB"
                       )}
-                    </span>
+                    </div>
                   </div>
                 </div>
 
