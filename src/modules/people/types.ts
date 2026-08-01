@@ -1,3 +1,5 @@
+import type { NotificationPreferences } from "@/lib/notifications/contracts";
+
 export const RELATIONSHIPS = [
   "family",
   "friend",
@@ -61,6 +63,7 @@ export interface PersonPayload {
   last_contacted?: string;
   is_favorite: boolean;
   documents: PersonDocument[];
+  notifications?: NotificationPreferences;
 }
 
 export interface Person {

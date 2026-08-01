@@ -45,6 +45,22 @@ describe("RelativeDateNotificationFields", () => {
     expect(onOffsetsChange).toHaveBeenCalledWith([1, 14]);
   });
 
+  it("labels the zero day offset with the configured event", () => {
+    render(
+      <RelativeDateNotificationFields
+        enabled={true}
+        eventLabel="Birthday"
+        offsetsDays={[0, 1]}
+        onEnabledChange={vi.fn()}
+        onOffsetsChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("checkbox", { name: /birthday day/i }),
+    ).toBeInTheDocument();
+  });
+
   it("disables offset controls when notifications are disabled", () => {
     render(
       <RelativeDateNotificationFields

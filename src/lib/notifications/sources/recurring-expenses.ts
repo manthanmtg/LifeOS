@@ -169,7 +169,7 @@ export const recurringExpensesNotificationSource: NotificationSource = {
     const defaultOffsets = getDefaultOffsets(context.systemConfig);
     let eligibleCount = 0;
     let explicitCount = 0;
-    let legacyCount = 0;
+    let inheritedCount = 0;
 
     for (const record of records) {
       const parsed = RecurringExpenseSchema.safeParse(record.payload);
@@ -187,7 +187,7 @@ export const recurringExpensesNotificationSource: NotificationSource = {
       if (!preferences.enabled) continue;
       eligibleCount += 1;
       if (explicit) explicitCount += 1;
-      else legacyCount += 1;
+      else inheritedCount += 1;
     }
 
     return {
@@ -195,7 +195,7 @@ export const recurringExpensesNotificationSource: NotificationSource = {
       label: "Recurring Expenses",
       eligible_count: eligibleCount,
       explicit_count: explicitCount,
-      legacy_count: legacyCount,
+      inherited_count: inheritedCount,
     };
   },
 };

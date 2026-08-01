@@ -18,7 +18,7 @@ const overview = {
       label: "Recurring Expenses",
       eligible_count: 12,
       explicit_count: 3,
-      legacy_count: 9,
+      inherited_count: 9,
     },
   ],
   delivery_counts: { sent: 0, failed: 0, dead_letter: 0 },
@@ -44,7 +44,7 @@ describe("NotificationSettingsTab", () => {
     expect(
       await screen.findByText(/NOTIFICATION_ENCRYPTION_KEY/i),
     ).toBeVisible();
-    expect(screen.getByText(/9 legacy using the 1-day default/i)).toBeVisible();
+    expect(screen.getByText(/9 inherited/i)).toBeVisible();
   });
 
   it("sets up persisted encryption from the warning state", async () => {

@@ -198,7 +198,7 @@ describe("recurringExpensesNotificationSource", () => {
       label: "Recurring Expenses",
       eligible_count: 2,
       explicit_count: 1,
-      legacy_count: 1,
+      inherited_count: 1,
     });
   });
 });

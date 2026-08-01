@@ -56,6 +56,31 @@ const IsoCalendarDateOrDateTimeSchema = z.union([
 
 const DeckUrlMaxLength = 14 * 1024 * 1024;
 
+const PersonNotificationPreferencesSchema =
+  NotificationPreferencesSchema.superRefine((preferences, ctx) => {
+    for (let index = 0; index < preferences.rules.length; index += 1) {
+      const rule = preferences.rules[index];
+      if (rule.event !== "birthday") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["rules", index, "event"],
+          message: "People notifications only support the birthday event",
+        });
+      }
+    }
+
+    if (
+      preferences.enabled &&
+      !preferences.rules.some((rule) => rule.event === "birthday")
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["rules"],
+        message: "People notifications require at least one birthday rule",
+      });
+    }
+  });
+
 // --- 1. PORTFOLIO & IDENTITY ---
 const SocialLinkSchema = z.object({
   platform: z
@@ -576,6 +601,7 @@ export const PersonSchema = z.object({
       }),
     )
     .default([]),
+  notifications: PersonNotificationPreferencesSchema.optional(),
   interactions: z
     .array(
       z.object({

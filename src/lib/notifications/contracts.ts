@@ -71,7 +71,7 @@ export interface NotificationSourceActivationSummary {
   label: string;
   eligible_count: number;
   explicit_count: number;
-  legacy_count: number;
+  inherited_count: number;
 }
 
 export interface NotificationSourceCollectionResult {

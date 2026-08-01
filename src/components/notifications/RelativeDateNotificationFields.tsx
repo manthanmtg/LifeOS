@@ -16,8 +16,8 @@ export interface RelativeDateNotificationFieldsProps {
   onOffsetsChange(offsetsDays: number[]): void;
 }
 
-function labelForOffset(offset: number) {
-  if (offset === 0) return "Renewal day";
+function labelForOffset(offset: number, eventLabel: string) {
+  if (offset === 0) return `${eventLabel} day`;
   if (offset === 1) return "1 day before";
   return `${offset} days before`;
 }
@@ -92,7 +92,7 @@ export function RelativeDateNotificationFields({
               onChange={() => toggleOffset(offset)}
               className="h-4 w-4 rounded border-zinc-700 accent-accent"
             />
-            {labelForOffset(offset)}
+            {labelForOffset(offset, eventLabel)}
           </label>
         ))}
       </div>

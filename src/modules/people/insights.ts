@@ -1,5 +1,10 @@
 import type { ContentDocument } from "@/lib/types";
 import type { Interaction, Person, PersonPayload, Relationship } from "./types";
+import {
+  getBirthdayAgeTurning,
+  getBirthdayOccurrenceDate,
+  getCalendarDayDifference,
+} from "./birthday";
 
 export type PeopleFilterType = "all" | "favorites" | "upcoming" | "stale";
 
@@ -56,34 +61,33 @@ export function getBirthdayDetails(
   now = new Date(),
 ): BirthdayDetails | null {
   if (!birthday) return null;
-
-  const raw = new Date(`${birthday}T00:00:00`);
-  if (Number.isNaN(raw.getTime())) return null;
-
   const currentYear = now.getFullYear();
-  let nextBirthday = new Date(currentYear, raw.getMonth(), raw.getDate());
-  if (
-    nextBirthday < new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  ) {
-    nextBirthday = new Date(currentYear + 1, raw.getMonth(), raw.getDate());
-  }
+  const thisYear = getBirthdayOccurrenceDate(birthday, currentYear);
+  const nextYear = getBirthdayOccurrenceDate(birthday, currentYear + 1);
+  const todayKey = `${String(now.getFullYear()).padStart(4, "0")}-${String(
+    now.getMonth() + 1,
+  ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-  const daysUntil = Math.ceil(
-    (nextBirthday.getTime() -
-      new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) /
-      (1000 * 60 * 60 * 24),
+  if (!thisYear || !nextYear) return null;
+
+  const useNextYear = getCalendarDayDifference(todayKey, thisYear) < 0;
+  const nextBirthday = useNextYear ? nextYear : thisYear;
+  const daysUntil = getCalendarDayDifference(todayKey, nextBirthday);
+  const [, monthStr, dayStr] = nextBirthday.split("-");
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  const ageTurning = getBirthdayAgeTurning(
+    birthday,
+    Number(nextBirthday.slice(0, 4)),
   );
-  const birthYear = raw.getFullYear();
-  const ageTurning =
-    birthYear >= 1900 ? nextBirthday.getFullYear() - birthYear : null;
 
   return {
-    month: raw.getMonth(),
-    day: raw.getDate(),
-    nextBirthday: nextBirthday.toISOString(),
+    month: Number(monthStr) - 1,
+    day,
+    nextBirthday: new Date(`${nextBirthday}T00:00:00`).toISOString(),
     daysUntil,
     ageTurning,
-    isThisMonth: raw.getMonth() === now.getMonth(),
+    isThisMonth: month - 1 === now.getMonth(),
     isUpcoming: daysUntil >= 0 && daysUntil <= UPCOMING_BIRTHDAY_WINDOW_DAYS,
   };
 }

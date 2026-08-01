@@ -43,7 +43,7 @@ function formatHour(hour: number) {
 }
 
 function sourcePreview(source: NotificationSourceActivationSummary) {
-  return `${source.eligible_count} enabled items · ${source.explicit_count} explicit · ${source.legacy_count} legacy using the 1-day default`;
+  return `${source.eligible_count} enabled items · ${source.explicit_count} explicit · ${source.inherited_count} inherited`;
 }
 
 function statusClass(status: NotificationDeliveryDto["status"]) {

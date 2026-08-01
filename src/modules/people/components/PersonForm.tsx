@@ -1,36 +1,48 @@
 "use client";
 
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import {
-  X,
-  Save,
-  User,
+  AlignLeft,
   Building2,
-  Cake,
-  Phone,
-  Mail,
   Camera,
-  Trash2,
+  Cake,
   Heart,
+  Mail,
+  Phone,
+  Save,
   Star,
   Tag as TagIcon,
+  Trash2,
+  User,
+  X,
   Zap,
-  AlignLeft,
 } from "lucide-react";
-import { motion } from "framer-motion";
+
 import { cn } from "@/lib/utils";
 import ImageCropper from "@/components/ui/ImageCropper";
+import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
+import { normalizeNotificationOffsetsDays } from "@/lib/notifications/recurring-preferences";
 import {
+  buildBirthdayNotificationPreferences,
+  getBirthdayNotificationRule,
+  resolvePeopleBirthdayNotificationPreferences,
+} from "@/lib/notifications/people-preferences";
+import type { PeopleSettings } from "@/modules/people/config";
+import type {
   Person,
   PersonPayload,
-  RELATIONSHIPS,
   Relationship,
   SocialLink,
 } from "../types";
+import { RELATIONSHIPS } from "../types";
+
+type NotificationMode = "inherit" | "custom" | "off";
 
 interface PersonFormProps {
   person?: Person;
+  peopleSettings: PeopleSettings;
   onClose: () => void;
   onSave: (payload: PersonPayload) => Promise<void>;
 }
@@ -38,8 +50,23 @@ interface PersonFormProps {
 const inputCls =
   "w-full bg-zinc-900/40 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/5 transition-all";
 
+function formatReminderOffsets(offsetsDays: number[]) {
+  if (offsetsDays.length === 0) {
+    return "No reminder days";
+  }
+
+  return offsetsDays
+    .map((offset) => {
+      if (offset === 0) return "on birthday";
+      if (offset === 1) return "1 day before";
+      return `${offset} days before`;
+    })
+    .join(", ");
+}
+
 export default function PersonForm({
   person,
+  peopleSettings,
   onClose,
   onSave,
 }: PersonFormProps) {
@@ -70,7 +97,140 @@ export default function PersonForm({
     person?.payload.is_favorite || false,
   );
   const [isSaving, setIsSaving] = useState(false);
+
+  const explicitRule = useMemo(() => {
+    if (!person?.payload.notifications) return undefined;
+    return getBirthdayNotificationRule(person.payload.notifications);
+  }, [person]);
+
+  const [notificationMode, setNotificationMode] = useState<NotificationMode>(
+    () => {
+      if (!person?.payload.notifications) return "inherit";
+      if (!person.payload.notifications.enabled || !explicitRule) {
+        return "off";
+      }
+
+      return "custom";
+    },
+  );
+
+  const [birthdayReminderOffsets, setBirthdayReminderOffsets] = useState(() => {
+    if (person?.payload.notifications?.enabled && explicitRule) {
+      return explicitRule.offsets_days;
+    }
+
+    return [1];
+  });
+
   const [error, setError] = useState("");
+
+  const hasBirthday = birthday.trim().length > 0;
+
+  const draftEffectivePreferences = useMemo(() => {
+    if (!hasBirthday) {
+      return resolvePeopleBirthdayNotificationPreferences(
+        {
+          relationship,
+          notifications: undefined,
+        },
+        peopleSettings,
+      );
+    }
+
+    if (notificationMode === "inherit") {
+      return resolvePeopleBirthdayNotificationPreferences(
+        {
+          relationship,
+          notifications: undefined,
+        },
+        peopleSettings,
+      );
+    }
+
+    if (notificationMode === "off") {
+      return resolvePeopleBirthdayNotificationPreferences(
+        {
+          relationship,
+          notifications: { enabled: false, rules: [] },
+        },
+        peopleSettings,
+      );
+    }
+
+    return resolvePeopleBirthdayNotificationPreferences(
+      {
+        relationship,
+        notifications: buildBirthdayNotificationPreferences(
+          true,
+          birthdayReminderOffsets,
+        ),
+      },
+      peopleSettings,
+    );
+  }, [
+    birthdayReminderOffsets,
+    hasBirthday,
+    notificationMode,
+    peopleSettings,
+    relationship,
+  ]);
+
+  const draftEffectiveRule = getBirthdayNotificationRule(
+    draftEffectivePreferences.preferences,
+  );
+
+  const reminderSummary = useMemo(() => {
+    if (!hasBirthday) {
+      return "Add a birthday to enable reminders.";
+    }
+
+    if (notificationMode === "off") {
+      return "Person-level reminders are disabled.";
+    }
+
+    if (notificationMode === "custom") {
+      const rule = getBirthdayNotificationRule(
+        buildBirthdayNotificationPreferences(true, birthdayReminderOffsets),
+      );
+      const offsets = normalizeNotificationOffsetsDays(
+        rule?.offsets_days ?? [1],
+      );
+      return `Custom reminders: ${formatReminderOffsets(offsets)}.`;
+    }
+
+    if (!draftEffectiveRule) {
+      return "No inherited reminder configured.";
+    }
+
+    const sourceLabel =
+      draftEffectivePreferences.origin.kind === "relationship"
+        ? `${draftEffectivePreferences.origin.relationship} relationship`
+        : "People default";
+    return `Inherited from ${sourceLabel}: ${formatReminderOffsets(
+      normalizeNotificationOffsetsDays(draftEffectiveRule.offsets_days),
+    )}.`;
+  }, [
+    birthdayReminderOffsets,
+    draftEffectiveRule,
+    draftEffectivePreferences.origin,
+    hasBirthday,
+    notificationMode,
+  ]);
+
+  const handleRelationshipChange = (nextRelationship: Relationship) => {
+    setRelationship(nextRelationship);
+  };
+
+  const handleNotificationModeChange = (nextMode: NotificationMode) => {
+    if (nextMode === "custom" && notificationMode !== "custom") {
+      const nextOffsets = draftEffectiveRule?.offsets_days.length
+        ? draftEffectiveRule.offsets_days
+        : [1];
+      setBirthdayReminderOffsets(nextOffsets);
+    }
+
+    setNotificationMode(nextMode);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +270,29 @@ export default function PersonForm({
       documents: person?.payload.documents || [],
     };
 
+    if (hasBirthday) {
+      const channelIds =
+        notificationMode === "custom"
+          ? explicitRule?.channel_ids
+            ? [...explicitRule.channel_ids]
+            : undefined
+          : undefined;
+
+      if (notificationMode === "custom") {
+        payload.notifications = buildBirthdayNotificationPreferences(
+          true,
+          normalizeNotificationOffsetsDays(birthdayReminderOffsets),
+          channelIds,
+        );
+      } else if (notificationMode === "off") {
+        payload.notifications = buildBirthdayNotificationPreferences(false, []);
+      }
+
+      if (notificationMode === "custom" && !payload.notifications?.enabled) {
+        payload.notifications = buildBirthdayNotificationPreferences(true, [1]);
+      }
+    }
+
     try {
       await onSave(payload);
       onClose();
@@ -137,12 +320,10 @@ export default function PersonForm({
         exit={{ opacity: 0, y: 60, scale: 0.97 }}
         className="relative w-full md:max-w-lg bg-zinc-950 border border-zinc-800 rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
-        {/* Mobile drag handle */}
         <div className="flex justify-center pt-3 pb-0 md:hidden">
           <div className="w-10 h-1 rounded-full bg-zinc-800" />
         </div>
 
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800/60 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
@@ -166,18 +347,19 @@ export default function PersonForm({
           </button>
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="p-5 space-y-5 overflow-y-auto flex-1 custom-scrollbar"
         >
           {error && (
-            <div className="bg-danger/10 border border-danger/20 p-3 rounded-xl text-danger text-xs font-medium text-center">
+            <p
+              role="alert"
+              className="bg-danger/10 border border-danger/20 p-3 rounded-xl text-danger text-xs font-medium text-center"
+            >
               {error}
-            </div>
+            </p>
           )}
 
-          {/* Basic Info */}
           <fieldset className="space-y-3">
             <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Star className="w-3.5 h-3.5 text-accent" /> Basic Info
@@ -192,7 +374,7 @@ export default function PersonForm({
                   autoFocus
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(event) => setName(event.target.value)}
                   placeholder="Full name"
                   className={cn(inputCls, "font-medium")}
                   maxLength={100}
@@ -205,14 +387,15 @@ export default function PersonForm({
                 </label>
                 <select
                   value={relationship}
-                  onChange={(e) =>
-                    setRelationship(e.target.value as Relationship)
+                  onChange={(event) =>
+                    handleRelationshipChange(event.target.value as Relationship)
                   }
                   className={inputCls}
                 >
-                  {RELATIONSHIPS.map((r) => (
-                    <option key={r} value={r}>
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
+                  {RELATIONSHIPS.map((relationshipValue) => (
+                    <option key={relationshipValue} value={relationshipValue}>
+                      {relationshipValue.charAt(0).toUpperCase() +
+                        relationshipValue.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -236,7 +419,6 @@ export default function PersonForm({
             </button>
           </fieldset>
 
-          {/* Contact Details */}
           <fieldset className="space-y-3">
             <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Building2 className="w-3.5 h-3.5" /> Contact Details
@@ -250,7 +432,7 @@ export default function PersonForm({
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="email@example.com"
                   maxLength={320}
                   className={inputCls}
@@ -263,7 +445,7 @@ export default function PersonForm({
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(event) => setPhone(event.target.value)}
                   placeholder="+X XXX XXX XXXX"
                   className={inputCls}
                   maxLength={50}
@@ -279,7 +461,7 @@ export default function PersonForm({
                 <input
                   type="text"
                   value={company}
-                  onChange={(e) => setCompany(e.target.value)}
+                  onChange={(event) => setCompany(event.target.value)}
                   className={inputCls}
                   maxLength={100}
                 />
@@ -291,7 +473,7 @@ export default function PersonForm({
                 <input
                   type="text"
                   value={role}
-                  onChange={(e) => setRole(e.target.value)}
+                  onChange={(event) => setRole(event.target.value)}
                   className={inputCls}
                   maxLength={100}
                 />
@@ -299,10 +481,9 @@ export default function PersonForm({
             </div>
           </fieldset>
 
-          {/* Additional Info */}
           <fieldset className="space-y-3">
             <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
-              <Zap className="w-3.5 h-3.5 text-warning" /> More
+              <Cake className="w-3 h-3" /> Birthday reminders
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -313,10 +494,96 @@ export default function PersonForm({
                 <input
                   type="date"
                   value={birthday}
-                  onChange={(e) => setBirthday(e.target.value)}
+                  onChange={(event) => setBirthday(event.target.value)}
                   className={cn(inputCls, "[color-scheme:dark]")}
                 />
               </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  Birthday reminders
+                </label>
+                <div className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={notificationMode === "inherit"}
+                      disabled={!hasBirthday}
+                      onChange={() => handleNotificationModeChange("inherit")}
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Inherit
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={notificationMode === "custom"}
+                      disabled={!hasBirthday}
+                      onChange={() => handleNotificationModeChange("custom")}
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Custom
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                    <input
+                      type="radio"
+                      checked={notificationMode === "off"}
+                      disabled={!hasBirthday}
+                      onChange={() => handleNotificationModeChange("off")}
+                      className="h-4 w-4 rounded-full border-zinc-700 accent-accent"
+                    />
+                    Off
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-500">{reminderSummary}</p>
+
+            <RelativeDateNotificationFields
+              enabled={notificationMode === "custom"}
+              disabled={!hasBirthday}
+              offsetsDays={birthdayReminderOffsets}
+              eventLabel="Birthday"
+              onEnabledChange={(enabled) =>
+                handleNotificationModeChange(enabled ? "custom" : "off")
+              }
+              onOffsetsChange={(offsetsDays) => {
+                setBirthdayReminderOffsets(
+                  normalizeNotificationOffsetsDays(offsetsDays),
+                );
+              }}
+            />
+
+            <p className="text-[10px] text-zinc-500">
+              Configure per-person reminders, or use global People defaults.
+              {hasBirthday
+                ? " "
+                : " Add a birthday to unlock reminder controls."}
+            </p>
+            {!hasBirthday && (
+              <p className="text-xs text-warning">
+                Notifications will be omitted if no birthday is saved.
+              </p>
+            )}
+            <p className="text-xs text-zinc-500">
+              Learn more:
+              <a
+                href="/admin/settings?tab=notifications"
+                target="_blank"
+                rel="noreferrer"
+                className="ml-1 text-accent underline decoration-accent/30 underline-offset-2"
+              >
+                open People notification settings
+              </a>
+            </p>
+          </fieldset>
+
+          <fieldset className="space-y-3">
+            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+              <Zap className="w-3.5 h-3.5 text-warning" /> More
+            </legend>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Camera className="w-3 h-3" /> Photo
@@ -367,14 +634,14 @@ export default function PersonForm({
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
                     if (file) {
                       setCropperMime(file.type || "image/jpeg");
                       const url = URL.createObjectURL(file);
                       setCropperSrc(url);
                     }
-                    e.target.value = "";
+                    event.target.value = "";
                   }}
                 />
               </div>
@@ -383,12 +650,12 @@ export default function PersonForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Zap className="w-3 h-3" /> Interests
+                  <TagIcon className="w-3 h-3" /> Interests
                 </label>
                 <input
                   type="text"
                   value={interests}
-                  onChange={(e) => setInterests(e.target.value)}
+                  onChange={(event) => setInterests(event.target.value)}
                   placeholder="Comma separated"
                   className={inputCls}
                 />
@@ -400,7 +667,7 @@ export default function PersonForm({
                 <input
                   type="text"
                   value={tags}
-                  onChange={(e) => setTags(e.target.value)}
+                  onChange={(event) => setTags(event.target.value)}
                   placeholder="Comma separated"
                   className={inputCls}
                 />
@@ -413,7 +680,7 @@ export default function PersonForm({
               </label>
               <textarea
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(event) => setNotes(event.target.value)}
                 placeholder="Anything worth remembering..."
                 rows={3}
                 className={cn(inputCls, "resize-none leading-relaxed")}
@@ -422,7 +689,6 @@ export default function PersonForm({
             </div>
           </fieldset>
 
-          {/* Actions */}
           <div className="flex items-center gap-3 pt-4 border-t border-zinc-800/60">
             <button
               type="button"

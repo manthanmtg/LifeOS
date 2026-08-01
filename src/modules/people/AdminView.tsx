@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Search, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useModuleSettings } from "@/hooks/useModuleSettings";
 
 import type {
   Person,
@@ -20,6 +21,8 @@ import PeopleFocusStrip from "./components/PeopleFocusStrip";
 import PersonCard from "./components/PersonCard";
 import PersonProfile from "./components/PersonProfile";
 import PersonForm from "./components/PersonForm";
+import PeopleNotificationSettingsDialog from "./components/PeopleNotificationSettingsDialog";
+import { DEFAULT_PEOPLE_SETTINGS, type PeopleSettings } from "./config";
 import {
   filterPeople,
   getPeopleCounts,
@@ -36,6 +39,17 @@ export default function PeopleAdminView() {
   const [showForm, setShowForm] = useState(false);
   const [editingPerson, setEditingPerson] = useState<Person | undefined>(
     undefined,
+  );
+  const [showNotificationSettings, setShowNotificationSettings] =
+    useState(false);
+
+  const {
+    settings: peopleSettings,
+    loaded: peopleSettingsLoaded,
+    updateSettings: updatePeopleSettings,
+  } = useModuleSettings<PeopleSettings>(
+    "peopleSettings",
+    DEFAULT_PEOPLE_SETTINGS,
   );
 
   // Filters
@@ -132,91 +146,100 @@ export default function PeopleAdminView() {
     }
   };
 
-  const handleToggleFavorite = useCallback(async (person: Person) => {
-    try {
+  const handleToggleFavorite = useCallback(
+    async (person: Person) => {
+      try {
+        const res = await fetch(`/api/content/${person._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            payload: {
+              ...person.payload,
+              is_favorite: !person.payload.is_favorite,
+            },
+          }),
+        });
+        if (!res.ok) throw new Error("Toggle failed");
+        upsertPersonInState({
+          ...person,
+          updated_at: new Date().toISOString(),
+          payload: {
+            ...person.payload,
+            is_favorite: !person.payload.is_favorite,
+          },
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [upsertPersonInState],
+  );
+
+  const handleUpdateInteractions = useCallback(
+    async (person: Person, interactions: Interaction[]) => {
+      // Calculate last_contacted as the max date from all interactions
+      const last_contacted =
+        interactions.length > 0
+          ? [...interactions].sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+            )[0].date
+          : undefined;
+
       const res = await fetch(`/api/content/${person._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           payload: {
             ...person.payload,
-            is_favorite: !person.payload.is_favorite,
+            interactions,
+            last_contacted,
           },
         }),
       });
-      if (!res.ok) throw new Error("Toggle failed");
+
+      if (!res.ok) throw new Error("Failed to update interactions");
       upsertPersonInState({
         ...person,
         updated_at: new Date().toISOString(),
         payload: {
           ...person.payload,
-          is_favorite: !person.payload.is_favorite,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  }, [upsertPersonInState]);
-
-  const handleUpdateInteractions = useCallback(async (
-    person: Person,
-    interactions: Interaction[],
-  ) => {
-    // Calculate last_contacted as the max date from all interactions
-    const last_contacted =
-      interactions.length > 0
-        ? [...interactions].sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-          )[0].date
-        : undefined;
-
-    const res = await fetch(`/api/content/${person._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        payload: {
-          ...person.payload,
           interactions,
           last_contacted,
         },
-      }),
-    });
+      });
+    },
+    [upsertPersonInState],
+  );
 
-    if (!res.ok) throw new Error("Failed to update interactions");
-    upsertPersonInState({
-      ...person,
-      updated_at: new Date().toISOString(),
-      payload: {
-        ...person.payload,
-        interactions,
-        last_contacted,
-      },
-    });
-  }, [upsertPersonInState]);
+  const handleLogInteraction = useCallback(
+    async (
+      person: Person,
+      type: InteractionType,
+      date: string,
+      note?: string,
+    ) => {
+      const newInteraction = { date, type, note };
+      const updatedInteractions = [
+        ...(person.payload.interactions || []),
+        newInteraction,
+      ];
 
-  const handleLogInteraction = useCallback(async (
-    person: Person,
-    type: InteractionType,
-    date: string,
-    note?: string,
-  ) => {
-    const newInteraction = { date, type, note };
-    const updatedInteractions = [
-      ...(person.payload.interactions || []),
-      newInteraction,
-    ];
+      await handleUpdateInteractions(person, updatedInteractions);
+    },
+    [handleUpdateInteractions],
+  );
 
-    await handleUpdateInteractions(person, updatedInteractions);
-  }, [handleUpdateInteractions]);
-
-  const handleQuickLog = useCallback((person: Person, type: InteractionType) => {
-    handleLogInteraction(
-      person,
-      type,
-      new Date().toISOString().slice(0, 10),
-      `Quick Log: ${type}`,
-    );
-  }, [handleLogInteraction]);
+  const handleQuickLog = useCallback(
+    (person: Person, type: InteractionType) => {
+      handleLogInteraction(
+        person,
+        type,
+        new Date().toISOString().slice(0, 10),
+        `Quick Log: ${type}`,
+      );
+    },
+    [handleLogInteraction],
+  );
 
   const handleView = useCallback((p: Person) => {
     setSelectedPerson(p);
@@ -263,6 +286,12 @@ export default function PeopleAdminView() {
   );
   const summary = useMemo(() => getPeopleSummary(people), [people]);
 
+  const handleSavePeopleNotificationSettings = async (next: PeopleSettings) => {
+    return updatePeopleSettings({
+      birthdayNotifications: next.birthdayNotifications,
+    });
+  };
+
   if (loading) return <AdminModuleSkeleton />;
 
   return (
@@ -270,6 +299,8 @@ export default function PeopleAdminView() {
       <PeopleHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onOpenBirthdaySettings={() => setShowNotificationSettings(true)}
+        peopleSettingsLoading={!peopleSettingsLoaded}
         onAddPerson={() => {
           setEditingPerson(undefined);
           setShowForm(true);
@@ -361,7 +392,9 @@ export default function PeopleAdminView() {
                 }}
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
-                onLogInteraction={(_, type, date, note) => handleLogInteraction(selectedPerson, type, date, note)}
+                onLogInteraction={(_, type, date, note) =>
+                  handleLogInteraction(selectedPerson, type, date, note)
+                }
                 onUpdateInteractions={(interactions) =>
                   handleUpdateInteractions(selectedPerson, interactions)
                 }
@@ -376,8 +409,17 @@ export default function PeopleAdminView() {
         {showForm && (
           <PersonForm
             person={editingPerson}
+            peopleSettings={peopleSettings}
             onClose={() => setShowForm(false)}
             onSave={handleSave}
+          />
+        )}
+
+        {showNotificationSettings && (
+          <PeopleNotificationSettingsDialog
+            settings={peopleSettings}
+            onSave={handleSavePeopleNotificationSettings}
+            onClose={() => setShowNotificationSettings(false)}
           />
         )}
       </AnimatePresence>

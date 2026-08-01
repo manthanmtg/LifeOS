@@ -92,6 +92,22 @@ export function addDaysToCalendarDate(date: string, days: number): string {
   return new Date(utc).toISOString().slice(0, 10);
 }
 
+export function getCalendarDateInTimezone(
+  date: Date,
+  timezone: string,
+): string {
+  if (!validateIanaTimezone(timezone)) {
+    throw new Error(`Invalid timezone: ${timezone}`);
+  }
+
+  const parts = getZonedParts(date, timezone);
+  const year = String(parts.year).padStart(4, "0");
+  const month = String(parts.month).padStart(2, "0");
+  const day = String(parts.day).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export function resolveLocalDateTimeToUtc(
   calendarDate: string,
   hour: number,
