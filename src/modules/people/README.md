@@ -8,25 +8,26 @@ The People module acts as a personal CRM within LifeOS. It is designed to help y
 
 The module uses the `person` content type. The core `PersonPayload` is validated by `PersonSchema` (found in `src/lib/schemas.ts`) and consists of the following key fields:
 
-| Field            | Type                | Description                                                                         |
-| :--------------- | :------------------ | :---------------------------------------------------------------------------------- |
-| `name`           | `string`            | The person's full name.                                                             |
-| `relationship`   | `Relationship`      | E.g., `family`, `friend`, `colleague`, `acquaintance`, `mentor`, `client`, `other`. |
-| `phone`          | `string` (optional) | The person's phone number.                                                          |
-| `email`          | `string` (optional) | The person's email address.                                                         |
-| `company`        | `string` (optional) | The company the person works for.                                                   |
-| `role`           | `string` (optional) | The person's job role or title.                                                     |
-| `birthday`       | `string` (optional) | The person's birthday (YYYY-MM-DD).                                                 |
-| `avatar_url`     | `string` (optional) | External URL to the person's avatar.                                                |
-| `profile_pic`    | `object` (optional) | Base64 encoded image data and content type.                                         |
-| `interests`      | `string[]`          | An array of interests.                                                              |
-| `tags`           | `string[]`          | Custom tags for organization.                                                       |
-| `notes`          | `string` (optional) | Freeform text for personal notes and context.                                       |
-| `social_links`   | `SocialLink[]`      | Array of social platform links (platform, url).                                     |
-| `interactions`   | `Interaction[]`     | Array of logged interactions (date, type, note).                                    |
-| `last_contacted` | `string` (optional) | Date of the most recent interaction.                                                |
-| `is_favorite`    | `boolean`           | Whether the contact is marked as a favorite.                                        |
-| `documents`      | `PersonDocument[]`  | Array of attached documents/files.                                                  |
+| Field            | Type                | Description                                                                             |
+| :--------------- | :------------------ | :-------------------------------------------------------------------------------------- |
+| `name`           | `string`            | The person's full name.                                                                 |
+| `relationship`   | `Relationship`      | E.g., `family`, `friend`, `colleague`, `acquaintance`, `mentor`, `client`, `other`.     |
+| `phone`          | `string` (optional) | The person's phone number.                                                              |
+| `email`          | `string` (optional) | The person's email address.                                                             |
+| `company`        | `string` (optional) | The company the person works for.                                                       |
+| `role`           | `string` (optional) | The person's job role or title.                                                         |
+| `birthday`       | `string` (optional) | The person's birthday (YYYY-MM-DD).                                                     |
+| `avatar_url`     | `string` (optional) | External URL to the person's avatar.                                                    |
+| `profile_pic`    | `object` (optional) | Base64 encoded image data and content type.                                             |
+| `interests`      | `string[]`          | An array of interests.                                                                  |
+| `tags`           | `string[]`          | Custom tags for organization.                                                           |
+| `notes`          | `string` (optional) | Freeform text for personal notes and context.                                           |
+| `social_links`   | `SocialLink[]`      | Array of social platform links (platform, url).                                         |
+| `interactions`   | `Interaction[]`     | Array of logged interactions (date, type, note).                                        |
+| `last_contacted` | `string` (optional) | Date of the most recent interaction.                                                    |
+| `is_favorite`    | `boolean`           | Whether the contact is marked as a favorite.                                            |
+| `documents`      | `PersonDocument[]`  | Array of attached documents/files.                                                      |
+| `notifications`  | `object` (optional) | Person-level birthday reminder override using the shared notification preference shape. |
 
 _Note: Interaction types include `call`, `meeting`, `in_person`, `message`, `email`, `gift`, and `other`._
 
@@ -40,6 +41,20 @@ _Note: Interaction types include `call`, `meeting`, `in_person`, `message`, `ema
   - Recently contacted metrics.
   - An overall "Network health" score based on recent interactions.
 - **Birthday Tracking:** Keep track of upcoming birthdays.
+- **Birthday Reminders:** Configure People-wide, relationship-level, and person-level birthday reminders through the shared notification platform.
+
+## Birthday Reminder Precedence
+
+Birthday reminders are opt-in and use the same shared delivery channels as other LifeOS notifications. The effective rule is resolved in this order:
+
+1. Person-level `payload.notifications`.
+2. Relationship override in `system.peopleSettings.birthdayNotifications.relationships`.
+3. People-wide default in `system.peopleSettings.birthdayNotifications.default`.
+4. Built-in disabled default.
+
+For a person, omitting `notifications` means inherit. `{ enabled: false, rules: [] }` is an explicit opt-out. Enabled person rules currently support only the `birthday` event with lead-day offsets from 0 through 365. February 29 birthdays use March 1 in non-leap years.
+
+Contact-cadence reminders such as "reach out every 30 days" are not part of this release; they should use `last_contacted` and `interactions` in a separate plan.
 
 ## Example Usage
 

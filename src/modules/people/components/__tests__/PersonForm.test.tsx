@@ -1,44 +1,59 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { DEFAULT_PEOPLE_SETTINGS } from "@/modules/people/config";
+import {
+  DEFAULT_PEOPLE_SETTINGS,
+  type PeopleSettings,
+} from "@/modules/people/config";
 import type { Person } from "@/modules/people/types";
 
 import PersonForm from "../PersonForm";
 
+const channelId = "74f0f0f0f0f0f0f0f0f0f0f0";
+
+function makePerson(overrides: Partial<Person["payload"]> = {}): Person {
+  return {
+    _id: "person-1",
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    payload: {
+      name: "Alex",
+      relationship: "friend",
+      birthday: "2000-01-01",
+      interests: [],
+      tags: [],
+      social_links: [],
+      interactions: [],
+      is_favorite: false,
+      documents: [],
+      ...overrides,
+    },
+  };
+}
+
+async function submitAndWait(onSave: ReturnType<typeof vi.fn>) {
+  fireEvent.click(screen.getByRole("button", { name: /Save Changes/i }));
+  await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+  const calls = onSave.mock.calls as Array<[Person["payload"]]>;
+  return calls[0][0];
+}
+
 describe("PersonForm", () => {
   it("omits person notifications when saving in inherit mode", async () => {
-    const onSave = vi.fn(async () => {});
-
-    const person: Person = {
-      _id: "person-1",
-      created_at: "2026-01-01T00:00:00.000Z",
-      updated_at: "2026-01-01T00:00:00.000Z",
-      payload: {
-        name: "Alex",
-        relationship: "friend",
-        birthday: "2000-01-01",
-        interests: [],
-        tags: [],
-        social_links: [],
-        interactions: [],
-        is_favorite: false,
-        documents: [],
-      },
-    };
+    const onSave = vi.fn(async (payload: Person["payload"]) => {
+      void payload;
+    });
 
     render(
       <PersonForm
         peopleSettings={DEFAULT_PEOPLE_SETTINGS}
-        person={person}
+        person={makePerson()}
         onClose={() => {}}
         onSave={onSave}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Save Changes/i }));
-
-    await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+    await submitAndWait(onSave);
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
         birthday: "2000-01-01",
@@ -46,5 +61,98 @@ describe("PersonForm", () => {
       }),
     );
     expect(onSave.mock.calls[0][0]).not.toHaveProperty("notifications");
+  });
+
+  it("stores custom birthday preferences and preserves inherited channel ids", async () => {
+    const onSave = vi.fn(async (payload: Person["payload"]) => {
+      void payload;
+    });
+    const peopleSettings: PeopleSettings = {
+      birthdayNotifications: {
+        default: {
+          enabled: true,
+          rules: [
+            {
+              event: "birthday",
+              offsets_days: [7, 1],
+              channel_ids: [channelId],
+            },
+          ],
+        },
+        relationships: {},
+      },
+    };
+
+    render(
+      <PersonForm
+        peopleSettings={peopleSettings}
+        person={makePerson()}
+        onClose={() => {}}
+        onSave={onSave}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("radio", { name: /Custom/i }));
+
+    const payload = await submitAndWait(onSave);
+    expect(payload.notifications).toEqual({
+      enabled: true,
+      rules: [
+        {
+          event: "birthday",
+          offsets_days: [1, 7],
+          channel_ids: [channelId],
+        },
+      ],
+    });
+  });
+
+  it("stores explicit opt-out preferences when reminders are off", async () => {
+    const onSave = vi.fn(async (payload: Person["payload"]) => {
+      void payload;
+    });
+
+    render(
+      <PersonForm
+        peopleSettings={DEFAULT_PEOPLE_SETTINGS}
+        person={makePerson()}
+        onClose={() => {}}
+        onSave={onSave}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("radio", { name: /Off/i }));
+
+    const payload = await submitAndWait(onSave);
+    expect(payload.notifications).toEqual({ enabled: false, rules: [] });
+  });
+
+  it("omits notifications when the birthday is removed", async () => {
+    const onSave = vi.fn(async (payload: Person["payload"]) => {
+      void payload;
+    });
+
+    render(
+      <PersonForm
+        peopleSettings={DEFAULT_PEOPLE_SETTINGS}
+        person={makePerson({
+          notifications: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [1] }],
+          },
+        })}
+        onClose={() => {}}
+        onSave={onSave}
+      />,
+    );
+
+    const birthday = document.querySelector(
+      'input[type="date"]',
+    ) as HTMLInputElement;
+    fireEvent.change(birthday, { target: { value: "" } });
+
+    const payload = await submitAndWait(onSave);
+    expect(payload.birthday).toBeUndefined();
+    expect(payload).not.toHaveProperty("notifications");
   });
 });

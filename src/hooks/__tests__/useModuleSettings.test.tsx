@@ -352,12 +352,19 @@ describe("useModuleSettings", () => {
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
     await act(async () => {
-      await result.current.updateSettings({ theme: "forest" });
+      await expect(
+        result.current.updateSettings({ theme: "forest" }),
+      ).resolves.toBe(true);
     });
 
     expect(result.current.settings).toEqual({
       enabled: true,
       theme: "forest",
+    });
+    expect(result.current.error).toBeNull();
+    expect(result.current.updateResult).toEqual({
+      status: "success",
+      message: "Settings saved",
     });
     expect(result.current.saving).toBe(true);
     expect(global.fetch).toHaveBeenLastCalledWith("/api/system", {
@@ -403,13 +410,20 @@ describe("useModuleSettings", () => {
     await waitFor(() => expect(result.current.loaded).toBe(true));
     browserCache.write.mockClear();
 
+    let ok = true;
     await act(async () => {
-      await result.current.updateSettings({ defaultCurrency: "GBP" });
+      ok = await result.current.updateSettings({ defaultCurrency: "GBP" });
     });
 
     expect(result.current.settings).toEqual({
       defaultCurrency: "GBP",
       theme: "ocean",
+    });
+    expect(ok).toBe(false);
+    expect(result.current.error).toBe("Failed to save system settings: 500");
+    expect(result.current.updateResult).toEqual({
+      status: "error",
+      message: "Failed to save settings",
     });
     expect(browserCache.write).toHaveBeenCalledWith({
       defaultCurrency: "GBP",
@@ -425,6 +439,7 @@ describe("useModuleSettings", () => {
         json: async () => ({ data: {} }),
       } as Response)
       .mockRejectedValueOnce(new Error("save failed"));
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const { result } = renderHook(() =>
       useModuleSettings("widgetSettings", {
@@ -436,17 +451,22 @@ describe("useModuleSettings", () => {
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
     await act(async () => {
-      await result.current.updateSettings({ theme: "forest" });
+      await expect(
+        result.current.updateSettings({ theme: "forest" }),
+      ).resolves.toBe(false);
     });
 
     expect(result.current.settings).toEqual({
       enabled: true,
       theme: "forest",
     });
+    expect(result.current.error).toBe("save failed");
+    expect(result.current.updateResult.status).toBe("error");
 
     await waitFor(() => expect(result.current.saving).toBe(false), {
       timeout: 1500,
     });
+    consoleSpy.mockRestore();
   });
 
   it("keeps optimistic state local before save completes", async () => {
@@ -523,6 +543,7 @@ describe("useModuleSettings", () => {
       enabled: true,
       theme: "ocean",
     });
+    expect(result.current.error).toBe("invalid payload");
     expect(result.current.saving).toBe(false);
   });
 });

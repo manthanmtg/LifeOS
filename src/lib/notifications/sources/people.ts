@@ -147,12 +147,10 @@ export const peopleNotificationSource: NotificationSource = {
         {
           projection: {
             _id: 1,
-            payload: {
-              name: 1,
-              relationship: 1,
-              birthday: 1,
-              notifications: 1,
-            },
+            "payload.name": 1,
+            "payload.relationship": 1,
+            "payload.birthday": 1,
+            "payload.notifications": 1,
           },
         },
       )
@@ -211,12 +209,10 @@ export const peopleNotificationSource: NotificationSource = {
         {
           projection: {
             _id: 1,
-            payload: {
-              name: 1,
-              relationship: 1,
-              birthday: 1,
-              notifications: 1,
-            },
+            "payload.name": 1,
+            "payload.relationship": 1,
+            "payload.birthday": 1,
+            "payload.notifications": 1,
           },
         },
       )

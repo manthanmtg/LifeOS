@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { NotificationCandidate } from "../contracts";
 import {
   addDaysToCalendarDate,
+  getCalendarDateInTimezone,
   isCandidateDue,
   resolveLocalDateTimeToUtc,
   validateIanaTimezone,
@@ -41,6 +42,21 @@ describe("notification time helpers", () => {
         .toISOString()
         .slice(0, 19),
     ).toBe("2026-07-30T03:30:00");
+  });
+
+  it("returns the calendar date in the configured timezone", () => {
+    expect(
+      getCalendarDateInTimezone(
+        new Date("2026-12-31T20:00:00.000Z"),
+        "Asia/Kolkata",
+      ),
+    ).toBe("2027-01-01");
+    expect(
+      getCalendarDateInTimezone(
+        new Date("2027-01-01T02:00:00.000Z"),
+        "America/Los_Angeles",
+      ),
+    ).toBe("2026-12-31");
   });
 
   it("treats a candidate as due only after the local delivery hour", () => {

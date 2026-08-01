@@ -23,19 +23,14 @@ import {
 import { cn } from "@/lib/utils";
 import ImageCropper from "@/components/ui/ImageCropper";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
-import { normalizeNotificationOffsetsDays } from "@/lib/notifications/recurring-preferences";
+import { normalizeNotificationOffsetsDays } from "@/lib/notifications/preferences";
 import {
   buildBirthdayNotificationPreferences,
   getBirthdayNotificationRule,
   resolvePeopleBirthdayNotificationPreferences,
 } from "@/lib/notifications/people-preferences";
 import type { PeopleSettings } from "@/modules/people/config";
-import type {
-  Person,
-  PersonPayload,
-  Relationship,
-  SocialLink,
-} from "../types";
+import type { Person, PersonPayload, Relationship, SocialLink } from "../types";
 import { RELATIONSHIPS } from "../types";
 
 type NotificationMode = "inherit" | "custom" | "off";
@@ -121,6 +116,9 @@ export default function PersonForm({
 
     return [1];
   });
+  const [birthdayReminderChannelIds, setBirthdayReminderChannelIds] = useState<
+    string[]
+  >(() => (explicitRule?.channel_ids ? [...explicitRule.channel_ids] : []));
 
   const [error, setError] = useState("");
 
@@ -227,6 +225,11 @@ export default function PersonForm({
         ? draftEffectiveRule.offsets_days
         : [1];
       setBirthdayReminderOffsets(nextOffsets);
+      setBirthdayReminderChannelIds(
+        draftEffectiveRule?.channel_ids
+          ? [...draftEffectiveRule.channel_ids]
+          : [],
+      );
     }
 
     setNotificationMode(nextMode);
@@ -271,18 +274,11 @@ export default function PersonForm({
     };
 
     if (hasBirthday) {
-      const channelIds =
-        notificationMode === "custom"
-          ? explicitRule?.channel_ids
-            ? [...explicitRule.channel_ids]
-            : undefined
-          : undefined;
-
       if (notificationMode === "custom") {
         payload.notifications = buildBirthdayNotificationPreferences(
           true,
           normalizeNotificationOffsetsDays(birthdayReminderOffsets),
-          channelIds,
+          birthdayReminderChannelIds,
         );
       } else if (notificationMode === "off") {
         payload.notifications = buildBirthdayNotificationPreferences(false, []);

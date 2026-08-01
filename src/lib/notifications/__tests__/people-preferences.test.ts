@@ -78,7 +78,7 @@ describe("people notification preferences", () => {
     expect(resolved.preferences.enabled).toBe(true);
   });
 
-  it("falls back to relationship/default when explicit preference is non-birthday", () => {
+  it("treats explicit non-birthday preferences as person-level disabled", () => {
     const settings = normalizePeopleSettings({
       birthdayNotifications: {
         default: {
@@ -110,5 +110,93 @@ describe("people notification preferences", () => {
     });
     expect(resolved.preferences.enabled).toBe(false);
     expect(getBirthdayNotificationRule(resolved.preferences)).toBeNull();
+  });
+
+  it("uses relationship overrides before the People default", () => {
+    const resolved = resolvePeopleBirthdayNotificationPreferences(
+      {
+        relationship: "family",
+        notifications: undefined,
+      },
+      normalizePeopleSettings({
+        birthdayNotifications: {
+          default: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [30] }],
+          },
+          relationships: {
+            family: {
+              enabled: true,
+              rules: [{ event: "birthday", offsets_days: [7, 1] }],
+            },
+          },
+        },
+      }),
+    );
+
+    expect(resolved.origin).toEqual({
+      kind: "relationship",
+      relationship: "family",
+    });
+    expect(getBirthdayNotificationRule(resolved.preferences)).toMatchObject({
+      offsets_days: [1, 7],
+    });
+  });
+
+  it("keeps explicit person opt-out from falling through", () => {
+    const resolved = resolvePeopleBirthdayNotificationPreferences(
+      {
+        relationship: "family",
+        notifications: { enabled: false, rules: [] },
+      },
+      normalizePeopleSettings({
+        birthdayNotifications: {
+          default: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [1] }],
+          },
+          relationships: {
+            family: {
+              enabled: true,
+              rules: [{ event: "birthday", offsets_days: [7] }],
+            },
+          },
+        },
+      }),
+    );
+
+    expect(resolved.origin).toEqual({ kind: "person" });
+    expect(resolved.preferences).toEqual({ enabled: false, rules: [] });
+  });
+
+  it("ignores unknown relationship keys and non-birthday system rules", () => {
+    const normalized = normalizePeopleSettings({
+      birthdayNotifications: {
+        default: {
+          enabled: true,
+          rules: [{ event: "renewal", offsets_days: [1] }],
+        },
+        relationships: {
+          friend: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [14] }],
+          },
+          neighbor: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [1] }],
+          },
+        },
+      },
+    });
+
+    expect(normalized.birthdayNotifications.default).toEqual(
+      DEFAULT_BIRTHDAY_NOTIFICATION_PREFERENCES,
+    );
+    expect(normalized.birthdayNotifications.relationships).toEqual({
+      friend: {
+        enabled: true,
+        rules: [{ event: "birthday", offsets_days: [14] }],
+      },
+    });
   });
 });

@@ -2,14 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-export interface ModuleSettingsBrowserCache<T extends Record<string, unknown>> {
+export interface ModuleSettingsBrowserCache<T extends object> {
   read(): Partial<T> | null;
   write(settings: T): void;
 }
 
+export interface UpdateResult {
+  status: "idle" | "saving" | "success" | "error";
+  message?: string;
+}
+
 type SystemConfigFetchResult =
   | { ok: true; data: Record<string, unknown> }
-  | { ok: false };
+  | { ok: false; error: string };
 
 /* ---------- In-memory fetch deduplication ----------
  * When the dashboard mounts, 10+ widgets call useModuleSettings simultaneously.
@@ -28,7 +33,7 @@ function fetchSystemConfigOnce(): Promise<SystemConfigFetchResult> {
   const now = Date.now();
   if (_promise && now - _cacheTime < CACHE_TTL) return _promise;
 
-  _promise = fetch("/api/system")
+  const promise: Promise<SystemConfigFetchResult> = fetch("/api/system")
     .then(async (response) => {
       if ("ok" in response && !response.ok) {
         throw new Error(`Failed to load system settings: ${response.status}`);
@@ -39,12 +44,19 @@ function fetchSystemConfigOnce(): Promise<SystemConfigFetchResult> {
         throw new Error("Malformed system settings response");
       }
 
-      return { ok: true, data: body.data };
+      return { ok: true as const, data: body.data };
     })
-    .catch(() => ({ ok: false }));
+    .catch((error) => ({
+      ok: false as const,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to load system settings",
+    }));
 
+  _promise = promise;
   _cacheTime = now;
-  return _promise;
+  return promise;
 }
 
 /** Invalidate the shared cache (called after PUT /api/system, and in tests). */
@@ -60,17 +72,22 @@ export function _resetSystemCache() {
  * Usage:
  *   const { settings, updateSettings, saving } = useModuleSettings("blogSettings", defaults);
  */
-export function useModuleSettings<T extends Record<string, unknown>>(
+export function useModuleSettings<T extends object>(
   settingsKey: string,
   defaults: T,
   browserCache?: ModuleSettingsBrowserCache<T>,
 ) {
   const [settings, setSettings] = useState<T>(defaults);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [updateResult, setUpdateResult] = useState<UpdateResult>({
+    status: "idle",
+  });
 
   useEffect(() => {
     let cancelled = false;
+    setError(null);
 
     try {
       const cached = browserCache?.read();
@@ -84,7 +101,10 @@ export function useModuleSettings<T extends Record<string, unknown>>(
     fetchSystemConfigOnce()
       .then((result) => {
         if (cancelled) return;
-        if (!result.ok) return;
+        if (!result.ok) {
+          setError(result.error);
+          return;
+        }
 
         const stored = result.data[settingsKey];
         const nextSettings = isRecord(stored)
@@ -111,6 +131,8 @@ export function useModuleSettings<T extends Record<string, unknown>>(
 
   const updateSettings = useCallback(
     async (updates: Partial<T>) => {
+      setError(null);
+      setUpdateResult({ status: "saving", message: "Saving module settings" });
       const merged = { ...settings, ...updates };
       setSettings(merged);
       try {
@@ -130,8 +152,18 @@ export function useModuleSettings<T extends Record<string, unknown>>(
         }
         // Invalidate the shared cache so next read picks up the new data
         _resetSystemCache();
+        setUpdateResult({ status: "success", message: "Settings saved" });
+        return true;
       } catch (e) {
+        setError(
+          e instanceof Error ? e.message : "Failed to save system settings",
+        );
+        setUpdateResult({
+          status: "error",
+          message: "Failed to save settings",
+        });
         console.error(`Failed to save ${settingsKey}:`, e);
+        return false;
       } finally {
         setTimeout(() => setSaving(false), 500);
       }
@@ -139,5 +171,12 @@ export function useModuleSettings<T extends Record<string, unknown>>(
     [browserCache, settings, settingsKey],
   );
 
-  return { settings, updateSettings, saving, loaded };
+  return {
+    settings,
+    updateSettings,
+    saving,
+    loaded,
+    error,
+    updateResult,
+  };
 }

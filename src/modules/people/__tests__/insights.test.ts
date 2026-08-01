@@ -108,6 +108,18 @@ describe("people insights", () => {
     expect(details?.isUpcoming).toBe(true);
   });
 
+  it("uses March 1 for February 29 birthdays in non-leap years", () => {
+    const details = getBirthdayDetails(
+      "2000-02-29",
+      new Date("2025-02-28T00:00:00.000Z"),
+    );
+
+    expect(details?.nextBirthday).toBe(
+      new Date("2025-03-01T00:00:00").toISOString(),
+    );
+    expect(details?.daysUntil).toBe(1);
+  });
+
   it("formats birthday labels with the current age", () => {
     expect(getBirthdayDisplay("1992-04-25", now)).toEqual({
       formatted: "25 April",

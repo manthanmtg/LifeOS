@@ -75,16 +75,21 @@ export function getBirthdayAgeTurning(
   birthday: string,
   occurrenceYear: number,
 ): number | null {
-  const parsed = parseBirthdayDate(birthday);
-  if (parsed.year < 1900 || parsed.year > new Date().getFullYear() + 1) {
+  try {
+    const parsed = parseBirthdayDate(birthday);
+    if (parsed.year < 1900) {
+      return null;
+    }
+
+    const adjustment =
+      parsed.month === 2 && parsed.day === 29 && !isLeapYear(occurrenceYear)
+        ? 1
+        : 0;
+    const age = occurrenceYear - parsed.year - adjustment;
+    return age >= 0 ? age : null;
+  } catch {
     return null;
   }
-
-  if (parsed.month === 2 && parsed.day === 29 && !isLeapYear(occurrenceYear)) {
-    return occurrenceYear - parsed.year - 1;
-  }
-
-  return occurrenceYear - parsed.year;
 }
 
 export function getCalendarDayDifference(

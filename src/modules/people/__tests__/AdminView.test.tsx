@@ -1,4 +1,10 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import PeopleAdminView from "../AdminView";
 
@@ -64,5 +70,47 @@ describe("PeopleAdminView", () => {
       expect(screen.getByText(/Test Note/i)).toBeTruthy();
     });
     expect(screen.getByText(/friend/i)).toBeTruthy();
+  });
+
+  it("opens birthday settings and persists relationship overrides", async () => {
+    global.fetch = vi.fn().mockImplementation((url, init) => {
+      if (url === "/api/system" && init?.method === "PUT") {
+        return Promise.resolve({ ok: true });
+      }
+      if (url === "/api/system") {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: {} }),
+        });
+      }
+      if (url.includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [] }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    render(<PeopleAdminView />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Birthday reminders/i }),
+    );
+    const friendRow = await screen.findByRole("group", { name: /Friend/i });
+    fireEvent.click(
+      within(friendRow).getByRole("radio", { name: /Override/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Save$/i }));
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/system",
+        expect.objectContaining({
+          method: "PUT",
+          body: expect.stringContaining('"peopleSettings"'),
+        }),
+      ),
+    );
   });
 });

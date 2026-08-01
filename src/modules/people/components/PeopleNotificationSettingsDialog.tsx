@@ -6,7 +6,7 @@ import { Bell, RefreshCw, Save, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
-import { normalizeNotificationOffsetsDays } from "@/lib/notifications/recurring-preferences";
+import { normalizeNotificationOffsetsDays } from "@/lib/notifications/preferences";
 import {
   buildBirthdayNotificationPreferences,
   getBirthdayNotificationRule,
@@ -299,10 +299,20 @@ export default function PeopleNotificationSettingsDialog({
                         onChange={() => {
                           updateDraft((prev) => {
                             const row = prev.relationships[relationship];
+                            const defaultOffsets = prev.defaultEnabled
+                              ? prev.defaultOffsetsDays
+                              : [1];
                             const seed =
-                              row.offsetsDays.length > 0
+                              row.offsetsDays.length > 0 &&
+                              row.mode === "override"
                                 ? row.offsetsDays
-                                : [1];
+                                : defaultOffsets;
+                            const channelIds =
+                              row.mode === "override"
+                                ? row.channelIds
+                                : prev.defaultEnabled
+                                  ? prev.defaultChannelIds
+                                  : [];
 
                             return {
                               ...prev,
@@ -310,9 +320,12 @@ export default function PeopleNotificationSettingsDialog({
                                 ...prev.relationships,
                                 [relationship]: {
                                   mode: "override",
-                                  enabled: row.enabled,
+                                  enabled:
+                                    row.mode === "override"
+                                      ? row.enabled
+                                      : true,
                                   offsetsDays: seed,
-                                  channelIds: row.channelIds,
+                                  channelIds,
                                 },
                               },
                             };

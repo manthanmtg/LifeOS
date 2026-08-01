@@ -276,6 +276,39 @@ describe("schemas", () => {
 
       expect(result.success).toBe(false);
     });
+
+    it("accepts birthday notification preferences on people", () => {
+      const result = PersonSchema.safeParse({
+        name: "Jane Doe",
+        relationship: "friend",
+        birthday: "1990-01-31",
+        notifications: {
+          enabled: true,
+          rules: [{ event: "birthday", offsets_days: [2, 1, 0] }],
+        },
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.notifications?.rules[0].offsets_days).toEqual([
+          0, 1, 2,
+        ]);
+      }
+    });
+
+    it("rejects non-birthday notification rules on people", () => {
+      const result = PersonSchema.safeParse({
+        name: "Jane Doe",
+        relationship: "friend",
+        birthday: "1990-01-31",
+        notifications: {
+          enabled: true,
+          rules: [{ event: "renewal", offsets_days: [1] }],
+        },
+      });
+
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("DeckSchema", () => {

@@ -2,15 +2,17 @@ import { ObjectId } from "mongodb";
 import { describe, expect, it, vi } from "vitest";
 
 import { peopleNotificationSource } from "../people";
+import { NotificationCandidateSchema } from "../../schemas";
 import type { PeopleSettings } from "@/modules/people/config";
 
 function fakeDb(records: unknown[]) {
+  const find = vi.fn().mockReturnValue({
+    toArray: vi.fn().mockResolvedValue(records),
+  });
+
   return {
-    collection: vi.fn().mockReturnValue({
-      find: vi.fn().mockReturnValue({
-        toArray: vi.fn().mockResolvedValue(records),
-      }),
-    }),
+    collection: vi.fn().mockReturnValue({ find }),
+    find,
   };
 }
 
@@ -109,6 +111,28 @@ describe("peopleNotificationSource", () => {
 
     expect(result.items_skipped).toBe(1);
     expect(result.candidates).toHaveLength(2);
+    result.candidates.forEach((candidate) => {
+      expect(NotificationCandidateSchema.safeParse(candidate).success).toBe(
+        true,
+      );
+      expect(candidate.message.body).not.toContain("123");
+      expect(candidate.message.body).not.toContain("Test Note");
+    });
+    expect(db.find).toHaveBeenCalledWith(
+      {
+        module_type: "person",
+        "payload.birthday": { $exists: true },
+      },
+      {
+        projection: {
+          _id: 1,
+          "payload.name": 1,
+          "payload.relationship": 1,
+          "payload.birthday": 1,
+          "payload.notifications": 1,
+        },
+      },
+    );
 
     expect(result.candidates).toEqual(
       expect.arrayContaining([
@@ -205,5 +229,102 @@ describe("peopleNotificationSource", () => {
       explicit_count: 2,
       inherited_count: 1,
     });
+  });
+
+  it("propagates channel ids and handles leap-day birthdays", async () => {
+    const db = fakeDb([
+      {
+        _id: new ObjectId("64f0f0f0f0f0f0f0f0f0f0f4"),
+        module_type: "person",
+        payload: {
+          name: "Drew",
+          relationship: "friend",
+          birthday: "2000-02-29",
+          notifications: {
+            enabled: true,
+            rules: [
+              {
+                event: "birthday",
+                offsets_days: [1],
+                channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+              },
+            ],
+          },
+        },
+      },
+    ]);
+
+    const result = await peopleNotificationSource.collectCandidates({
+      db: db as never,
+      now: new Date("2025-02-28T12:00:00.000Z"),
+      settings: {
+        enabled: true,
+        timezone: "UTC",
+        deliveryHour: 9,
+        catchUpHours: 36,
+      },
+      systemConfig: makeSystemConfig({
+        birthdayNotifications: {
+          default: { enabled: false, rules: [] },
+          relationships: {},
+        },
+      }),
+    });
+
+    expect(result.items_skipped).toBe(0);
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0]).toMatchObject({
+      source: {
+        module_type: "person",
+        document_id: "64f0f0f0f0f0f0f0f0f0f0f4",
+        event: "birthday",
+        event_date: "2025-03-01",
+      },
+      scheduled_date: "2025-02-28",
+      offset_days: 1,
+      channel_ids: ["74f0f0f0f0f0f0f0f0f0f0f0"],
+      message: {
+        title: "Drew's birthday is tomorrow",
+        body: "01 Mar 2025 · Friend",
+      },
+    });
+  });
+
+  it("uses the configured timezone when selecting birthday occurrence years", async () => {
+    const db = fakeDb([
+      {
+        _id: new ObjectId("64f0f0f0f0f0f0f0f0f0f0f5"),
+        module_type: "person",
+        payload: {
+          name: "Eli",
+          relationship: "friend",
+          birthday: "2000-01-01",
+        },
+      },
+    ]);
+
+    const result = await peopleNotificationSource.collectCandidates({
+      db: db as never,
+      now: new Date("2026-12-31T20:00:00.000Z"),
+      settings: {
+        enabled: true,
+        timezone: "Asia/Kolkata",
+        deliveryHour: 1,
+        catchUpHours: 36,
+      },
+      systemConfig: makeSystemConfig({
+        birthdayNotifications: {
+          default: {
+            enabled: true,
+            rules: [{ event: "birthday", offsets_days: [0] }],
+          },
+          relationships: {},
+        },
+      }),
+    });
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].source.event_date).toBe("2027-01-01");
+    expect(result.candidates[0].scheduled_date).toBe("2027-01-01");
   });
 });
