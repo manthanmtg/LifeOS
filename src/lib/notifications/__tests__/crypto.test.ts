@@ -52,4 +52,26 @@ describe("notification credential crypto", () => {
     process.env.NOTIFICATION_ENCRYPTION_KEY = "not-base64";
     expect(isNotificationEncryptionReady()).toBe(false);
   });
+
+  it("uses a persisted system key when the environment key is missing", () => {
+    delete process.env.NOTIFICATION_ENCRYPTION_KEY;
+    const systemConfig = { notificationEncryptionKey: VALID_KEY };
+
+    expect(isNotificationEncryptionReady(systemConfig)).toBe(true);
+
+    const envelope = encryptCredential("telegram-token", systemConfig);
+
+    expect(decryptCredential(envelope, systemConfig)).toBe("telegram-token");
+  });
+
+  it("falls back to a persisted system key when the environment key is malformed", () => {
+    process.env.NOTIFICATION_ENCRYPTION_KEY = "not-base64";
+    const systemConfig = { notificationEncryptionKey: VALID_KEY };
+
+    expect(isNotificationEncryptionReady(systemConfig)).toBe(true);
+
+    const envelope = encryptCredential("telegram-token", systemConfig);
+
+    expect(decryptCredential(envelope, systemConfig)).toBe("telegram-token");
+  });
 });

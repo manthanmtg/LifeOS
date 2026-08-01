@@ -50,13 +50,19 @@ function request(body: unknown) {
 }
 
 describe("POST /api/notifications/channels", () => {
+  const db = {
+    collection: vi.fn().mockReturnValue({
+      findOne: vi.fn().mockResolvedValue({ _id: "global" }),
+    }),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(cookies).mockResolvedValue({
       get: vi.fn().mockReturnValue({ value: "token" }),
     } as any);
     vi.mocked(verifyToken).mockResolvedValue({ role: "admin" } as any);
-    mocks.getDb.mockResolvedValue({});
+    mocks.getDb.mockResolvedValue(db);
     mocks.isNotificationEncryptionReady.mockReturnValue(true);
     mocks.encryptCredential.mockReturnValue({
       version: 1,
@@ -98,7 +104,7 @@ describe("POST /api/notifications/channels", () => {
       chatId: "-1001234567890",
     });
     expect(mocks.createNotificationChannel).toHaveBeenCalledWith(
-      {},
+      db,
       expect.objectContaining({
         adapter_type: "telegram",
         name: "Telegram",

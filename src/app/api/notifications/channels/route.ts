@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/mongodb";
 import { ApiError, ApiSuccess, ApiValidationError } from "@/lib/api-response";
+import type { SystemConfig } from "@/lib/types";
 import { requireNotificationAdmin } from "@/lib/notifications/api-auth";
 import {
   encryptCredential,
@@ -26,7 +27,12 @@ export async function POST(request: Request) {
     const parsed = TelegramChannelCreateSchema.safeParse(body);
     if (!parsed.success) return ApiValidationError(parsed.error.format());
 
-    if (!isNotificationEncryptionReady()) {
+    const db = await getDb();
+    const systemConfig = await db
+      .collection<SystemConfig>("system")
+      .findOne({ _id: "global" });
+
+    if (!isNotificationEncryptionReady(systemConfig)) {
       return ApiError(
         "NOTIFICATION_ENCRYPTION_KEY is required before connecting Telegram",
         503,
@@ -49,7 +55,6 @@ export async function POST(request: Request) {
     }
 
     const now = new Date().toISOString();
-    const db = await getDb();
     const channel = await createNotificationChannel(db, {
       adapter_type: "telegram",
       name: parsed.data.name,
@@ -61,7 +66,7 @@ export async function POST(request: Request) {
         ),
         destination_label: testResult.destination_label,
       },
-      credentials: encryptCredential(parsed.data.bot_token),
+      credentials: encryptCredential(parsed.data.bot_token, systemConfig),
       last_tested_at: now,
       last_test_status: "success",
       created_at: now,

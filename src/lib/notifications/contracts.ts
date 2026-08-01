@@ -245,6 +245,7 @@ export const ZERO_NOTIFICATION_DISPATCH_SUMMARY: NotificationDispatchSummary = {
 export interface NotificationOverview {
   settings: NotificationSettings;
   encryption_ready: boolean;
+  encryption_key_source?: "environment" | "database" | null;
   channels: NotificationChannelDto[];
   sources: NotificationSourceActivationSummary[];
   delivery_counts: {

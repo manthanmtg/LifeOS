@@ -82,6 +82,7 @@ async function processDelivery(
   delivery: NotificationDeliveryDocument,
   now: Date,
   summary: NotificationDispatchSummary,
+  systemConfig: SystemConfig,
 ) {
   const channel = await getNotificationChannelById(db, delivery.channel_id);
   if (!channel) {
@@ -112,7 +113,7 @@ async function processDelivery(
     const adapter = getNotificationAdapter(channel.adapter_type);
     const result = await adapter.send(
       {
-        botToken: decryptCredential(channel.credentials),
+        botToken: decryptCredential(channel.credentials, systemConfig),
         chatId: channel.config.chat_id,
       },
       delivery.message_snapshot,
@@ -206,7 +207,7 @@ export async function runNotificationDispatch(options?: {
     claimed,
     NOTIFICATION_SEND_CONCURRENCY,
     async (delivery) => {
-      await processDelivery(db, delivery, now, summary);
+      await processDelivery(db, delivery, now, summary, systemConfig);
     },
   );
 

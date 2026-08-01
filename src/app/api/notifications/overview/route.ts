@@ -2,7 +2,7 @@ import { getDb } from "@/lib/mongodb";
 import { ApiError, ApiSuccess } from "@/lib/api-response";
 import type { SystemConfig } from "@/lib/types";
 import { requireNotificationAdmin } from "@/lib/notifications/api-auth";
-import { isNotificationEncryptionReady } from "@/lib/notifications/crypto";
+import { getNotificationEncryptionStatus } from "@/lib/notifications/crypto";
 import { NotificationSettingsSchema } from "@/lib/notifications/schemas";
 import {
   ensureNotificationIndexes,
@@ -31,6 +31,7 @@ export async function GET() {
     const channels = await listNotificationChannels(db);
     const deliveryOverview = await getNotificationDeliveryOverview(db);
     const recentDeliveries = await getRecentNotificationDeliveries(db, 20);
+    const encryptionStatus = getNotificationEncryptionStatus(systemConfig);
     const sources = await Promise.all(
       notificationSources.map((source) =>
         source.getActivationSummary({
@@ -52,7 +53,8 @@ export async function GET() {
 
     return ApiSuccess({
       settings,
-      encryption_ready: isNotificationEncryptionReady(),
+      encryption_ready: encryptionStatus.ready,
+      encryption_key_source: encryptionStatus.source,
       channels: channels.map(toNotificationChannelDto),
       sources,
       ...deliveryOverview,

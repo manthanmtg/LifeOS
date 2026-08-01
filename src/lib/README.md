@@ -159,7 +159,8 @@ trackEvent({
 - `contracts.ts` and `schemas.ts` define browser-safe notification DTOs,
   settings, and item preference contracts.
 - `crypto.ts` encrypts adapter credentials with AES-256-GCM using
-  `NOTIFICATION_ENCRYPTION_KEY`.
+  `NOTIFICATION_ENCRYPTION_KEY` first, then the admin-generated key stored on
+  the global system document.
 - `repositories.ts` owns the `notification_channels` and
   `notification_deliveries` collections, including dedupe, claim, retry, and
   TTL indexes.

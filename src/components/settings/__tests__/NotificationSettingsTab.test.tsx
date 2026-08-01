@@ -47,6 +47,37 @@ describe("NotificationSettingsTab", () => {
     expect(screen.getByText(/9 legacy using the 1-day default/i)).toBeVisible();
   });
 
+  it("sets up persisted encryption from the warning state", async () => {
+    vi.mocked(global.fetch)
+      .mockResolvedValueOnce(response({ data: overview }))
+      .mockResolvedValueOnce(
+        response({
+          data: {
+            encryption_ready: true,
+            generated: true,
+            source: "database",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(
+        response({ data: { ...overview, encryption_ready: true } }),
+      );
+
+    render(<NotificationSettingsTab />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /set up encryption/i }),
+    );
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/notifications/encryption-key",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
+    expect(await screen.findByLabelText(/connection name/i)).toBeEnabled();
+  });
+
   it("connects Telegram and clears the token field after success", async () => {
     vi.mocked(global.fetch)
       .mockResolvedValueOnce(

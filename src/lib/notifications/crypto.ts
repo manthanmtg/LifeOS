@@ -2,40 +2,83 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 import type { EncryptedCredential } from "./contracts";
 import { NotificationError } from "./errors";
+import type { SystemConfig } from "@/lib/types";
 
 const KEY_ENV = "NOTIFICATION_ENCRYPTION_KEY";
+type EncryptionKeySource = "environment" | "database";
 
-function readEncryptionKey(): Buffer {
-  const raw = process.env[KEY_ENV];
-  if (!raw) {
-    throw new NotificationError(
-      "notification_encryption_key_missing",
-      `${KEY_ENV} is required to use notification channels`,
-    );
-  }
-
+function decodeEncryptionKey(raw: string, keyName: string): Buffer {
   const key = Buffer.from(raw, "base64");
   if (key.length !== 32 || key.toString("base64") !== raw) {
     throw new NotificationError(
       "notification_encryption_key_invalid",
-      `${KEY_ENV} must be a base64-encoded 32-byte key`,
+      `${keyName} must be a base64-encoded 32-byte key`,
     );
   }
 
   return key;
 }
 
-export function isNotificationEncryptionReady(): boolean {
+function readEncryptionKey(
+  systemConfig?: Pick<SystemConfig, "notificationEncryptionKey"> | null,
+): { key: Buffer; source: EncryptionKeySource } {
+  const envKey = process.env[KEY_ENV];
+  if (envKey) {
+    try {
+      return {
+        key: decodeEncryptionKey(envKey, KEY_ENV),
+        source: "environment",
+      };
+    } catch (error) {
+      if (!systemConfig?.notificationEncryptionKey) throw error;
+    }
+  }
+
+  if (systemConfig?.notificationEncryptionKey) {
+    return {
+      key: decodeEncryptionKey(
+        systemConfig.notificationEncryptionKey,
+        "notificationEncryptionKey",
+      ),
+      source: "database",
+    };
+  }
+
+  throw new NotificationError(
+    "notification_encryption_key_missing",
+    `${KEY_ENV} is required to use notification channels`,
+  );
+}
+
+export function generateNotificationEncryptionKey(): string {
+  return randomBytes(32).toString("base64");
+}
+
+export function getNotificationEncryptionStatus(
+  systemConfig?: Pick<SystemConfig, "notificationEncryptionKey"> | null,
+): {
+  ready: boolean;
+  source: EncryptionKeySource | null;
+} {
   try {
-    readEncryptionKey();
-    return true;
+    const { source } = readEncryptionKey(systemConfig);
+    return { ready: true, source };
   } catch {
-    return false;
+    return { ready: false, source: null };
   }
 }
 
-export function encryptCredential(plaintext: string): EncryptedCredential {
-  const key = readEncryptionKey();
+export function isNotificationEncryptionReady(
+  systemConfig?: Pick<SystemConfig, "notificationEncryptionKey"> | null,
+): boolean {
+  return getNotificationEncryptionStatus(systemConfig).ready;
+}
+
+export function encryptCredential(
+  plaintext: string,
+  systemConfig?: Pick<SystemConfig, "notificationEncryptionKey"> | null,
+): EncryptedCredential {
+  const { key } = readEncryptionKey(systemConfig);
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const ciphertext = Buffer.concat([
@@ -53,7 +96,10 @@ export function encryptCredential(plaintext: string): EncryptedCredential {
   };
 }
 
-export function decryptCredential(envelope: EncryptedCredential): string {
+export function decryptCredential(
+  envelope: EncryptedCredential,
+  systemConfig?: Pick<SystemConfig, "notificationEncryptionKey"> | null,
+): string {
   if (envelope.version !== 1 || envelope.algorithm !== "aes-256-gcm") {
     throw new NotificationError(
       "notification_credential_envelope_unsupported",
@@ -64,7 +110,7 @@ export function decryptCredential(envelope: EncryptedCredential): string {
   try {
     const decipher = createDecipheriv(
       "aes-256-gcm",
-      readEncryptionKey(),
+      readEncryptionKey(systemConfig).key,
       Buffer.from(envelope.iv, "base64"),
     );
     decipher.setAuthTag(Buffer.from(envelope.auth_tag, "base64"));

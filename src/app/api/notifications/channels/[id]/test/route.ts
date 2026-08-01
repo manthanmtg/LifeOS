@@ -1,8 +1,12 @@
 import { ApiError, ApiSuccess } from "@/lib/api-response";
 import { getDb } from "@/lib/mongodb";
+import type { SystemConfig } from "@/lib/types";
 import { requireNotificationAdmin } from "@/lib/notifications/api-auth";
 import { getNotificationAdapter } from "@/lib/notifications/adapters/registry";
-import { decryptCredential } from "@/lib/notifications/crypto";
+import {
+  decryptCredential,
+  isNotificationEncryptionReady,
+} from "@/lib/notifications/crypto";
 import {
   getNotificationChannelById,
   toNotificationChannelDto,
@@ -23,11 +27,20 @@ export async function POST(
   const id = (await params).id;
   const channel = await getNotificationChannelById(db, id);
   if (!channel) return ApiError("Notification channel not found", 404);
+  const systemConfig = await db
+    .collection<SystemConfig>("system")
+    .findOne({ _id: "global" });
+  if (!isNotificationEncryptionReady(systemConfig)) {
+    return ApiError(
+      "NOTIFICATION_ENCRYPTION_KEY is required before testing Telegram",
+      503,
+    );
+  }
 
   const now = new Date().toISOString();
   try {
     const testResult = await getNotificationAdapter(channel.adapter_type).test({
-      botToken: decryptCredential(channel.credentials),
+      botToken: decryptCredential(channel.credentials, systemConfig),
       chatId: channel.config.chat_id,
     });
     const updated = await updateNotificationChannel(db, id, {

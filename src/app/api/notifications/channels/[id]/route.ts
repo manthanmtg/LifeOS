@@ -1,5 +1,6 @@
 import { ApiError, ApiSuccess, ApiValidationError } from "@/lib/api-response";
 import { getDb } from "@/lib/mongodb";
+import type { SystemConfig } from "@/lib/types";
 import { requireNotificationAdmin } from "@/lib/notifications/api-auth";
 import { getNotificationAdapter } from "@/lib/notifications/adapters/registry";
 import {
@@ -34,6 +35,9 @@ export async function PUT(
     const db = await getDb();
     const existing = await getNotificationChannelById(db, id);
     if (!existing) return ApiError("Notification channel not found", 404);
+    const systemConfig = await db
+      .collection<SystemConfig>("system")
+      .findOne({ _id: "global" });
 
     const now = new Date().toISOString();
     const updates: Parameters<typeof updateNotificationChannel>[2] = {
@@ -44,7 +48,7 @@ export async function PUT(
       updates.enabled = parsed.data.enabled;
 
     if (parsed.data.chat_id || parsed.data.bot_token) {
-      if (!isNotificationEncryptionReady()) {
+      if (!isNotificationEncryptionReady(systemConfig)) {
         return ApiError(
           "NOTIFICATION_ENCRYPTION_KEY is required before updating Telegram",
           503,
@@ -52,7 +56,8 @@ export async function PUT(
       }
 
       const botToken =
-        parsed.data.bot_token ?? decryptCredential(existing.credentials);
+        parsed.data.bot_token ??
+        decryptCredential(existing.credentials, systemConfig);
       const chatId = parsed.data.chat_id ?? existing.config.chat_id;
       const testResult = await getNotificationAdapter("telegram").test({
         botToken,
@@ -69,7 +74,10 @@ export async function PUT(
       updates.last_test_status = "success";
       updates.last_error = undefined;
       if (parsed.data.bot_token) {
-        updates.credentials = encryptCredential(parsed.data.bot_token);
+        updates.credentials = encryptCredential(
+          parsed.data.bot_token,
+          systemConfig,
+        );
       }
     }
 

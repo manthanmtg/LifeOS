@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   Bell,
   CheckCircle2,
+  KeyRound,
   Play,
   RefreshCw,
   Send,
@@ -30,6 +31,7 @@ const DEFAULT_OVERVIEW: NotificationOverview = {
     catchUpHours: 36,
   },
   encryption_ready: false,
+  encryption_key_source: null,
   channels: [],
   sources: [],
   delivery_counts: { sent: 0, failed: 0, dead_letter: 0 },
@@ -60,6 +62,7 @@ export function NotificationSettingsTab() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [running, setRunning] = useState(false);
+  const [settingUpEncryption, setSettingUpEncryption] = useState(false);
   const [status, setStatus] = useState("");
   const [connectionName, setConnectionName] = useState("");
   const [botToken, setBotToken] = useState("");
@@ -200,6 +203,30 @@ export function NotificationSettingsTab() {
     }
   };
 
+  const setupEncryption = async () => {
+    setSettingUpEncryption(true);
+    setStatus("");
+    try {
+      const response = await fetch("/api/notifications/encryption-key", {
+        method: "POST",
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.error || "Failed to set up encryption");
+      }
+      setStatus(
+        body.data?.generated
+          ? "Notification encryption set up and stored"
+          : "Notification encryption is already ready",
+      );
+      await loadOverview();
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Setup failed");
+    } finally {
+      setSettingUpEncryption(false);
+    }
+  };
+
   if (loading) {
     return (
       <section className="space-y-4" aria-label="Notifications">
@@ -276,17 +303,33 @@ export function NotificationSettingsTab() {
 
       {!overview.encryption_ready && (
         <div className="rounded-2xl border border-warning/20 bg-warning/10 p-4 text-sm text-warning">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-semibold">
-                NOTIFICATION_ENCRYPTION_KEY missing
-              </p>
-              <p className="mt-1 text-warning/90">
-                Generate one with `openssl rand -base64 32` before connecting
-                Telegram.
-              </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+              <div>
+                <p className="font-semibold">
+                  NOTIFICATION_ENCRYPTION_KEY missing
+                </p>
+                <p className="mt-1 text-warning/90">
+                  Set up encryption once to store a generated key with this
+                  LifeOS installation. It will be retained across redeploys that
+                  use the same database.
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={setupEncryption}
+              disabled={settingUpEncryption}
+              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium text-zinc-50 hover:bg-accent-hover disabled:opacity-50"
+            >
+              {settingUpEncryption ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <KeyRound className="h-4 w-4" />
+              )}
+              Set up encryption
+            </button>
           </div>
         </div>
       )}

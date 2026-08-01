@@ -137,11 +137,11 @@ Edit `.env.local`:
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/lifeos?retryWrites=true&w=majority
 ADMIN_PASSWORD=YourSecurePassword123
 JWT_SECRET=some-long-random-secret-string
-NOTIFICATION_ENCRYPTION_KEY=base64-32-byte-key-from-openssl-rand
 ```
 
-`NOTIFICATION_ENCRYPTION_KEY` is required only when using the Notifications
-feature. Generate it with:
+Notifications can set up their encryption key from the admin UI the first time
+you connect Telegram. For hardened installs, you can also keep that key outside
+MongoDB by setting `NOTIFICATION_ENCRYPTION_KEY` yourself:
 
 ```bash
 openssl rand -base64 32
@@ -175,9 +175,11 @@ Set environment variables in Vercel dashboard.
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/manthanmtg/LifeOS)
 
-Set `MONGODB_URI`, `ADMIN_PASSWORD`, `JWT_SECRET`, and
-`NOTIFICATION_ENCRYPTION_KEY` in Netlify dashboard. Netlify runs the
-`notifications-dispatch` scheduled function hourly on published deploys.
+Set `MONGODB_URI`, `ADMIN_PASSWORD`, and `JWT_SECRET` in Netlify dashboard.
+Netlify runs the `notifications-dispatch` scheduled function hourly on
+published deploys. Notification encryption can be initialized from the admin UI,
+or by setting `NOTIFICATION_ENCRYPTION_KEY` in Netlify for stricter secret
+separation.
 
 ### Self-Host (Docker/Railway/Render)
 

@@ -18,6 +18,7 @@ export interface SystemConfig {
     deliveryHour: number;
     catchUpHours: number;
   };
+  notificationEncryptionKey?: string;
   tieredVisits?: Record<
     string,
     {
