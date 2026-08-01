@@ -578,8 +578,11 @@ export function SpreadsheetTab({
         </div>
 
         {/* Table */}
-        <div ref={scrollContainerRef} className="overflow-x-auto scroll-smooth">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+        <div
+          ref={scrollContainerRef}
+          className="relative isolate overflow-x-auto scroll-smooth"
+        >
+          <table className="w-max text-left text-sm whitespace-nowrap">
             <thead className="bg-zinc-900 text-zinc-400 border-b border-zinc-800">
               <Reorder.Group
                 axis="x"
@@ -587,7 +590,7 @@ export function SpreadsheetTab({
                 onReorder={onReorderPeriods}
                 as="tr"
               >
-                <th className="px-2 md:px-4 py-2 md:py-3 font-medium border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 w-[120px] md:w-[200px] shadow-[4px_0_12px_rgba(0,0,0,0.5)] text-xs md:text-sm">
+                <th className="px-2 md:px-4 py-2 md:py-3 font-medium border-r border-zinc-800 sticky left-0 bg-zinc-900 z-30 w-[120px] md:w-[200px] shadow-[4px_0_12px_rgba(0,0,0,0.5)] text-xs md:text-sm">
                   Metric / Area
                 </th>
                 {schedulePeriods.map((period: string) => (
@@ -641,7 +644,7 @@ export function SpreadsheetTab({
                   key={`area-${area.id}`}
                   className="group hover:bg-zinc-800/30 transition-colors"
                 >
-                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 group-hover:bg-zinc-800 transition-colors z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 group-hover:bg-zinc-800 transition-colors z-20 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                     <div className="font-medium text-zinc-200 text-xs md:text-sm truncate">
                       {area.name}
                     </div>
@@ -728,7 +731,7 @@ export function SpreadsheetTab({
               {/* Totals Row */}
               {areas.length > 1 && activeCrop.sourceFields.length > 0 && (
                 <tr className="bg-zinc-800/40 border-t-2 border-zinc-700">
-                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-800 z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-800 z-20 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                     <div className="font-bold text-zinc-100 text-xs md:text-sm">
                       Totals
                     </div>
@@ -785,7 +788,7 @@ export function SpreadsheetTab({
               {/* Summary Fields */}
               {activeCrop.summaryFields.length > 0 && (
                 <tr className="bg-success-muted/10 hover:bg-success-muted/20 transition-colors border-t-2 border-zinc-800">
-                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-20 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                     <div className="font-semibold text-success text-xs md:text-sm">
                       Period Inputs
                     </div>
@@ -813,23 +816,36 @@ export function SpreadsheetTab({
                           return (
                             <div
                               key={f.id}
-                              className="flex justify-between items-center px-4 py-2 hover:bg-zinc-800/50"
+                              className="min-w-0 px-3 py-2 hover:bg-zinc-800/50"
+                              data-summary-field-cell
                             >
-                              <span
-                                className="text-xs text-success/70 w-16 md:w-24 shrink-0 truncate"
-                                title={`${f.name}${f.unit ? ` (${f.unit})` : ""}`}
+                              <div
+                                className="flex min-w-0 items-center justify-between gap-2"
+                                data-summary-field-meta
                               >
-                                {f.name}
+                                <span
+                                  className="min-w-0 truncate text-xs text-success/70"
+                                  title={`${f.name}${f.unit ? ` (${f.unit})` : ""}`}
+                                >
+                                  {f.name}
+                                </span>
                                 {f.unit && (
-                                  <span className="text-success-muted ml-0.5 text-[10px]">
+                                  <span
+                                    className="min-w-0 max-w-[72px] shrink truncate text-[10px] text-success-muted md:max-w-[88px]"
+                                    title={f.unit}
+                                  >
                                     {f.unit}
                                   </span>
                                 )}
-                              </span>
-                              <div className="flex items-center gap-1">
+                              </div>
+                              <div
+                                className="mt-1 flex min-w-0 items-center justify-between gap-2"
+                                data-summary-field-value
+                              >
                                 {mode === "edit" ? (
                                   <input
                                     type="number"
+                                    aria-label={`${f.name} for ${period}`}
                                     value={
                                       localData[period]?.summary_data?.[f.id] ??
                                       ""
@@ -841,14 +857,15 @@ export function SpreadsheetTab({
                                         e.target.value,
                                       )
                                     }
-                                    className="w-24 bg-transparent border-none text-right text-success font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="min-w-0 flex-1 bg-transparent border-none text-left text-success font-mono focus:ring-1 focus:ring-success/50 focus:bg-zinc-800 rounded p-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="-"
                                   />
                                 ) : (
-                                  <span className="w-24 text-right text-success font-mono p-1">
-                                    {val
-                                      ? `${formatNum(val)}${f.unit ? ` ${f.unit}` : ""}`
-                                      : "–"}
+                                  <span
+                                    className="min-w-0 flex-1 truncate text-left text-success font-mono p-1"
+                                    title={val ? formatNum(val) : undefined}
+                                  >
+                                    {val ? formatNum(val) : "–"}
                                   </span>
                                 )}
                                 {pIdx > 0 && val > 0 && (
@@ -867,7 +884,7 @@ export function SpreadsheetTab({
               {/* Calculated Fields */}
               {activeCrop.calculatedFields.length > 0 && (
                 <tr className="bg-accent/5 hover:bg-accent/10 transition-colors border-t-2 border-accent/20">
-                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                  <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-20 align-top shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                     <div className="font-semibold text-accent text-xs md:text-sm">
                       Calculated
                     </div>
@@ -930,7 +947,7 @@ export function SpreadsheetTab({
 
               {/* Notes */}
               <tr className="border-t border-zinc-800">
-                <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-10 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                <td className="px-2 md:px-4 py-2 md:py-3 border-r border-zinc-800 sticky left-0 bg-zinc-900 z-20 shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                   <div className="flex items-center gap-1.5 text-zinc-400">
                     <MessageSquare className="w-3 h-3" />
                     <span className="text-xs font-medium">Notes</span>
