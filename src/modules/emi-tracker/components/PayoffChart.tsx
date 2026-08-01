@@ -41,7 +41,7 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-950/95 p-3 shadow-2xl">
+    <div className="rounded-lg border border-zinc-800 bg-zinc-950/95 p-3">
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
         Payment {label}
       </p>
@@ -111,7 +111,7 @@ export default function PayoffChart({
         Baseline payoff has {baselineSchedule.length} payments. Current
         simulation has {simulatedSchedule.length} payments.
       </p>
-      <div className="h-[240px] overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/35 p-2 md:h-[320px]">
+      <div className="h-[240px] overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/35 p-2 md:h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>

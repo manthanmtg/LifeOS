@@ -34,7 +34,7 @@ export default function PayoffRunway({
     return (
       <div
         role="status"
-        className="flex items-start gap-3 rounded-2xl border border-warning/20 bg-warning/10 p-4 text-warning"
+        className="flex items-start gap-3 rounded-lg border border-warning/20 bg-warning/10 p-4 text-warning"
       >
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
         <p className="text-sm font-semibold">
@@ -75,15 +75,15 @@ export default function PayoffRunway({
           className="h-full rounded-full bg-success"
           style={{ width: `${safeProgress}%` }}
         />
-        <span className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-success shadow-lg shadow-success/20" />
+        <span className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-success" />
         <span
-          className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-accent shadow-lg shadow-accent/20"
+          className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-accent"
           style={{ left: `${safeProgress}%` }}
           aria-hidden="true"
         />
         {simulatedPosition !== null && (
           <span
-            className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-warning shadow-lg shadow-warning/20"
+            className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-zinc-950 bg-warning"
             style={{ left: `${simulatedPosition}%` }}
             aria-hidden="true"
           />
@@ -110,7 +110,7 @@ export default function PayoffRunway({
       </div>
 
       {hasSimulation && (
-        <p className="rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-semibold text-accent">
+        <p className="rounded-lg border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-semibold text-accent">
           Finish {monthsSaved} {monthsSaved === 1 ? "month" : "months"} earlier
           with {extraMonthlyLabel} extra monthly.
         </p>

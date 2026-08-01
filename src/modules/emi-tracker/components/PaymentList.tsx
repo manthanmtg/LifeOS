@@ -61,7 +61,7 @@ export default function PaymentList({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-xl font-black text-zinc-100">Payments</h3>
@@ -84,7 +84,7 @@ export default function PaymentList({
               type="date"
               value={payDate}
               onChange={(e) => setPayDate(e.target.value)}
-              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              className="mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ export default function PaymentList({
               inputMode="decimal"
               value={payAmount}
               onChange={(e) => setPayAmount(e.target.value)}
-              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              className="mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
               placeholder="0"
             />
           </div>
@@ -114,7 +114,7 @@ export default function PaymentList({
               id="payment-kind"
               value={payKind}
               onChange={(e) => setPayKind(e.target.value as PaymentKind)}
-              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              className="mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
             >
               <option value="emi">EMI</option>
               <option value="prepayment">Prepayment</option>
@@ -131,7 +131,7 @@ export default function PaymentList({
               id="payment-note"
               value={payNote}
               onChange={(e) => setPayNote(e.target.value)}
-              className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+              className="mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
               placeholder="Optional reference"
             />
           </div>
@@ -139,7 +139,7 @@ export default function PaymentList({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50"
+              className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-black text-zinc-50 transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
               {isSubmitting ? "Saving…" : "Add payment"}
@@ -149,7 +149,7 @@ export default function PaymentList({
       </section>
 
       {payments.length === 0 ? (
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-8 text-center">
           <h3 className="text-lg font-black text-zinc-100">No payments yet</h3>
           <p className="mt-2 text-sm text-zinc-500">
             Log EMI payments and prepayments as they happen.
@@ -162,10 +162,10 @@ export default function PaymentList({
             return (
               <div
                 key={`${p.date}-${idx}`}
-                className="flex items-start justify-between gap-4 rounded-3xl border border-zinc-800 bg-zinc-900/55 p-4"
+                className="flex items-start justify-between gap-4 rounded-lg border border-zinc-800 bg-zinc-900/55 p-4"
               >
                 <div className="flex min-w-0 gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950/50 text-accent">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950/50 text-accent">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
@@ -194,7 +194,7 @@ export default function PaymentList({
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Open receipt"
-                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-zinc-800 text-zinc-400 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-zinc-800 text-zinc-400 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
                     >
                       <LinkIcon className="h-4 w-4" />
                     </a>
@@ -203,7 +203,7 @@ export default function PaymentList({
                     type="button"
                     onClick={() => setDeleteIndex(idx)}
                     aria-label="Delete payment"
-                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-danger/20 bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-danger/20 bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

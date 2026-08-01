@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CURR_SYM, formatMoney } from "../lib/emi-utils";
 import type { EmiLoan, ScheduleRow } from "../types";
+import { financialValueClass } from "./financial-value";
 
 interface LoanCardProps {
   loan: EmiLoan;
@@ -14,6 +15,7 @@ interface LoanCardProps {
   onClick: (id: string) => void;
   decimals: number;
   numberFormat: "western" | "indian";
+  variant?: "portfolio" | "navigator";
 }
 
 function statusLabel(status: EmiLoan["payload"]["status"]) {
@@ -34,9 +36,20 @@ export default function LoanCard({
   onClick,
   decimals,
   numberFormat,
+  variant = "portfolio",
 }: LoanCardProps) {
   const sym = CURR_SYM[loan.payload.currency] || `${loan.payload.currency} `;
   const pct = Math.round(progress * 100);
+  const balance = formatMoney(outstanding, sym, decimals, numberFormat);
+  const dueLabel = nextDue
+    ? `Due ${nextDue.due_date.slice(0, 10)} · ${formatMoney(
+        nextDue.emi,
+        sym,
+        decimals,
+        numberFormat,
+      )}`
+    : "No upcoming EMI";
+  const isNavigator = variant === "navigator";
 
   return (
     <button
@@ -44,15 +57,16 @@ export default function LoanCard({
       onClick={() => onClick(loan._id)}
       aria-current={isSelected ? "true" : undefined}
       className={cn(
-        "group relative min-h-[148px] w-full overflow-hidden rounded-3xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+        "group relative w-full overflow-hidden rounded-lg border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+        isNavigator ? "min-h-[72px] p-3" : "min-h-[148px] p-4",
         PRESSABLE,
         isSelected
-          ? "border-accent/40 bg-zinc-800/85 shadow-lg shadow-accent/10"
-          : "border-zinc-800 bg-zinc-900/55 hover:-translate-y-0.5 hover:border-zinc-700 hover:bg-zinc-900/80 hover:shadow-xl hover:shadow-zinc-950/20",
+          ? "border-accent/50 bg-zinc-900/80"
+          : "border-zinc-800 bg-zinc-900/45 hover:border-zinc-700 hover:bg-zinc-900/70",
       )}
     >
       {isSelected && (
-        <span className="absolute inset-y-0 left-0 w-1.5 bg-accent" />
+        <span className="absolute inset-y-0 left-0 w-1 bg-accent" />
       )}
 
       <div className="flex min-w-0 items-start justify-between gap-3">
@@ -80,24 +94,18 @@ export default function LoanCard({
         <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-zinc-500 transition-transform duration-200 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none" />
       </div>
 
-      <div className="mt-4">
+      <div className={cn(isNavigator ? "mt-2" : "mt-4")}>
         <p className="text-xs font-semibold text-zinc-500">Balance left</p>
-        <p className="mt-1 break-words font-mono text-xl font-black text-zinc-50">
-          {formatMoney(outstanding, sym, decimals, numberFormat)}
+        <p
+          data-financial-value={`loan-card-${loan._id}-balance`}
+          className={cn("mt-1", financialValueClass(balance, "major"))}
+        >
+          {balance}
         </p>
-        <p className="mt-1 text-sm text-zinc-400">
-          {nextDue
-            ? `Due ${nextDue.due_date.slice(0, 10)} · ${formatMoney(
-                nextDue.emi,
-                sym,
-                decimals,
-                numberFormat,
-              )}`
-            : "No upcoming EMI"}
-        </p>
+        <p className="mt-1 text-sm text-zinc-400">{dueLabel}</p>
       </div>
 
-      <div className="mt-4">
+      <div className={cn(isNavigator ? "mt-3" : "mt-4")}>
         <div
           className="h-2 overflow-hidden rounded-full border border-zinc-800 bg-zinc-950/80"
           role="progressbar"
@@ -111,29 +119,10 @@ export default function LoanCard({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-zinc-500">
-          <span>
-            <strong className="block font-mono text-zinc-300">{pct}%</strong>
-            paid
-          </span>
-          <span>
-            <strong className="block font-mono text-zinc-300">
-              {loan.payload.annual_interest_rate}%
-            </strong>
-            rate
-          </span>
-          <span>
-            <strong className="block font-mono text-zinc-300">
-              {formatMoney(
-                loan.payload.monthly_emi,
-                sym,
-                decimals,
-                numberFormat,
-              )}
-            </strong>
-            EMI
-          </span>
-        </div>
+        <p className="mt-2 text-xs font-semibold text-zinc-500">
+          <span className="font-mono tabular-nums text-zinc-300">{pct}%</span>{" "}
+          principal paid
+        </p>
       </div>
     </button>
   );

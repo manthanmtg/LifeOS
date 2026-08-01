@@ -80,7 +80,7 @@ export default function DocumentList({
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5">
+      <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-lg p-5">
         <h3 className="text-xl font-black text-zinc-100 mb-2">Documents</h3>
         <p className="mb-5 text-sm text-zinc-500">
           Add sanction letters, certificates, receipts, or your NOC.
@@ -97,7 +97,7 @@ export default function DocumentList({
               key={id}
               type="button"
               onClick={() => setFilter(id as DocType | "all")}
-              className={`min-h-[44px] rounded-2xl border px-4 py-2 text-sm font-bold transition-colors ${
+              className={`min-h-[44px] rounded-lg border px-4 py-2 text-sm font-bold transition-colors ${
                 filter === id
                   ? "border-accent/30 bg-accent/10 text-accent"
                   : "border-zinc-800 bg-zinc-950/35 text-zinc-400 hover:text-zinc-100"
@@ -119,7 +119,7 @@ export default function DocumentList({
               placeholder="e.g. Sanction Letter / NOC / Certificate"
               value={docTitle}
               onChange={(e) => setDocTitle(e.target.value)}
-              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-md px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
             />
           </div>
           <div>
@@ -129,7 +129,7 @@ export default function DocumentList({
             <select
               value={docType}
               onChange={(e) => setDocType(e.target.value as DocType)}
-              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-md px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
             >
               <option value="sanction_letter">Sanction Letter</option>
               <option value="noc">NOC</option>
@@ -142,7 +142,7 @@ export default function DocumentList({
               Upload File
             </label>
             <div className="flex items-center gap-2">
-              <label className="flex-1 min-h-[44px] flex items-center justify-center gap-2 border-2 border-dashed border-zinc-800 hover:border-accent/40 hover:bg-zinc-900/50 rounded-xl p-3 cursor-pointer transition-all group">
+              <label className="flex-1 min-h-[44px] flex items-center justify-center gap-2 border-2 border-dashed border-zinc-800 hover:border-accent/40 hover:bg-zinc-900/50 rounded-md p-3 cursor-pointer transition-all group">
                 <input
                   type="file"
                   className="hidden"
@@ -170,7 +170,7 @@ export default function DocumentList({
             <button
               type="submit"
               disabled={isSubmitting || !docUrl || !docTitle}
-              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-md text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Save Document
             </button>
@@ -180,7 +180,7 @@ export default function DocumentList({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {visibleDocuments.length === 0 ? (
-          <div className="md:col-span-2 bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center shadow-lg">
+          <div className="md:col-span-2 bg-zinc-950/20 border border-zinc-800/50 rounded-lg p-8 text-center">
             <h3 className="text-lg font-black text-zinc-100">
               Keep loan documents together
             </h3>
@@ -194,10 +194,10 @@ export default function DocumentList({
             return (
               <div
                 key={idx}
-                className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group shadow-md"
+                className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-lg hover:border-zinc-700/80 transition-all group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
+                  <div className="p-3 rounded-lg bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
@@ -214,7 +214,7 @@ export default function DocumentList({
                     href={doc.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all shadow-md"
+                    className="p-2 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-50 transition-all"
                     aria-label="Open document"
                     title="View Document"
                   >
@@ -223,7 +223,7 @@ export default function DocumentList({
                   <button
                     onClick={() => setDeleteIndex(idx)}
                     aria-label="Delete document"
-                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
                     title="Delete Document"
                   >
                     <Trash2 className="w-4 h-4" />

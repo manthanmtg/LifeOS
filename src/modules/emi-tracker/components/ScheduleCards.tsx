@@ -55,7 +55,7 @@ export default function ScheduleCards({
                 type="button"
                 onClick={() => setExpanded(isOpen ? null : row.index)}
                 className={cn(
-                  "w-full rounded-2xl border border-zinc-800 bg-zinc-900/55 p-4 text-left hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-950/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  "w-full rounded-lg border border-zinc-800 bg-zinc-900/55 p-4 text-left hover:border-zinc-700  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                   PRESSABLE,
                 )}
               >
@@ -128,7 +128,7 @@ export default function ScheduleCards({
                 </div>
 
                 {row.prepayment > 0 && (
-                  <p className="mt-3 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent">
+                  <p className="mt-3 rounded-md border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent">
                     Extra payment{" "}
                     {formatMoney(
                       row.prepayment,
@@ -167,7 +167,7 @@ export default function ScheduleCards({
           type="button"
           onClick={() => setVisibleCount((count) => count + initialCount)}
           className={cn(
-            "flex min-h-[44px] w-full items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-sm font-bold text-zinc-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+            "flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-sm font-bold text-zinc-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
             PRESSABLE,
           )}
         >

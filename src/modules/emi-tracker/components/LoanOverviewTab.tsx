@@ -54,7 +54,7 @@ export default function LoanOverviewTab({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="space-y-6">
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+        <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h3 className="text-xl font-black text-zinc-100">
@@ -69,7 +69,7 @@ export default function LoanOverviewTab({
                 type="button"
                 onClick={() => setExtraMonthly(0)}
                 className={cn(
-                  "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  "flex min-h-[44px] items-center gap-2 rounded-lg border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                   PRESSABLE,
                 )}
               >
@@ -98,7 +98,7 @@ export default function LoanOverviewTab({
                 onChange={(event) =>
                   setClampedExtra(Number(event.target.value))
                 }
-                className="mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base font-bold text-zinc-100 outline-none transition-colors focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+                className="mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 font-mono text-base font-bold text-zinc-100 outline-none transition-colors focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
               />
             </div>
             <div className="min-w-0 space-y-4">
@@ -121,7 +121,7 @@ export default function LoanOverviewTab({
                     type="button"
                     onClick={() => setExtraMonthly(preset.value)}
                     className={cn(
-                      "min-h-[44px] rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                      "min-h-[44px] rounded-lg border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                       PRESSABLE,
                     )}
                   >
@@ -133,7 +133,7 @@ export default function LoanOverviewTab({
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-accent/20 bg-accent/10 p-4">
+            <div className="rounded-lg border border-accent/20 bg-accent/10 p-4">
               <div className="mb-2 flex items-center gap-2 text-accent">
                 <TrendingDown className="h-4 w-4" />
                 <p className="text-xs font-bold uppercase tracking-[0.14em]">
@@ -149,7 +149,7 @@ export default function LoanOverviewTab({
                 {baselinePayoff ?? "—"} → {simulatedPayoff ?? "—"}
               </p>
             </div>
-            <div className="rounded-2xl border border-success/20 bg-success/10 p-4">
+            <div className="rounded-lg border border-success/20 bg-success/10 p-4">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-success">
                 Interest saved
               </p>
@@ -169,7 +169,7 @@ export default function LoanOverviewTab({
           </div>
         </section>
 
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+        <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
           <h3 className="text-lg font-black text-zinc-100">
             Baseline vs faster payoff
           </h3>
@@ -185,7 +185,7 @@ export default function LoanOverviewTab({
         </section>
       </div>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
         <button
           type="button"
           onClick={() => setTermsOpen((open) => !open)}
@@ -245,7 +245,7 @@ export default function LoanOverviewTab({
           ].map(([label, value]) => (
             <div
               key={label}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/35 p-4"
+              className="rounded-lg border border-zinc-800 bg-zinc-950/35 p-4"
             >
               <dt className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-500">
                 {label}

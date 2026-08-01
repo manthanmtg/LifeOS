@@ -46,7 +46,7 @@ export default function RateAdjustmentList({
 
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-2xl p-5 shadow-inner">
+      <div className="bg-zinc-950/40 border border-zinc-800/80 rounded-lg p-5">
         <h3 className="text-xl font-black text-zinc-100 mb-4">Rate history</h3>
         <form
           onSubmit={handleAdd}
@@ -60,7 +60,7 @@ export default function RateAdjustmentList({
               type="date"
               value={adjDate}
               onChange={(e) => setAdjDate(e.target.value)}
-              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-md px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
             />
           </div>
           <div>
@@ -71,7 +71,7 @@ export default function RateAdjustmentList({
               placeholder="0.00"
               value={adjRate}
               onChange={(e) => setAdjRate(e.target.value)}
-              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-md px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-mono"
             />
           </div>
           <div className="">
@@ -82,14 +82,14 @@ export default function RateAdjustmentList({
               placeholder="e.g. RBI Repo Rate Update"
               value={adjNote}
               onChange={(e) => setAdjNote(e.target.value)}
-              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all shadow-inner"
+              className="w-full min-h-[44px] bg-zinc-900 border border-zinc-800 rounded-md px-4 py-3 text-base text-zinc-100 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
             />
           </div>
           <div className="flex items-end">
             <button
               type="submit"
               disabled={isSubmitting || !adjRate}
-              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-accent/10 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full min-h-[44px] bg-accent hover:bg-accent-hover text-zinc-50 font-bold py-3 rounded-md text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Log Change
             </button>
@@ -99,7 +99,7 @@ export default function RateAdjustmentList({
 
       <div className="space-y-3">
         {adjustments.length === 0 ? (
-          <div className="bg-zinc-950/20 border border-zinc-800/50 rounded-2xl p-8 text-center shadow-lg">
+          <div className="bg-zinc-950/20 border border-zinc-800/50 rounded-lg p-8 text-center">
             <p className="text-zinc-500 text-sm italic font-medium">
               No rate adjustments logged yet.
             </p>
@@ -108,10 +108,10 @@ export default function RateAdjustmentList({
           adjustments.map((adj, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl hover:border-zinc-700/80 transition-all group shadow-md"
+              className="flex items-center justify-between p-4 bg-zinc-900/40 border border-zinc-800/80 rounded-lg hover:border-zinc-700/80 transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
+                <div className="p-3 rounded-lg bg-zinc-800 text-zinc-400 group-hover:text-accent transition-colors">
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
@@ -132,7 +132,7 @@ export default function RateAdjustmentList({
               <button
                 onClick={() => setDeleteIndex(idx)}
                 aria-label="Delete rate change"
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-danger/10 text-danger hover:bg-danger hover:text-zinc-50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

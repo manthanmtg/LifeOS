@@ -80,8 +80,7 @@ export default function LoanDetails({
   const pendingSectionLabel = unsettledPendingSection
     ? SECTIONS.find((section) => section.id === unsettledPendingSection)?.label
     : null;
-  const isSectionPending =
-    unsettledPendingSection !== null;
+  const isSectionPending = unsettledPendingSection !== null;
   const isWorkspaceBusy = isSubmitting || isSectionPending;
 
   const selectSection = (section: LoanSection) => {
@@ -137,23 +136,23 @@ export default function LoanDetails({
 
   return (
     <article className="min-w-0 space-y-5">
-      <header className="sticky top-0 z-20 -mx-4 flex items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-950/85 px-4 py-3 backdrop-blur xl:static xl:mx-0 xl:rounded-3xl xl:border xl:bg-zinc-900/60 xl:p-5">
+      <header className="sticky top-0 z-20 -mx-4 flex items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-950/85 px-4 py-3 backdrop-blur 2xl:static 2xl:mx-0 2xl:rounded-lg 2xl:border 2xl:bg-zinc-900/60 2xl:p-5">
         <button
           type="button"
           onClick={onBack}
           className={cn(
-            "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-3 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 xl:hidden",
+            "flex min-h-[44px] items-center gap-2 rounded-md border border-zinc-800 px-3 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 2xl:hidden",
             pressableClass(),
           )}
         >
           <ArrowLeft className="h-4 w-4" />
-          Loans
+          Back to loans
         </button>
-        <div className="min-w-0 flex-1 xl:flex-none">
-          <h2 className="truncate text-lg font-black text-zinc-50 xl:text-2xl">
+        <div className="min-w-0 flex-1 2xl:flex-none">
+          <h2 className="text-lg font-black leading-tight text-zinc-50 2xl:text-2xl">
             {loan.payload.title}
           </h2>
-          <p className="truncate text-sm text-zinc-500">
+          <p className="mt-1 text-sm capitalize text-zinc-500">
             {loan.payload.lender_name ? `${loan.payload.lender_name} · ` : ""}
             {loan.payload.category} · {loan.payload.status}
           </p>
@@ -162,7 +161,7 @@ export default function LoanDetails({
           type="button"
           onClick={onEdit}
           className={cn(
-            "flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-3 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+            "flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-accent px-3 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
             pressableClass(),
           )}
         >
@@ -172,14 +171,17 @@ export default function LoanDetails({
         </button>
       </header>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5 shadow-xl shadow-zinc-950/20 md:p-7">
-        <div className="grid gap-6 xl:grid-cols-[1fr_300px]">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900/55 p-5 md:p-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="min-w-0 space-y-5">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">
                 Balance left
               </p>
-              <h3 className="mt-2 break-words font-mono text-4xl font-black tracking-tight text-zinc-50 md:text-5xl">
+              <h3
+                data-financial-value="loan-balance"
+                className="mt-2 whitespace-nowrap font-mono text-3xl font-black tabular-nums leading-tight text-zinc-50 md:text-4xl"
+              >
                 {formatMoney(model.outstanding, sym, decimals, numberFormat)}
               </h3>
               <p className="mt-2 text-sm font-semibold text-zinc-400">
@@ -203,19 +205,16 @@ export default function LoanDetails({
             />
           </div>
 
-          <dl className="grid grid-cols-2 gap-3 xl:grid-cols-1">
+          <dl className="grid min-w-0 grid-cols-1 divide-y divide-zinc-800 rounded-lg border border-zinc-800 bg-zinc-950/25 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
             {facts.map((fact) => (
-              <div
-                key={fact.label}
-                className="rounded-2xl border border-zinc-800 bg-zinc-950/35 p-4"
-              >
+              <div key={fact.label} className="min-w-0 p-4">
                 <div className="mb-2 flex items-center gap-2 text-zinc-500">
                   <fact.icon className="h-4 w-4" />
                   <dt className="text-xs font-bold uppercase tracking-[0.12em]">
                     {fact.label}
                   </dt>
                 </div>
-                <dd className="font-mono text-lg font-black text-zinc-50">
+                <dd className="whitespace-nowrap font-mono text-lg font-black tabular-nums text-zinc-50">
                   {fact.value}
                 </dd>
                 <p className="mt-1 text-xs text-zinc-500 capitalize">
@@ -227,10 +226,28 @@ export default function LoanDetails({
         </div>
       </section>
 
+      <div className="sm:hidden">
+        <label htmlFor="loan-section-mobile" className="sr-only">
+          Loan section
+        </label>
+        <select
+          id="loan-section-mobile"
+          value={activeSection}
+          onChange={(event) => selectSection(event.target.value as LoanSection)}
+          className="min-h-[44px] w-full rounded-md border border-zinc-800 bg-zinc-900/70 px-3 py-2 text-base font-bold text-zinc-100 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/20"
+        >
+          {SECTIONS.map((section) => (
+            <option key={section.id} value={section.id}>
+              {section.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div
         role="tablist"
         aria-label="Loan sections"
-        className="flex flex-wrap gap-2 rounded-3xl border border-zinc-800 bg-zinc-900/55 p-2"
+        className="hidden border-b border-zinc-800 sm:flex sm:flex-wrap sm:gap-1"
       >
         {SECTIONS.map((section) => (
           <button
@@ -241,11 +258,11 @@ export default function LoanDetails({
             aria-controls={`emi-section-${section.id}`}
             onClick={() => selectSection(section.id)}
             className={cn(
-              "min-h-[44px] rounded-2xl px-4 py-2 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              "min-h-[44px] border-b-2 px-4 py-2 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
               pressableClass(),
               activeSection === section.id
-                ? "bg-accent text-zinc-50"
-                : "text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-100",
+                ? "border-accent text-zinc-50"
+                : "border-transparent text-zinc-400 hover:text-zinc-100",
             )}
           >
             {section.label}
@@ -258,7 +275,7 @@ export default function LoanDetails({
           <div
             role="status"
             aria-live="polite"
-            className="mb-3 flex items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent shadow-lg shadow-zinc-950/20"
+            className="mb-3 flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent"
           >
             <span
               aria-hidden="true"

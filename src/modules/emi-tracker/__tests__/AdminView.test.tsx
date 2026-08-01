@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import EmiTrackerAdminView from "../AdminView";
 import React from "react";
+import { navigationState, routerMocks } from "@/test/mocks/navigation";
 
 // Mock the hook and components that might cause issues
 vi.mock("@/hooks/useModuleSettings", () => ({
@@ -82,6 +83,12 @@ vi.mock("framer-motion", () => ({
     }: { children: React.ReactNode } & Record<string, unknown>) => (
       <h4 {...props}>{children}</h4>
     ),
+    section: ({
+      children,
+      ...props
+    }: { children: React.ReactNode } & Record<string, unknown>) => (
+      <section {...props}>{children}</section>
+    ),
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
@@ -161,6 +168,63 @@ describe("EmiTrackerAdminView", () => {
     expect(el).toBeTruthy();
   }, 15000);
 
+  it("uses portfolio mode without the old empty workspace when no loan is selected", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: [makeLoan("loan-1", "Home Loan", "HDFC")],
+            }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      } as Response);
+    });
+
+    render(<EmiTrackerAdminView />);
+
+    expect(await screen.findByText(/Total outstanding/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Select a loan to open the payoff workspace/i),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /home loan/i })).toBeVisible();
+  }, 15000);
+
+  it("keeps PortfolioHero out of selected-loan mode and renders a back action", async () => {
+    navigationState.searchParams = new URLSearchParams("loan=loan-1");
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: [makeLoan("loan-1", "Home Loan", "HDFC")],
+            }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      } as Response);
+    });
+
+    render(<EmiTrackerAdminView />);
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: /home loan/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Total outstanding/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /back to loans/i }));
+    expect(routerMocks.push).toHaveBeenCalledWith("/admin/emi-tracker");
+  }, 15000);
+
   it("shows pending feedback when opening a loan workspace", async () => {
     const mockData = {
       success: true,
@@ -214,3 +278,32 @@ describe("EmiTrackerAdminView", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/opening home loan/i);
   }, 15000);
 });
+
+function makeLoan(id: string, title: string, lender: string) {
+  return {
+    _id: id,
+    module_type: "emi_loan",
+    is_public: false,
+    created_at: "2024-01-01T00:00:00.000Z",
+    updated_at: "2024-01-01T00:00:00.000Z",
+    payload: {
+      title,
+      lender_name: lender,
+      category: "Home",
+      principal: 5000000,
+      currency: "INR",
+      tenure_months: 240,
+      annual_interest_rate: 8.5,
+      interest_type: "floating",
+      monthly_emi: 43391,
+      start_date: "2024-01-01",
+      due_day_of_month: 5,
+      processing_fee_financed: false,
+      status: "active",
+      payments: [],
+      documents: [],
+      rate_adjustments: [],
+      recast_strategy: "keep_tenure_adjust_emi",
+    },
+  };
+}

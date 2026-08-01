@@ -41,7 +41,7 @@ function TooltipContent({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-950/95 p-3 shadow-2xl">
+    <div className="rounded-lg border border-zinc-800 bg-zinc-950/95 p-3">
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
         {label}
       </p>
@@ -151,7 +151,7 @@ export default function LoanAnalysis({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
         <h3 className="text-xl font-black text-zinc-100">Paid and remaining</h3>
         <p className="mt-1 text-sm text-zinc-500">
           Principal and interest split across paid and projected rows.
@@ -187,7 +187,7 @@ export default function LoanAnalysis({
           )}
           .
         </p>
-        <div className="mt-6 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/40">
+        <div className="mt-6 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40">
           <div className="flex h-6">
             {composition.map((item) => (
               <div
@@ -203,7 +203,7 @@ export default function LoanAnalysis({
           {composition.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/35 p-4"
+              className="rounded-lg border border-zinc-800 bg-zinc-950/35 p-4"
             >
               <p className="text-sm font-bold text-zinc-300">{item.label}</p>
               <p className="mt-2 font-mono text-lg font-black text-zinc-50">
@@ -222,12 +222,12 @@ export default function LoanAnalysis({
         </div>
       </section>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5">
+      <section className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5">
         <h3 className="text-xl font-black text-zinc-100">Balance over time</h3>
         <p className="mt-1 text-sm text-zinc-500">
           Closing balance compared with cumulative interest.
         </p>
-        <div className="mt-5 h-[260px] rounded-3xl border border-zinc-800 bg-zinc-950/35 p-2 md:h-[340px]">
+        <div className="mt-5 h-[260px] rounded-lg border border-zinc-800 bg-zinc-950/35 p-2 md:h-[340px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trendData}>
               <defs>
@@ -354,10 +354,10 @@ export default function LoanAnalysis({
         ].map(([label, value, sub]) => (
           <div
             key={label}
-            className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5"
+            className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-5"
           >
             <p className="text-sm font-bold text-zinc-500">{label}</p>
-            <p className="mt-2 break-words font-mono text-2xl font-black text-zinc-50">
+            <p className="mt-2 whitespace-nowrap font-mono text-2xl font-black text-zinc-50">
               {value}
             </p>
             <p className="mt-2 text-sm text-zinc-500">{sub}</p>

@@ -36,7 +36,7 @@ export default function ActivityTab({
 
   return (
     <div className="space-y-5">
-      <div className="inline-grid min-h-[44px] grid-cols-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-1">
+      <div className="inline-grid min-h-[44px] grid-cols-2 rounded-lg border border-zinc-800 bg-zinc-900/70 p-1">
         {[
           ["payments", "Payments"],
           ["rates", "Rate history"],
@@ -46,7 +46,7 @@ export default function ActivityTab({
             type="button"
             onClick={() => setView(id as ActivityView)}
             className={cn(
-              "min-h-[36px] rounded-xl px-4 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              "min-h-[36px] rounded-md px-4 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
               PRESSABLE,
               view === id
                 ? "bg-accent text-zinc-50"
@@ -75,7 +75,7 @@ export default function ActivityTab({
           }}
         />
       ) : isFixed ? (
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-6">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-6">
           <h3 className="text-lg font-black text-zinc-100">
             Rate history is available for floating-rate loans.
           </h3>

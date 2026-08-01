@@ -40,7 +40,7 @@ function todayInputValue() {
 }
 
 function fieldClass() {
-  return "mt-2 min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 shadow-inner outline-none transition-all duration-200 ease-out placeholder:text-zinc-600 focus:border-accent/60 focus:ring-2 focus:ring-accent/20 md:text-sm motion-reduce:transition-none";
+  return "mt-2 min-h-[44px] w-full rounded-lg border border-zinc-800 bg-zinc-950/50 px-4 py-3 text-base text-zinc-100 outline-none transition-all duration-200 ease-out placeholder:text-zinc-600 focus:border-accent/60 focus:ring-2 focus:ring-accent/20 md:text-sm motion-reduce:transition-none";
 }
 
 function pressableClass() {
@@ -242,7 +242,7 @@ export default function LoanEditor({
               type="button"
               onClick={() => setStep(index as Step)}
               className={cn(
-                "min-h-[44px] flex-1 rounded-2xl border px-3 py-2 text-sm font-bold transition-colors",
+                "min-h-[44px] flex-1 rounded-lg border px-3 py-2 text-sm font-bold transition-colors",
                 pressableClass(),
                 step === index
                   ? "border-accent/30 bg-accent/10 text-accent"
@@ -257,7 +257,7 @@ export default function LoanEditor({
         {(serverError || formError) && (
           <div
             role="alert"
-            className="flex items-start gap-3 rounded-2xl border border-danger/20 bg-danger/10 p-4 text-danger"
+            className="flex items-start gap-3 rounded-lg border border-danger/20 bg-danger/10 p-4 text-danger"
           >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p className="text-sm font-semibold">{serverError ?? formError}</p>
@@ -474,7 +474,7 @@ export default function LoanEditor({
                 type="button"
                 onClick={() => setMonthlyEmi(suggestedEmi)}
                 className={cn(
-                  "mt-3 min-h-[44px] rounded-2xl border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-bold text-accent hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+                  "mt-3 min-h-[44px] rounded-lg border border-accent/20 bg-accent/10 px-4 py-2 text-sm font-bold text-accent hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                   pressableClass(),
                 )}
               >
@@ -569,7 +569,7 @@ export default function LoanEditor({
               </div>
             )}
             {feeMode !== "none" && (
-              <label className="flex min-h-[44px] items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm font-semibold text-zinc-300">
+              <label className="flex min-h-[44px] items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm font-semibold text-zinc-300">
                 <input
                   type="checkbox"
                   checked={feeFinanced}
@@ -587,7 +587,7 @@ export default function LoanEditor({
             <p
               role="status"
               aria-live="polite"
-              className="order-first flex w-full items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm font-bold text-accent sm:order-none sm:w-auto"
+              className="order-first flex w-full items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2 text-sm font-bold text-accent sm:order-none sm:w-auto"
             >
               <span
                 aria-hidden="true"
@@ -602,7 +602,7 @@ export default function LoanEditor({
               step === 0 ? onClose() : setStep((step - 1) as Step)
             }
             className={cn(
-              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+              "flex min-h-[44px] items-center gap-2 rounded-lg border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
               pressableClass(),
             )}
           >
@@ -613,7 +613,7 @@ export default function LoanEditor({
             type="submit"
             disabled={isSaving}
             className={cn(
-              "flex min-h-[44px] items-center gap-2 rounded-2xl bg-accent px-5 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50 disabled:active:scale-100",
+              "flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 disabled:opacity-50 disabled:active:scale-100",
               pressableClass(),
             )}
           >
@@ -632,7 +632,7 @@ export default function LoanEditor({
         </div>
       </form>
 
-      <aside className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5 lg:sticky lg:top-4 lg:self-start">
+      <aside className="rounded-lg border border-zinc-800 bg-zinc-900/70 p-5 lg:sticky lg:top-4 lg:self-start">
         <div className="mb-4 flex items-center gap-2 text-success">
           <CheckCircle2 className="h-4 w-4" />
           <p className="text-xs font-bold uppercase tracking-[0.16em]">

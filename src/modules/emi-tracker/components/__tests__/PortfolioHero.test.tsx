@@ -39,9 +39,27 @@ describe("PortfolioHero", () => {
     );
 
     expect(screen.getByText(/Total outstanding/i)).toBeInTheDocument();
-    expect(screen.getByText("₹1,000")).toBeInTheDocument();
+    const amount = screen.getByText("₹1,000");
+    expect(amount).toBeInTheDocument();
+    expect(amount).toHaveAttribute("data-financial-value", "portfolio-total");
+    expect(amount).toHaveClass("whitespace-nowrap");
+    expect(amount).not.toHaveClass("break-words");
     expect(screen.getByText(/Next EMI/i)).toBeInTheDocument();
+    expect(screen.getByText(/Monthly commitment/i)).toBeInTheDocument();
     expect(screen.getByText(/Home loan/i)).toBeInTheDocument();
+  });
+
+  it("keeps interest saved out of the portfolio summary", () => {
+    render(
+      <PortfolioHero
+        model={baseModel}
+        defaultCurrency="INR"
+        decimals={2}
+        numberFormat="indian"
+      />,
+    );
+
+    expect(screen.queryByText(/Interest saved/i)).not.toBeInTheDocument();
   });
 
   it("does not imply a converted total for mixed currencies", () => {
@@ -69,5 +87,7 @@ describe("PortfolioHero", () => {
     expect(screen.getByText(/2 currencies tracked/i)).toBeInTheDocument();
     expect(screen.getByText(/INR/)).toBeInTheDocument();
     expect(screen.getByText(/USD/)).toBeInTheDocument();
+    expect(screen.getByText("₹1,000")).toHaveClass("whitespace-nowrap");
+    expect(screen.getByText("$500")).toHaveClass("whitespace-nowrap");
   });
 });

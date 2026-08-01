@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calculator, Plus, RotateCcw, Search } from "lucide-react";
+import { Plus, RotateCcw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { trackEvent } from "@/lib/analytics";
@@ -14,6 +14,7 @@ import {
   type PortfolioStatusFilter,
 } from "./lib/emi-view-model";
 import PortfolioHero from "./components/PortfolioHero";
+import LoanFilters from "./components/LoanFilters";
 import LoanList from "./components/LoanList";
 import LoanDetails from "./components/LoanDetails";
 import EmiEntryDialog from "./components/EmiEntryDialog";
@@ -159,6 +160,18 @@ export default function EmiTrackerAdminView() {
       getLoanCards(filteredLoans, now, searchQuery, settings.roundingDecimals),
     [filteredLoans, now, searchQuery, settings.roundingDecimals],
   );
+  const filterCounts = useMemo(
+    () => ({
+      active: portfolioModel.activeCount,
+      closed: portfolioModel.closedCount,
+      all: portfolioModel.allCount,
+    }),
+    [
+      portfolioModel.activeCount,
+      portfolioModel.allCount,
+      portfolioModel.closedCount,
+    ],
+  );
 
   const openCreate = () => {
     setEditLoan(null);
@@ -238,41 +251,61 @@ export default function EmiTrackerAdminView() {
   if (loading) return <AdminModuleSkeleton />;
 
   const hasSelectedView = !!selectedLoan;
-  const showPortfolioOnSmall = !hasSelectedView;
+  const selectLoan = (id: string) => {
+    const loanTitle =
+      loanCards.find(({ loan }) => loan._id === id)?.loan.payload.title ??
+      "loan";
+    setPendingNavigationLabel(`Opening ${loanTitle}...`);
+    setUrlState({ loan: id, section: "overview" });
+  };
+  const emptyAction = () => {
+    if (loans.length === 0) openCreate();
+    else {
+      setSearchQuery("");
+      setStatusFilter("all");
+    }
+  };
+  const emptyTitle =
+    loans.length === 0
+      ? "A clearer path out of debt starts here"
+      : "No matching loans";
+  const emptyBody =
+    loans.length === 0
+      ? "Add a loan to track balances, payments, interest, and your projected payoff date."
+      : "Try another search or show all loans.";
+  const emptyActionLabel =
+    loans.length === 0 ? "Add your first loan" : "Clear filters";
 
   return (
     <div className="min-h-screen space-y-6">
-      <header
-        className={cn(
-          "flex items-start justify-between gap-4",
-          hasSelectedView ? "hidden xl:flex" : "flex",
-        )}
-      >
-        <div className="min-w-0">
-          <h1 className="text-3xl font-black tracking-tight text-zinc-50">
-            EMI Tracker
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Know what remains. Finish sooner.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className={cn(
-            "flex min-h-[44px] shrink-0 items-center gap-2 rounded-2xl bg-accent px-4 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
-            PRESSABLE,
-          )}
-        >
-          <Plus className="h-4 w-4" />
-          Add loan
-        </button>
-      </header>
+      {!hasSelectedView && (
+        <header className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-black tracking-tight text-zinc-50">
+              EMI Tracker
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Know what remains. Finish sooner.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openCreate}
+            className={cn(
+              "flex min-h-[44px] shrink-0 items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-black text-zinc-50 hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+              PRESSABLE,
+            )}
+          >
+            <Plus className="h-4 w-4" />
+            Add loan
+          </button>
+        </header>
+      )}
 
       {fetchError && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-2xl border border-warning/20 bg-warning/10 p-4 text-warning sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-lg border border-warning/20 bg-warning/10 p-4 text-warning sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <p className="font-bold">{fetchError}</p>
@@ -284,7 +317,7 @@ export default function EmiTrackerAdminView() {
             type="button"
             onClick={() => void fetchLoans({ keepExisting: loans.length > 0 })}
             className={cn(
-              "flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-warning/30 px-4 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning",
+              "flex min-h-[44px] items-center justify-center gap-2 rounded-md border border-warning/30 px-4 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning",
               PRESSABLE,
             )}
           >
@@ -298,7 +331,7 @@ export default function EmiTrackerAdminView() {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent shadow-lg shadow-zinc-950/20"
+          className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-4 py-3 text-sm font-bold text-accent"
         >
           <span
             aria-hidden="true"
@@ -308,101 +341,61 @@ export default function EmiTrackerAdminView() {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[360px_minmax(0,1040px)]">
-        <aside
-          className={cn(
-            "min-w-0 space-y-5 xl:sticky xl:top-6 xl:self-start",
-            showPortfolioOnSmall ? "block" : "hidden xl:block",
-          )}
-        >
+      {!selectedLoan ? (
+        <main className="min-w-0 space-y-4">
           <PortfolioHero
             model={portfolioModel}
             defaultCurrency={settings.defaultCurrency}
             decimals={settings.roundingDecimals}
             numberFormat={settings.numberFormat}
           />
-
-          <div className="space-y-4 rounded-3xl border border-zinc-800 bg-zinc-900/55 p-4">
-            <div>
-              <label htmlFor="loan-search" className="sr-only">
-                Search by loan or lender
-              </label>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-                <input
-                  id="loan-search"
-                  placeholder="Search by loan or lender"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  className="min-h-[44px] w-full rounded-2xl border border-zinc-800 bg-zinc-950/45 py-3 pl-11 pr-4 text-base text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-accent/60 focus:ring-2 focus:ring-accent/20 md:text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {(
-                [
-                  ["active", `Active ${portfolioModel.activeCount}`],
-                  ["closed", `Closed ${portfolioModel.closedCount}`],
-                  ["all", `All ${portfolioModel.allCount}`],
-                ] as Array<[PortfolioStatusFilter, string]>
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setStatusFilter(id)}
-                  className={cn(
-                    "min-h-[44px] rounded-2xl border px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
-                    PRESSABLE,
-                    statusFilter === id
-                      ? "border-accent/30 bg-accent/10 text-accent"
-                      : "border-zinc-800 bg-zinc-950/35 text-zinc-400 hover:text-zinc-100",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
+          <LoanFilters
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            status={statusFilter}
+            onStatusChange={setStatusFilter}
+            counts={filterCounts}
+          />
           <LoanList
             loanCards={loanCards}
-            selectedId={selectedLoan?._id ?? null}
-            onSelect={(id) => {
-              const loanTitle =
-                loanCards.find(({ loan }) => loan._id === id)?.loan.payload
-                  .title ?? "loan";
-              setPendingNavigationLabel(`Opening ${loanTitle}…`);
-              setUrlState({ loan: id, section: "overview" });
-            }}
+            selectedId={null}
+            onSelect={selectLoan}
             decimals={settings.roundingDecimals}
             numberFormat={settings.numberFormat}
             loading={false}
-            emptyTitle={
-              loans.length === 0
-                ? "A clearer path out of debt starts here"
-                : "No matching loans"
-            }
-            emptyBody={
-              loans.length === 0
-                ? "Add a loan to track balances, payments, interest, and your projected payoff date."
-                : "Try another search or show all loans."
-            }
-            emptyActionLabel={
-              loans.length === 0 ? "Add your first loan" : "Clear filters"
-            }
-            onEmptyAction={() => {
-              if (loans.length === 0) openCreate();
-              else {
-                setSearchQuery("");
-                setStatusFilter("all");
-              }
-            }}
+            variant="portfolio"
+            emptyTitle={emptyTitle}
+            emptyBody={emptyBody}
+            emptyActionLabel={emptyActionLabel}
+            onEmptyAction={emptyAction}
           />
-        </aside>
-
-        <main className="min-w-0">
-          {selectedLoan ? (
+        </main>
+      ) : (
+        <div className="grid gap-6 2xl:grid-cols-[288px_minmax(0,1fr)]">
+          <aside className="hidden min-w-0 space-y-4 2xl:sticky 2xl:top-6 2xl:block 2xl:self-start">
+            <LoanFilters
+              query={searchQuery}
+              onQueryChange={setSearchQuery}
+              status={statusFilter}
+              onStatusChange={setStatusFilter}
+              counts={filterCounts}
+              density="navigator"
+            />
+            <LoanList
+              loanCards={loanCards}
+              selectedId={selectedLoan._id}
+              onSelect={selectLoan}
+              decimals={settings.roundingDecimals}
+              numberFormat={settings.numberFormat}
+              loading={false}
+              variant="navigator"
+              emptyTitle={emptyTitle}
+              emptyBody={emptyBody}
+              emptyActionLabel={emptyActionLabel}
+              onEmptyAction={emptyAction}
+            />
+          </aside>
+          <main className="min-w-0">
             <LoanDetails
               loan={selectedLoan}
               settings={settings}
@@ -413,22 +406,9 @@ export default function EmiTrackerAdminView() {
               onUpdate={handleUpdateLoanPayload}
               onEdit={() => openEdit(selectedLoan)}
             />
-          ) : (
-            <div className="hidden min-h-[560px] flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-800 bg-zinc-900/35 p-10 text-center xl:flex">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl border border-zinc-800 bg-zinc-950/50">
-                <Calculator className="h-7 w-7 text-accent" />
-              </div>
-              <h2 className="text-xl font-black text-zinc-100">
-                Select a loan to open the payoff workspace
-              </h2>
-              <p className="mt-2 max-w-sm text-sm text-zinc-500">
-                The runway, simulator, schedule, activity, and documents appear
-                here.
-              </p>
-            </div>
-          )}
-        </main>
-      </div>
+          </main>
+        </div>
+      )}
 
       <EmiEntryDialog
         isOpen={isEditorOpen}

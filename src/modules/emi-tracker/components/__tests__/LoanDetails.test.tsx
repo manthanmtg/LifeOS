@@ -79,4 +79,29 @@ describe("LoanDetails", () => {
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByRole("status")).toHaveTextContent(/loading schedule/i);
   });
+
+  it("offers a mobile section selector wired to the same section callback", () => {
+    const onSectionChange = vi.fn();
+    renderDetails({ onSectionChange });
+
+    fireEvent.change(screen.getByRole("combobox", { name: /loan section/i }), {
+      target: { value: "documents" },
+    });
+
+    expect(onSectionChange).toHaveBeenCalledWith("documents");
+  });
+
+  it("keeps identity and financial values readable instead of truncating or word-breaking", () => {
+    renderDetails();
+
+    expect(screen.getByRole("heading", { name: /home loan/i })).not.toHaveClass(
+      "truncate",
+    );
+    const balance = document.querySelector(
+      '[data-financial-value="loan-balance"]',
+    );
+    expect(balance).toHaveAttribute("data-financial-value", "loan-balance");
+    expect(balance).toHaveClass("whitespace-nowrap");
+    expect(balance).not.toHaveClass("break-words");
+  });
 });

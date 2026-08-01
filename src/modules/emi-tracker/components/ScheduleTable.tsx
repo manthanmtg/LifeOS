@@ -48,7 +48,7 @@ export default function ScheduleTable({
             type="button"
             onClick={onExportCSV}
             className={cn(
-              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
+              "flex min-h-[44px] items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
               PRESSABLE,
             )}
           >
@@ -58,7 +58,7 @@ export default function ScheduleTable({
             type="button"
             onClick={onPrintPDF}
             className={cn(
-              "flex min-h-[44px] items-center gap-2 rounded-2xl border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 shadow-sm shadow-zinc-950/30 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
+              "flex min-h-[44px] items-center gap-2 rounded-lg border border-zinc-700/50 bg-zinc-900/70 px-4 py-2 text-sm font-bold text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
               PRESSABLE,
             )}
           >
@@ -75,7 +75,7 @@ export default function ScheduleTable({
         now={now}
       />
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-zinc-800/60 bg-zinc-900/60 shadow-xl shadow-zinc-950/30 ring-1 ring-zinc-800/50 md:block">
+      <div className="hidden overflow-x-auto rounded-lg border border-zinc-800/60 bg-zinc-900/60 ring-1 ring-zinc-800/50 md:block">
         <table className="w-full border-collapse text-left text-sm">
           <thead className="sticky top-0 z-10">
             <tr className="bg-zinc-900/50 border-b border-zinc-800 text-zinc-500 font-black uppercase tracking-widest">

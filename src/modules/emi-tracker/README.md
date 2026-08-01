@@ -1,9 +1,9 @@
 # EMI Tracker
 
-EMI Tracker is the private LifeOS debt command center for loans, amortization
+EMI Tracker is the private LifeOS debt workspace for loans, amortization
 schedules, payments, rate changes, payoff simulation, and documents. The admin
-experience now follows the “Payoff Observatory” IA: portfolio summary first,
-then a selected-loan workspace centered on the Payoff Runway.
+experience uses two explicit modes: a full-width portfolio view for scanning all
+loans, and a selected-loan workspace centered on the Payoff Runway.
 
 ## Registration
 
@@ -20,14 +20,19 @@ Loans are stored in the shared MongoDB `content` collection with
 
 ## Current UX
 
-- Portfolio toolbar with one primary `Add loan` action.
-- Portfolio Hero summarizing outstanding debt, next EMI, active loans, and
-  interest saved.
-- Search plus `Active`, `Closed`, and `All` local filters.
-- Mobile master/detail behavior: below `xl`, the selected loan replaces the
-  portfolio list.
-- Desktop master/detail behavior: at `xl`, the loan navigator and workspace
-  render side by side.
+- Portfolio mode uses the full module width with one primary `Add loan` action,
+  a flat summary band, shared filters, and portfolio loan cards.
+- The portfolio summary emphasizes total outstanding, next EMI, monthly
+  commitment, active/closed counts, and principal progress. Interest-saved
+  context lives in selected-loan simulation and insights.
+- Search plus `Active`, `Closed`, and `All` local filters are shared by
+  portfolio mode and the wide selected-loan navigator.
+- Below `2xl`, selecting a loan replaces the portfolio view with the loan
+  workspace and an explicit `Back to loans` action.
+- At `2xl`, selected-loan mode adds a compact 288px navigator beside the
+  workspace. The navigator never contains the portfolio summary.
+- Financial values render as exact, no-wrap tabular figures; they are not
+  abbreviated or allowed to wrap one character per line.
 - URL-backed workspace state:
   - `/admin/emi-tracker`
   - `/admin/emi-tracker?loan=<content-id>`
@@ -65,9 +70,10 @@ components do not duplicate financial logic.
 | File                                                                     | Purpose                                                       |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | [`AdminView.tsx`](AdminView.tsx)                                         | Fetching, URL state, filters, editor state, responsive shell. |
-| [`components/PortfolioHero.tsx`](components/PortfolioHero.tsx)           | Composed portfolio summary replacing the old metric-card row. |
-| [`components/LoanList.tsx`](components/LoanList.tsx)                     | Filtered loan navigator and empty states.                     |
-| [`components/LoanCard.tsx`](components/LoanCard.tsx)                     | Touch-friendly loan card with selected semantics.             |
+| [`components/PortfolioHero.tsx`](components/PortfolioHero.tsx)           | Full-width portfolio summary band.                            |
+| [`components/LoanFilters.tsx`](components/LoanFilters.tsx)               | Shared search and status segmented control.                   |
+| [`components/LoanList.tsx`](components/LoanList.tsx)                     | Portfolio and navigator loan collections with empty states.   |
+| [`components/LoanCard.tsx`](components/LoanCard.tsx)                     | Portfolio/navigator loan records with selected semantics.     |
 | [`components/LoanDetails.tsx`](components/LoanDetails.tsx)               | Selected-loan workspace and five-section navigation.          |
 | [`components/PayoffRunway.tsx`](components/PayoffRunway.tsx)             | Accessible start/today/payoff timeline.                       |
 | [`components/LoanOverviewTab.tsx`](components/LoanOverviewTab.tsx)       | Extra-payment simulator, results, chart, and loan terms.      |
@@ -95,6 +101,7 @@ Full repository verification:
 pnpm check
 ```
 
-The EMI suite covers schedule utilities, view-model parity, AdminView loading,
-PortfolioHero mixed-currency behavior, PayoffRunway accessibility, ScheduleCards
-progressive loading, and LoanEditor payload preservation.
+The EMI suite covers schedule utilities, view-model parity, AdminView portfolio
+and selected modes, shared filters, PortfolioHero mixed-currency behavior,
+PayoffRunway accessibility, ScheduleCards progressive loading, and LoanEditor
+payload preservation.

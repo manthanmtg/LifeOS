@@ -57,7 +57,7 @@ export default function EmiEntryDialog({
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-zinc-800 bg-zinc-950 shadow-2xl sm:rounded-3xl ${widthClassName}`}
+            className={`relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-lg border border-zinc-800 bg-zinc-950 sm:rounded-lg ${widthClassName}`}
           >
             <div className="flex shrink-0 items-start justify-between gap-4 border-b border-zinc-800 bg-zinc-900/70 p-5">
               <div>
@@ -75,7 +75,7 @@ export default function EmiEntryDialog({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 transition-colors hover:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               >
                 <X className="h-5 w-5" />
               </button>
