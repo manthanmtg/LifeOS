@@ -296,11 +296,43 @@ describe("schemas", () => {
       }
     });
 
-    it("rejects non-birthday notification rules on people", () => {
+    it("accepts contact reminder notification preferences on people", () => {
       const result = PersonSchema.safeParse({
         name: "Jane Doe",
         relationship: "friend",
         birthday: "1990-01-31",
+        interactions: [{ date: "2026-07-01", type: "message" }],
+        last_contacted: "2026-07-01",
+        notifications: {
+          enabled: true,
+          disabled_events: ["birthday"],
+          rules: [
+            {
+              event: "contact_reminder",
+              offsets_days: [3, 0],
+              cadence_days: 30,
+            },
+          ],
+        },
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.notifications?.disabled_events).toEqual([
+          "birthday",
+        ]);
+        expect(result.data.notifications?.rules[0]).toMatchObject({
+          event: "contact_reminder",
+          offsets_days: [0, 3],
+          cadence_days: 30,
+        });
+      }
+    });
+
+    it("rejects unsupported notification rules on people", () => {
+      const result = PersonSchema.safeParse({
+        name: "Jane Doe",
+        relationship: "friend",
         notifications: {
           enabled: true,
           rules: [{ event: "renewal", offsets_days: [1] }],
