@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus, RotateCcw } from "lucide-react";
+import { ChevronDown, Plus, RotateCcw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { trackEvent } from "@/lib/analytics";
@@ -70,6 +70,7 @@ export default function EmiTrackerAdminView() {
   const [isSaving, setIsSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [closedLoansExpanded, setClosedLoansExpanded] = useState(false);
   const [pendingNavigationLabel, setPendingNavigationLabel] = useState<
     string | null
   >(null);
@@ -155,11 +156,58 @@ export default function EmiTrackerAdminView() {
     [loans, statusFilter],
   );
 
+  const activeLoanCards = useMemo(
+    () =>
+      getLoanCards(
+        filteredByStatus(loans, "active"),
+        now,
+        searchQuery,
+        settings.roundingDecimals,
+      ),
+    [loans, now, searchQuery, settings.roundingDecimals],
+  );
+  const closedLoanCards = useMemo(
+    () =>
+      getLoanCards(
+        filteredByStatus(loans, "closed"),
+        now,
+        searchQuery,
+        settings.roundingDecimals,
+      ),
+    [loans, now, searchQuery, settings.roundingDecimals],
+  );
+  const nonClosedLoanCards = useMemo(
+    () =>
+      getLoanCards(
+        loans.filter((loan) => loan.payload.status !== "closed"),
+        now,
+        searchQuery,
+        settings.roundingDecimals,
+      ),
+    [loans, now, searchQuery, settings.roundingDecimals],
+  );
   const loanCards = useMemo(
     () =>
       getLoanCards(filteredLoans, now, searchQuery, settings.roundingDecimals),
     [filteredLoans, now, searchQuery, settings.roundingDecimals],
   );
+  const allLoanCards = useMemo(
+    () => getLoanCards(loans, now, searchQuery, settings.roundingDecimals),
+    [loans, now, searchQuery, settings.roundingDecimals],
+  );
+  const primaryLoanCards =
+    statusFilter === "all"
+      ? nonClosedLoanCards
+      : statusFilter === "active"
+        ? activeLoanCards
+        : loanCards;
+  const showClosedSection =
+    statusFilter !== "closed" && closedLoanCards.length > 0;
+  const showClosedLoans =
+    statusFilter === "all" ||
+    closedLoansExpanded ||
+    searchQuery.trim().length > 0 ||
+    selectedLoan?.payload.status === "closed";
   const filterCounts = useMemo(
     () => ({
       active: portfolioModel.activeCount,
@@ -253,7 +301,7 @@ export default function EmiTrackerAdminView() {
   const hasSelectedView = !!selectedLoan;
   const selectLoan = (id: string) => {
     const loanTitle =
-      loanCards.find(({ loan }) => loan._id === id)?.loan.payload.title ??
+      allLoanCards.find(({ loan }) => loan._id === id)?.loan.payload.title ??
       "loan";
     setPendingNavigationLabel(`Opening ${loanTitle}...`);
     setUrlState({ loan: id, section: "overview" });
@@ -262,19 +310,74 @@ export default function EmiTrackerAdminView() {
     if (loans.length === 0) openCreate();
     else {
       setSearchQuery("");
-      setStatusFilter("all");
+      setStatusFilter("active");
+      setClosedLoansExpanded(false);
     }
   };
   const emptyTitle =
     loans.length === 0
       ? "A clearer path out of debt starts here"
-      : "No matching loans";
+      : statusFilter === "active" &&
+          searchQuery.trim().length === 0 &&
+          closedLoanCards.length > 0
+        ? "No active loans"
+        : "No matching loans";
   const emptyBody =
     loans.length === 0
       ? "Add a loan to track balances, payments, interest, and your projected payoff date."
-      : "Try another search or show all loans.";
+      : statusFilter === "active" &&
+          searchQuery.trim().length === 0 &&
+          closedLoanCards.length > 0
+        ? "Closed loans are kept below for history."
+        : "Try another search or show all loans.";
   const emptyActionLabel =
     loans.length === 0 ? "Add your first loan" : "Clear filters";
+  const closedLoansSection = showClosedSection ? (
+    <section className="space-y-3 pt-1" aria-label="Closed loans">
+      <button
+        type="button"
+        aria-expanded={showClosedLoans}
+        aria-controls="closed-loans-panel"
+        aria-label={`Closed loans ${closedLoanCards.length}`}
+        onClick={() => setClosedLoansExpanded((expanded) => !expanded)}
+        className={cn(
+          "flex min-h-[56px] w-full items-center justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/35 px-4 py-3 text-left hover:border-zinc-700 hover:bg-zinc-900/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70",
+          PRESSABLE,
+        )}
+      >
+        <span className="min-w-0">
+          <span className="block text-sm font-black text-zinc-200">
+            Closed loans
+          </span>
+          <span className="mt-0.5 block text-xs text-zinc-500">
+            Paid off and kept for history
+          </span>
+        </span>
+        <span className="flex shrink-0 items-center gap-2 text-sm font-black text-zinc-400">
+          {closedLoanCards.length}
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200 ease-out motion-reduce:transition-none",
+              showClosedLoans && "rotate-180",
+            )}
+          />
+        </span>
+      </button>
+      {showClosedLoans && (
+        <div id="closed-loans-panel">
+          <LoanList
+            loanCards={closedLoanCards}
+            selectedId={selectedLoan?._id ?? null}
+            onSelect={selectLoan}
+            decimals={settings.roundingDecimals}
+            numberFormat={settings.numberFormat}
+            loading={false}
+            variant={hasSelectedView ? "navigator" : "portfolio"}
+          />
+        </div>
+      )}
+    </section>
+  ) : null;
 
   return (
     <div className="min-h-screen space-y-6">
@@ -357,7 +460,7 @@ export default function EmiTrackerAdminView() {
             counts={filterCounts}
           />
           <LoanList
-            loanCards={loanCards}
+            loanCards={primaryLoanCards}
             selectedId={null}
             onSelect={selectLoan}
             decimals={settings.roundingDecimals}
@@ -369,6 +472,7 @@ export default function EmiTrackerAdminView() {
             emptyActionLabel={emptyActionLabel}
             onEmptyAction={emptyAction}
           />
+          {closedLoansSection}
         </main>
       ) : (
         <div className="grid gap-6 2xl:grid-cols-[288px_minmax(0,1fr)]">
@@ -382,7 +486,7 @@ export default function EmiTrackerAdminView() {
               density="navigator"
             />
             <LoanList
-              loanCards={loanCards}
+              loanCards={primaryLoanCards}
               selectedId={selectedLoan._id}
               onSelect={selectLoan}
               decimals={settings.roundingDecimals}
@@ -394,6 +498,7 @@ export default function EmiTrackerAdminView() {
               emptyActionLabel={emptyActionLabel}
               onEmptyAction={emptyAction}
             />
+            {closedLoansSection}
           </aside>
           <main className="min-w-0">
             <LoanDetails

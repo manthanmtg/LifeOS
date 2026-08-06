@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import EmiTrackerAdminView from "../AdminView";
 import React from "react";
 import { navigationState, routerMocks } from "@/test/mocks/navigation";
+import type { EmiLoan } from "../types";
 
 // Mock the hook and components that might cause issues
 vi.mock("@/hooks/useModuleSettings", () => ({
@@ -195,6 +196,49 @@ describe("EmiTrackerAdminView", () => {
     expect(screen.getByRole("button", { name: /home loan/i })).toBeVisible();
   }, 15000);
 
+  it("keeps closed loans in a collapsed secondary section", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: [
+                makeLoan("loan-1", "Home Loan", "HDFC"),
+                makeLoan("loan-2", "Car Loan", "SBI", {
+                  status: "closed",
+                  closed_at: "2025-01-01T00:00:00.000Z",
+                }),
+              ],
+            }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      } as Response);
+    });
+
+    render(<EmiTrackerAdminView />);
+
+    expect(
+      await screen.findByRole("button", { name: /home loan/i }),
+    ).toBeVisible();
+    const closedLoansToggle = screen.getByRole("button", {
+      name: /closed loans 1/i,
+    });
+
+    expect(closedLoansToggle).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("button", { name: /car loan/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(closedLoansToggle);
+
+    expect(screen.getByRole("button", { name: /car loan/i })).toBeVisible();
+  }, 15000);
+
   it("keeps PortfolioHero out of selected-loan mode and renders a back action", async () => {
     navigationState.searchParams = new URLSearchParams("loan=loan-1");
     vi.spyOn(global, "fetch").mockImplementation((url) => {
@@ -279,7 +323,12 @@ describe("EmiTrackerAdminView", () => {
   }, 15000);
 });
 
-function makeLoan(id: string, title: string, lender: string) {
+function makeLoan(
+  id: string,
+  title: string,
+  lender: string,
+  payload: Partial<EmiLoan["payload"]> = {},
+) {
   return {
     _id: id,
     module_type: "emi_loan",
@@ -304,6 +353,7 @@ function makeLoan(id: string, title: string, lender: string) {
       documents: [],
       rate_adjustments: [],
       recast_strategy: "keep_tenure_adjust_emi",
+      ...payload,
     },
   };
 }
