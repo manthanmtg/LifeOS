@@ -40,7 +40,7 @@ export interface AnalyticsTabProps {
 
 export interface SettingsTabProps {
   settings: ExpenseSettings;
-  onUpdateSettings: (updates: Partial<ExpenseSettings>) => Promise<void>;
+  onUpdateSettings: (updates: Partial<ExpenseSettings>) => Promise<boolean>;
 }
 
 export interface Prediction {

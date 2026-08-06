@@ -21,7 +21,7 @@ function normalizeReadingType(input: string) {
 
 interface ReadingSettingsViewProps {
   settings: ReadingSettings;
-  updateSettings: (newSettings: Partial<ReadingSettings>) => Promise<void>;
+  updateSettings: (newSettings: Partial<ReadingSettings>) => Promise<boolean>;
   saving: boolean;
   allTypes: ReadingType[];
 }

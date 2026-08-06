@@ -15,7 +15,11 @@ import {
   CalcFieldDef,
 } from "./AdminView";
 
-import { FormulaBuilder, FieldAddForm, FieldChip } from "./components/SettingsFieldHelpers";
+import {
+  FormulaBuilder,
+  FieldAddForm,
+  FieldChip,
+} from "./components/SettingsFieldHelpers";
 
 // --- Main Settings Tab ---
 export function SettingsTab({
@@ -24,7 +28,7 @@ export function SettingsTab({
   saving,
 }: {
   settings: Settings;
-  updateSettings: (s: Partial<Settings>) => Promise<void>;
+  updateSettings: (s: Partial<Settings>) => Promise<boolean>;
   saving: boolean;
 }) {
   const [isEditingArea, setIsEditingArea] = useState(false);

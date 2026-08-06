@@ -16,7 +16,7 @@ import { ExpenseSettings, CURRENCIES } from "../components/types";
 
 interface SettingsTabProps {
   settings: ExpenseSettings;
-  onUpdateSettings: (updates: Partial<ExpenseSettings>) => Promise<void>;
+  onUpdateSettings: (updates: Partial<ExpenseSettings>) => Promise<boolean>;
 }
 
 export default function SettingsTab({

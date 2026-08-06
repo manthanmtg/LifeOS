@@ -7,6 +7,13 @@
    ======================================================================== */
 
 :root {
+  --font-inter:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-jetbrains-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+    "Liberation Mono", monospace;
+
   --zinc-50: #f2f4f8;
   --zinc-100: #e2e7ef;
   --zinc-200: #c7d0de;
