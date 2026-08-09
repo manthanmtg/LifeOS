@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
           { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
         ],
       },
+      {
+        source: "/api/portfolio/resume",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
     ];
   },
   experimental: {
