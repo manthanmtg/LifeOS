@@ -1319,51 +1319,55 @@ export default function HealthAdminView() {
                     Notifications use your configured notification channel.
                   </p>
                 </fieldset>
-                <fieldset className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-3">
-                  <legend className="px-1 text-xs font-semibold text-zinc-300">
-                    Also administered to
-                  </legend>
-                  <p className="mt-1 text-xs text-zinc-500">
-                    Shared details are copied into separate health records.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {profiles
-                      .filter((profile) => profile._id !== selectedProfile._id)
-                      .sort(
-                        (a, b) =>
-                          Number(b.payload.type === "pet") -
-                          Number(a.payload.type === "pet"),
-                      )
-                      .map((profile) => {
-                        const selected = vaccinationTargetProfileIds.includes(
-                          profile._id,
-                        );
-                        return (
-                          <button
-                            key={profile._id}
-                            type="button"
-                            aria-pressed={selected}
-                            onClick={() =>
-                              setVaccinationTargetProfileIds((ids) =>
+                {!editingVaccination && (
+                  <fieldset className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-3">
+                    <legend className="px-1 text-xs font-semibold text-zinc-300">
+                      Also administered to
+                    </legend>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Shared details are copied into separate health records.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {profiles
+                        .filter(
+                          (profile) => profile._id !== selectedProfile._id,
+                        )
+                        .sort(
+                          (a, b) =>
+                            Number(b.payload.type === "pet") -
+                            Number(a.payload.type === "pet"),
+                        )
+                        .map((profile) => {
+                          const selected = vaccinationTargetProfileIds.includes(
+                            profile._id,
+                          );
+                          return (
+                            <button
+                              key={profile._id}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() =>
+                                setVaccinationTargetProfileIds((ids) =>
+                                  selected
+                                    ? ids.filter((id) => id !== profile._id)
+                                    : [...ids, profile._id],
+                                )
+                              }
+                              className={cn(
+                                "min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors",
                                 selected
-                                  ? ids.filter((id) => id !== profile._id)
-                                  : [...ids, profile._id],
-                              )
-                            }
-                            className={cn(
-                              "min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors",
-                              selected
-                                ? "border-accent bg-accent/10 text-accent"
-                                : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
-                            )}
-                          >
-                            {profile.payload.name}
-                            {profile.payload.type === "pet" ? " · pet" : ""}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </fieldset>
+                                  ? "border-accent bg-accent/10 text-accent"
+                                  : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+                              )}
+                            >
+                              {profile.payload.name}
+                              {profile.payload.type === "pet" ? " · pet" : ""}
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </fieldset>
+                )}
                 <div>
                   <label className={labelCls}>
                     Certificate or vaccination card
