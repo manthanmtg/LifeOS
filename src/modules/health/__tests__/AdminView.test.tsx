@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 
@@ -62,5 +62,57 @@ describe("HealthAdminView", () => {
       },
       { timeout: 3000 },
     );
+  });
+
+  it("shows a saving state and prevents a second vaccination save", async () => {
+    const profile = {
+      _id: "profile-1",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+      payload: {
+        name: "Milo",
+        type: "pet",
+        blood_group: "unknown",
+        allergies: [],
+        conditions: [],
+        medications: [],
+        vaccinations: [],
+        visits: [],
+        lab_results: [],
+        measurements: [],
+        documents: [],
+        tags: [],
+      },
+    };
+    global.fetch = vi
+      .fn()
+      .mockImplementation((url: string, init?: RequestInit) => {
+        if (init?.method === "PUT") {
+          return new Promise(() => undefined);
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [profile] }),
+        });
+      });
+
+    render(<HealthAdminView />);
+    await screen.findByText("Milo");
+    fireEvent.click(screen.getByText("Milo"));
+    fireEvent.click(await screen.findByRole("button", { name: "Vaccines" }));
+    fireEvent.click(screen.getByRole("button", { name: /Add vaccine/i }));
+    fireEvent.change(screen.getByPlaceholderText("e.g., COVID-19 Booster"), {
+      target: { value: "Rabies" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Saving..." })).toHaveProperty(
+        "disabled",
+        true,
+      );
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Saving..." }));
+    expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 });

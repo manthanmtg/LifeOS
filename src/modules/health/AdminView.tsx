@@ -320,17 +320,22 @@ export default function HealthAdminView() {
     record: T,
     editingRecord: T | null,
   ) => {
-    if (!selectedProfile) return;
+    if (!selectedProfile || saving) return;
+    setSaving(true);
     const arr = [...((selectedProfile.payload[field] as unknown as T[]) || [])];
     const idx = arr.findIndex((r) => r.id === record.id);
     if (idx >= 0) arr[idx] = record;
     else arr.push(record);
-    await updatePayload(selectedProfile, {
-      ...selectedProfile.payload,
-      [field]: arr,
-    });
-    showToast(editingRecord ? "Updated" : "Added");
-    setShowSubForm(null);
+    try {
+      await updatePayload(selectedProfile, {
+        ...selectedProfile.payload,
+        [field]: arr,
+      });
+      showToast(editingRecord ? "Updated" : "Added");
+      setShowSubForm(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteSubRecord = async (field: keyof HealthPayload, id: string) => {
@@ -767,15 +772,17 @@ export default function HealthAdminView() {
                 <div className="p-4 sm:p-6 border-t border-zinc-800 flex items-center justify-end gap-3 shrink-0">
                   <button
                     onClick={() => setShowSubForm(null)}
+                    disabled={saving}
                     className="px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={onSave}
-                    className="px-5 py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95"
+                    disabled={saving}
+                    className="px-5 py-2.5 bg-zinc-50 text-zinc-950 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100"
                   >
-                    Save
+                    {saving ? "Saving..." : "Save"}
                   </button>
                 </div>
               </motion.div>
