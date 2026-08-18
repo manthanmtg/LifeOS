@@ -10,6 +10,7 @@ import {
   getNextTimelineItem,
   getProfileOverviewSnapshot,
   getWeightTrendPoints,
+  getVaccinationGroups,
 } from "../components/selectors";
 import type { HealthProfile } from "../components/types";
 
@@ -37,6 +38,37 @@ function makeProfile(overrides?: Partial<HealthProfile>): HealthProfile {
 }
 
 describe("health selectors", () => {
+  it("groups vaccinations by actionability while keeping history visible", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));
+
+    const groups = getVaccinationGroups([
+      {
+        id: "history",
+        name: "Tetanus",
+        date_administered: "2025-01-01T00:00:00.000Z",
+      },
+      {
+        id: "upcoming",
+        name: "Rabies",
+        date_administered: "2025-01-01T00:00:00.000Z",
+        next_due: "2026-09-01T00:00:00.000Z",
+      },
+      {
+        id: "attention",
+        name: "Flu",
+        date_administered: "2025-01-01T00:00:00.000Z",
+        next_due: "2026-04-18T00:00:00.000Z",
+      },
+    ]);
+
+    expect(groups.needsAttention.map((vac) => vac.id)).toEqual(["attention"]);
+    expect(groups.upcoming.map((vac) => vac.id)).toEqual(["upcoming"]);
+    expect(groups.history.map((vac) => vac.id)).toEqual(["history"]);
+
+    vi.useRealTimers();
+  });
+
   it("sorts health alerts with overdue items first", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-19T00:00:00.000Z"));

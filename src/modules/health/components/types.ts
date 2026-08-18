@@ -62,6 +62,11 @@ export interface Vaccination {
   provider?: string;
   batch_number?: string;
   notes?: string;
+  dose_label?: string;
+  repeat_interval_months?: 1 | 3 | 6 | 12;
+  reminder_enabled?: boolean;
+  reminder_offsets_days?: number[];
+  attachments?: BillAttachment[];
 }
 
 export interface Visit {

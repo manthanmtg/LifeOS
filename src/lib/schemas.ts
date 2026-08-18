@@ -959,6 +959,16 @@ export const HealthProfileSchema = z.object({
         provider: z.string().trim().max(200).optional(),
         batch_number: z.string().trim().max(100).optional(),
         notes: z.string().trim().max(2000).optional(),
+        dose_label: z.string().trim().max(100).optional(),
+        repeat_interval_months: z
+          .union([z.literal(1), z.literal(3), z.literal(6), z.literal(12)])
+          .optional(),
+        reminder_enabled: z.boolean().optional(),
+        reminder_offsets_days: z
+          .array(z.number().int().min(0).max(3650))
+          .max(10)
+          .optional(),
+        attachments: z.array(BillAttachmentSchema).max(50).optional(),
       }),
     )
     .default([]),

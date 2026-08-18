@@ -81,6 +81,8 @@ import {
   formatDateInput,
   getTodayDateInput,
   toISODate,
+  calculateNextDueDate,
+  createVaccinationRepeatDraft,
   getInitials,
   uuid,
   emptyPayload,
@@ -156,6 +158,7 @@ export default function HealthAdminView() {
   );
   const [editingVaccination, setEditingVaccination] =
     useState<Vaccination | null>(null);
+  const [repeatingVaccination, setRepeatingVaccination] = useState(false);
   const [visitForm, setVisitForm] = useState<Partial<Visit>>({});
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
   const [labForm, setLabForm] = useState<Partial<LabResult>>({});
@@ -400,6 +403,7 @@ export default function HealthAdminView() {
   // ─── Vaccinations ────────────────────────────────────────────────────────
 
   const openVaccinationForm = (v?: Vaccination) => {
+    setRepeatingVaccination(false);
     if (v) {
       setEditingVaccination(v);
       setVaccinationForm({
@@ -413,6 +417,22 @@ export default function HealthAdminView() {
         date_administered: getTodayDateInput(),
       });
     }
+    setShowSubForm("vaccination");
+  };
+
+  const openVaccinationRepeatForm = (vaccination: Vaccination) => {
+    setEditingVaccination(null);
+    setRepeatingVaccination(true);
+    setVaccinationForm({
+      ...createVaccinationRepeatDraft(vaccination),
+      date_administered: getTodayDateInput(),
+      next_due: vaccination.repeat_interval_months
+        ? calculateNextDueDate(
+            getTodayDateInput(),
+            vaccination.repeat_interval_months,
+          )
+        : "",
+    });
     setShowSubForm("vaccination");
   };
 
@@ -433,8 +453,62 @@ export default function HealthAdminView() {
       provider: vaccinationForm.provider || undefined,
       batch_number: vaccinationForm.batch_number || undefined,
       notes: vaccinationForm.notes || undefined,
+      dose_label: vaccinationForm.dose_label || undefined,
+      repeat_interval_months: vaccinationForm.repeat_interval_months,
+      reminder_enabled: vaccinationForm.reminder_enabled ?? undefined,
+      reminder_offsets_days: vaccinationForm.reminder_enabled
+        ? vaccinationForm.reminder_offsets_days || [30, 7, 1]
+        : undefined,
+      attachments: vaccinationForm.attachments || [],
     };
     await saveSubRecord("vaccinations", record, editingVaccination);
+  };
+
+  const handleVaccinationFilesChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(e.target.files || []);
+    const attachments: BillAttachment[] = [
+      ...(vaccinationForm.attachments || []),
+    ];
+    for (const file of files) {
+      if (
+        file.size > 5 * 1024 * 1024 ||
+        !(file.type === "application/pdf" || file.type.startsWith("image/"))
+      ) {
+        showToast("Certificates must be images or PDFs under 5 MB", "error");
+        continue;
+      }
+      try {
+        const raw = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        attachments.push({
+          id: uuid(),
+          filename: file.name,
+          content_type: file.type,
+          data: raw.split(",")[1] || "",
+          size: file.size,
+          uploaded_at: new Date().toISOString(),
+        });
+      } catch {
+        showToast(`Could not read ${file.name}`, "error");
+      }
+    }
+    setVaccinationForm((form) => ({ ...form, attachments }));
+    e.target.value = "";
+  };
+
+  const removeVaccinationAttachment = (id: string) => {
+    setVaccinationForm((form) => ({
+      ...form,
+      attachments: (form.attachments || []).filter(
+        (attachment) => attachment.id !== id,
+      ),
+    }));
   };
 
   // ─── Visits ──────────────────────────────────────────────────────────────
@@ -605,36 +679,6 @@ export default function HealthAdminView() {
       ...f,
       attachments: (f.attachments || []).filter((a) => a.id !== id),
     }));
-  };
-
-  // ─── Vaccination helpers ────────────────────────────────────────────────
-
-  const duplicateVaccination = async (vac: Vaccination) => {
-    if (!selectedProfile) return;
-    const newVac: Vaccination = {
-      ...vac,
-      id: uuid(),
-      date_administered: toISODate(getTodayDateInput()),
-      next_due: undefined,
-    };
-    const arr = [...(selectedProfile.payload.vaccinations || []), newVac];
-    await updatePayload(selectedProfile, {
-      ...selectedProfile.payload,
-      vaccinations: arr,
-    });
-    showToast("Vaccination duplicated");
-  };
-
-  const removeVaccinationDueDate = async (vac: Vaccination) => {
-    if (!selectedProfile) return;
-    const arr = selectedProfile.payload.vaccinations.map((v) =>
-      v.id === vac.id ? { ...v, next_due: undefined } : v,
-    );
-    await updatePayload(selectedProfile, {
-      ...selectedProfile.payload,
-      vaccinations: arr,
-    });
-    showToast("Due date removed");
   };
 
   // ─── Computed ────────────────────────────────────────────────────────────
@@ -930,11 +974,12 @@ export default function HealthAdminView() {
             payload={p}
             onAdd={() => openVaccinationForm()}
             onEdit={openVaccinationForm}
+            onRepeat={openVaccinationRepeatForm}
             onDelete={(id) => deleteSubRecord("vaccinations", id)}
-            onDuplicate={duplicateVaccination}
-            onRemoveDueDate={removeVaccinationDueDate}
             renderModal={renderModal(
-              `${editingVaccination ? "Edit" : "Add"} Vaccination`,
+              repeatingVaccination
+                ? "Mark vaccination repeat done"
+                : `${editingVaccination ? "Edit" : "Add"} Vaccination`,
               "vaccination",
               saveVaccination,
               <>
@@ -958,6 +1003,27 @@ export default function HealthAdminView() {
                       <option key={n} value={n} />
                     ))}
                   </datalist>
+                  {!editingVaccination && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {[
+                        "Rabies",
+                        "Influenza",
+                        "COVID-19 Booster",
+                        "Tetanus",
+                      ].map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() =>
+                            setVaccinationForm((form) => ({ ...form, name }))
+                          }
+                          className="rounded-full border border-zinc-700 px-2.5 py-1 text-[10px] font-semibold text-zinc-400 hover:border-accent hover:text-zinc-200"
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -975,7 +1041,7 @@ export default function HealthAdminView() {
                     />
                   </div>
                   <div>
-                    <label className={labelCls}>Next Due</label>
+                    <label className={labelCls}>Next due</label>
                     <input
                       type="date"
                       value={vaccinationForm.next_due || ""}
@@ -989,6 +1055,68 @@ export default function HealthAdminView() {
                     />
                   </div>
                 </div>
+                <fieldset className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-3">
+                  <legend className="px-1 text-xs font-semibold text-zinc-300">
+                    Repeat schedule
+                  </legend>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {([undefined, 1, 3, 6, 12] as const).map((months) => {
+                      const active =
+                        vaccinationForm.repeat_interval_months === months;
+                      const label = months ? `${months}m` : "No repeat";
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() =>
+                            setVaccinationForm((form) => ({
+                              ...form,
+                              repeat_interval_months: months,
+                              next_due: months
+                                ? calculateNextDueDate(
+                                    form.date_administered ||
+                                      getTodayDateInput(),
+                                    months,
+                                  )
+                                : "",
+                            }))
+                          }
+                          className={cn(
+                            "min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                            active
+                              ? "border-accent bg-accent/10 text-accent"
+                              : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+                          )}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVaccinationForm((form) => ({
+                          ...form,
+                          repeat_interval_months: undefined,
+                        }))
+                      }
+                      className={cn(
+                        "min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                        vaccinationForm.next_due &&
+                          !vaccinationForm.repeat_interval_months
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+                      )}
+                    >
+                      Custom date
+                    </button>
+                  </div>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Choose an interval to calculate the date, or use Custom date
+                    for exceptions. Schedules are personal records, not medical
+                    guidance.
+                  </p>
+                </fieldset>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>Provider</label>
@@ -1019,6 +1147,21 @@ export default function HealthAdminView() {
                       className={inputCls}
                     />
                   </div>
+                  <div>
+                    <label className={labelCls}>Dose label</label>
+                    <input
+                      type="text"
+                      value={vaccinationForm.dose_label || ""}
+                      onChange={(e) =>
+                        setVaccinationForm((form) => ({
+                          ...form,
+                          dose_label: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., Booster, dose 2"
+                      className={inputCls}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>Notes</label>
@@ -1033,6 +1176,91 @@ export default function HealthAdminView() {
                     rows={2}
                     className={cn(inputCls, "resize-none")}
                   />
+                </div>
+                <fieldset className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-3">
+                  <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-sm font-medium text-zinc-300">
+                    Vaccine reminders
+                    <input
+                      type="checkbox"
+                      checked={
+                        vaccinationForm.reminder_enabled ??
+                        Boolean(vaccinationForm.next_due)
+                      }
+                      onChange={(e) =>
+                        setVaccinationForm((form) => ({
+                          ...form,
+                          reminder_enabled: e.target.checked,
+                          reminder_offsets_days: form.reminder_offsets_days || [
+                            30, 7, 1,
+                          ],
+                        }))
+                      }
+                      className="size-4 accent-accent"
+                    />
+                  </label>
+                  {(vaccinationForm.reminder_enabled ??
+                    Boolean(vaccinationForm.next_due)) && (
+                    <div className="mt-2">
+                      <label className="text-xs text-zinc-500">
+                        Days before due, comma separated
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={(
+                          vaccinationForm.reminder_offsets_days || [30, 7, 1]
+                        ).join(", ")}
+                        onChange={(e) =>
+                          setVaccinationForm((form) => ({
+                            ...form,
+                            reminder_offsets_days: e.target.value
+                              .split(",")
+                              .map((value) => Number(value.trim()))
+                              .filter(
+                                (value) =>
+                                  Number.isInteger(value) &&
+                                  value >= 0 &&
+                                  value <= 3650,
+                              )
+                              .slice(0, 10),
+                          }))
+                        }
+                        className={cn(inputCls, "mt-1")}
+                      />
+                    </div>
+                  )}
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Notifications use your configured notification channel.
+                  </p>
+                </fieldset>
+                <div>
+                  <label className={labelCls}>
+                    Certificate or vaccination card
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    multiple
+                    onChange={handleVaccinationFilesChange}
+                    className="block w-full text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-zinc-200 hover:file:bg-zinc-700"
+                  />
+                  {!!vaccinationForm.attachments?.length && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {vaccinationForm.attachments.map((attachment) => (
+                        <button
+                          key={attachment.id}
+                          type="button"
+                          onClick={() =>
+                            removeVaccinationAttachment(attachment.id)
+                          }
+                          className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-zinc-800 px-2 text-xs text-zinc-300 hover:bg-danger/10 hover:text-danger"
+                        >
+                          <FileText className="size-3.5" />{" "}
+                          {attachment.filename} <X className="size-3" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </>,
             )}

@@ -470,6 +470,54 @@ describe("schemas", () => {
   });
 
   describe("HealthProfileSchema", () => {
+    it("accepts optional vaccination scheduling and certificate fields", () => {
+      const result = HealthProfileSchema.safeParse({
+        name: "Milo",
+        type: "pet",
+        vaccinations: [
+          {
+            id: "vac-1",
+            name: "Rabies",
+            date_administered: "2026-03-21T00:00:00.000Z",
+            next_due: "2027-03-21T00:00:00.000Z",
+            dose_label: "Annual booster",
+            repeat_interval_months: 12,
+            reminder_enabled: true,
+            reminder_offsets_days: [30, 7, 1],
+            attachments: [
+              {
+                id: "certificate-1",
+                filename: "rabies.pdf",
+                content_type: "application/pdf",
+                data: "data:application/pdf;base64,Zm9v",
+                size: 3,
+                uploaded_at: "2026-03-21T00:00:00.000Z",
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects invalid vaccination reminder offsets", () => {
+      expect(
+        HealthProfileSchema.safeParse({
+          name: "Milo",
+          type: "pet",
+          vaccinations: [
+            {
+              id: "vac-1",
+              name: "Rabies",
+              date_administered: "2026-03-21T00:00:00.000Z",
+              reminder_offsets_days: [-1],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    });
+
     it("rejects blank profile names and allergy entries", () => {
       const profile = {
         name: "   ",

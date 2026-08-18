@@ -6,6 +6,7 @@ import type {
   LabResult,
   Measurement,
   HealthDocument,
+  Vaccination,
 } from "./types";
 
 interface HealthAlert {
@@ -49,27 +50,58 @@ export interface WeightTrendPoint {
   heightPercent: number;
 }
 
+export interface VaccinationGroups {
+  needsAttention: Vaccination[];
+  upcoming: Vaccination[];
+  history: Vaccination[];
+}
+
 function toEpochMs(date?: string): number {
   const epoch = date ? Date.parse(date) : Number.NaN;
   return Number.isNaN(epoch) ? 0 : epoch;
 }
 
-function byNewestDate<T extends { date: string }>(items: T[]): T[] {
-  return [...items].sort(
-    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
+export function getVaccinationGroups(
+  vaccinations: Vaccination[],
+): VaccinationGroups {
+  const groups: VaccinationGroups = {
+    needsAttention: [],
+    upcoming: [],
+    history: [],
+  };
+
+  for (const vaccination of vaccinations) {
+    const status = getDueStatus(vaccination.next_due);
+    if (status === "overdue" || status === "warning") {
+      groups.needsAttention.push(vaccination);
+    } else if (vaccination.next_due) {
+      groups.upcoming.push(vaccination);
+    } else {
+      groups.history.push(vaccination);
+    }
+  }
+
+  groups.needsAttention.sort(
+    (a, b) => toEpochMs(a.next_due) - toEpochMs(b.next_due),
   );
+  groups.upcoming.sort((a, b) => toEpochMs(a.next_due) - toEpochMs(b.next_due));
+  groups.history.sort(
+    (a, b) => toEpochMs(b.date_administered) - toEpochMs(a.date_administered),
+  );
+
+  return groups;
+}
+
+function byNewestDate<T extends { date: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => toEpochMs(b.date) - toEpochMs(a.date));
 }
 
 function byNewestVisit(items: Visit[]): Visit[] {
-  return [...items].sort(
-    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
-  );
+  return [...items].sort((a, b) => toEpochMs(b.date) - toEpochMs(a.date));
 }
 
 function byNewestMeasurement(items: Measurement[]): Measurement[] {
-  return [...items].sort(
-    (a, b) => toEpochMs(b.date) - toEpochMs(a.date),
-  );
+  return [...items].sort((a, b) => toEpochMs(b.date) - toEpochMs(a.date));
 }
 
 function byNewestDocument(items: HealthDocument[]): HealthDocument[] {
@@ -310,10 +342,7 @@ export function getSortedLabGroups(
       testName,
       byNewestDate(results),
     ])
-    .sort(
-      (a, b) =>
-        toEpochMs(b[1][0]?.date) - toEpochMs(a[1][0]?.date),
-    );
+    .sort((a, b) => toEpochMs(b[1][0]?.date) - toEpochMs(a[1][0]?.date));
 }
 
 export function getSortedMeasurements(profile: HealthProfile): Measurement[] {

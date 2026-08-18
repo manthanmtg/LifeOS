@@ -7,6 +7,7 @@ describe("notification source registry", () => {
     expect(notificationSources.map((source) => source.moduleType)).toEqual([
       "recurring_expense",
       "person",
+      "health_profile",
     ]);
   });
 });

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  calculateNextDueDate,
   bmiCategory,
+  createVaccinationRepeatDraft,
   calculateBMI,
   daysUntil,
   emptyPayload,
@@ -119,7 +121,9 @@ describe("health helpers", () => {
   });
 
   it("delegates uuid generation to the browser crypto API", () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("00000000-0000-0000-0000-000000000000");
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "00000000-0000-0000-0000-000000000000",
+    );
 
     expect(uuid()).toBe("00000000-0000-0000-0000-000000000000");
 
@@ -142,5 +146,46 @@ describe("health helpers", () => {
   it("parses date only strings without UTC shift surprises", () => {
     expect(toISODate("2026-04-19")).toBe("2026-04-19T00:00:00.000Z");
     expect(daysUntil("2026-04-22")).toBeTypeOf("number");
+  });
+
+  it("calculates calendar-safe vaccine repeat due dates", () => {
+    expect(calculateNextDueDate("2026-01-31", 1)).toBe("2026-02-28");
+    expect(calculateNextDueDate("2024-01-31", 1)).toBe("2024-02-29");
+    expect(calculateNextDueDate("2026-03-21", 12)).toBe("2027-03-21");
+    expect(calculateNextDueDate("2026-03-21", undefined)).toBeUndefined();
+  });
+
+  it("creates a repeat draft without copying batch or certificate data", () => {
+    expect(
+      createVaccinationRepeatDraft({
+        id: "vac-1",
+        name: "Rabies",
+        date_administered: "2026-03-21T00:00:00.000Z",
+        next_due: "2027-03-21T00:00:00.000Z",
+        provider: "Home Visit",
+        batch_number: "BATCH-1",
+        notes: "Annual booster",
+        dose_label: "Booster",
+        repeat_interval_months: 12,
+        attachments: [
+          {
+            id: "attachment-1",
+            filename: "certificate.pdf",
+            data: "data:application/pdf;base64,Zm9v",
+            content_type: "application/pdf",
+            size: 3,
+            uploaded_at: "2026-03-21T00:00:00.000Z",
+          },
+        ],
+      }),
+    ).toMatchObject({
+      name: "Rabies",
+      provider: "Home Visit",
+      notes: "Annual booster",
+      dose_label: "Booster",
+      repeat_interval_months: 12,
+      batch_number: "",
+      attachments: [],
+    });
   });
 });

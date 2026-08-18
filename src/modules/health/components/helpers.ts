@@ -1,5 +1,42 @@
 // Shared helper functions for health module components
 
+import type { Vaccination } from "./types";
+
+export const VACCINE_REPEAT_INTERVAL_MONTHS = [1, 3, 6, 12] as const;
+
+function daysInMonth(year: number, monthIndex: number) {
+  return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+}
+
+export function calculateNextDueDate(
+  date: string,
+  intervalMonths?: Vaccination["repeat_interval_months"],
+): string | undefined {
+  if (!intervalMonths || !date) return undefined;
+  const [year, month, day] = date.slice(0, 10).split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  const targetMonth = month - 1 + intervalMonths;
+  const targetYear = year + Math.floor(targetMonth / 12);
+  const normalizedMonth = targetMonth % 12;
+  const targetDay = Math.min(day, daysInMonth(targetYear, normalizedMonth));
+  return `${targetYear}-${String(normalizedMonth + 1).padStart(2, "0")}-${String(targetDay).padStart(2, "0")}`;
+}
+
+export function createVaccinationRepeatDraft(vaccination: Vaccination) {
+  return {
+    name: vaccination.name,
+    provider: vaccination.provider || "",
+    notes: vaccination.notes || "",
+    dose_label: vaccination.dose_label || "",
+    repeat_interval_months: vaccination.repeat_interval_months,
+    reminder_enabled:
+      vaccination.reminder_enabled ?? Boolean(vaccination.next_due),
+    reminder_offsets_days: vaccination.reminder_offsets_days || [30, 7, 1],
+    batch_number: "",
+    attachments: [],
+  } satisfies Partial<Vaccination>;
+}
+
 export function formatDate(d: string): string {
   if (!d) return "—";
   const date = new Date(d);
