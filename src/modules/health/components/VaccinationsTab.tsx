@@ -8,6 +8,7 @@ import {
   Plus,
   Syringe,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ interface VaccinationsTabProps {
   onEdit: (v: Vaccination) => void;
   onRepeat: (v: Vaccination) => void;
   onDelete: (id: string) => void;
+  deletingId?: string | null;
   renderModal: React.ReactNode;
 }
 
@@ -30,11 +32,13 @@ function VaccineRow({
   onEdit,
   onRepeat,
   onDelete,
+  deletingId,
 }: {
   vaccination: Vaccination;
   onEdit: (v: Vaccination) => void;
   onRepeat: (v: Vaccination) => void;
   onDelete: (id: string) => void;
+  deletingId?: string | null;
 }) {
   const dueStatus = getDueStatus(vaccination.next_due);
   const iconClass =
@@ -139,9 +143,15 @@ function VaccineRow({
             type="button"
             aria-label={`Delete ${vaccination.name} vaccination`}
             onClick={() => onDelete(vaccination.id)}
+            disabled={deletingId === vaccination.id}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-danger hover:bg-danger/10"
           >
-            <Trash2 className="size-3.5" aria-hidden="true" /> Delete
+            {deletingId === vaccination.id ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+            ) : (
+              <Trash2 className="size-3.5" aria-hidden="true" />
+            )}
+            {deletingId === vaccination.id ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>
@@ -155,6 +165,7 @@ export default function VaccinationsTab({
   onEdit,
   onRepeat,
   onDelete,
+  deletingId,
   renderModal,
 }: VaccinationsTabProps) {
   const groups = getVaccinationGroups(payload.vaccinations);
@@ -231,6 +242,7 @@ export default function VaccinationsTab({
                   onEdit={onEdit}
                   onRepeat={onRepeat}
                   onDelete={onDelete}
+                  deletingId={deletingId}
                 />
               ))}
             </div>

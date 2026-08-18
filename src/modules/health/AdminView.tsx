@@ -186,6 +186,7 @@ export default function HealthAdminView() {
     id: string;
     name: string;
   }>({ open: false, id: "", name: "" });
+  const [deletingRecordId, setDeletingRecordId] = useState<string | null>(null);
 
   const showToast = useCallback(
     (message: string, type: ToastType = "success") => {
@@ -343,15 +344,22 @@ export default function HealthAdminView() {
   };
 
   const deleteSubRecord = async (field: keyof HealthPayload, id: string) => {
-    if (!selectedProfile) return;
+    if (!selectedProfile || saving) return;
+    setSaving(true);
+    setDeletingRecordId(id);
     const arr = (
       (selectedProfile.payload[field] as Array<{ id: string }>) || []
     ).filter((r) => r.id !== id);
-    await updatePayload(selectedProfile, {
-      ...selectedProfile.payload,
-      [field]: arr,
-    });
-    showToast("Deleted");
+    try {
+      await updatePayload(selectedProfile, {
+        ...selectedProfile.payload,
+        [field]: arr,
+      });
+      showToast("Deleted");
+    } finally {
+      setDeletingRecordId(null);
+      setSaving(false);
+    }
   };
 
   // ─── Conditions ──────────────────────────────────────────────────────────
@@ -1062,6 +1070,7 @@ export default function HealthAdminView() {
             onEdit={openVaccinationForm}
             onRepeat={openVaccinationRepeatForm}
             onDelete={(id) => deleteSubRecord("vaccinations", id)}
+            deletingId={deletingRecordId}
             renderModal={renderModal(
               repeatingVaccination
                 ? "Mark vaccination repeat done"
