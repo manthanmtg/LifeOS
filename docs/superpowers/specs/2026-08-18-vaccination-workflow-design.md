@@ -29,11 +29,34 @@ attachments?: BillAttachment[];
 
 `next_due` is still the authoritative calendar date. `repeat_interval_months` is only a convenience for calculating the next due date after a completed repeat. When an existing record has a date but no interval, its Repeat Done form defaults to Custom date; this avoids guessing the intended schedule. `reminder_enabled` defaults to true for dated vaccines; offsets default to `[30, 7, 1]` only when reminders are enabled.
 
+### Linked repeat and multi-profile events
+
+Add optional `series_id` and `campaign_id` strings to every vaccination. A
+series identifies the successive doses for one profile and vaccine; a campaign
+identifies doses administered together to multiple profiles. Both values are
+generated client-side with the existing UUID helper. Existing data remains
+valid: a repeat action assigns a series id to both its predecessor and new
+current record, while standalone existing records continue to render normally.
+
+Completing a repeat transitions the predecessor to history by clearing its
+`next_due`; the new record is the sole scheduled member of the series. A bulk
+administration creates an independent record in every selected profile, with a
+shared campaign id and separate per-profile series ids. The same date, vaccine,
+provider, batch, notes, attachments, and interval are copied deliberately;
+each profile maintains independent reminders and due status.
+
 ## User experience
 
 The list has one primary action: **Add vaccine**. Each due or upcoming row has a visible, keyboard-accessible **Mark repeat done** action. Secondary actions are in a labelled overflow menu and remain available on touch screens.
 
 The repeat form pre-fills vaccine name, dose label, provider, notes, and repeat schedule; it sets administered date to today, clears batch number and attachments, and calculates the next due date from the selected interval. Editing an existing record never creates a second record. Completion creates a fresh record, leaving the previous dose intact.
+
+The form includes an **Also administered to** multi-select of other Health
+profiles (pets are shown first). It presents selected names as removable chips
+and explains that shared information is copied into separate profile records.
+The profile-list view also exposes a **Bulk vaccination** action that opens the
+same form with no originating record. On save, a confirmation toast names the
+number of profiles updated.
 
 Rows use semantic status colour together with status text and an icon. Touch targets are at least 44px, all icon actions have labels, and the form uses visible labels and helper text. The compact layout works at 375px without horizontal overflow.
 

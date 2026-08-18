@@ -159,6 +159,10 @@ export default function HealthAdminView() {
   const [editingVaccination, setEditingVaccination] =
     useState<Vaccination | null>(null);
   const [repeatingVaccination, setRepeatingVaccination] = useState(false);
+  const [repeatSourceVaccination, setRepeatSourceVaccination] =
+    useState<Vaccination | null>(null);
+  const [vaccinationTargetProfileIds, setVaccinationTargetProfileIds] =
+    useState<string[]>([]);
   const [visitForm, setVisitForm] = useState<Partial<Visit>>({});
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
   const [labForm, setLabForm] = useState<Partial<LabResult>>({});
@@ -409,6 +413,8 @@ export default function HealthAdminView() {
 
   const openVaccinationForm = (v?: Vaccination) => {
     setRepeatingVaccination(false);
+    setRepeatSourceVaccination(null);
+    setVaccinationTargetProfileIds([]);
     if (v) {
       setEditingVaccination(v);
       setVaccinationForm({
@@ -428,6 +434,8 @@ export default function HealthAdminView() {
   const openVaccinationRepeatForm = (vaccination: Vaccination) => {
     setEditingVaccination(null);
     setRepeatingVaccination(true);
+    setRepeatSourceVaccination(vaccination);
+    setVaccinationTargetProfileIds([]);
     setVaccinationForm({
       ...createVaccinationRepeatDraft(vaccination),
       date_administered: getTodayDateInput(),
@@ -446,6 +454,8 @@ export default function HealthAdminView() {
       showToast("Vaccine name is required", "error");
       return;
     }
+    if (!selectedProfile || saving) return;
+    const campaignId = vaccinationTargetProfileIds.length ? uuid() : undefined;
     const record: Vaccination = {
       id: editingVaccination?.id || uuid(),
       name: vaccinationForm.name || "",
@@ -465,8 +475,77 @@ export default function HealthAdminView() {
         ? vaccinationForm.reminder_offsets_days || [30, 7, 1]
         : undefined,
       attachments: vaccinationForm.attachments || [],
+      series_id:
+        repeatSourceVaccination?.series_id ||
+        (repeatingVaccination ? uuid() : vaccinationForm.series_id),
+      campaign_id: campaignId,
     };
-    await saveSubRecord("vaccinations", record, editingVaccination);
+    const targets = [
+      selectedProfile,
+      ...profiles.filter((profile) =>
+        vaccinationTargetProfileIds.includes(profile._id),
+      ),
+    ];
+    setSaving(true);
+    try {
+      await Promise.all(
+        targets.map(async (profile, index) => {
+          const matchingPrevious =
+            profile._id === selectedProfile._id
+              ? repeatSourceVaccination
+              : profile.payload.vaccinations.find(
+                  (vaccination) =>
+                    vaccination.name.trim().toLowerCase() ===
+                      record.name.trim().toLowerCase() &&
+                    Boolean(vaccination.next_due),
+                );
+          const profileRecord: Vaccination = {
+            ...record,
+            id: index === 0 ? record.id : uuid(),
+            series_id:
+              matchingPrevious?.series_id || record.series_id || uuid(),
+          };
+          const vaccinations = editingVaccination
+            ? profile.payload.vaccinations.map((vaccination) =>
+                vaccination.id === editingVaccination.id
+                  ? profileRecord
+                  : vaccination,
+              )
+            : [
+                ...profile.payload.vaccinations.map((vaccination) =>
+                  vaccination.id === matchingPrevious?.id
+                    ? { ...vaccination, next_due: undefined }
+                    : vaccination,
+                ),
+                profileRecord,
+              ];
+          const response = await fetch(`/api/content/${profile._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              payload: { ...profile.payload, vaccinations },
+            }),
+          });
+          if (!response.ok) throw new Error("Failed to save vaccination");
+        }),
+      );
+      await fetchProfiles();
+      const response = await fetch(`/api/content/${selectedProfile._id}`);
+      const data = await response.json();
+      if (data.data) setSelectedProfile(data.data);
+      showToast(
+        targets.length === 1
+          ? repeatingVaccination
+            ? "Repeat recorded in history"
+            : "Vaccination added"
+          : `Vaccination recorded for ${targets.length} profiles`,
+      );
+      setShowSubForm(null);
+    } catch {
+      showToast("Failed to save vaccination", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleVaccinationFilesChange = async (
@@ -1239,6 +1318,51 @@ export default function HealthAdminView() {
                   <p className="mt-2 text-xs text-zinc-500">
                     Notifications use your configured notification channel.
                   </p>
+                </fieldset>
+                <fieldset className="rounded-xl border border-zinc-800 bg-zinc-950/30 p-3">
+                  <legend className="px-1 text-xs font-semibold text-zinc-300">
+                    Also administered to
+                  </legend>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Shared details are copied into separate health records.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {profiles
+                      .filter((profile) => profile._id !== selectedProfile._id)
+                      .sort(
+                        (a, b) =>
+                          Number(b.payload.type === "pet") -
+                          Number(a.payload.type === "pet"),
+                      )
+                      .map((profile) => {
+                        const selected = vaccinationTargetProfileIds.includes(
+                          profile._id,
+                        );
+                        return (
+                          <button
+                            key={profile._id}
+                            type="button"
+                            aria-pressed={selected}
+                            onClick={() =>
+                              setVaccinationTargetProfileIds((ids) =>
+                                selected
+                                  ? ids.filter((id) => id !== profile._id)
+                                  : [...ids, profile._id],
+                              )
+                            }
+                            className={cn(
+                              "min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors",
+                              selected
+                                ? "border-accent bg-accent/10 text-accent"
+                                : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+                            )}
+                          >
+                            {profile.payload.name}
+                            {profile.payload.type === "pet" ? " · pet" : ""}
+                          </button>
+                        );
+                      })}
+                  </div>
                 </fieldset>
                 <div>
                   <label className={labelCls}>

@@ -67,6 +67,8 @@ export interface Vaccination {
   reminder_enabled?: boolean;
   reminder_offsets_days?: number[];
   attachments?: BillAttachment[];
+  series_id?: string;
+  campaign_id?: string;
 }
 
 export interface Visit {

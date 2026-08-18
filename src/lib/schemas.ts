@@ -969,6 +969,8 @@ export const HealthProfileSchema = z.object({
           .max(10)
           .optional(),
         attachments: z.array(BillAttachmentSchema).max(50).optional(),
+        series_id: z.string().trim().min(1).max(100).optional(),
+        campaign_id: z.string().trim().min(1).max(100).optional(),
       }),
     )
     .default([]),
