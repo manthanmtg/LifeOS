@@ -65,6 +65,11 @@ export async function ensureSystemConfig() {
     await contentColl.createIndex({ module_type: 1 });
     await contentColl.createIndex({ created_at: -1 });
     await contentColl.createIndex({ module_type: 1, is_public: 1 });
+    await contentColl.createIndex({
+      module_type: 1,
+      "payload.space_key": 1,
+      "payload.date": -1,
+    });
 
     const metricsColl = db.collection("metrics");
     await metricsColl.createIndex({ timestamp: -1 });

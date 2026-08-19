@@ -16,6 +16,11 @@ import {
   BillSchema,
   BillFolderSchema,
   RecurringExpenseSchema,
+  ExpenseSpaceSchema,
+  ExpenseSpaceCreateInputSchema,
+  ExpenseSpaceUpdateInputSchema,
+  ExpenseSpaceEntrySchema,
+  ExpenseSpaceEntryInputSchema,
   SchemaRegistry,
 } from "../schemas";
 
@@ -114,6 +119,158 @@ describe("schemas", () => {
       };
       const result = ExpenseSchema.safeParse(expense);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("Expense Spaces schemas", () => {
+    const categoryId = "22222222-2222-4222-8222-222222222222";
+    const subcategoryId = "33333333-3333-4333-8333-333333333333";
+
+    const validSpace = {
+      space_key: "11111111-1111-4111-8111-111111111111",
+      name: "House Renovation",
+      currency: "INR",
+      number_format: "indian" as const,
+      status: "active" as const,
+      categories: [
+        {
+          id: categoryId,
+          name: "Materials",
+          is_active: true,
+          subcategories: [
+            {
+              id: subcategoryId,
+              name: "Flooring",
+              is_active: true,
+            },
+          ],
+        },
+      ],
+    };
+
+    it("parses stored parent and entry payloads without changing calendar dates", () => {
+      expect(ExpenseSpaceSchema.parse(validSpace)).toEqual(validSpace);
+
+      expect(
+        ExpenseSpaceEntrySchema.parse({
+          space_key: validSpace.space_key,
+          amount: 1250.5,
+          currency: "INR",
+          description: "Floor tiles",
+          paid_to: "Local Supplier",
+          category_id: categoryId,
+          subcategory_id: subcategoryId,
+          date: "2026-08-19",
+          tags: ["renovation"],
+        }),
+      ).toMatchObject({ date: "2026-08-19", tags: ["renovation"] });
+    });
+
+    it("applies safe create defaults while leaving stable IDs server-owned", () => {
+      const parsed = ExpenseSpaceCreateInputSchema.parse({
+        name: "Pet Expenses",
+      });
+
+      expect(parsed).toEqual({
+        name: "Pet Expenses",
+        currency: "USD",
+        number_format: "western",
+        status: "active",
+        categories: [],
+      });
+      expect(parsed).not.toHaveProperty("space_key");
+    });
+
+    it("requires optimistic concurrency for full parent updates", () => {
+      const parsed = ExpenseSpaceUpdateInputSchema.safeParse({
+        ...validSpace,
+        space_key: undefined,
+      });
+
+      expect(parsed.success).toBe(false);
+    });
+
+    it("rejects duplicate taxonomy names and IDs across the full space", () => {
+      const duplicateName = ExpenseSpaceSchema.safeParse({
+        ...validSpace,
+        categories: [
+          ...validSpace.categories,
+          {
+            id: "44444444-4444-4444-8444-444444444444",
+            name: "  materials  ",
+            is_active: true,
+            subcategories: [],
+          },
+        ],
+      });
+      const duplicateSubcategoryId = ExpenseSpaceSchema.safeParse({
+        ...validSpace,
+        categories: [
+          ...validSpace.categories,
+          {
+            id: "44444444-4444-4444-8444-444444444444",
+            name: "Labour",
+            is_active: true,
+            subcategories: [
+              {
+                id: subcategoryId,
+                name: "Carpentry",
+                is_active: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(duplicateName.success).toBe(false);
+      expect(duplicateSubcategoryId.success).toBe(false);
+    });
+
+    it("requires an active category for an active space", () => {
+      const result = ExpenseSpaceSchema.safeParse({
+        ...validSpace,
+        categories: validSpace.categories.map((category) => ({
+          ...category,
+          is_active: false,
+        })),
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects impossible entry dates and invalid stored relationships", () => {
+      const result = ExpenseSpaceEntrySchema.safeParse({
+        space_key: validSpace.space_key,
+        amount: 10,
+        currency: "USD",
+        description: "Vet visit",
+        paid_to: "Clinic",
+        category_id: categoryId,
+        date: "2026-02-30",
+        tags: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("deduplicates entry tags case-insensitively and preserves first spelling", () => {
+      const parsed = ExpenseSpaceEntryInputSchema.parse({
+        amount: 10,
+        description: "Vet visit",
+        paid_to: "Clinic",
+        category_id: categoryId,
+        date: "2026-08-19",
+        tags: ["Pet Care", " pet   care ", "Health"],
+      });
+
+      expect(parsed.tags).toEqual(["Pet Care", "Health"]);
+      expect(parsed).not.toHaveProperty("space_key");
+      expect(parsed).not.toHaveProperty("currency");
+    });
+
+    it("registers both private domain payload discriminators", () => {
+      expect(SchemaRegistry.expense_space).toBe(ExpenseSpaceSchema);
+      expect(SchemaRegistry.expense_space_entry).toBe(ExpenseSpaceEntrySchema);
     });
   });
 

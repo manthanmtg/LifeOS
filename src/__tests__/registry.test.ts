@@ -56,4 +56,17 @@ describe("moduleRegistry", () => {
       "recurring-expenses",
     ]);
   });
+
+  it("registers Expense Spaces as a private schema-backed finance module", () => {
+    expect(moduleRegistry["expense-spaces"]).toEqual({
+      name: "Expense Spaces",
+      icon: "WalletCards",
+      defaultPublic: false,
+      contentType: "expense_space",
+      description:
+        "Independent project and life-event expense trackers with budgets and analytics.",
+      tags: ["finance", "projects", "budget", "spending"],
+    });
+    expect(SchemaRegistry.expense_space).toBeDefined();
+  });
 });

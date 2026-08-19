@@ -188,6 +188,80 @@ describe("GET /api/widgets/summary", () => {
     expect(data.completedThisMonth).toBe(2);
   });
 
+  it("returns a compact active-space summary for expense_space", async () => {
+    mockCollection().toArray.mockResolvedValueOnce([
+      {
+        payload: {
+          space_key: "space-usd",
+          status: "active",
+          currency: "USD",
+          budget: { amount: 5000, cadence: "total" },
+        },
+      },
+      {
+        payload: {
+          space_key: "space-inr",
+          status: "active",
+          currency: "INR",
+        },
+      },
+    ]);
+    mockCountDocuments.mockResolvedValueOnce(18);
+
+    const request = createRequest(
+      "http://localhost/api/widgets/summary?module_type=expense_space",
+    );
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      data: {
+        active_spaces: 2,
+        entries_this_month: 18,
+        spaces_with_budgets: 1,
+        currencies_in_use: 2,
+      },
+    });
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "expense_space", "payload.status": "active" },
+      {
+        projection: {
+          _id: 0,
+          "payload.space_key": 1,
+          "payload.currency": 1,
+          "payload.budget": 1,
+        },
+      },
+    );
+    expect(mockCountDocuments).toHaveBeenCalledWith({
+      module_type: "expense_space_entry",
+      "payload.space_key": { $in: ["space-usd", "space-inr"] },
+      "payload.date": { $gte: "2026-04-01", $lte: "2026-04-30" },
+    });
+  });
+
+  it("does not query entries when the expense_space summary is empty", async () => {
+    mockCollection().toArray.mockResolvedValueOnce([]);
+
+    const response = await GET(
+      createRequest(
+        "http://localhost/api/widgets/summary?module_type=expense_space",
+      ),
+    );
+
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      data: {
+        active_spaces: 0,
+        entries_this_month: 0,
+        spaces_with_budgets: 0,
+        currencies_in_use: 0,
+      },
+    });
+    expect(mockCountDocuments).not.toHaveBeenCalled();
+  });
+
   it("returns summary for rain_entry module", async () => {
     const mockEntries = [
       { payload: { date: new Date().toISOString(), rainfall_amount: 10 } },
@@ -553,7 +627,10 @@ describe("GET /api/widgets/summary", () => {
     expect(data.total).toBe(2);
     expect(data.publicDecks).toBe(1);
     expect(data.latest.payload.title).toBe("Private Deck");
-    expect(mockFind).toHaveBeenCalledWith({ module_type: "deck" }, expect.any(Object));
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "deck" },
+      expect.any(Object),
+    );
   });
 
   it("returns summary for blog_post module and includes public content", async () => {

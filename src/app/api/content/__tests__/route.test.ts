@@ -218,6 +218,22 @@ describe("/api/content route", () => {
       expect(mockInsertOne).not.toHaveBeenCalled();
     });
 
+    it.each(["expense_space", "expense_space_entry"])(
+      "rejects domain-managed %s creation through generic content",
+      async (moduleType) => {
+        const response = await POST(
+          createJsonRequest({ module_type: moduleType, payload: {} }),
+        );
+
+        expect(response.status).toBe(400);
+        await expect(response.json()).resolves.toMatchObject({
+          success: false,
+          error: expect.stringMatching(/dedicated expense-spaces API/i),
+        });
+        expect(mockInsertOne).not.toHaveBeenCalled();
+      },
+    );
+
     it("returns validation errors for invalid payloads", async () => {
       const response = await POST(
         createJsonRequest({

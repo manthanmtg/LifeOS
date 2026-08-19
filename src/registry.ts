@@ -40,6 +40,15 @@ export const moduleRegistry: Record<string, ModuleConfig> = {
     description: "Subscriptions, bills, and repeating monthly charges.",
     tags: ["subscriptions", "bills", "monthly", "finance"],
   },
+  "expense-spaces": {
+    name: "Expense Spaces",
+    icon: "WalletCards",
+    defaultPublic: false,
+    contentType: "expense_space",
+    description:
+      "Independent project and life-event expense trackers with budgets and analytics.",
+    tags: ["finance", "projects", "budget", "spending"],
+  },
   "emi-tracker": {
     name: "EMI Tracker",
     icon: "Calculator",

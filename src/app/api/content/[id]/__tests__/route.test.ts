@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { PATCH, PUT } from "../route";
+import { DELETE, PATCH, PUT } from "../route";
 import { getDb } from "@/lib/mongodb";
 
 vi.mock("@/lib/mongodb", () => ({
@@ -19,20 +19,23 @@ function createJsonRequest(body: unknown, method: "PATCH" | "PUT" = "PUT") {
 describe("/api/content/[id] route", () => {
   let mockFindOne: any;
   let mockUpdateOne: any;
+  let mockDeleteOne: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUpdateOne = vi.fn().mockResolvedValue({ modifiedCount: 1 });
+    mockDeleteOne = vi.fn().mockResolvedValue({ deletedCount: 1 });
     mockFindOne = vi.fn().mockResolvedValue({
       _id: "507f1f77bcf86cd799439011",
       module_type: "blog_post",
       is_public: false,
       payload: {},
     });
-    mockUpdateOne = vi.fn().mockResolvedValue({ modifiedCount: 1 });
     vi.mocked(getDb).mockResolvedValue({
       collection: vi.fn().mockReturnValue({
         findOne: mockFindOne,
         updateOne: mockUpdateOne,
+        deleteOne: mockDeleteOne,
       }),
     } as any);
   });
@@ -145,4 +148,83 @@ describe("/api/content/[id] route", () => {
     }
     expect(mockUpdateOne).not.toHaveBeenCalled();
   });
+
+  it.each(["expense_space", "expense_space_entry"])(
+    "rejects generic updates for domain-managed %s documents",
+    async (moduleType) => {
+      mockFindOne.mockResolvedValue({ module_type: moduleType });
+      const payload =
+        moduleType === "expense_space"
+          ? {
+              space_key: "11111111-1111-4111-8111-111111111111",
+              name: "House Renovation",
+              currency: "INR",
+              number_format: "indian",
+              status: "active",
+              categories: [
+                {
+                  id: "22222222-2222-4222-8222-222222222222",
+                  name: "Other",
+                  is_active: true,
+                  subcategories: [],
+                },
+              ],
+            }
+          : {
+              space_key: "11111111-1111-4111-8111-111111111111",
+              amount: 10,
+              currency: "INR",
+              description: "Valid expense",
+              paid_to: "Supplier",
+              category_id: "22222222-2222-4222-8222-222222222222",
+              date: "2026-08-19",
+              tags: [],
+            };
+
+      const response = await PUT(createJsonRequest({ payload }), {
+        params: Promise.resolve({ id: "507f1f77bcf86cd799439011" }),
+      });
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toMatchObject({
+        error: expect.stringMatching(/dedicated expense-spaces API/i),
+      });
+      expect(mockUpdateOne).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["expense_space", "expense_space_entry"])(
+    "rejects generic patches for domain-managed %s documents",
+    async (moduleType) => {
+      mockFindOne.mockResolvedValue({ module_type: moduleType });
+
+      const response = await PATCH(
+        createJsonRequest({ is_public: true }, "PATCH"),
+        { params: Promise.resolve({ id: "507f1f77bcf86cd799439011" }) },
+      );
+
+      expect(response.status).toBe(400);
+      await expect(response.json()).resolves.toMatchObject({
+        error: expect.stringMatching(/dedicated expense-spaces API/i),
+      });
+      expect(mockUpdateOne).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["expense_space", "expense_space_entry"])(
+    "rejects generic deletes for domain-managed %s documents",
+    async (moduleType) => {
+      mockFindOne.mockResolvedValue({ module_type: moduleType });
+
+      const response = await DELETE(
+        new Request("http://localhost/api/content/507f1f77bcf86cd799439011", {
+          method: "DELETE",
+        }),
+        { params: Promise.resolve({ id: "507f1f77bcf86cd799439011" }) },
+      );
+
+      expect(response.status).toBe(400);
+      expect(mockDeleteOne).not.toHaveBeenCalled();
+    },
+  );
 });

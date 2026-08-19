@@ -5,6 +5,8 @@ import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
+const DOMAIN_MANAGED_TYPES = new Set(["expense_space", "expense_space_entry"]);
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -54,6 +56,13 @@ export async function POST(request: Request) {
 
     if (!module_type || typeof module_type !== "string" || module_type === "") {
       return ApiError("module_type is required", 400);
+    }
+
+    if (DOMAIN_MANAGED_TYPES.has(module_type)) {
+      return ApiError(
+        "Use the dedicated expense-spaces API for this module_type",
+        400,
+      );
     }
 
     // Reject unknown module types to prevent unvalidated data insertion

@@ -55,7 +55,9 @@ describe("proxy middleware", () => {
     const response = await proxy(request);
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost/admin/login");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost/admin/login",
+    );
   });
 
   it("allows authenticated /admin access", async () => {
@@ -91,6 +93,31 @@ describe("proxy middleware", () => {
     expect(body).toEqual({ error: "Unauthorized" });
   });
 
+  it("protects all expense-space API reads", async () => {
+    const response = await proxy(
+      new NextRequest(
+        "http://localhost/api/expense-spaces/analytics?scope=all",
+      ),
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it("allows authenticated same-origin expense-space mutations", async () => {
+    vi.mocked(verifyToken).mockResolvedValue({ role: "admin" });
+    const response = await proxy(
+      new NextRequest("http://localhost/api/expense-spaces", {
+        method: "POST",
+        headers: {
+          cookie: "lifeos_token=valid-token",
+          origin: "http://localhost",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("returns unauthorized for protected API route with invalid token", async () => {
     vi.mocked(verifyToken).mockResolvedValue(null);
     const request = new NextRequest("http://localhost/api/system", {
@@ -107,7 +134,9 @@ describe("proxy middleware", () => {
   });
 
   it("does not protect GET requests to public content", async () => {
-    const request = new NextRequest("http://localhost/api/content?module_type=blog_post");
+    const request = new NextRequest(
+      "http://localhost/api/content?module_type=blog_post",
+    );
     const response = await proxy(request);
 
     expect(response.status).toBe(200);

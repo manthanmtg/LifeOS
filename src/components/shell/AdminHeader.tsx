@@ -32,6 +32,7 @@ import {
   Presentation,
   Sparkles,
   Menu,
+  WalletCards,
   type LucideIcon,
 } from "lucide-react";
 
@@ -60,6 +61,7 @@ const IconMap: Record<string, LucideIcon> = {
   PenLine,
   Tv,
   Presentation,
+  WalletCards,
 };
 
 interface SystemConfig {

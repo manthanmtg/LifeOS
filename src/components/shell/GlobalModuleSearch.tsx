@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  memo,
-  useEffect,
-  useRef,
-  useMemo,
-  useState,
-} from "react";
+import { memo, useEffect, useRef, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
@@ -40,6 +34,7 @@ import {
   PenLine,
   Tv,
   Presentation,
+  WalletCards,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -78,6 +73,7 @@ const IconMap: Record<string, LucideIcon> = {
   PenLine,
   Tv,
   Presentation,
+  WalletCards,
 };
 
 const HighlightedText = memo(function HighlightedText({
@@ -220,7 +216,7 @@ export default function GlobalModuleSearch({
               aria-activedescendant={selectedResultId}
               aria-controls="module-search-results"
               role="combobox"
-              />
+            />
             {query.length > 0 && (
               <button
                 type="button"

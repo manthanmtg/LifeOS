@@ -34,6 +34,7 @@ import {
   PenLine,
   Tv,
   Presentation,
+  WalletCards,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
@@ -75,6 +76,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   PenLine,
   Tv,
   Presentation,
+  WalletCards,
 };
 
 export default function CommandPalette() {

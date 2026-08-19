@@ -19,6 +19,10 @@ const widgetImports: Record<string, ComponentType> = {
     () => import("@/modules/recurring-expenses/Widget"),
     { ssr: false, loading: () => <WidgetSkeleton /> },
   ),
+  "expense-spaces": dynamic(() => import("@/modules/expense-spaces/Widget"), {
+    ssr: false,
+    loading: () => <WidgetSkeleton />,
+  }),
   "emi-tracker": dynamic(() => import("@/modules/emi-tracker/Widget"), {
     ssr: false,
     loading: () => <WidgetSkeleton />,

@@ -37,6 +37,7 @@ import {
   Tv,
   Presentation,
   Receipt,
+  WalletCards,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -124,6 +125,7 @@ const IconMap: Record<string, LucideIcon> = {
   Tv,
   Presentation,
   Receipt,
+  WalletCards,
 };
 
 export default function AdminSidebar() {

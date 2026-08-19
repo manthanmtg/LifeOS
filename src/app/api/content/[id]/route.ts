@@ -11,6 +11,11 @@ import {
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
+const DOMAIN_MANAGED_TYPES = new Set(["expense_space", "expense_space_entry"]);
+
+const domainManagedError = () =>
+  ApiError("Use the dedicated expense-spaces API for this content", 400);
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -69,6 +74,9 @@ export async function PUT(
 
     const existing = await contentColl.findOne({ _id: contentObjectId });
     if (!existing) return ApiNotFound();
+    if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return domainManagedError();
+    }
 
     const schema = SchemaRegistry[existing.module_type];
     if (payload !== undefined && !schema) {
@@ -131,6 +139,9 @@ export async function PATCH(
     const contentColl = db.collection<ContentDocument>("content");
     const existing = await contentColl.findOne({ _id: contentObjectId });
     if (!existing) return ApiNotFound();
+    if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return domainManagedError();
+    }
 
     const updateFields: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -205,6 +216,15 @@ export async function DELETE(
 
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
+
+    const existing = await contentColl.findOne(
+      { _id: contentObjectId },
+      { projection: { module_type: 1 } },
+    );
+    if (!existing) return ApiNotFound();
+    if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return domainManagedError();
+    }
 
     const result = await contentColl.deleteOne({ _id: contentObjectId });
     if (result.deletedCount === 0) return ApiNotFound();

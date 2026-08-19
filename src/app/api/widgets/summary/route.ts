@@ -180,6 +180,63 @@ export async function GET(request: Request) {
     const db = await getDb();
     const contentColl = db.collection<ContentDocument>("content");
 
+    if (module_type === "expense_space") {
+      const activeSpaces = (await contentColl
+        .find(
+          { module_type: "expense_space", "payload.status": "active" },
+          {
+            projection: {
+              _id: 0,
+              "payload.space_key": 1,
+              "payload.currency": 1,
+              "payload.budget": 1,
+            },
+          },
+        )
+        .toArray()) as Array<{
+        payload: {
+          space_key: string;
+          currency: string;
+          budget?: { amount: number; cadence: "total" | "monthly" };
+        };
+      }>;
+
+      if (activeSpaces.length === 0) {
+        return ApiSuccess({
+          active_spaces: 0,
+          entries_this_month: 0,
+          spaces_with_budgets: 0,
+          currencies_in_use: 0,
+        });
+      }
+
+      const now = new Date();
+      const year = now.getUTCFullYear();
+      const month = now.getUTCMonth();
+      const monthStart = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+      const monthEnd = new Date(Date.UTC(year, month + 1, 0))
+        .toISOString()
+        .slice(0, 10);
+      const entriesThisMonth = await contentColl.countDocuments({
+        module_type: "expense_space_entry",
+        "payload.space_key": {
+          $in: activeSpaces.map((space) => space.payload.space_key),
+        },
+        "payload.date": { $gte: monthStart, $lte: monthEnd },
+      });
+
+      return ApiSuccess({
+        active_spaces: activeSpaces.length,
+        entries_this_month: entriesThisMonth,
+        spaces_with_budgets: activeSpaces.filter(
+          (space) => space.payload.budget !== undefined,
+        ).length,
+        currencies_in_use: new Set(
+          activeSpaces.map((space) => space.payload.currency),
+        ).size,
+      });
+    }
+
     if (module_type === "snippet") {
       const snippetDocs = (await contentColl
         .find(
@@ -318,11 +375,9 @@ export async function GET(request: Request) {
         },
       );
 
-      const { watchingCount, latestWatching, ratedSum, ratedCount } = bingeSummary;
-      const avgRating =
-        ratedCount > 0
-          ? ratedSum / ratedCount
-          : 0;
+      const { watchingCount, latestWatching, ratedSum, ratedCount } =
+        bingeSummary;
+      const avgRating = ratedCount > 0 ? ratedSum / ratedCount : 0;
       const latest = latestWatching;
 
       return ApiSuccess({
@@ -428,10 +483,7 @@ export async function GET(request: Request) {
     }
 
     const docs = (await contentColl
-      .find(
-        query,
-        { projection: PROJECTIONS[module_type] || {} },
-      )
+      .find(query, { projection: PROJECTIONS[module_type] || {} })
       .toArray()) as ContentDocument<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     let summary: Record<string, unknown> = {};

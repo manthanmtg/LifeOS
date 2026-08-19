@@ -194,6 +194,213 @@ export const ExpenseSchema = z.object({
     .optional(),
 });
 
+// --- 2B. EXPENSE SPACES ---
+const normalizeExpenseSpaceName = (value: string) =>
+  value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US");
+
+const ExpenseSpaceNameSchema = z.string().trim().min(1).max(80);
+
+export const ExpenseSpaceSubcategorySchema = z.object({
+  id: z.string().uuid(),
+  name: ExpenseSpaceNameSchema,
+  is_active: z.boolean().default(true),
+});
+
+export const ExpenseSpaceCategorySchema = z.object({
+  id: z.string().uuid(),
+  name: ExpenseSpaceNameSchema,
+  is_active: z.boolean().default(true),
+  subcategories: z.array(ExpenseSpaceSubcategorySchema).max(100).default([]),
+});
+
+const ExpenseSpaceCreateSubcategorySchema =
+  ExpenseSpaceSubcategorySchema.extend({ id: z.string().uuid().optional() });
+
+const ExpenseSpaceCreateCategorySchema = ExpenseSpaceCategorySchema.extend({
+  id: z.string().uuid().optional(),
+  subcategories: z
+    .array(ExpenseSpaceCreateSubcategorySchema)
+    .max(100)
+    .default([]),
+});
+
+const ExpenseSpaceBudgetSchema = z.object({
+  amount: z.number().positive("Budget amount must be greater than 0"),
+  cadence: z.enum(["total", "monthly"]),
+});
+
+const ExpenseSpaceCommonFields = {
+  name: z.string().trim().min(1, "Space name is required").max(100),
+  description: z.string().trim().min(1).max(500).optional(),
+  currency: CurrencyCodeSchema.default("USD"),
+  number_format: z.enum(["western", "indian"]).default("western"),
+  budget: ExpenseSpaceBudgetSchema.optional(),
+  status: z.enum(["active", "archived"]).default("active"),
+};
+
+type ExpenseSpaceTaxonomyShape = {
+  status: "active" | "archived";
+  categories: Array<{
+    id?: string;
+    name: string;
+    is_active: boolean;
+    subcategories: Array<{ id?: string; name: string; is_active: boolean }>;
+  }>;
+};
+
+const refineExpenseSpaceTaxonomy = (
+  value: ExpenseSpaceTaxonomyShape,
+  ctx: z.RefinementCtx,
+) => {
+  if (
+    value.status === "active" &&
+    value.categories.length > 0 &&
+    !value.categories.some((category) => category.is_active)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["categories"],
+      message: "An active space must have at least one active category",
+    });
+  }
+
+  const categoryIds = new Set<string>();
+  const subcategoryIds = new Set<string>();
+  const categoryNames = new Set<string>();
+  for (const [categoryIndex, category] of value.categories.entries()) {
+    if (category.id) {
+      if (categoryIds.has(category.id)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["categories", categoryIndex, "id"],
+          message: "Category IDs must be unique",
+        });
+      }
+      categoryIds.add(category.id);
+    }
+    const categoryName = normalizeExpenseSpaceName(category.name);
+    if (categoryNames.has(categoryName)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["categories", categoryIndex, "name"],
+        message: "Category names must be unique",
+      });
+    }
+    categoryNames.add(categoryName);
+
+    const subcategoryNames = new Set<string>();
+    for (const [
+      subcategoryIndex,
+      subcategory,
+    ] of category.subcategories.entries()) {
+      if (subcategory.id) {
+        if (subcategoryIds.has(subcategory.id)) {
+          ctx.addIssue({
+            code: "custom",
+            path: [
+              "categories",
+              categoryIndex,
+              "subcategories",
+              subcategoryIndex,
+              "id",
+            ],
+            message: "Subcategory IDs must be unique across the space",
+          });
+        }
+        subcategoryIds.add(subcategory.id);
+      }
+      const subcategoryName = normalizeExpenseSpaceName(subcategory.name);
+      if (subcategoryNames.has(subcategoryName)) {
+        ctx.addIssue({
+          code: "custom",
+          path: [
+            "categories",
+            categoryIndex,
+            "subcategories",
+            subcategoryIndex,
+            "name",
+          ],
+          message: "Subcategory names must be unique within a category",
+        });
+      }
+      subcategoryNames.add(subcategoryName);
+    }
+  }
+};
+
+export const ExpenseSpaceSchema = z
+  .object({
+    space_key: z.string().uuid(),
+    ...ExpenseSpaceCommonFields,
+    categories: z.array(ExpenseSpaceCategorySchema).min(1).max(100),
+  })
+  .superRefine(refineExpenseSpaceTaxonomy);
+
+export const ExpenseSpaceCreateInputSchema = z
+  .object({
+    ...ExpenseSpaceCommonFields,
+    status: z.literal("active").default("active"),
+    categories: z.array(ExpenseSpaceCreateCategorySchema).max(100).default([]),
+  })
+  .superRefine(refineExpenseSpaceTaxonomy);
+
+export const ExpenseSpaceUpdateInputSchema = z
+  .object({
+    ...ExpenseSpaceCommonFields,
+    categories: z.array(ExpenseSpaceCategorySchema).min(1).max(100),
+    expected_updated_at: z.string().datetime(),
+  })
+  .superRefine(refineExpenseSpaceTaxonomy);
+
+const ExpenseSpaceTagsSchema = z
+  .array(z.string().trim().min(1).max(50))
+  .max(20)
+  .default([])
+  .transform((values) => {
+    const seen = new Set<string>();
+    return values.flatMap((value) => {
+      const display = value.replace(/\s+/g, " ");
+      const normalized = normalizeExpenseSpaceName(display);
+      if (seen.has(normalized)) return [];
+      seen.add(normalized);
+      return [display];
+    });
+  });
+
+const ExpenseSpaceEntryInputFields = {
+  amount: z.number().positive("Amount must be greater than 0"),
+  description: z.string().trim().min(2).max(200),
+  paid_to: z.string().trim().min(1, "Paid to is required").max(120),
+  category_id: z.string().uuid(),
+  subcategory_id: z.string().uuid().optional(),
+  date: CalendarDateSchema,
+  payment_method: z
+    .enum([
+      "Cash",
+      "Debit Card",
+      "Credit Card",
+      "Bank Transfer",
+      "UPI",
+      "Cheque",
+      "Other",
+    ])
+    .optional(),
+  reference: z.string().trim().min(1).max(120).optional(),
+  notes: z.string().trim().min(1).max(2000).optional(),
+  tags: ExpenseSpaceTagsSchema,
+  receipt_url: z.string().trim().url().max(2048).optional(),
+};
+
+export const ExpenseSpaceEntryInputSchema = z.object(
+  ExpenseSpaceEntryInputFields,
+);
+
+export const ExpenseSpaceEntrySchema = z.object({
+  space_key: z.string().uuid(),
+  currency: CurrencyCodeSchema,
+  ...ExpenseSpaceEntryInputFields,
+});
+
 // --- 3. BLOG POSTS ---
 const BlogPostSchema = z.object({
   title: z.string().trim().min(3, "Post title is required").max(200),
@@ -1194,6 +1401,8 @@ const BingeItemSchema = z.object({
 
 export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
+  expense_space: ExpenseSpaceSchema,
+  expense_space_entry: ExpenseSpaceEntrySchema,
   blog_post: BlogPostSchema,
   portfolio_profile: PortfolioProfileSchema,
   recurring_expense: RecurringExpenseSchema,
