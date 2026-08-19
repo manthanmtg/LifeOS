@@ -68,10 +68,15 @@ describe("/api/expense-spaces/[spaceId]", () => {
       findOne: vi.fn().mockResolvedValue(space),
       find: vi.fn().mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) }),
       countDocuments: vi.fn().mockResolvedValue(0),
-      distinct: vi
+      aggregate: vi
         .fn()
-        .mockResolvedValueOnce([categoryId])
-        .mockResolvedValueOnce([]),
+        .mockReturnValueOnce({
+          toArray: vi.fn().mockResolvedValue([{ values: [categoryId] }]),
+        })
+        .mockReturnValueOnce({
+          toArray: vi.fn().mockResolvedValue([{ values: [] }]),
+        }),
+      distinct: vi.fn().mockRejectedValue(new Error("distinct unavailable")),
       updateOne: vi.fn().mockResolvedValue({ matchedCount: 1 }),
       deleteMany: vi.fn().mockResolvedValue({ deletedCount: 4 }),
       deleteOne: vi.fn().mockResolvedValue({ deletedCount: 1 }),
@@ -87,7 +92,7 @@ describe("/api/expense-spaces/[spaceId]", () => {
     expect(getDb).not.toHaveBeenCalled();
   });
 
-  it("returns a space with its entry count", async () => {
+  it("returns entry and taxonomy summaries without distinct commands", async () => {
     admin();
     collection.countDocuments.mockResolvedValue(7);
 

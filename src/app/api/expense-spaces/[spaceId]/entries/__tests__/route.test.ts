@@ -74,7 +74,10 @@ describe("/api/expense-spaces/[spaceId]/entries", () => {
       findOne: vi.fn().mockResolvedValue(parent),
       find: vi.fn().mockReturnValue(cursor),
       countDocuments: vi.fn().mockResolvedValue(0),
-      distinct: vi.fn().mockResolvedValue([]),
+      aggregate: vi.fn().mockReturnValue({
+        toArray: vi.fn().mockResolvedValue([]),
+      }),
+      distinct: vi.fn().mockRejectedValue(new Error("distinct unavailable")),
       insertOne: vi.fn().mockResolvedValue({ insertedId: "entry-id" }),
     };
     vi.mocked(getDb).mockResolvedValue({
@@ -91,12 +94,18 @@ describe("/api/expense-spaces/[spaceId]/entries", () => {
     expect(getDb).not.toHaveBeenCalled();
   });
 
-  it("applies owned filters, pagination, projection, and facets", async () => {
+  it("applies filters, pagination, and aggregation-compatible facets", async () => {
     admin();
     collection.countDocuments.mockResolvedValue(2);
-    collection.distinct
-      .mockResolvedValueOnce(["Acme   Ltd", " acme ltd "])
-      .mockResolvedValueOnce(["UPI"]);
+    collection.aggregate
+      .mockReturnValueOnce({
+        toArray: vi
+          .fn()
+          .mockResolvedValue([{ values: ["Acme   Ltd", " acme ltd "] }]),
+      })
+      .mockReturnValueOnce({
+        toArray: vi.fn().mockResolvedValue([{ values: ["UPI"] }]),
+      });
     cursor.toArray.mockResolvedValue([
       {
         _id: "entry-id",

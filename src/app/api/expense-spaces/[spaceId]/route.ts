@@ -17,6 +17,7 @@ import {
   ApiValidationError,
 } from "@/lib/api-response";
 import {
+  aggregateDistinctValues,
   logExpenseSpacesRouteError,
   requireExpenseSpacesAdmin,
 } from "@/lib/expense-spaces/server";
@@ -72,8 +73,8 @@ export async function GET(_request: Request, { params }: Params) {
     const [entryCount, usedCategoryIds, usedSubcategoryIds] = await Promise.all(
       [
         content.countDocuments(childFilter),
-        content.distinct("payload.category_id", childFilter),
-        content.distinct("payload.subcategory_id", childFilter),
+        aggregateDistinctValues(content, "payload.category_id", childFilter),
+        aggregateDistinctValues(content, "payload.subcategory_id", childFilter),
       ],
     );
 
@@ -151,8 +152,8 @@ export async function PUT(request: Request, { params }: Params) {
         "payload.space_key": existingPayload.space_key,
       };
       const [categoryIds, subcategoryIds] = await Promise.all([
-        content.distinct("payload.category_id", childFilter),
-        content.distinct("payload.subcategory_id", childFilter),
+        aggregateDistinctValues(content, "payload.category_id", childFilter),
+        aggregateDistinctValues(content, "payload.subcategory_id", childFilter),
       ]);
       for (const value of categoryIds) {
         if (typeof value === "string") usedCategoryIds.add(value);

@@ -1,7 +1,22 @@
 import "server-only";
 
+import type { Collection, Document, Filter } from "mongodb";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+
+export async function aggregateDistinctValues<TSchema extends Document>(
+  collection: Collection<TSchema>,
+  field: string,
+  filter: Filter<TSchema>,
+): Promise<unknown[]> {
+  const [result] = await collection
+    .aggregate<{
+      values: unknown[];
+    }>([{ $match: filter }, { $group: { _id: null, values: { $addToSet: `$${field}` } } }])
+    .toArray();
+
+  return Array.isArray(result?.values) ? result.values : [];
+}
 
 export async function requireExpenseSpacesAdmin() {
   const cookieStore = await cookies();

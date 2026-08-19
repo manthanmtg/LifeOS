@@ -17,6 +17,7 @@ import {
   ApiValidationError,
 } from "@/lib/api-response";
 import {
+  aggregateDistinctValues,
   logExpenseSpacesRouteError,
   requireExpenseSpacesAdmin,
 } from "@/lib/expense-spaces/server";
@@ -140,11 +141,11 @@ export async function GET(request: Request, { params }: Params) {
         .limit(filters.pageSize)
         .toArray(),
       content.countDocuments(query),
-      content.distinct("payload.paid_to", {
+      aggregateDistinctValues(content, "payload.paid_to", {
         module_type: "expense_space_entry",
         "payload.space_key": parentPayload.space_key,
       }),
-      content.distinct("payload.payment_method", {
+      aggregateDistinctValues(content, "payload.payment_method", {
         module_type: "expense_space_entry",
         "payload.space_key": parentPayload.space_key,
       }),
