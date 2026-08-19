@@ -95,6 +95,103 @@ export async function PUT(
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const id = (await params).id;
+    if (!ObjectId.isValid(id)) {
+      return ApiError("Invalid ID", 400);
+    }
+    const contentObjectId = new ObjectId(id);
+
+    const body: unknown = await request.json().catch(() => ({}));
+    if (!isRecord(body)) {
+      return ApiError("Request body must be an object", 400);
+    }
+
+    const hasIsPublic = Object.prototype.hasOwnProperty.call(body, "is_public");
+    const hasPayload = Object.prototype.hasOwnProperty.call(body, "payload");
+    if (!hasIsPublic && !hasPayload) {
+      return ApiError("Patch must include is_public or payload", 400);
+    }
+    if (hasIsPublic && typeof body.is_public !== "boolean") {
+      return ApiError("is_public must be a boolean", 400);
+    }
+    if (hasPayload && !isRecord(body.payload)) {
+      return ApiError("payload must be an object", 400);
+    }
+
+    const db = await getDb();
+    const contentColl = db.collection<ContentDocument>("content");
+    const existing = await contentColl.findOne({ _id: contentObjectId });
+    if (!existing) return ApiNotFound();
+
+    const updateFields: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (hasIsPublic) updateFields.is_public = body.is_public;
+
+    if (hasPayload) {
+      const schema = SchemaRegistry[existing.module_type];
+      if (!schema) {
+        return ApiError("Unknown module_type for existing content", 400);
+      }
+      if (!isRecord(existing.payload)) {
+        return ApiError("Existing content payload is invalid", 500);
+      }
+
+      const payloadPatch = body.payload as Record<string, unknown>;
+      const invalidField = Object.keys(payloadPatch).find(
+        (key) =>
+          key.includes(".") ||
+          key.startsWith("$") ||
+          key === "__proto__" ||
+          key === "constructor" ||
+          key === "prototype",
+      );
+      if (invalidField) {
+        return ApiError(`Invalid payload field: ${invalidField}`, 400);
+      }
+
+      const parsedPayload = schema.safeParse({
+        ...existing.payload,
+        ...payloadPatch,
+      });
+      if (!parsedPayload.success) {
+        return ApiValidationError(parsedPayload.error.format());
+      }
+
+      const validatedPayload = parsedPayload.data as Record<string, unknown>;
+      const unknownField = Object.keys(payloadPatch).find(
+        (key) => !Object.prototype.hasOwnProperty.call(validatedPayload, key),
+      );
+      if (unknownField) {
+        return ApiError(`Unknown payload field: ${unknownField}`, 400);
+      }
+
+      for (const key of Object.keys(payloadPatch)) {
+        updateFields[`payload.${key}`] = validatedPayload[key];
+      }
+    }
+
+    await contentColl.updateOne(
+      { _id: contentObjectId },
+      { $set: updateFields },
+    );
+
+    return ApiSuccess({ success: true });
+  } catch (error) {
+    console.error("PATCH /api/content/[id] failed:", error);
+    return ApiError("Failed to update content", 500);
+  }
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },

@@ -87,7 +87,7 @@ describe("HealthAdminView", () => {
     global.fetch = vi
       .fn()
       .mockImplementation((url: string, init?: RequestInit) => {
-        if (init?.method === "PUT") {
+        if (init?.method === "PATCH") {
           return new Promise(() => undefined);
         }
         return Promise.resolve({
@@ -114,5 +114,86 @@ describe("HealthAdminView", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Saving..." }));
     expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("saves a vaccination repeat without resending the profile picture", async () => {
+    const profile = {
+      _id: "profile-1",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+      payload: {
+        name: "Cookie",
+        type: "pet",
+        blood_group: "unknown",
+        profile_pic: {
+          data: "large-base64-profile-picture",
+          content_type: "image/jpeg",
+        },
+        allergies: [],
+        conditions: [],
+        medications: [],
+        vaccinations: [
+          {
+            id: "vaccination-1",
+            name: "Rabies",
+            date_administered: "2026-01-01T00:00:00.000Z",
+            next_due: "2099-01-01T00:00:00.000Z",
+            repeat_interval_months: 12,
+          },
+        ],
+        visits: [],
+        lab_results: [],
+        measurements: [],
+        documents: [],
+        tags: [],
+      },
+    };
+    global.fetch = vi
+      .fn()
+      .mockImplementation((url: string, init?: RequestInit) => {
+        if (init?.method) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: { success: true } }),
+          });
+        }
+        if (url === "/api/content/profile-1") {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: profile }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [profile] }),
+        });
+      });
+
+    render(<HealthAdminView />);
+    fireEvent.click(await screen.findByText("Cookie"));
+    fireEvent.click(await screen.findByRole("button", { name: "Vaccines" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Mark repeat done/i, hidden: true }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(
+        vi
+          .mocked(global.fetch)
+          .mock.calls.some(
+            ([, init]) => init?.method === "PATCH" || init?.method === "PUT",
+          ),
+      ).toBe(true);
+    });
+    const writeCall = vi
+      .mocked(global.fetch)
+      .mock.calls.find(
+        ([, init]) => init?.method === "PATCH" || init?.method === "PUT",
+      );
+    expect(writeCall?.[1]?.method).toBe("PATCH");
+    const body = JSON.parse(String(writeCall?.[1]?.body));
+    expect(Object.keys(body.payload)).toEqual(["vaccinations"]);
+    expect(body.payload).not.toHaveProperty("profile_pic");
   });
 });

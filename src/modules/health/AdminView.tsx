@@ -301,21 +301,19 @@ export default function HealthAdminView() {
 
   const updatePayload = async (
     profile: HealthProfile,
-    newPayload: HealthPayload,
+    payloadPatch: Partial<HealthPayload>,
   ) => {
-    try {
-      await fetch(`/api/content/${profile._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payload: newPayload }),
-      });
-      await fetchProfiles();
-      const r = await fetch(`/api/content/${profile._id}`);
-      const d = await r.json();
-      if (d.data) setSelectedProfile(d.data);
-    } catch {
-      showToast("Failed to update", "error");
-    }
+    const response = await fetch(`/api/content/${profile._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload: payloadPatch }),
+    });
+    if (!response.ok) throw new Error("Failed to update health profile");
+
+    await fetchProfiles();
+    const r = await fetch(`/api/content/${profile._id}`);
+    const d = await r.json();
+    if (d.data) setSelectedProfile(d.data);
   };
 
   // ─── Sub-record CRUD helpers ─────────────────────────────────────────────
@@ -333,11 +331,12 @@ export default function HealthAdminView() {
     else arr.push(record);
     try {
       await updatePayload(selectedProfile, {
-        ...selectedProfile.payload,
         [field]: arr,
       });
       showToast(editingRecord ? "Updated" : "Added");
       setShowSubForm(null);
+    } catch {
+      showToast("Failed to update", "error");
     } finally {
       setSaving(false);
     }
@@ -352,10 +351,11 @@ export default function HealthAdminView() {
     ).filter((r) => r.id !== id);
     try {
       await updatePayload(selectedProfile, {
-        ...selectedProfile.payload,
         [field]: arr,
       });
       showToast("Deleted");
+    } catch {
+      showToast("Failed to update", "error");
     } finally {
       setDeletingRecordId(null);
       setSaving(false);
@@ -528,10 +528,10 @@ export default function HealthAdminView() {
                 profileRecord,
               ];
           const response = await fetch(`/api/content/${profile._id}`, {
-            method: "PUT",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              payload: { ...profile.payload, vaccinations },
+              payload: { vaccinations },
             }),
           });
           if (!response.ok) throw new Error("Failed to save vaccination");
