@@ -55,6 +55,16 @@ vi.mock("lucide-react", () => ({
   CloudLightning: () => <span data-testid="cloud-lightning-icon" />,
 }));
 
+function sanitizeMotionProps(props: Record<string, unknown>) {
+  const validProps = { ...props };
+  ["initial", "animate", "exit", "transition", "variants", "layoutId"].forEach(
+    (key) => {
+      delete validProps[key];
+    },
+  );
+  return validProps;
+}
+
 // Mock framer-motion to avoid animation issues in tests
 vi.mock("framer-motion", () => ({
   motion: {
@@ -63,28 +73,28 @@ vi.mock("framer-motion", () => ({
       ...props
     }: { children: React.ReactNode } & Record<string, unknown>) => {
       // Avoid passing Framer Motion specific props to standard HTML elements
-      const { initial, animate, exit, transition, variants, layoutId, ...validProps } = props;
+      const validProps = sanitizeMotionProps(props);
       return <div {...validProps}>{children}</div>;
     },
     button: ({
       children,
       ...props
     }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const { initial, animate, exit, transition, variants, layoutId, ...validProps } = props;
+      const validProps = sanitizeMotionProps(props);
       return <button {...validProps}>{children}</button>;
     },
     aside: ({
       children,
       ...props
     }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const { initial, animate, exit, transition, variants, layoutId, ...validProps } = props;
+      const validProps = sanitizeMotionProps(props);
       return <aside {...validProps}>{children}</aside>;
     },
     section: ({
       children,
       ...props
     }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const { initial, animate, exit, transition, variants, layoutId, ...validProps } = props;
+      const validProps = sanitizeMotionProps(props);
       return <section {...validProps}>{children}</section>;
     },
   },

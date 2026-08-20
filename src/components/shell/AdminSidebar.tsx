@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useMemo, useLayoutEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getOrderedAdminModules, type AdminModuleItem, type SystemConfig } from "@/lib/admin-modules";
 import {
   LayoutDashboard,
@@ -181,15 +181,11 @@ export default function AdminSidebar() {
   const [siteTitle, setSiteTitle] = useState("Life OS");
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [cachedModuleOrder, setCachedModuleOrder] = useState<string[] | null>(
-    null,
+    () => {
+      if (typeof window === "undefined") return null;
+      return readCachedModuleOrder();
+    },
   );
-
-  useLayoutEffect(() => {
-    const cached = readCachedModuleOrder();
-    if (cached !== null) {
-      setCachedModuleOrder(cached);
-    }
-  }, []);
 
   useEffect(() => {
     async function loadConfig() {
