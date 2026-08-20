@@ -8,11 +8,17 @@ export async function aggregateDistinctValues<TSchema extends Document>(
   collection: Collection<TSchema>,
   field: string,
   filter: Filter<TSchema>,
+  options: { unwind?: boolean } = {},
 ): Promise<unknown[]> {
+  const fieldPath = `$${field}`;
   const [result] = await collection
     .aggregate<{
       values: unknown[];
-    }>([{ $match: filter }, { $group: { _id: null, values: { $addToSet: `$${field}` } } }])
+    }>([
+      { $match: filter },
+      ...(options.unwind ? [{ $unwind: fieldPath }] : []),
+      { $group: { _id: null, values: { $addToSet: fieldPath } } },
+    ])
     .toArray();
 
   return Array.isArray(result?.values) ? result.values : [];

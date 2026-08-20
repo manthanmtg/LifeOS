@@ -516,6 +516,8 @@ export default function ExpenseEntryList({
         space={space}
         entry={editing}
         payeeSuggestions={data.facets.paid_to}
+        descriptionSuggestions={data.facets.descriptions}
+        tagSuggestions={data.facets.tags}
         onClose={() => {
           setFormOpen(false);
           setEditing(null);

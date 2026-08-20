@@ -14,7 +14,7 @@ const EMPTY_PAGE: ExpenseEntryPage = {
   pageSize: 50,
   total: 0,
   totalPages: 0,
-  facets: { paid_to: [], payment_methods: [] },
+  facets: { paid_to: [], descriptions: [], tags: [], payment_methods: [] },
 };
 
 export function useExpenseEntries(

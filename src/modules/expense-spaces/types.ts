@@ -145,6 +145,8 @@ export interface ExpenseEntryPage {
   totalPages: number;
   facets: {
     paid_to: string[];
+    descriptions: string[];
+    tags: string[];
     payment_methods: ExpensePaymentMethod[];
   };
 }

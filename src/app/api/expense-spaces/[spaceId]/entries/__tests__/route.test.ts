@@ -104,6 +104,16 @@ describe("/api/expense-spaces/[spaceId]/entries", () => {
           .mockResolvedValue([{ values: ["Acme   Ltd", " acme ltd "] }]),
       })
       .mockReturnValueOnce({
+        toArray: vi
+          .fn()
+          .mockResolvedValue([{ values: ["Floor   tiles", "floor tiles"] }]),
+      })
+      .mockReturnValueOnce({
+        toArray: vi
+          .fn()
+          .mockResolvedValue([{ values: ["materials", "Phase One"] }]),
+      })
+      .mockReturnValueOnce({
         toArray: vi.fn().mockResolvedValue([{ values: ["UPI"] }]),
       });
     cursor.toArray.mockResolvedValue([
@@ -141,8 +151,28 @@ describe("/api/expense-spaces/[spaceId]/entries", () => {
       pageSize: 25,
       total: 2,
       totalPages: 1,
-      facets: { paid_to: ["Acme Ltd"], payment_methods: ["UPI"] },
+      facets: {
+        paid_to: ["Acme Ltd"],
+        descriptions: ["Floor tiles"],
+        tags: ["materials", "Phase One"],
+        payment_methods: ["UPI"],
+      },
     });
+    expect(collection.aggregate).toHaveBeenNthCalledWith(3, [
+      {
+        $match: {
+          module_type: "expense_space_entry",
+          "payload.space_key": spaceKey,
+        },
+      },
+      { $unwind: "$payload.tags" },
+      {
+        $group: {
+          _id: null,
+          values: { $addToSet: "$payload.tags" },
+        },
+      },
+    ]);
   });
 
   it("rejects filters that reference taxonomy outside the parent", async () => {

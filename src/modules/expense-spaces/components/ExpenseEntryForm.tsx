@@ -10,12 +10,15 @@ import type {
   ExpenseSpaceUpdateInput,
 } from "../types";
 import { EXPENSE_PAYMENT_METHODS } from "../constants";
+import FuzzyFreeTextInput from "./FuzzyFreeTextInput";
 
 interface Props {
   open: boolean;
   space: ExpenseSpaceDocument;
   entry?: ExpenseSpaceEntryDocument | null;
   payeeSuggestions: string[];
+  descriptionSuggestions: string[];
+  tagSuggestions: string[];
   onClose: () => void;
   onSave: (input: ExpenseSpaceEntryInput) => Promise<unknown>;
   onSaveSpaceTaxonomy: (
@@ -39,6 +42,8 @@ export default function ExpenseEntryForm({
   space,
   entry,
   payeeSuggestions,
+  descriptionSuggestions,
+  tagSuggestions,
   onClose,
   onSave,
   onSaveSpaceTaxonomy,
@@ -289,32 +294,30 @@ export default function ExpenseEntryForm({
             </label>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-medium text-zinc-200">
-              Description *
-              <input
-                aria-label="Description"
+            <div className="text-sm font-medium text-zinc-200">
+              <label htmlFor="expense-description">Description *</label>
+              <FuzzyFreeTextInput
+                id="expense-description"
+                label="Description"
                 value={description}
+                suggestions={descriptionSuggestions}
                 maxLength={200}
-                onChange={(event) => setDescription(event.target.value)}
+                onChange={setDescription}
                 className={inputClass}
               />
-            </label>
-            <label className="text-sm font-medium text-zinc-200">
-              Paid to *
-              <input
-                aria-label="Paid to"
-                list="expense-space-payees"
+            </div>
+            <div className="text-sm font-medium text-zinc-200">
+              <label htmlFor="expense-paid-to">Paid to *</label>
+              <FuzzyFreeTextInput
+                id="expense-paid-to"
+                label="Paid to"
                 value={paidTo}
+                suggestions={payeeSuggestions}
                 maxLength={120}
-                onChange={(event) => setPaidTo(event.target.value)}
+                onChange={setPaidTo}
                 className={inputClass}
               />
-              <datalist id="expense-space-payees">
-                {payeeSuggestions.map((payee) => (
-                  <option key={payee} value={payee} />
-                ))}
-              </datalist>
-            </label>
+            </div>
           </div>
 
           <fieldset className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
@@ -432,18 +435,27 @@ export default function ExpenseEntryForm({
               />
             </label>
           </div>
-          <label className="block text-sm font-medium text-zinc-200">
-            Tags
-            <input
+          <div className="block text-sm font-medium text-zinc-200">
+            <label htmlFor="expense-tags">Tags</label>
+            <FuzzyFreeTextInput
+              id="expense-tags"
+              label="Tags"
               value={tags}
-              onChange={(event) => setTags(event.target.value)}
+              suggestions={tagSuggestions}
+              onChange={setTags}
               className={inputClass}
               placeholder="materials, phase one"
+              describedBy="expense-tags-help"
+              tagMode
             />
-            <span className="mt-1 block text-xs text-zinc-500">
-              Separate up to 20 tags with commas.
+            <span
+              id="expense-tags-help"
+              className="mt-1 block text-xs font-normal text-zinc-500"
+            >
+              Separate up to 20 tags with commas. Suggestions use the current
+              tag only.
             </span>
-          </label>
+          </div>
           <label className="block text-sm font-medium text-zinc-200">
             Notes
             <textarea

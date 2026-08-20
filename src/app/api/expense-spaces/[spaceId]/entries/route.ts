@@ -59,6 +59,20 @@ function normalizedExactRegex(value: string) {
     .join("\\s+")}$`;
 }
 
+function normalizeStringFacets(values: unknown[]) {
+  const seen = new Set<string>();
+  return values
+    .flatMap((value) => {
+      if (typeof value !== "string") return [];
+      const display = normalizeDisplayName(value);
+      const key = normalizeName(display);
+      if (!key || seen.has(key)) return [];
+      seen.add(key);
+      return [display];
+    })
+    .sort((a, b) => a.localeCompare(b));
+}
+
 export async function GET(request: Request, { params }: Params) {
   try {
     if (!(await requireExpenseSpacesAdmin())) {
@@ -133,37 +147,30 @@ export async function GET(request: Request, { params }: Params) {
       ];
     }
 
-    const [entries, total, payees, paymentMethods] = await Promise.all([
-      content
-        .find(query, { projection: ENTRY_PROJECTION })
-        .sort(SORTS[filters.sort])
-        .skip((filters.page - 1) * filters.pageSize)
-        .limit(filters.pageSize)
-        .toArray(),
-      content.countDocuments(query),
-      aggregateDistinctValues(content, "payload.paid_to", {
-        module_type: "expense_space_entry",
-        "payload.space_key": parentPayload.space_key,
-      }),
-      aggregateDistinctValues(content, "payload.payment_method", {
-        module_type: "expense_space_entry",
-        "payload.space_key": parentPayload.space_key,
-      }),
-    ]);
+    const facetFilter = {
+      module_type: "expense_space_entry",
+      "payload.space_key": parentPayload.space_key,
+    } as const;
+    const [entries, total, payees, descriptions, tags, paymentMethods] =
+      await Promise.all([
+        content
+          .find(query, { projection: ENTRY_PROJECTION })
+          .sort(SORTS[filters.sort])
+          .skip((filters.page - 1) * filters.pageSize)
+          .limit(filters.pageSize)
+          .toArray(),
+        content.countDocuments(query),
+        aggregateDistinctValues(content, "payload.paid_to", facetFilter),
+        aggregateDistinctValues(content, "payload.description", facetFilter),
+        aggregateDistinctValues(content, "payload.tags", facetFilter, {
+          unwind: true,
+        }),
+        aggregateDistinctValues(content, "payload.payment_method", facetFilter),
+      ]);
     const totalPages = total === 0 ? 0 : Math.ceil(total / filters.pageSize);
     if (total > 0 && filters.page > totalPages) {
       return ApiError("page exceeds the available result pages", 400);
     }
-    const seenPayees = new Set<string>();
-    const normalizedPayees = payees.flatMap((value) => {
-      if (typeof value !== "string") return [];
-      const display = normalizeDisplayName(value);
-      const key = normalizeName(display);
-      if (seenPayees.has(key)) return [];
-      seenPayees.add(key);
-      return [display];
-    });
-
     return ApiSuccess({
       entries,
       page: filters.page,
@@ -171,7 +178,9 @@ export async function GET(request: Request, { params }: Params) {
       total,
       totalPages,
       facets: {
-        paid_to: normalizedPayees.sort((a, b) => a.localeCompare(b)),
+        paid_to: normalizeStringFacets(payees),
+        descriptions: normalizeStringFacets(descriptions),
+        tags: normalizeStringFacets(tags),
         payment_methods: paymentMethods.filter(
           (value): value is ExpensePaymentMethod => typeof value === "string",
         ),

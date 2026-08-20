@@ -68,6 +68,8 @@ describe("ExpenseEntryForm", () => {
         onSave={onSave}
         onSaveSpaceTaxonomy={vi.fn()}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
 
@@ -88,6 +90,8 @@ describe("ExpenseEntryForm", () => {
         onSave={vi.fn()}
         onSaveSpaceTaxonomy={vi.fn()}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
 
@@ -121,6 +125,8 @@ describe("ExpenseEntryForm", () => {
         onSave={onSave}
         onSaveSpaceTaxonomy={onSaveSpaceTaxonomy}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
     fillRequired();
@@ -159,6 +165,8 @@ describe("ExpenseEntryForm", () => {
         onSave={onSave}
         onSaveSpaceTaxonomy={onSaveSpaceTaxonomy}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
     fireEvent.change(screen.getByLabelText(/amount/i), {
@@ -200,6 +208,8 @@ describe("ExpenseEntryForm", () => {
         onSave={onSave}
         onSaveSpaceTaxonomy={vi.fn()}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
     fillRequired();
@@ -264,6 +274,8 @@ describe("ExpenseEntryForm", () => {
         onSave={vi.fn()}
         onSaveSpaceTaxonomy={vi.fn()}
         payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
       />,
     );
 
@@ -273,5 +285,90 @@ describe("ExpenseEntryForm", () => {
     expect(
       screen.getByRole("option", { name: "Groceries (Archived)" }),
     ).toBeInTheDocument();
+  });
+
+  it("fuzzy-matches previous payees and descriptions with keyboard selection", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={["Masoud", "Material Market"]}
+        descriptionSuggestions={["Floor tiles", "Electrical fittings"]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    const paidTo = screen.getByRole("combobox", { name: "Paid to" });
+    fireEvent.change(paidTo, { target: { value: "msd" } });
+    expect(screen.getByRole("option", { name: "Masoud" })).toBeInTheDocument();
+    fireEvent.keyDown(paidTo, { key: "ArrowDown" });
+    fireEvent.keyDown(paidTo, { key: "Enter" });
+    expect(paidTo).toHaveValue("Masoud");
+
+    const description = screen.getByRole("combobox", {
+      name: "Description",
+    });
+    fireEvent.change(description, { target: { value: "flr tls" } });
+    expect(
+      screen.getByRole("option", { name: "Floor tiles" }),
+    ).toBeInTheDocument();
+    fireEvent.keyDown(description, { key: "ArrowDown" });
+    fireEvent.keyDown(description, { key: "Enter" });
+    expect(description).toHaveValue("Floor tiles");
+  });
+
+  it("suggests only the active tag token and keeps earlier tags", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={["materials", "Phase One", "plumbing"]}
+      />,
+    );
+
+    const tags = screen.getByRole("combobox", { name: "Tags" });
+    fireEvent.change(tags, { target: { value: "materials, phse" } });
+
+    expect(
+      screen.getByRole("option", { name: "Phase One" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "materials" })).toBeNull();
+    fireEvent.keyDown(tags, { key: "ArrowDown" });
+    fireEvent.keyDown(tags, { key: "Enter" });
+    expect(tags).toHaveValue("materials, Phase One");
+  });
+
+  it("keeps a new free-form value instead of requiring a suggestion", async () => {
+    const onSave = vi.fn<(input: ExpenseSpaceEntryInput) => Promise<void>>(
+      async () => {},
+    );
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={onSave}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={["Masoud"]}
+        descriptionSuggestions={["Floor tiles"]}
+        tagSuggestions={["materials"]}
+      />,
+    );
+    fillRequired();
+    fireEvent.change(screen.getByLabelText(/paid to/i), {
+      target: { value: "Brand New Supplier" },
+    });
+    fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    expect(onSave.mock.calls[0][0].paid_to).toBe("Brand New Supplier");
   });
 });
