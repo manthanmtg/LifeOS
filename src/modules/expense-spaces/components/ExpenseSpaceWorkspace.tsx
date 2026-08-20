@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Archive,
@@ -20,6 +21,7 @@ import type {
 import ExpenseEntryList from "./ExpenseEntryList";
 import ExpenseSpaceAnalytics from "./ExpenseSpaceAnalytics";
 import ExpenseSpaceSettings from "./ExpenseSpaceSettings";
+import ExpenseSpaceTabLoadingSkeleton from "./ExpenseSpaceTabLoadingSkeleton";
 import { formatExpenseMoney } from "./ExpenseSpacesOverview";
 
 interface Props {
@@ -53,6 +55,13 @@ export default function ExpenseSpaceWorkspace({
   onDelete,
   onReload,
 }: Props) {
+  const [pendingTab, setPendingTab] = useState<ExpenseSpaceTab | null>(null);
+  const activeTab = pendingTab ?? tab;
+
+  useEffect(() => {
+    setPendingTab((current) => (current === tab ? null : current));
+  }, [tab]);
+
   const totalSpend = summary?.summary.total_spend ?? 0;
   const thisMonthSpend = summary?.summary.this_month_spend ?? 0;
   const budget = space.payload.budget;
@@ -157,11 +166,15 @@ export default function ExpenseSpaceWorkspace({
               key={item.id}
               type="button"
               role="tab"
-              aria-selected={tab === item.id}
-              onClick={() => onTabChange(item.id)}
+              aria-selected={activeTab === item.id}
+              onClick={() => {
+                if (item.id === activeTab) return;
+                setPendingTab(item.id);
+                onTabChange(item.id);
+              }}
               className={cn(
                 "flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 sm:flex-none",
-                tab === item.id
+                activeTab === item.id
                   ? "bg-zinc-800 text-zinc-50 shadow-sm"
                   : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300",
               )}
@@ -172,18 +185,18 @@ export default function ExpenseSpaceWorkspace({
         </div>
       </div>
 
-      <div role="tabpanel">
-        {tab === "expenses" && (
+      <div role="tabpanel" aria-busy={pendingTab ? true : undefined}>
+        {pendingTab === "analytics" || pendingTab === "settings" ? (
+          <ExpenseSpaceTabLoadingSkeleton tab={pendingTab} />
+        ) : tab === "expenses" ? (
           <ExpenseEntryList
             space={space}
             onSpaceUpdated={onSpaceUpdated}
             onLedgerChanged={onReload}
           />
-        )}
-        {tab === "analytics" && (
+        ) : tab === "analytics" ? (
           <ExpenseSpaceAnalytics scope="space" space={space} spaces={spaces} />
-        )}
-        {tab === "settings" && (
+        ) : (
           <ExpenseSpaceSettings
             space={space}
             entryCount={space.entry_count}

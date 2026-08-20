@@ -173,6 +173,40 @@ describe("Expense Spaces AdminView", () => {
     );
   });
 
+  it("shows an accessible settings skeleton while the tab navigation is pending", async () => {
+    navigationState.searchParams = new URLSearchParams(
+      `space=${spaceId}&tab=expenses`,
+    );
+    global.fetch = vi.fn((url) =>
+      String(url).endsWith(`/${spaceId}`)
+        ? response({ data: { ...space, entry_count: 3 } })
+        : String(url).includes("/entries")
+          ? response({
+              data: {
+                entries: [],
+                page: 1,
+                pageSize: 50,
+                total: 0,
+                totalPages: 0,
+                facets: {
+                  paid_to: [],
+                  descriptions: [],
+                  tags: [],
+                  payment_methods: [],
+                },
+              },
+            })
+          : response({ data: [space] }),
+    );
+    render(<AdminView />);
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Settings" }));
+
+    expect(
+      screen.getByRole("status", { name: /loading settings/i }),
+    ).toHaveAttribute("aria-busy", "true");
+  });
+
   it("shows a retryable API error instead of an empty state", async () => {
     global.fetch = vi.fn(() =>
       response({ success: false, error: "Database unavailable" }, false, 500),

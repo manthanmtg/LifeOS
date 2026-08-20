@@ -252,19 +252,7 @@ export default function ExpenseSpaceAnalytics({
       </div>
 
       {loading ? (
-        <div
-          role="status"
-          aria-label="Loading expense analytics"
-          aria-busy="true"
-          className="space-y-4"
-        >
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <SkeletonBlock key={index} className="h-24 rounded-2xl" />
-            ))}
-          </div>
-          <SkeletonBlock className="h-80 rounded-2xl" />
-        </div>
+        <ExpenseSpaceAnalyticsLoadingSkeleton />
       ) : error ? (
         <div
           role="alert"
@@ -437,6 +425,56 @@ export default function ExpenseSpaceAnalytics({
           </section>
         </>
       ) : null}
+    </div>
+  );
+}
+
+function ExpenseSpaceAnalyticsLoadingSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading expense analytics"
+      aria-busy="true"
+      className="space-y-4"
+    >
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-2xl border border-zinc-800 bg-zinc-900/45 p-4"
+          >
+            <SkeletonBlock className="h-4 w-4 rounded-md" />
+            <SkeletonBlock className="mt-4 h-6 w-3/5" />
+            <SkeletonBlock className="mt-2 h-3 w-2/3" />
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <section
+            key={index}
+            className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5"
+          >
+            <SkeletonBlock className="h-5 w-36" />
+            <SkeletonBlock className="mt-5 h-52 rounded-xl" />
+          </section>
+        ))}
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <section
+            key={index}
+            className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5"
+          >
+            <SkeletonBlock className="h-5 w-40" />
+            <div className="mt-5 space-y-3">
+              {Array.from({ length: 3 }).map((_, rowIndex) => (
+                <SkeletonBlock key={rowIndex} className="h-4 w-full" />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
