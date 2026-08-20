@@ -30,7 +30,7 @@ import {
   Car,
   Wrench,
   Home,
-  Map,
+  Map as MapIcon,
   ShoppingBag,
   HeartPulse,
   PenLine,
@@ -119,7 +119,7 @@ const IconMap: Record<string, LucideIcon> = {
   Car,
   Wrench,
   Home,
-  Map,
+  Map: MapIcon,
   ShoppingBag,
   HeartPulse,
   PenLine,
@@ -142,7 +142,9 @@ const registryModules: AdminModuleItem[] = Object.entries(moduleRegistry).map(
   }),
 );
 
-const registryModuleMap = new Map(registryModules.map((module) => [module.key, module]));
+const registryModuleMap = new globalThis.Map(
+  registryModules.map((module) => [module.key, module]),
+);
 
 function readCachedModuleOrder(): string[] | null {
   try {
