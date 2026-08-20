@@ -139,8 +139,8 @@ export function RainOverview({
   chartType: RainChartType;
 }) {
   return (
-    <>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="@container/rain-overview space-y-4">
+      <div className="grid grid-cols-1 gap-3 @sm/rain-overview:grid-cols-2 @3xl/rain-overview:grid-cols-4">
         <StatCard
           label="Total"
           value={String(analytics.total)}
@@ -175,8 +175,8 @@ export function RainOverview({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-3 @5xl/rain-overview:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 @sm/rain-overview:grid-cols-2 @3xl/rain-overview:grid-cols-3 @5xl/rain-overview:col-span-2">
           <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
             <div className="flex items-center gap-3">
               <div className="rounded-lg border border-accent/20 bg-accent/10 p-2">
@@ -275,6 +275,6 @@ export function RainOverview({
           displayUnit={displayUnit}
         />
       </div>
-    </>
+    </div>
   );
 }

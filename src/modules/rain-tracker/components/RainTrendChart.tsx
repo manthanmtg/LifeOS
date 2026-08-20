@@ -31,7 +31,7 @@ export function RainTrendChart({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.2 }}
-      className="flex min-h-[18rem] flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 p-5 lg:col-span-3"
+      className="flex min-h-[18rem] flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 p-5 @5xl/rain-overview:col-span-3"
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
