@@ -24,9 +24,9 @@ import {
   WhiteboardNoteSchema,
 } from "@/lib/schemas";
 import type { EmiLoan } from "@/modules/emi-tracker/types";
+import { calculateQuickStats } from "@/modules/emi-tracker/lib/emi-utils";
 
 // --- Types for local use ---
-type LoanPayload = EmiLoan["payload"];
 type VehiclePayload = z.infer<typeof VehicleSchema>;
 type HealthProfilePayload = z.infer<typeof HealthProfileSchema>;
 type RecurringExpensePayload = z.infer<typeof RecurringExpenseSchema>;
@@ -41,124 +41,10 @@ type BingeSummaryPayload = {
   current_episode?: number;
 };
 
-// --- EMI Utility Functions ---
-function clampDueDay(year: number, monthIndex: number, dueDay: number) {
-  return new Date(year, monthIndex, dueDay, 12, 0, 0, 0);
-}
-
-function computeFirstDueDate(startISO: string, dueDay: number) {
-  const start = new Date(startISO);
-  const candidate = clampDueDay(start.getFullYear(), start.getMonth(), dueDay);
-  if (candidate.getTime() >= start.getTime()) return candidate;
-  return clampDueDay(start.getFullYear(), start.getMonth() + 1, dueDay);
-}
-
-function computeEmiFromFormula(
-  principal: number,
-  annualRate: number,
-  months: number,
-) {
-  const r = annualRate / 12 / 100;
-  if (months <= 0) return 0;
-  if (r === 0) return principal / months;
-  const pow = Math.pow(1 + r, months);
-  return (principal * (r * pow)) / (pow - 1);
-}
-
 function roundTo(n: number, decimals: number) {
   const f = Math.pow(10, decimals);
   return Math.round(n * f) / f;
 }
-
-function computeScheduleLite(loan: LoanPayload, decimals: number) {
-  const processingFee =
-    (loan.processing_fee_amount ?? 0) +
-    (loan.processing_fee_percent
-      ? (loan.processing_fee_percent / 100) * loan.principal
-      : 0);
-  const financedFee = loan.processing_fee_financed ? processingFee : 0;
-  const basePrincipal = loan.principal + financedFee;
-
-  const firstDue = loan.first_due_date
-    ? new Date(loan.first_due_date)
-    : computeFirstDueDate(loan.start_date, loan.due_day_of_month);
-  const dueDay = loan.due_day_of_month;
-
-  const adjustments = [...(loan.rate_adjustments || [])]
-    .filter(
-      (a) => !!a.effective_date && Number.isFinite(a.annual_interest_rate),
-    )
-    .sort(
-      (a, b) =>
-        new Date(a.effective_date).getTime() -
-        new Date(b.effective_date).getTime(),
-    );
-
-  const getAnnualRateForDueDate = (dueDate: Date) => {
-    let rate = loan.annual_interest_rate;
-    for (const adj of adjustments) {
-      if (new Date(adj.effective_date).getTime() <= dueDate.getTime())
-        rate = adj.annual_interest_rate;
-      else break;
-    }
-    return rate;
-  };
-
-  const strategy =
-    loan.interest_type === "floating"
-      ? loan.recast_strategy
-      : "keep_emi_adjust_tenure";
-  const plannedMonths = loan.tenure_months;
-  const hardCapMonths = 480;
-  const maxMonths =
-    strategy === "keep_emi_adjust_tenure" ? hardCapMonths : plannedMonths;
-
-  let balance = basePrincipal;
-  let currentEmi = loan.monthly_emi;
-  const rows = [];
-
-  for (let i = 0; i < maxMonths; i++) {
-    const dueDate = clampDueDay(
-      firstDue.getFullYear(),
-      firstDue.getMonth() + i,
-      dueDay,
-    );
-    const annualRate = getAnnualRateForDueDate(dueDate);
-    const r = annualRate / 12 / 100;
-
-    if (
-      loan.interest_type === "floating" &&
-      strategy === "keep_tenure_adjust_emi"
-    ) {
-      const prevDue = clampDueDay(
-        dueDate.getFullYear(),
-        dueDate.getMonth() - 1,
-        dueDay,
-      );
-      const prevRate =
-        i === 0 ? loan.annual_interest_rate : getAnnualRateForDueDate(prevDue);
-      if (annualRate !== prevRate) {
-        const remaining = Math.max(1, plannedMonths - i);
-        currentEmi = computeEmiFromFormula(balance, annualRate, remaining);
-      }
-    }
-
-    const emi =
-      strategy === "keep_emi_adjust_tenure" ? loan.monthly_emi : currentEmi;
-    const interest = roundTo(balance * r, decimals);
-    if (emi <= interest + 1e-9) break;
-
-    const principalPay = roundTo(emi - interest, decimals);
-    const principalApplied = Math.min(principalPay, balance);
-    const closing = roundTo(balance - principalApplied, decimals);
-
-    rows.push({ due_date: dueDate.toISOString(), closing_balance: closing });
-    balance = closing;
-    if (balance <= Math.pow(10, -decimals)) break;
-  }
-  return rows;
-}
-// ------------------------------
 
 export async function GET(request: Request) {
   try {
@@ -850,69 +736,23 @@ export async function GET(request: Request) {
       }
 
       case "emi_loan": {
-        const active = docs.filter((l) => l.payload.status === "active");
-        const outstandingByCurrencyMap: Record<string, number> = {};
-        let nearest: { title: string; due: string } | null = null;
         const nowAsDate = new Date(nowRef);
         const decimals = parseInt(searchParams.get("decimals") || "2", 10);
-        const defaultCurrency = searchParams.get("currency") || "INR";
-
-        for (const l of active) {
-          const payload = l.payload;
-          const processingFee =
-            (payload.processing_fee_amount ?? 0) +
-            (payload.processing_fee_percent
-              ? (payload.processing_fee_percent / 100) * payload.principal
-              : 0);
-          const financedFee = payload.processing_fee_financed
-            ? processingFee
-            : 0;
-          const startPrincipal = payload.principal + financedFee;
-
-          const sched = computeScheduleLite(payload, decimals);
-
-          let outstanding = startPrincipal;
-          let nextDue = null;
-          if (sched.length > 0) {
-            nextDue =
-              sched.find(
-                (r) => new Date(r.due_date).getTime() >= nowAsDate.getTime(),
-              ) || null;
-            const last =
-              [...sched]
-                .reverse()
-                .find(
-                  (r) => new Date(r.due_date).getTime() < nowAsDate.getTime(),
-                ) || null;
-            if (last) outstanding = last.closing_balance;
-          }
-
-          const currencyKey = payload.currency || defaultCurrency;
-          outstandingByCurrencyMap[currencyKey] =
-            (outstandingByCurrencyMap[currencyKey] || 0) + outstanding;
-
-          if (nextDue) {
-            if (
-              !nearest ||
-              new Date(nextDue.due_date).getTime() <
-                new Date(nearest.due).getTime()
-            ) {
-              nearest = { title: payload.title, due: nextDue.due_date };
-            }
-          }
-        }
-
-        const outstandingByCurrency = Object.entries(outstandingByCurrencyMap)
-          .map(([currency, amount]) => ({
-            currency,
-            amount: roundTo(amount, decimals),
-          }))
-          .sort((a, b) => a.currency.localeCompare(b.currency));
+        const stats = calculateQuickStats(
+          docs as unknown as EmiLoan[],
+          nowAsDate,
+          decimals,
+        );
 
         summary = {
-          activeCount: active.length,
-          outstandingByCurrency,
-          nearest,
+          activeCount: stats.activeCount,
+          outstandingByCurrency: stats.outstandingByCurrency,
+          nearest: stats.nearestDue
+            ? {
+                title: stats.nearestDue.loan.payload.title,
+                due: stats.nearestDue.row.due_date,
+              }
+            : null,
         };
         break;
       }

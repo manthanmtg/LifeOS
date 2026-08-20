@@ -2,6 +2,7 @@ import type { EmiLoan, ScheduleResult, ScheduleRow } from "../types";
 import {
   calculateTotalInterestSavedAcrossAll,
   computeSchedule,
+  getEffectiveLoanStatus,
   getOutstandingAsOf,
   roundTo,
 } from "./emi-utils";
@@ -54,6 +55,7 @@ export interface LoanWorkspaceViewModel {
   totalPayable: number;
   interestSaved: number;
   tenureSavedMonths: number;
+  effectiveStatus: EmiLoan["payload"]["status"];
 }
 
 function lastRowDate(rows: ScheduleRow[]) {
@@ -89,13 +91,29 @@ export function buildPortfolioViewModel(
   now: Date,
   decimals: number,
 ): PortfolioViewModel {
-  const activeLoans = loans.filter((loan) => loan.payload.status === "active");
   const summaries = new Map<string, PortfolioCurrencySummary>();
   let nearestDue: PortfolioViewModel["nearestDue"] = null;
+  let activeCount = 0;
+  let closedCount = 0;
 
-  for (const loan of activeLoans) {
+  for (const loan of loans) {
     const schedule = computeSchedule(loan.payload, decimals);
     const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+    const effectiveStatus = getEffectiveLoanStatus(
+      loan,
+      schedule,
+      outstanding,
+      nextDue,
+      decimals,
+    );
+
+    if (effectiveStatus === "closed") {
+      closedCount += 1;
+      continue;
+    }
+    if (effectiveStatus !== "active") continue;
+    activeCount += 1;
+
     const currency = loan.payload.currency;
     const existing =
       summaries.get(currency) ??
@@ -141,9 +159,8 @@ export function buildPortfolioViewModel(
   }
 
   return {
-    activeCount: activeLoans.length,
-    closedCount: loans.filter((loan) => loan.payload.status === "closed")
-      .length,
+    activeCount,
+    closedCount,
     allCount: loans.length,
     currencies: [...summaries.values()].sort((a, b) =>
       a.currency.localeCompare(b.currency),
@@ -170,6 +187,13 @@ export function buildLoanWorkspaceViewModel(
   const simulatedSchedule =
     extraMonthly > 0 ? computeSchedule(simulatedPayload, decimals) : schedule;
   const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+  const effectiveStatus = getEffectiveLoanStatus(
+    loan,
+    schedule,
+    outstanding,
+    nextDue,
+    decimals,
+  );
   const paidInterest = roundTo(
     schedule.rows
       .filter((row) => new Date(row.due_date).getTime() <= now.getTime())
@@ -219,5 +243,6 @@ export function buildLoanWorkspaceViewModel(
       0,
       schedule.rows.length - simulatedSchedule.rows.length,
     ),
+    effectiveStatus,
   };
 }

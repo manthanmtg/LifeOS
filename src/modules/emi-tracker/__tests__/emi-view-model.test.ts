@@ -81,6 +81,30 @@ describe("emi view model", () => {
     expect(result.nearestDue?.dueDate.slice(0, 10)).toBe("2026-02-05");
   });
 
+  it("classifies an active loan with a completed schedule as closed", () => {
+    const result = buildPortfolioViewModel(
+      [
+        loan("paid-off", {
+          principal: 1200,
+          tenure_months: 3,
+          monthly_emi: 400,
+          first_due_date: "2026-01-05T00:00:00.000Z",
+          status: "active",
+        }),
+      ],
+      new Date("2026-04-06T00:00:00.000Z"),
+      2,
+    );
+
+    expect(result).toMatchObject({
+      activeCount: 0,
+      closedCount: 1,
+      allCount: 1,
+      currencies: [],
+      nearestDue: null,
+    });
+  });
+
   it("builds a workspace model that stays aligned with schedule utilities", () => {
     const result = buildLoanWorkspaceViewModel(
       loan("workspace", {

@@ -154,7 +154,7 @@ export default function LoanDetails({
           </h2>
           <p className="mt-1 text-sm capitalize text-zinc-500">
             {loan.payload.lender_name ? `${loan.payload.lender_name} · ` : ""}
-            {loan.payload.category} · {loan.payload.status}
+            {loan.payload.category} · {model.effectiveStatus}
           </p>
         </div>
         <button

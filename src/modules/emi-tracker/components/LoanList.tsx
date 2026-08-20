@@ -11,6 +11,7 @@ interface LoanListProps {
     outstanding: number;
     nextDue: ScheduleRow | null;
     progress: number;
+    effectiveStatus: EmiLoan["payload"]["status"];
   }>;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -98,20 +99,23 @@ export default function LoanList({
           : "grid-cols-1",
       )}
     >
-      {loanCards.map(({ loan, outstanding, nextDue, progress }) => (
-        <LoanCard
-          key={loan._id}
-          loan={loan}
-          outstanding={outstanding}
-          nextDue={nextDue}
-          progress={progress}
-          isSelected={selectedId === loan._id}
-          onClick={onSelect}
-          decimals={decimals}
-          numberFormat={numberFormat}
-          variant={variant}
-        />
-      ))}
+      {loanCards.map(
+        ({ loan, outstanding, nextDue, progress, effectiveStatus }) => (
+          <LoanCard
+            key={loan._id}
+            loan={loan}
+            outstanding={outstanding}
+            nextDue={nextDue}
+            progress={progress}
+            effectiveStatus={effectiveStatus}
+            isSelected={selectedId === loan._id}
+            onClick={onSelect}
+            decimals={decimals}
+            numberFormat={numberFormat}
+            variant={variant}
+          />
+        ),
+      )}
     </div>
   );
 }

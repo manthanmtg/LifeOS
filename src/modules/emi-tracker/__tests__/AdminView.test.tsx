@@ -239,6 +239,64 @@ describe("EmiTrackerAdminView", () => {
     expect(screen.getByRole("button", { name: /car loan/i })).toBeVisible();
   }, 15000);
 
+  it("keeps schedule-complete loans out of the active tab", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((url) => {
+      if (url.toString().includes("/api/content")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: [
+                makeLoan("loan-active", "Active Loan", "HDFC", {
+                  principal: 1200,
+                  tenure_months: 3,
+                  monthly_emi: 400,
+                  annual_interest_rate: 0,
+                  interest_type: "fixed",
+                  first_due_date: "2099-01-05T00:00:00.000Z",
+                }),
+                makeLoan("loan-paid-off", "Paid Off Loan", "SBI", {
+                  principal: 1200,
+                  tenure_months: 3,
+                  monthly_emi: 400,
+                  annual_interest_rate: 0,
+                  interest_type: "fixed",
+                  first_due_date: "2000-01-05T00:00:00.000Z",
+                  status: "active",
+                }),
+              ],
+            }),
+        } as Response);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      } as Response);
+    });
+
+    render(<EmiTrackerAdminView />);
+
+    expect(
+      await screen.findByRole("button", { name: /active loan/i }),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: /^active 1$/i })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: /^closed 1$/i })).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: /paid off loan/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /closed loans 1/i }));
+
+    expect(
+      screen.getByRole("button", { name: /paid off loan/i }),
+    ).toBeVisible();
+    expect(screen.getByText("Closed")).toBeVisible();
+  }, 15000);
+
   it("keeps PortfolioHero out of selected-loan mode and renders a back action", async () => {
     navigationState.searchParams = new URLSearchParams("loan=loan-1");
     vi.spyOn(global, "fetch").mockImplementation((url) => {
