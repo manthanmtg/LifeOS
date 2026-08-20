@@ -7,7 +7,7 @@ import { formatDate } from "./helpers";
 import type { Condition } from "./types";
 
 const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+  "text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface ConditionsPanelProps {
   conditions: Condition[];
@@ -28,7 +28,7 @@ export default function ConditionsPanel({
         <p className={labelCls}>Conditions</p>
         <button
           onClick={onAddCondition}
-          className="flex items-center gap-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+          className="flex items-center gap-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
         >
           <Plus className="h-3 w-3" /> Add
         </button>
@@ -48,7 +48,7 @@ export default function ConditionsPanel({
                   {condition.name}
                 </p>
                 {condition.diagnosed_date && (
-                  <p className="text-[11px] text-zinc-500">
+                  <p className="text-xs text-zinc-500">
                     Since {formatDate(condition.diagnosed_date)}
                   </p>
                 )}
@@ -56,7 +56,7 @@ export default function ConditionsPanel({
               <div className="flex items-center gap-2">
                 <span
                   className={cn(
-                    "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                    "rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wider",
                     CONDITION_STATUS_CONFIG[condition.status].bg,
                     CONDITION_STATUS_CONFIG[condition.status].color,
                   )}

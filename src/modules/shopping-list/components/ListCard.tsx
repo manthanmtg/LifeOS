@@ -13,12 +13,7 @@ interface ListCardProps {
   onDelete: (listId: string) => void;
 }
 
-const ListCard = ({
-  list,
-  onOpen,
-  onDuplicate,
-  onDelete,
-}: ListCardProps) => {
+const ListCard = ({ list, onOpen, onDuplicate, onDelete }: ListCardProps) => {
   const summary = useMemo(() => summarizeList(list.payload), [list.payload]);
   const updatedLabel = useMemo(
     () => formatUpdatedDate(list.updated_at),
@@ -38,7 +33,7 @@ const ListCard = ({
 
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             <ShoppingBag className="h-3.5 w-3.5" />
             <span>Shopping List</span>
           </div>
@@ -77,7 +72,7 @@ const ListCard = ({
         </div>
 
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-1 text-[11px] text-zinc-500">
+          <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-500">
             Updated {updatedLabel}
           </span>
 
@@ -97,6 +92,6 @@ const ListCard = ({
       </div>
     </motion.article>
   );
-}
+};
 
 export default memo(ListCard);

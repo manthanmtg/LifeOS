@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { X, FileText, MessageSquare, CheckCircle, Edit2, Trash2, Plus } from "lucide-react";
+import {
+  X,
+  FileText,
+  MessageSquare,
+  CheckCircle,
+  Edit2,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { CompassTask } from "../types";
@@ -12,9 +20,15 @@ interface Props {
   onUpdate: (subtask: Subtask) => void;
 }
 
-export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Props) {
+export default function CompassSubtaskModal({
+  subtask,
+  onClose,
+  onUpdate,
+}: Props) {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(null);
+  const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(
+    null,
+  );
   const [newComment, setNewComment] = useState("");
   const [isAddingComment, setIsAddingComment] = useState(false);
 
@@ -42,10 +56,10 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
             <CheckCircle
               className={cn(
                 "w-4 h-4 shrink-0",
-                subtask.completed ? "text-accent" : "text-zinc-600"
+                subtask.completed ? "text-accent" : "text-zinc-600",
               )}
             />
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">
+            <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest truncate">
               Subtask Detail
             </span>
           </div>
@@ -80,7 +94,9 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
               <textarea
                 ref={descriptionRef}
                 value={subtask.description || ""}
-                onChange={(e) => onUpdate({ ...subtask, description: e.target.value })}
+                onChange={(e) =>
+                  onUpdate({ ...subtask, description: e.target.value })
+                }
                 onBlur={() => setIsEditingDescription(false)}
                 placeholder="Add more details about this subtask..."
                 maxLength={2000}
@@ -92,7 +108,10 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
                 className="group relative w-full min-h-[80px] bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 cursor-text transition-all"
               >
                 <MarkdownRenderer
-                  content={subtask.description || "_No description. Click to add details..._"}
+                  content={
+                    subtask.description ||
+                    "_No description. Click to add details..._"
+                  }
                   className="prose-sm"
                 />
                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -129,7 +148,10 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
                         onUpdate({
                           ...subtask,
                           comments: [
-                            { text: newComment.trim(), created_at: new Date().toISOString() },
+                            {
+                              text: newComment.trim(),
+                              created_at: new Date().toISOString(),
+                            },
                             ...comments,
                           ],
                         });
@@ -167,13 +189,13 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
               {subtask.comments?.map((comment, i) => (
                 <div key={i} className="flex gap-4 group/subcomment">
                   <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center shrink-0 border border-zinc-700/50 mt-1">
-                    <span className="text-[10px] font-bold text-zinc-500 tracking-tighter">
+                    <span className="text-xs font-bold text-zinc-500 tracking-tighter">
                       ME
                     </span>
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest">
+                      <span className="text-xs font-semibold text-zinc-600 uppercase tracking-widest">
                         {new Date(comment.created_at).toLocaleString([], {
                           month: "short",
                           day: "numeric",
@@ -210,7 +232,9 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
                           </button>
                           <button
                             onClick={() => {
-                              const newComments = (subtask.comments || []).filter((_, idx) => idx !== i);
+                              const newComments = (
+                                subtask.comments || []
+                              ).filter((_, idx) => idx !== i);
                               onUpdate({ ...subtask, comments: newComments });
                             }}
                             className="p-1 hover:bg-danger/10 rounded"
@@ -230,12 +254,14 @@ export default function CompassSubtaskModal({ subtask, onClose, onUpdate }: Prop
         {/* Subtask Footer */}
         <div className="px-8 py-4 border-t border-zinc-900 bg-zinc-900/50 flex justify-end shrink-0">
           <button
-            onClick={() => onUpdate({ ...subtask, completed: !subtask.completed })}
+            onClick={() =>
+              onUpdate({ ...subtask, completed: !subtask.completed })
+            }
             className={cn(
               "px-6 py-2 rounded-xl text-sm font-bold transition-all",
               subtask.completed
                 ? "bg-success/10 text-success border border-success/20"
-                : "bg-accent text-zinc-50 hover:bg-accent/80 shadow-lg shadow-accent/20"
+                : "bg-accent text-zinc-50 hover:bg-accent/80 shadow-lg shadow-accent/20",
             )}
           >
             {subtask.completed ? "Re-open Subtask" : "Complete Subtask"}

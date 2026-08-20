@@ -25,7 +25,7 @@ const ZenModeController = memo(function ZenModeController({
   const [zen, setZen] = useState(false);
 
   const toggle = useCallback((e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Z") {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z") {
       e.preventDefault();
       setZen((prev) => !prev);
     }
@@ -40,6 +40,9 @@ const ZenModeController = memo(function ZenModeController({
 
   useEffect(() => {
     wrapperRef.current?.classList.toggle("zen-mode", zen);
+    if (wrapperRef.current) {
+      wrapperRef.current.dataset.zenMode = String(zen);
+    }
   }, [wrapperRef, zen]);
 
   if (!zen) {
@@ -47,8 +50,24 @@ const ZenModeController = memo(function ZenModeController({
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-center text-xs text-zinc-400 animate-fade-in-up sm:left-auto sm:w-fit">
-      Zen Mode · <kbd className="font-mono text-accent">⌘⇧Z</kbd> to exit
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-4 [bottom:max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 flex items-center justify-between gap-3 rounded-2xl border border-zinc-700 bg-zinc-900/95 p-2 pl-4 text-center text-xs text-zinc-300 shadow-2xl backdrop-blur animate-fade-in-up sm:left-auto sm:w-fit"
+    >
+      <span>Zen mode active</span>
+      <button
+        type="button"
+        onClick={() => setZen(false)}
+        aria-label="Exit Zen Mode"
+        aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z"
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-zinc-800 px-3 font-semibold text-zinc-100 transition-colors hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Exit
+        <kbd aria-hidden="true" className="font-mono text-accent">
+          Ctrl/⌘ ⇧ Z
+        </kbd>
+      </button>
     </div>
   );
 });

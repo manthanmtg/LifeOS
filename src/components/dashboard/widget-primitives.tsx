@@ -58,7 +58,7 @@ export const WidgetStat = memo(function WidgetStat({
       <p className="max-w-full overflow-hidden text-ellipsis text-3xl sm:text-4xl font-black text-zinc-50 tracking-tighter tabular-nums leading-none">
         {value}
       </p>
-      <p className="text-[10px] font-bold text-zinc-500 mt-2 uppercase tracking-widest leading-none">
+      <p className="text-xs font-bold text-zinc-500 mt-2 uppercase tracking-widest leading-none">
         {label}
       </p>
     </div>
@@ -89,7 +89,7 @@ export const WidgetHighlight = memo(function WidgetHighlight({
         </p>
       </div>
       {subtext && (
-        <p className="text-[10px] text-zinc-600 mt-0.5 ml-[22px] line-clamp-1">
+        <p className="text-xs text-zinc-600 mt-0.5 ml-[22px] line-clamp-1">
           {subtext}
         </p>
       )}
@@ -140,7 +140,7 @@ export const WidgetMiniStats = memo(function WidgetMiniStats({
             >
               {stat.value}
             </p>
-            <p className="truncate text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-none mt-1">
+            <p className="truncate text-xs text-zinc-600 font-bold uppercase tracking-widest leading-none mt-1">
               {stat.label}
             </p>
           </div>
@@ -170,7 +170,7 @@ export const WidgetList = memo(function WidgetList({
               className="w-3 h-3 text-zinc-600 shrink-0"
             />
           )}
-          <span className="text-[11px] text-zinc-300 truncate font-medium">
+          <span className="text-xs text-zinc-300 truncate font-medium">
             {item.label}
           </span>
         </div>

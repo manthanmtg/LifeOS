@@ -108,7 +108,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
               >
                 {todo ? "Edit Objective" : "New Objective"}
               </h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-0.5">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mt-0.5">
                 Refining the Path
               </p>
             </div>
@@ -126,7 +126,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
           <div className="space-y-3">
             <label
               htmlFor="todo-title"
-              className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1"
+              className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] ml-1"
             >
               Title of Conquest
             </label>
@@ -144,7 +144,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+              <label className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
                 <Flag className="w-3.5 h-3.5" /> Priority Level
               </label>
               <div
@@ -159,7 +159,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
                     onClick={() => setPriority(p)}
                     aria-pressed={priority === p}
                     className={cn(
-                      "flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                      "flex-1 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all",
                       priority === p
                         ? p === "high"
                           ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"
@@ -178,7 +178,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
             <div className="space-y-3">
               <label
                 htmlFor="todo-date"
-                className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
+                className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
               >
                 <Calendar className="w-3.5 h-3.5" /> Deadline
               </label>
@@ -195,7 +195,7 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
           <div className="space-y-3">
             <label
               htmlFor="todo-notes"
-              className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
+              className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"
             >
               <AlignLeft className="w-3.5 h-3.5" /> Intelligence Notes
             </label>
@@ -213,14 +213,14 @@ export default function TodoModal({ todo, onClose, onSave }: TodoModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-8 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-900"
+              className="flex-1 px-8 py-5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all border border-zinc-900"
             >
               Abort
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-[2] bg-accent text-zinc-950 px-8 py-5 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-accent-hover transition-all shadow-2xl shadow-accent/20 disabled:opacity-50 group"
+              className="flex-[2] bg-accent text-zinc-950 px-8 py-5 rounded-[2rem] text-xs font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-accent-hover transition-all shadow-2xl shadow-accent/20 disabled:opacity-50 group"
             >
               <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />
               {isSaving ? "Syncing..." : todo ? "Update flow" : "Manifest task"}

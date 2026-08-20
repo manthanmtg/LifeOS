@@ -354,7 +354,7 @@ export default function TodoAdminView() {
   }, [todos, currentDate]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-20">
+    <div className="flex flex-col min-h-dvh pb-20">
       <TodoHeader
         onAddTodo={() => {
           setEditingTodo(undefined);
@@ -384,7 +384,7 @@ export default function TodoAdminView() {
 
         <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-900/20 bg-zinc-950/5 px-3 py-2 sm:px-4 sm:py-2.5">
           <span
-            className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]"
+            className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em]"
             aria-live="polite"
           >
             {filteredTodos.length} Results Found
@@ -393,7 +393,7 @@ export default function TodoAdminView() {
             <button
               onClick={clearCompleted}
               aria-label="Purge all completed objectives"
-              className="inline-flex h-8 items-center rounded-full border border-danger/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-danger transition-all hover:border-danger/50 hover:bg-danger/10"
+              className="inline-flex h-8 items-center rounded-full border border-danger/20 px-2.5 py-1 text-xs font-black uppercase tracking-[0.22em] text-danger transition-all hover:border-danger/50 hover:bg-danger/10"
             >
               Purge Completed
             </button>

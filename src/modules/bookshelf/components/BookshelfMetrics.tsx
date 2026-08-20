@@ -203,10 +203,8 @@ export default function BookshelfMetrics({
             <p className={cn("text-xl font-bold tracking-tight", m.color)}>
               {m.value}
             </p>
-            <p className="text-[10px] text-zinc-500 leading-tight">{m.label}</p>
-            {m.detail && (
-              <p className="text-[10px] text-zinc-600">{m.detail}</p>
-            )}
+            <p className="text-xs text-zinc-500 leading-tight">{m.label}</p>
+            {m.detail && <p className="text-xs text-zinc-600">{m.detail}</p>}
           </motion.div>
         ))}
       </div>
@@ -245,11 +243,11 @@ export default function BookshelfMetrics({
               />
             </div>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-[10px] text-zinc-600">
+              <span className="text-xs text-zinc-600">
                 {stats.goalProgress.toFixed(0)}% complete
               </span>
               {stats.goal - stats.completed > 0 && (
-                <span className="text-[10px] text-zinc-600">
+                <span className="text-xs text-zinc-600">
                   {stats.goal - stats.completed} to go
                 </span>
               )}

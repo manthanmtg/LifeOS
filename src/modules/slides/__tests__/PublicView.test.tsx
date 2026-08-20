@@ -53,3 +53,33 @@ test("deck card shows thumbnail", () => {
   const img = screen.getByRole("img");
   expect(img).toHaveAttribute("src", "test.jpg");
 });
+
+test("deck cards use sibling controls instead of nested interactive roles", () => {
+  const items: DeckItem[] = [
+    {
+      _id: "1",
+      created_at: "2026-01-01",
+      is_public: true,
+      payload: {
+        title: "Keyboard Deck",
+        deck_url: "https://example.com/deck",
+        format: "url",
+        visibility: "public",
+        tags: [],
+        embed_enabled: false,
+      },
+    },
+  ];
+
+  render(<PublicView items={items} />);
+
+  const article = screen.getByRole("article");
+  expect(article).not.toHaveAttribute("role", "button");
+  expect(
+    screen.getByRole("button", { name: "Open deck Keyboard Deck" }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("button", { name: "Present Keyboard Deck" }),
+  ).toBeVisible();
+  expect(article.querySelector("button button")).toBeNull();
+});

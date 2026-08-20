@@ -98,11 +98,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
           onClose();
         }
       }
-      if (
-        e.key === "ArrowRight" ||
-        e.key === "ArrowDown" ||
-        e.key === " "
-      ) {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") {
         e.preventDefault();
         next();
       }
@@ -188,7 +184,9 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             <div className="flex items-center gap-3 pointer-events-auto">
               <button
                 type="button"
-                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                aria-label={
+                  isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                }
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleFullscreen();
@@ -280,7 +278,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
 
         {/* Subtle Counter */}
         {total > 0 && (
-          <div className="absolute bottom-8 right-8 px-4 py-2 bg-zinc-50/5 backdrop-blur-2xl border border-zinc-50/10 rounded-full text-[10px] text-zinc-50/40 z-20 tabular-nums uppercase tracking-widest">
+          <div className="absolute bottom-8 right-8 px-4 py-2 bg-zinc-50/5 backdrop-blur-2xl border border-zinc-50/10 rounded-full text-xs text-zinc-50/40 z-20 tabular-nums uppercase tracking-widest">
             {currentIndex + 1} / {total}
           </div>
         )}
@@ -293,7 +291,7 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-zinc-50/20 text-[10px] pointer-events-none select-none uppercase tracking-widest bg-zinc-950/40 backdrop-blur-xl px-4 py-2 rounded-full border border-zinc-50/5"
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 text-zinc-50/20 text-xs pointer-events-none select-none uppercase tracking-widest bg-zinc-950/40 backdrop-blur-xl px-4 py-2 rounded-full border border-zinc-50/5"
           >
             Click sides to navigate · ESC to exit
           </motion.div>

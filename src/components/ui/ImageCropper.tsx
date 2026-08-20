@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { X, Check } from "lucide-react";
 import getCroppedImg from "@/lib/cropImage";
 import { createPortal } from "react-dom";
+import { useDialogAccessibility } from "./Dialog";
 
 interface ImageCropperProps {
   imageSrc: string;
@@ -21,6 +22,12 @@ export default function ImageCropper({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: cancelRef,
+  });
 
   const onCropCompleteHandler = useCallback(
     (_croppedArea: Area, croppedAreaPixels: Area) => {
@@ -49,10 +56,12 @@ export default function ImageCropper({
 
   return createPortal(
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[100] bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="image-cropper-title"
+      tabIndex={-1}
     >
       <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[90vh]">
         <div className="p-4 sm:p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
@@ -91,7 +100,7 @@ export default function ImageCropper({
           <div>
             <label
               htmlFor="image-cropper-zoom"
-              className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-3"
+              className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-3"
             >
               Zoom
             </label>
@@ -110,6 +119,7 @@ export default function ImageCropper({
           </div>
           <div className="flex gap-3">
             <button
+              ref={cancelRef}
               type="button"
               onClick={onClose}
               disabled={isProcessing}

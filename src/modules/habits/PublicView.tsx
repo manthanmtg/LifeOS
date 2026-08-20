@@ -40,7 +40,11 @@ export default function HabitsPublicView({ items }: { items: Habit[] }) {
             .filter((c) => c.count >= targetCount)
             .map((c) => c.date),
         );
-        const streakInfo = getStreak(habit.payload.completions, targetCount, today);
+        const streakInfo = getStreak(
+          habit.payload.completions,
+          targetCount,
+          today,
+        );
         const rate30 = getCompletionRateForDays(
           habit.payload.completions,
           targetCount,
@@ -79,7 +83,7 @@ export default function HabitsPublicView({ items }: { items: Habit[] }) {
               </div>
               <div className="flex items-center gap-3">
                 {completedToday && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-success/10 text-success">
                     Done today
                   </span>
                 )}

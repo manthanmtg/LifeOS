@@ -290,7 +290,7 @@ export default function ExpenseForm({
 
           {!editingId && suggestions.length > 0 && (
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600 px-2 block">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-600 px-2 block">
                 Frequent Patterns
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -308,11 +308,11 @@ export default function ExpenseForm({
                           p.type === "income" ? "text-success" : "text-accent",
                         )}
                       />
-                      <span className="text-[10px] font-black group-hover:text-zinc-50 truncate">
+                      <span className="text-xs font-black group-hover:text-zinc-50 truncate">
                         {p.description}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between w-full opacity-40 text-[8px] font-black uppercase tracking-tighter">
+                    <div className="flex items-center justify-between w-full opacity-40 text-xs font-black uppercase tracking-tighter">
                       <span>{p.category}</span>
                       <span>{p.account}</span>
                     </div>
@@ -324,7 +324,10 @@ export default function ExpenseForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label htmlFor="expense-amount" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label
+                htmlFor="expense-amount"
+                className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2"
+              >
                 Amount
               </label>
               <div className="relative">
@@ -356,7 +359,10 @@ export default function ExpenseForm({
             </div>
 
             <div className="md:col-span-2 relative">
-              <label htmlFor="expense-description" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label
+                htmlFor="expense-description"
+                className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2"
+              >
                 Description
               </label>
               <input
@@ -404,7 +410,7 @@ export default function ExpenseForm({
                         <div className="flex items-center gap-3">
                           <span
                             className={cn(
-                              "text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border",
+                              "text-xs font-black uppercase px-2 py-0.5 rounded-lg border",
                               p.type === "income"
                                 ? "bg-success/10 text-success border-success/20"
                                 : "bg-zinc-800 text-zinc-500 border-zinc-700",
@@ -412,7 +418,7 @@ export default function ExpenseForm({
                           >
                             {p.type}
                           </span>
-                          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">
+                          <span className="text-xs font-black text-zinc-600 uppercase tracking-widest">
                             {p.category}
                           </span>
                         </div>
@@ -424,7 +430,7 @@ export default function ExpenseForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Merchant / Source
               </label>
               <div className="relative">
@@ -443,7 +449,7 @@ export default function ExpenseForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Account
               </label>
               <div className="relative">
@@ -466,7 +472,7 @@ export default function ExpenseForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Category
               </label>
               <select
@@ -483,7 +489,7 @@ export default function ExpenseForm({
             </div>
 
             <div>
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Date
               </label>
               <div className="relative">
@@ -498,14 +504,14 @@ export default function ExpenseForm({
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-2 block mb-2">
                 Tags
               </label>
               <div className="flex flex-wrap gap-2 mb-3">
                 {tags.map((t) => (
                   <span
                     key={t}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-xl text-[10px] font-bold text-accent"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-xl text-xs font-bold text-accent"
                   >
                     {t}
                     <button

@@ -383,7 +383,7 @@ function CropAnalytics({
                 <p className="text-2xl font-bold text-success">
                   {formatINR(kpiData.revenue.current)}
                 </p>
-                <p className="text-[10px] text-zinc-500 mt-0.5">
+                <p className="text-xs text-zinc-500 mt-0.5">
                   {kpiData.latestPeriod}
                 </p>
                 {kpiData.prevPeriod &&
@@ -410,7 +410,7 @@ function CropAnalytics({
                       </p>
                     );
                   })()}
-                <p className="text-[10px] text-zinc-600 mt-2 pt-2 border-t border-zinc-800">
+                <p className="text-xs text-zinc-600 mt-2 pt-2 border-t border-zinc-800">
                   Avg / {kpiData.totalPeriods} periods:{" "}
                   {formatINR(kpiData.revenue.avg)}
                 </p>
@@ -433,7 +433,7 @@ function CropAnalytics({
                   {formatNum(kpiData.yield.current, 0)}
                   {kpiData.yield.unit ? ` ${kpiData.yield.unit}` : ""}
                 </p>
-                <p className="text-[10px] text-zinc-500 mt-0.5">
+                <p className="text-xs text-zinc-500 mt-0.5">
                   {kpiData.latestPeriod}
                 </p>
                 {kpiData.prevPeriod &&
@@ -477,7 +477,7 @@ function CropAnalytics({
               <p className="text-2xl font-bold text-zinc-100">
                 {kpiData.bestArea.name}
               </p>
-              <p className="text-[10px] text-zinc-500 mt-0.5">
+              <p className="text-xs text-zinc-500 mt-0.5">
                 {kpiData.latestPeriod}
               </p>
               <p className="text-xs text-warning mt-2">

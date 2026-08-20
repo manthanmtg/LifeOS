@@ -3,6 +3,35 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import React, { act } from "react";
 
+// Node 25 exposes an experimental localStorage global that is incomplete when
+// no --localstorage-file is configured. Vitest's JSDOM global can inherit that
+// object, so normalize it to the browser Storage contract for every test.
+if (
+  typeof window !== "undefined" &&
+  typeof window.localStorage?.clear !== "function"
+) {
+  const values = new Map<string, string>();
+  const memoryStorage: Storage = {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => Array.from(values.keys())[index] ?? null,
+    removeItem: (key) => {
+      values.delete(key);
+    },
+    setItem: (key, value) => {
+      values.set(key, String(value));
+    },
+  };
+
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: memoryStorage,
+  });
+}
+
 // Polyfill React.act if it's missing (needed for React 19 in some test environments)
 if (!React.act && act) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

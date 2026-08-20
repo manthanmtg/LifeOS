@@ -233,7 +233,7 @@ export default function AdminDashboard() {
           </h1>
           <div className="flex items-center gap-3">
             <p className="text-zinc-400">{greeting}.</p>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs font-bold uppercase tracking-wider">
               <Calendar className="w-3 h-3" />
               {todayStr}
             </span>
@@ -336,7 +336,7 @@ export default function AdminDashboard() {
                       <p className="text-sm font-bold text-zinc-200 uppercase tracking-[0.1em]">
                         {config.name}
                       </p>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
+                      <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
                         Widget Protocol
                       </p>
                     </div>

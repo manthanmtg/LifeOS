@@ -44,7 +44,7 @@ function SeasonProgress({ item }: { item: BingeItem }) {
 
   return (
     <div className="space-y-1">
-      <p className="text-[10px] text-zinc-500">
+      <p className="text-xs text-zinc-500">
         S{current_season}
         {current_episode ? ` · E${current_episode}` : ""}
         {total_seasons ? ` / ${total_seasons} seasons` : ""}
@@ -123,17 +123,15 @@ export default function BingeCard({
           </p>
           <div className="flex items-center gap-1 mt-0.5 flex-wrap">
             {item.payload.year && (
-              <span className="text-[10px] text-zinc-500">
-                {item.payload.year}
-              </span>
+              <span className="text-xs text-zinc-500">{item.payload.year}</span>
             )}
             {item.payload.platform && (
-              <span className="text-[10px] text-zinc-500">
+              <span className="text-xs text-zinc-500">
                 · {item.payload.platform}
               </span>
             )}
             {currentTimeMs !== null && (
-              <span className="text-[10px] text-zinc-600 ml-auto">
+              <span className="text-xs text-zinc-600 ml-auto">
                 {formatRelativeDate(item.created_at, currentTimeMs)}
               </span>
             )}
@@ -141,7 +139,7 @@ export default function BingeCard({
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             <span
               className={cn(
-                "text-[10px] px-2 py-0.5 rounded-full border",
+                "text-xs px-2 py-0.5 rounded-full border",
                 TYPE_STYLES[item.payload.type],
               )}
             >
@@ -149,14 +147,14 @@ export default function BingeCard({
             </span>
             <span
               className={cn(
-                "text-[10px] px-2 py-0.5 rounded-full border",
+                "text-xs px-2 py-0.5 rounded-full border",
                 STATUS_STYLES[item.payload.status],
               )}
             >
               {STATUS_LABELS[item.payload.status]}
             </span>
             {item.payload.rating ? (
-              <span className="text-[10px] px-2 py-0.5 rounded-full border border-warning/25 bg-warning/10 text-warning flex items-center gap-0.5">
+              <span className="text-xs px-2 py-0.5 rounded-full border border-warning/25 bg-warning/10 text-warning flex items-center gap-0.5">
                 <Star className="w-2.5 h-2.5" fill="currentColor" />{" "}
                 {item.payload.rating}/10
               </span>
@@ -204,17 +202,17 @@ export default function BingeCard({
       {/* Footer meta */}
       <div className="flex items-center gap-2 flex-wrap mt-auto">
         {item.payload.genre && (
-          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-[10px]">
+          <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-xs">
             {item.payload.genre}
           </span>
         )}
         {item.payload.recommended_by && (
-          <span className="text-[10px] text-zinc-500">
+          <span className="text-xs text-zinc-500">
             via {item.payload.recommended_by}
           </span>
         )}
         {item.payload.rewatched && item.payload.rewatch_count > 0 && (
-          <span className="text-[10px] text-accent">
+          <span className="text-xs text-accent">
             ↺ ×{item.payload.rewatch_count}
           </span>
         )}

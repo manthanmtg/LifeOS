@@ -2,85 +2,27 @@
 
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { moduleRegistry } from "@/registry";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface ModuleVisibility {
-  enabled: boolean;
-  isPublic: boolean;
-}
+import type { PublicModuleLink } from "@/lib/public-data";
 
 interface Props {
   initialUserName?: string;
+  publicModules?: PublicModuleLink[];
 }
 
-export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
+export default function PublicHeader({
+  initialUserName = "Life OS",
+  publicModules = [],
+}: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [publicModules, setPublicModules] = useState<
-    { slug: string; name: string }[]
-  >([]);
-  const [userName, setUserName] = useState(initialUserName);
-  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    // Fetch portfolio for branding
-    fetch("/api/content?module_type=portfolio_profile", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.data?.length > 0 && d.data[0]?.payload?.full_name) {
-          setUserName(d.data[0].payload.full_name);
-        }
-      })
-      .catch((err) => console.error("Header branding fetch failed:", err));
-
-    // Fetch system config to get module visibility
-    fetch("/api/system", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => {
-        const registry: Record<string, ModuleVisibility> =
-          data.data?.moduleRegistry || {};
-        const moduleOrder: string[] = data.data?.moduleOrder || [];
-        const visible = Object.entries(moduleRegistry)
-          .filter(([key]) => {
-            const vis = registry[key];
-            // Show if explicitly isPublic, or if defaultPublic and no override
-            return vis
-              ? vis.isPublic && vis.enabled
-              : moduleRegistry[key].defaultPublic;
-          })
-          .sort(([a], [b]) => {
-            if (moduleOrder.length === 0) return 0;
-            const ia = moduleOrder.indexOf(a);
-            const ib = moduleOrder.indexOf(b);
-            if (ia === -1 && ib === -1) return 0;
-            if (ia === -1) return 1;
-            if (ib === -1) return -1;
-            return ia - ib;
-          })
-          .map(([key, config]) => ({ slug: key, name: config.name }));
-        setPublicModules(visible);
-      })
-      .catch((err) => {
-        console.error("Header system config fetch failed:", err);
-        // Fallback: show modules with defaultPublic
-        const visible = Object.entries(moduleRegistry)
-          .filter(([, c]) => c.defaultPublic)
-          .map(([key, c]) => ({ slug: key, name: c.name }));
-        setPublicModules(visible);
-      });
   }, []);
 
   const navLinks = useMemo(
@@ -91,16 +33,13 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
     [publicModules],
   );
 
-  if (!mounted) {
-    return <div className="h-[69px]" />; // Height of the header to prevent layout shift
-  }
-
   return (
     <header
-      className={`border-b border-zinc-800 sticky top-0 z-30 backdrop-blur-xl transition-all duration-300 ${
-        scrolled ? "bg-zinc-950/95 shadow-lg shadow-zinc-950/20" : "bg-zinc-950/80"
+      className={`border-b border-zinc-800 sticky top-0 z-30 backdrop-blur-xl transition-all duration-300 [padding-top:env(safe-area-inset-top)] ${
+        scrolled
+          ? "bg-zinc-950/95 shadow-lg shadow-zinc-950/20"
+          : "bg-zinc-950/80"
       }`}
-      suppressHydrationWarning
     >
       <div
         className={`max-w-6xl mx-auto px-6 flex items-center justify-between transition-all duration-300 ${
@@ -112,9 +51,9 @@ export default function PublicHeader({ initialUserName = "Life OS" }: Props) {
           className={`font-semibold tracking-tight hover:text-accent transition-all duration-300 min-w-0 flex-1 max-w-[65vw] md:max-w-none truncate ${
             scrolled ? "text-lg" : "text-xl"
           }`}
-          title={userName}
+          title={initialUserName}
         >
-          {userName}
+          {initialUserName}
         </Link>
 
         {/* Desktop nav */}

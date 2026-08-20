@@ -8,7 +8,7 @@ interface ModuleVisibility {
 export interface SystemConfig {
   site_title?: string;
   site_icon?: string;
-  moduleOrder?: string[];
+  moduleOrder?: readonly string[];
   moduleRegistry?: Record<string, ModuleVisibility>;
   orderingStrategy?: "custom" | "name" | "visits";
   visitSortScope?: "admin" | "public" | "all";

@@ -230,11 +230,11 @@ export default function SnippetsMetrics({
               <p className={cn("text-2xl font-black tracking-tight", m.color)}>
                 {m.value}
               </p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mt-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mt-1">
                 {m.label}
               </p>
               {m.detail && (
-                <p className="text-[10px] text-zinc-600 mt-0.5 font-medium">
+                <p className="text-xs text-zinc-600 mt-0.5 font-medium">
                   {m.detail}
                 </p>
               )}
@@ -265,7 +265,7 @@ export default function SnippetsMetrics({
                   stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
                 return (
                   <div key={lang} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
                       <span className="text-zinc-400">{lang}</span>
                       <span className="text-zinc-500">
                         {count} snippets ({pct}%)
@@ -317,7 +317,7 @@ export default function SnippetsMetrics({
                   <span className="text-xs font-semibold text-zinc-400 group-hover:text-accent transition-colors">
                     #{tag}
                   </span>
-                  <span className="text-[10px] font-bold bg-zinc-800 px-1.5 py-0.5 rounded-md text-zinc-500 group-hover:text-accent/60 transition-colors">
+                  <span className="text-xs font-bold bg-zinc-800 px-1.5 py-0.5 rounded-md text-zinc-500 group-hover:text-accent/60 transition-colors">
                     {count}
                   </span>
                 </motion.div>

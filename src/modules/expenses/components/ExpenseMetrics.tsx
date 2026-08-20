@@ -80,7 +80,7 @@ export default function ExpenseMetrics({
         </div>
 
         <div className="relative z-10">
-          <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 font-bold text-xs uppercase tracking-[0.2em] mb-1">
             Net Flow
           </p>
           <h2
@@ -114,7 +114,7 @@ export default function ExpenseMetrics({
         <div className="mt-4 flex items-center gap-2 relative z-10">
           <div
             className={cn(
-              "px-2 py-0.5 rounded-lg text-[9px] font-black flex items-center gap-1",
+              "px-2 py-0.5 rounded-lg text-xs font-black flex items-center gap-1",
               stats.netTrend >= 0
                 ? "bg-success/10 text-success"
                 : "bg-danger/10 text-danger",
@@ -123,7 +123,7 @@ export default function ExpenseMetrics({
             {stats.netTrend >= 0 ? "↑" : "↓"}{" "}
             {Math.abs(stats.netTrend).toFixed(0)}%
           </div>
-          <span className="text-zinc-600 text-[9px] font-bold uppercase tracking-wider">
+          <span className="text-zinc-600 text-xs font-bold uppercase tracking-wider">
             vs Last Mo
           </span>
         </div>
@@ -139,7 +139,7 @@ export default function ExpenseMetrics({
         </div>
 
         <div className="relative z-10">
-          <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 font-bold text-xs uppercase tracking-[0.2em] mb-1">
             Outflow
           </p>
           <h2 className="text-3xl font-black text-zinc-50 tracking-tighter">
@@ -160,7 +160,7 @@ export default function ExpenseMetrics({
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-zinc-500 relative z-10">
+        <div className="mt-4 flex items-center gap-2 text-xs font-bold text-zinc-500 relative z-10">
           <span
             className={stats.expenseTrend > 0 ? "text-danger" : "text-success"}
           >
@@ -179,7 +179,7 @@ export default function ExpenseMetrics({
         whileHover={{ y: -2 }}
       >
         <div className="flex justify-between items-start mb-4">
-          <p className="text-zinc-500 font-bold text-[10px] uppercase tracking-[0.2em]">
+          <p className="text-zinc-500 font-bold text-xs uppercase tracking-[0.2em]">
             Budget Plan
           </p>
           <CreditCard className="w-4 h-4 text-zinc-700" />
@@ -190,7 +190,7 @@ export default function ExpenseMetrics({
             <span className="text-3xl font-black text-zinc-50">
               {stats.budgetUsage.toFixed(0)}%
             </span>
-            <span className="text-[9px] text-zinc-600 font-bold tracking-wider uppercase">
+            <span className="text-xs text-zinc-600 font-bold tracking-wider uppercase">
               {formatNumber(settings.monthlyBudget, settings.numberFormat)} Cap
             </span>
           </div>
@@ -217,7 +217,7 @@ export default function ExpenseMetrics({
           </div>
         </div>
 
-        <p className="mt-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest">
+        <p className="mt-4 text-xs font-black text-zinc-600 uppercase tracking-widest">
           {stats.budgetUsage > 100
             ? "CRITICAL: OVER LIMIT"
             : stats.budgetUsage > 85

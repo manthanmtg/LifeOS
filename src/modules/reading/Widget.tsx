@@ -48,7 +48,7 @@ export default function ReadingWidget() {
       loading={loading}
       href="/admin/reading"
       footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-500">
           <span className="flex items-center gap-1.5 text-success/80">
             <Sparkles className="w-3 h-3" /> {summary.readCount} absorbed
           </span>

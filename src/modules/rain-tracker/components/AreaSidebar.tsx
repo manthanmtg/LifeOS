@@ -73,7 +73,7 @@ export function AreaSidebar({
           <h2 className="flex items-center gap-2 text-sm font-bold tracking-tight text-zinc-200">
             <MapPin className="h-4 w-4 text-accent" />
             Areas
-            <span className="rounded-md bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+            <span className="rounded-md bg-zinc-900 px-1.5 py-0.5 text-xs font-medium text-zinc-500">
               {areas.length}
             </span>
           </h2>
@@ -207,18 +207,18 @@ export function AreaSidebar({
                   >
                     {area.payload.name}
                     {!area.payload.is_active ? (
-                      <span className="shrink-0 rounded-md bg-danger/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-danger">
+                      <span className="shrink-0 rounded-md bg-danger/10 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-danger">
                         Archived
                       </span>
                     ) : null}
                   </h4>
                   {area.payload.location ? (
-                    <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-zinc-500">
+                    <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-zinc-500">
                       <MapPin className="h-2.5 w-2.5 shrink-0" />
                       {area.payload.location}
                     </p>
                   ) : null}
-                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[10px] text-zinc-600">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-zinc-600">
                     <span className="flex items-center gap-1">
                       <Droplets className="h-2.5 w-2.5" />
                       {entryCount} {entryCount === 1 ? "entry" : "entries"}

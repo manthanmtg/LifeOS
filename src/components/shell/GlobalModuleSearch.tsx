@@ -315,7 +315,7 @@ export default function GlobalModuleSearch({
                             />
                           </p>
                           {isActive && !isSidebar && (
-                            <span className="rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+                            <span className="rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                               Current
                             </span>
                           )}
@@ -343,7 +343,7 @@ export default function GlobalModuleSearch({
                               ).map((tag) => (
                                 <span
                                   key={tag.tag}
-                                  className="rounded-full border border-zinc-800 bg-zinc-900 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400"
+                                  className="rounded-full border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400"
                                 >
                                   <HighlightedText
                                     value={tag.tag}

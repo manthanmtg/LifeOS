@@ -180,14 +180,14 @@ export default function CalculatorsAdminView() {
                 <button
                   type="button"
                   onClick={() => setAllCategories(true)}
-                  className="text-[11px] px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
+                  className="text-xs px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
                 >
                   Enable all
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllCategories(false)}
-                  className="text-[11px] px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
+                  className="text-xs px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
                 >
                   Disable all
                 </button>
@@ -222,13 +222,11 @@ export default function CalculatorsAdminView() {
                     >
                       {category.name}
                     </p>
-                    <p className="text-[11px] text-zinc-500">
-                      {count} calculators
-                    </p>
+                    <p className="text-xs text-zinc-500">{count} calculators</p>
                   </div>
                   <span
                     className={cn(
-                      "inline-flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] px-1.5 border",
+                      "inline-flex h-5 min-w-5 items-center justify-center rounded-full text-xs px-1.5 border",
                       enabled
                         ? "bg-accent/15 border-accent/40 text-accent"
                         : "bg-zinc-900 border-zinc-700 text-zinc-500",
@@ -250,14 +248,14 @@ export default function CalculatorsAdminView() {
                 <button
                   type="button"
                   onClick={() => setAllCalculators(true)}
-                  className="text-[11px] px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
+                  className="text-xs px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
                 >
                   Enable all
                 </button>
                 <button
                   type="button"
                   onClick={() => setAllCalculators(false)}
-                  className="text-[11px] px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
+                  className="text-xs px-2 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:text-zinc-50"
                 >
                   Disable all
                 </button>
@@ -294,13 +292,11 @@ export default function CalculatorsAdminView() {
                       >
                         {calculator.shortName}
                       </p>
-                      <p className="text-[11px] text-zinc-500">
-                        {calculator.name}
-                      </p>
+                      <p className="text-xs text-zinc-500">{calculator.name}</p>
                     </div>
                     <span
                       className={cn(
-                        "inline-flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] px-1.5 border",
+                        "inline-flex h-5 min-w-5 items-center justify-center rounded-full text-xs px-1.5 border",
                         enabled
                           ? "bg-success/10 border-success/30 text-success"
                           : "bg-zinc-900 border-zinc-700 text-zinc-500",

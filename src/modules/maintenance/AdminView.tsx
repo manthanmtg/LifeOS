@@ -461,7 +461,7 @@ export default function MaintenanceAdminView() {
           <Filter className="w-4 h-4" />
           Filters
           {activeFilterCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-accent/20 text-accent rounded-full font-bold">
+            <span className="ml-1 px-1.5 py-0.5 text-xs bg-accent/20 text-accent rounded-full font-bold">
               {activeFilterCount}
             </span>
           )}
@@ -563,7 +563,7 @@ export default function MaintenanceAdminView() {
                     <h2 className="text-base font-bold text-zinc-50">
                       {editingId ? "Edit Task" : "New Maintenance Task"}
                     </h2>
-                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {editingId
                         ? "Update task details below"
                         : "Fill in the details to track a new task"}
@@ -585,7 +585,7 @@ export default function MaintenanceAdminView() {
                 <ModalSection icon={Edit3} title="Basic Info">
                   <div className="space-y-4">
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                         Task Name *
                       </label>
                       <input
@@ -600,7 +600,7 @@ export default function MaintenanceAdminView() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                         Description
                       </label>
                       <textarea
@@ -625,7 +625,7 @@ export default function MaintenanceAdminView() {
                   <div className="space-y-4">
                     {/* Category pill grid */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
                         Category
                       </label>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
@@ -655,7 +655,7 @@ export default function MaintenanceAdminView() {
 
                     {/* Priority pills */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
                         Priority
                       </label>
                       <div className="flex gap-2">
@@ -691,7 +691,7 @@ export default function MaintenanceAdminView() {
 
                     {/* Service Type */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
                         Service Type
                       </label>
                       <div className="flex gap-2">
@@ -761,7 +761,7 @@ export default function MaintenanceAdminView() {
                     {/* Frequency */}
                     {form.is_recurring && (
                       <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Frequency (months)
                         </label>
                         <div className="flex gap-2">
@@ -817,7 +817,7 @@ export default function MaintenanceAdminView() {
 
                     {/* Task Completed / Future Task toggle */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
                         When is this task due?
                       </label>
                       <div className="flex gap-2">
@@ -851,7 +851,7 @@ export default function MaintenanceAdminView() {
                     {/* Conditional date field */}
                     {scheduleMode === "completed" ? (
                       <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Last Completed
                         </label>
                         <input
@@ -892,7 +892,7 @@ export default function MaintenanceAdminView() {
                       </div>
                     ) : (
                       <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Next Due Date
                         </label>
                         <input
@@ -927,7 +927,7 @@ export default function MaintenanceAdminView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {form.service_type === "managed" && (
                       <div>
-                        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                           Estimated Cost
                         </label>
                         <input
@@ -948,7 +948,7 @@ export default function MaintenanceAdminView() {
                       </div>
                     )}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                         Currency
                       </label>
                       <select
@@ -1010,7 +1010,7 @@ export default function MaintenanceAdminView() {
 
                     {/* Tags */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                         Tags
                       </label>
                       <input
@@ -1030,7 +1030,7 @@ export default function MaintenanceAdminView() {
                             .map((tag) => (
                               <span
                                 key={tag}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-accent bg-accent/10 rounded-md border border-accent/20"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-accent bg-accent/10 rounded-md border border-accent/20"
                               >
                                 <Tag className="w-2.5 h-2.5" />
                                 {tag}
@@ -1042,7 +1042,7 @@ export default function MaintenanceAdminView() {
 
                     {/* Notes */}
                     <div>
-                      <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                         Notes
                       </label>
                       <textarea
@@ -1155,14 +1155,14 @@ export default function MaintenanceAdminView() {
                   <h2 className="text-base font-bold text-zinc-50">
                     Log Completion
                   </h2>
-                  <p className="text-[11px] text-zinc-500 mt-0.5 truncate max-w-[260px]">
+                  <p className="text-xs text-zinc-500 mt-0.5 truncate max-w-[260px]">
                     {completingTask.payload.name}
                   </p>
                 </div>
               </div>
               <div className="p-5 sm:p-6 space-y-4">
                 <div>
-                  <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                     Completion Date
                   </label>
                   <input
@@ -1174,7 +1174,7 @@ export default function MaintenanceAdminView() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                    <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                       Cost
                     </label>
                     <input
@@ -1187,7 +1187,7 @@ export default function MaintenanceAdminView() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                    <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                       Vendor
                     </label>
                     <input
@@ -1201,7 +1201,7 @@ export default function MaintenanceAdminView() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 block">
                     Notes
                   </label>
                   <textarea
@@ -1275,7 +1275,7 @@ export default function MaintenanceAdminView() {
                     <h2 className="text-base font-bold text-zinc-50">
                       Completion History
                     </h2>
-                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {historyTask.payload.name}
                     </p>
                   </div>

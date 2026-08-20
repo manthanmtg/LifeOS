@@ -49,7 +49,7 @@ export default function CalculatorCard({
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+            <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
               {categoryLabel}
             </p>
             <h3 className="text-base sm:text-lg font-semibold text-zinc-50 mt-1">
@@ -79,7 +79,7 @@ export default function CalculatorCard({
         </div>
 
         <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/70 p-3 sm:p-4">
-          <p className="text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+          <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
             {result.primaryLabel}
           </p>
           <p className="text-2xl sm:text-3xl font-bold text-zinc-50 mt-1">
@@ -134,7 +134,7 @@ export default function CalculatorCard({
                       className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35 font-mono"
                     />
                     {input.helper && (
-                      <span className="mt-1 block text-[11px] text-zinc-500">
+                      <span className="mt-1 block text-xs text-zinc-500">
                         {input.helper}
                       </span>
                     )}
@@ -167,7 +167,7 @@ export default function CalculatorCard({
                       ))}
                     </select>
                     {input.helper && (
-                      <span className="mt-1 block text-[11px] text-zinc-500">
+                      <span className="mt-1 block text-xs text-zinc-500">
                         {input.helper}
                       </span>
                     )}
@@ -198,13 +198,13 @@ export default function CalculatorCard({
                       className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent/35"
                     />
                     {input.unit && (
-                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">
+                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500">
                         {input.unit}
                       </span>
                     )}
                   </div>
                   {input.helper && (
-                    <span className="mt-1 block text-[11px] text-zinc-500">
+                    <span className="mt-1 block text-xs text-zinc-500">
                       {input.helper}
                     </span>
                   )}
@@ -223,7 +223,7 @@ export default function CalculatorCard({
                   key={metric.label}
                   className="rounded-lg border border-zinc-800 bg-zinc-900/80 px-3 py-2"
                 >
-                  <p className="text-[11px] text-zinc-500">{metric.label}</p>
+                  <p className="text-xs text-zinc-500">{metric.label}</p>
                   <p
                     className={cn(
                       "text-sm font-medium mt-1",
@@ -239,7 +239,7 @@ export default function CalculatorCard({
 
           {result.notes && result.notes.length > 0 && (
             <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900/70 p-3">
-              <p className="text-[11px] uppercase tracking-[0.16em] text-zinc-500 mb-2">
+              <p className="text-xs uppercase tracking-[0.16em] text-zinc-500 mb-2">
                 Notes
               </p>
               <ul className="space-y-1">

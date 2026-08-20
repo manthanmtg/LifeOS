@@ -220,7 +220,7 @@ export function FormulaBuilder({
       {/* Function Templates — primary entry point for non-technical users */}
       {hasContent && !formula && (
         <div>
-          <label className="text-[10px] text-zinc-600 uppercase tracking-wider font-medium mb-1.5 block">
+          <label className="text-xs text-zinc-600 uppercase tracking-wider font-medium mb-1.5 block">
             Pick a function
           </label>
 
@@ -290,7 +290,7 @@ export function FormulaBuilder({
       {formula && (
         <>
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-zinc-600 uppercase tracking-wider font-medium mr-1">
+            <span className="text-xs text-zinc-600 uppercase tracking-wider font-medium mr-1">
               Operators
             </span>
             {operators.map((op) => (
@@ -309,7 +309,7 @@ export function FormulaBuilder({
           {/* Functions to append */}
           {sourceFields.length > 0 && (
             <div>
-              <label className="text-[10px] text-accent uppercase tracking-wider font-medium mb-1.5 block">
+              <label className="text-xs text-accent uppercase tracking-wider font-medium mb-1.5 block">
                 Functions
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -340,7 +340,7 @@ export function FormulaBuilder({
                 <div key={group.label}>
                   <label
                     className={cn(
-                      "text-[10px] uppercase tracking-wider font-medium mb-1.5 block",
+                      "text-xs uppercase tracking-wider font-medium mb-1.5 block",
                       group.color,
                     )}
                   >
@@ -372,7 +372,7 @@ export function FormulaBuilder({
       {/* Preview */}
       {formula && (
         <div className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 flex items-start gap-2">
-          <span className="text-[10px] text-zinc-600 uppercase tracking-wider font-medium mt-0.5 shrink-0">
+          <span className="text-xs text-zinc-600 uppercase tracking-wider font-medium mt-0.5 shrink-0">
             Formula:
           </span>
           <code className="text-xs text-success font-mono break-all">
@@ -511,7 +511,7 @@ export function FieldChip({
         <select
           value={editType}
           onChange={(e) => setEditType(e.target.value as "number" | "text")}
-          className="bg-transparent text-zinc-400 outline-none text-[10px] py-0.5"
+          className="bg-transparent text-zinc-400 outline-none text-xs py-0.5"
         >
           <option value="number">Num</option>
           <option value="text">Text</option>
@@ -523,7 +523,7 @@ export function FieldChip({
             if (e.key === "Enter") handleSave();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="w-12 bg-transparent text-zinc-400 outline-none px-1 py-0.5 text-[10px]"
+          className="w-12 bg-transparent text-zinc-400 outline-none px-1 py-0.5 text-xs"
           placeholder="unit"
         />
         <button
@@ -552,11 +552,9 @@ export function FieldChip({
       title="Click to edit"
     >
       {field.name}
-      {field.unit && (
-        <span className="text-[10px] opacity-60">({field.unit})</span>
-      )}
+      {field.unit && <span className="text-xs opacity-60">({field.unit})</span>}
       {field.type === "text" && (
-        <span className="text-[10px] opacity-60">[text]</span>
+        <span className="text-xs opacity-60">[text]</span>
       )}
       <Edit3 className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />
       <X

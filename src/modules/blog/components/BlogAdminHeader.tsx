@@ -12,7 +12,7 @@ export default function BlogAdminHeader({ stats }: BlogAdminHeaderProps) {
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
       <div className="absolute -top-10 right-0 h-32 w-32 rounded-full bg-accent/20 blur-3xl" />
       <div className="relative">
-        <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/70 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-400">
+        <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-zinc-400">
           <Sparkles className="h-3.5 w-3.5 text-accent" />
           Blog Studio
         </div>

@@ -511,9 +511,7 @@ export default function PersonForm({
               <h2 className="text-base font-bold text-zinc-100">
                 {person ? "Edit Person" : "Add Someone"}
               </h2>
-              <p className="text-[11px] text-zinc-500">
-                Someone worth remembering
-              </p>
+              <p className="text-xs text-zinc-500">Someone worth remembering</p>
             </div>
           </div>
           <button
@@ -539,13 +537,13 @@ export default function PersonForm({
           )}
 
           <fieldset className="space-y-3">
-            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+            <legend className="flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Star className="w-3.5 h-3.5 text-accent" /> Basic Info
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Name *
                 </label>
                 <input
@@ -560,7 +558,7 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Relationship
                 </label>
                 <select
@@ -598,13 +596,13 @@ export default function PersonForm({
           </fieldset>
 
           <fieldset className="space-y-3">
-            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+            <legend className="flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Building2 className="w-3.5 h-3.5" /> Contact Details
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Mail className="w-3 h-3" /> Email
                 </label>
                 <input
@@ -617,7 +615,7 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Phone className="w-3 h-3" /> Phone
                 </label>
                 <input
@@ -633,7 +631,7 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Company
                 </label>
                 <input
@@ -645,7 +643,7 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Role
                 </label>
                 <input
@@ -660,13 +658,13 @@ export default function PersonForm({
           </fieldset>
 
           <fieldset className="space-y-3">
-            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+            <legend className="flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Cake className="w-3 h-3" /> Birthday reminders
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Cake className="w-3 h-3" /> Birthday
                 </label>
                 <input
@@ -677,7 +675,7 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Birthday reminders
                 </label>
                 <div className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
@@ -732,7 +730,7 @@ export default function PersonForm({
               }}
             />
 
-            <p className="text-[10px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               Configure per-person reminders, or use global People defaults.
               {hasBirthday
                 ? " "
@@ -757,13 +755,13 @@ export default function PersonForm({
           </fieldset>
 
           <fieldset className="space-y-3">
-            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+            <legend className="flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Clock className="w-3 h-3" /> Contact reminders
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Contact cadence
                   <input
                     aria-label="Contact cadence"
@@ -783,7 +781,7 @@ export default function PersonForm({
                 </label>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Contact reminders
                 </label>
                 <div className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
@@ -840,7 +838,7 @@ export default function PersonForm({
               }}
             />
 
-            <p className="text-[10px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               Contact reminders use the latest interaction date or
               last-contacted date. A person with no logged contact date will not
               dispatch until you log one.
@@ -848,13 +846,13 @@ export default function PersonForm({
           </fieldset>
 
           <fieldset className="space-y-3">
-            <legend className="flex items-center gap-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
+            <legend className="flex items-center gap-2 text-xs font-bold text-zinc-500 uppercase tracking-wider pb-2 border-b border-zinc-900 w-full">
               <Zap className="w-3.5 h-3.5 text-warning" /> More
             </legend>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Camera className="w-3 h-3" /> Photo
                 </label>
                 {profilePic ? (
@@ -871,7 +869,7 @@ export default function PersonForm({
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-700 hover:bg-zinc-700 transition-colors"
+                        className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-700 hover:bg-zinc-700 transition-colors"
                       >
                         Change
                       </button>
@@ -918,7 +916,7 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <TagIcon className="w-3 h-3" /> Interests
                 </label>
                 <input
@@ -930,7 +928,7 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                   <TagIcon className="w-3 h-3" /> Tags
                 </label>
                 <input
@@ -944,7 +942,7 @@ export default function PersonForm({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
                 <AlignLeft className="w-3 h-3" /> Notes
               </label>
               <textarea

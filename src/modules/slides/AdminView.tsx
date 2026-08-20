@@ -778,7 +778,7 @@ export default function SlidesAdminView() {
                 <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                   <span
                     className={cn(
-                      "px-2 py-0.5 rounded-md text-[10px] font-medium border",
+                      "px-2 py-0.5 rounded-md text-xs font-medium border",
                       FORMAT_STYLES[item.payload.format],
                     )}
                   >
@@ -786,7 +786,7 @@ export default function SlidesAdminView() {
                   </span>
                   <span
                     className={cn(
-                      "px-2 py-0.5 rounded-md text-[10px] font-medium border",
+                      "px-2 py-0.5 rounded-md text-xs font-medium border",
                       VISIBILITY_STYLES[item.payload.visibility],
                     )}
                   >
@@ -800,13 +800,13 @@ export default function SlidesAdminView() {
                     {item.payload.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700"
+                        className="px-1.5 py-0.5 rounded text-xs bg-zinc-800 text-zinc-400 border border-zinc-700"
                       >
                         {tag}
                       </span>
                     ))}
                     {item.payload.tags.length > 3 && (
-                      <span className="text-[10px] text-zinc-600">
+                      <span className="text-xs text-zinc-600">
                         +{item.payload.tags.length - 3}
                       </span>
                     )}
@@ -816,7 +816,7 @@ export default function SlidesAdminView() {
                 {item.payload.folder && (
                   <div className="flex items-center gap-1 mt-1.5">
                     <Folder className="w-3 h-3 text-zinc-600" />
-                    <span className="text-[10px] text-zinc-500">
+                    <span className="text-xs text-zinc-500">
                       {item.payload.folder}
                     </span>
                   </div>
@@ -845,7 +845,9 @@ export default function SlidesAdminView() {
                 <div className="ml-auto flex items-center gap-1">
                   <button
                     onClick={() => toggleVisibility(item)}
-                    aria-label={item.is_public ? "Make deck private" : "Make deck public"}
+                    aria-label={
+                      item.is_public ? "Make deck private" : "Make deck public"
+                    }
                     className={cn(
                       "p-1.5 rounded-lg transition-colors",
                       item.is_public

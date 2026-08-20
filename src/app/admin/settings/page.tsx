@@ -1022,7 +1022,7 @@ export default function SettingsPage() {
                   placeholder="Life OS"
                   className="w-full max-w-lg bg-zinc-950/50 border border-zinc-800/80 rounded-xl px-4 py-3 text-sm text-zinc-50 focus:outline-none focus:ring-1 focus:ring-accent/50 shadow-inner"
                 />
-                <p className="text-[11px] text-zinc-500 mt-2 font-medium">
+                <p className="text-xs text-zinc-500 mt-2 font-medium">
                   Overrides title tags, but falls back to Portfolio name if set.
                 </p>
               </div>
@@ -1092,7 +1092,7 @@ export default function SettingsPage() {
                                   }}
                                 />
                               </AnimatePresence>
-                              <span className="text-[11px] text-zinc-400 truncate">
+                              <span className="text-xs text-zinc-400 truncate">
                                 {config?.site_title || "Life OS"}
                               </span>
                             </div>
@@ -1142,7 +1142,7 @@ export default function SettingsPage() {
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                               />
                             </svg>
-                            <span className="text-[10px] text-zinc-600 truncate">
+                            <span className="text-xs text-zinc-600 truncate">
                               yoursite.com
                             </span>
                           </div>
@@ -1194,7 +1194,7 @@ export default function SettingsPage() {
                                 transition={{ delay: size * 0.003 }}
                               />
                             </div>
-                            <span className="text-[9px] text-zinc-600 font-mono tabular-nums">
+                            <span className="text-xs text-zinc-600 font-mono tabular-nums">
                               {size}px
                             </span>
                           </div>
@@ -1235,7 +1235,7 @@ export default function SettingsPage() {
                                 </span>
                                 <span
                                   className={cn(
-                                    "text-[10px] font-medium leading-tight",
+                                    "text-xs font-medium leading-tight",
                                     isSelected
                                       ? "text-accent"
                                       : "text-zinc-500",
@@ -1317,7 +1317,7 @@ export default function SettingsPage() {
                                   ? "Drop to upload..."
                                   : "Drop an image here, or click to browse"}
                               </p>
-                              <p className="text-[11px] text-zinc-600 mt-0.5">
+                              <p className="text-xs text-zinc-600 mt-0.5">
                                 PNG, JPG, SVG, ICO — max 500 KB
                               </p>
                             </div>

@@ -1,30 +1,15 @@
-"use client";
-
-import { useState, useEffect, useMemo } from "react";
 import { Heart, ExternalLink } from "lucide-react";
 import { getRenderableSocialLinks, type SocialLink } from "./footer-links";
 
-export default function PublicFooter() {
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-
-  const renderableSocialLinks = useMemo(
-    () => getRenderableSocialLinks(socialLinks),
-    [socialLinks],
-  );
-
-  useEffect(() => {
-    fetch("/api/content?module_type=portfolio_profile")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.data?.length > 0) {
-          setSocialLinks(d.data[0].payload.social_links || []);
-        }
-      })
-      .catch(() => {});
-  }, []);
+export default function PublicFooter({
+  socialLinks = [],
+}: {
+  socialLinks?: SocialLink[];
+}) {
+  const renderableSocialLinks = getRenderableSocialLinks(socialLinks);
 
   return (
-    <footer className="border-t border-zinc-800 py-8 mt-auto">
+    <footer className="border-t border-zinc-800 py-8 [padding-bottom:max(2rem,env(safe-area-inset-bottom))] mt-auto">
       <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
         <p className="flex items-center gap-1.5">
           Built with <Heart className="w-3.5 h-3.5 text-danger" /> using Life OS

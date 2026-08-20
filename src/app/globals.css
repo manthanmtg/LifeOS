@@ -753,19 +753,14 @@ html.light[data-theme="nordic-light"] {
    ZEN MODE
    Ctrl+Shift+Z — dims navigation and chrome, focuses on content
    ======================================================================== */
-.zen-mode aside,
-.zen-mode header,
-.zen-mode nav {
-  opacity: 0.2;
-  pointer-events: none;
+.zen-mode [data-zen-chrome] {
+  opacity: 0.12;
   transition: opacity 0.3s ease;
 }
 
-.zen-mode aside:hover,
-.zen-mode header:hover,
-.zen-mode nav:hover {
+.zen-mode [data-zen-chrome]:hover,
+.zen-mode [data-zen-chrome]:focus-within {
   opacity: 1;
-  pointer-events: auto;
 }
 
 .zen-mode main {

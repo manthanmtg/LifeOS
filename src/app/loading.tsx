@@ -4,7 +4,7 @@ import { PortfolioSkeleton } from "@/components/ui/Skeletons";
 
 export default function RootLoading() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <PublicHeader />
       <PortfolioSkeleton />
       <PublicFooter />

@@ -240,10 +240,10 @@ export function PublicModuleSkeleton() {
           <SkeletonBlock className="h-4 w-72 max-w-full" />
         </div>
         <div className="space-y-3">
-            {PUBLIC_MODULE_KEYS.map((i) => (
-              <div
-                key={i}
-                className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
+          {PUBLIC_MODULE_KEYS.map((i) => (
+            <div
+              key={i}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 animate-pulse"
             >
               <SkeletonBlock className="h-4 w-1/3 mb-2" />
               <SkeletonBlock className="h-3 w-2/3" />

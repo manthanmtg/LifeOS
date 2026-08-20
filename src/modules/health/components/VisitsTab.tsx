@@ -74,13 +74,13 @@ export default function VisitsTab({
                         <div className="flex flex-wrap items-center gap-2">
                           <span
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
+                              "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
                               vtConfig.color,
                             )}
                           >
                             {vtConfig.label}
                           </span>
-                          <span className="text-[11px] text-zinc-500">
+                          <span className="text-xs text-zinc-500">
                             {formatDate(visit.date)}
                           </span>
                         </div>
@@ -90,7 +90,7 @@ export default function VisitsTab({
                           </p>
                         )}
                         {visit.facility && (
-                          <p className="text-[11px] text-zinc-600">
+                          <p className="text-xs text-zinc-600">
                             {visit.facility}
                           </p>
                         )}

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, ComponentType, Suspense } from "react";
-import { useRouter, notFound } from "next/navigation";
+import { ComponentType, Suspense } from "react";
 import dynamic from "next/dynamic";
 import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import { moduleRegistry } from "@/registry";
 import { Briefcase } from "lucide-react";
-import { PublicModuleSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
+import type { PublicModuleLink } from "@/lib/public-data";
+import type { SocialLink } from "@/components/shell/footer-links";
 
 /* ── Module-specific public views ─────────────────────────────── */
 function ViewLoadingFallback() {
@@ -94,95 +95,29 @@ const moduleDescriptions: Record<string, string> = {
   slides: "Presentation decks — upload or link to your slides.",
 };
 
-interface ModuleVisibility {
-  enabled: boolean;
-  isPublic: boolean;
-}
-
 interface Props {
   slug: string;
   userName: string;
+  publicModules: PublicModuleLink[];
+  socialLinks: SocialLink[];
+  items: Record<string, unknown>[];
 }
 
-export default function PublicModuleClient({ slug, userName }: Props) {
+export default function PublicModuleClient({
+  slug,
+  userName,
+  publicModules,
+  socialLinks,
+  items,
+}: Props) {
   const modConfig = moduleRegistry[slug];
-  const [allowed, setAllowed] = useState<boolean | null>(null);
-  const [items, setItems] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [unauthorized, setUnauthorized] = useState(false);
-  const router = useRouter();
-
-  if (!modConfig) {
-    notFound();
-  }
-
-  useEffect(() => {
-    fetch("/api/system", { cache: "no-store" })
-      .then((r) => {
-        if (r.status === 401) {
-          setUnauthorized(true);
-          return { data: { moduleRegistry: {} } };
-        }
-        return r.json();
-      })
-      .then((data) => {
-        const registry: Record<string, ModuleVisibility> =
-          data.data?.moduleRegistry || {};
-        const vis = registry[slug];
-        const isAllowed = vis
-          ? vis.isPublic && vis.enabled
-          : modConfig.defaultPublic;
-
-        setAllowed(isAllowed);
-
-        // Always try to fetch content if it's potentially public,
-        // regardless of whether we got a 401 from system settings or not.
-        return fetch(
-          `/api/content?module_type=${modConfig.contentType}&is_public=true`,
-          { cache: "no-store" },
-        );
-      })
-      .then((r) => {
-        if (r.status === 401) {
-          // Content fetch specifically rejected this as unauthorized
-          setAllowed(false);
-          return { data: [] };
-        }
-        return r.json();
-      })
-      .then((d) => {
-        setItems(d.data || []);
-      })
-      .catch((err) => {
-        console.error("PublicModuleClient overall fetch failed:", err);
-        // Don't necessarily block if content fetch fails, but log it
-      })
-      .finally(() => setLoading(false));
-  }, [slug, modConfig]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <PublicHeader initialUserName={userName} />
-        <PublicModuleSkeleton />
-        <PublicFooter />
-      </div>
-    );
-  }
-
-  if (allowed === false) {
-    if (unauthorized) {
-      router.push("/admin/login");
-      return null;
-    }
-    notFound();
-  }
+  if (!modConfig) return null;
 
   const PublicView = publicViews[slug];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <PublicHeader initialUserName={userName} />
+    <div className="min-h-dvh flex flex-col">
+      <PublicHeader initialUserName={userName} publicModules={publicModules} />
       <main className="flex-1 py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10">
@@ -236,7 +171,7 @@ export default function PublicModuleClient({ slug, userName }: Props) {
           </Suspense>
         </div>
       </main>
-      <PublicFooter />
+      <PublicFooter socialLinks={socialLinks} />
     </div>
   );
 }

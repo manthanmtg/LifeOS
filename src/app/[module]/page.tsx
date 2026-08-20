@@ -1,5 +1,7 @@
 import PublicModuleClient from "./PublicModuleClient";
-import { getDb } from "@/lib/mongodb";
+import { notFound } from "next/navigation";
+import { moduleRegistry } from "@/registry";
+import { getPublicContent, getPublicSiteData } from "@/lib/public-data";
 
 export default async function PublicModulePage({
   params,
@@ -7,15 +9,21 @@ export default async function PublicModulePage({
   params: Promise<{ module: string }>;
 }) {
   const slug = (await params).module;
-  let userName = "Life OS";
+  const moduleConfig = moduleRegistry[slug];
+  if (!moduleConfig) notFound();
 
-  try {
-    const db = await getDb();
-    const portfolio = await db
-      .collection("content")
-      .findOne({ module_type: "portfolio_profile" });
-    if (portfolio?.payload?.full_name) userName = portfolio.payload.full_name;
-  } catch {}
+  const site = await getPublicSiteData();
+  if (!site.publicModules.some((module) => module.slug === slug)) notFound();
 
-  return <PublicModuleClient slug={slug} userName={userName} />;
+  const items = await getPublicContent(moduleConfig.contentType);
+
+  return (
+    <PublicModuleClient
+      slug={slug}
+      userName={site.userName}
+      publicModules={site.publicModules}
+      socialLinks={site.socialLinks}
+      items={items}
+    />
+  );
 }

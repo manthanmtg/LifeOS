@@ -2,10 +2,10 @@
 
 import {
   useState,
-  useEffect,
   useMemo,
   useRef,
   useCallback,
+  useId,
   type DragEvent,
 } from "react";
 import {
@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { formatBytes } from "../helpers";
 import type { Bill, BillFolder, BillPayload } from "../types";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
+import { Field, FieldLabel } from "@/components/ui/Field";
 
 interface BillModalProps {
   folders: BillFolder[];
@@ -61,15 +63,14 @@ export default function BillModal({
   );
   const [dragging, setDragging] = useState(false);
   const [compressing, setCompressing] = useState(false);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    const orig = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = orig;
-    };
-  }, []);
+  const titleId = useId();
+  const errorId = useId();
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: nameInputRef,
+  });
 
   const flatFolders = useMemo(() => {
     const result: { id: string; name: string; depth: number }[] = [];
@@ -324,6 +325,7 @@ export default function BillModal({
 
       {/* Modal — fixed fullscreen on mobile, centered card on desktop */}
       <motion.div
+        ref={dialogRef}
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 60 }}
@@ -337,17 +339,25 @@ export default function BillModal({
           "sm:w-full sm:max-w-lg sm:max-h-[84vh]",
           "sm:rounded-2xl sm:border sm:border-zinc-700/80",
         )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={error ? errorId : undefined}
+        tabIndex={-1}
       >
         {/* Header */}
-        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-zinc-800">
-          <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">
+        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 [padding-top:max(0.875rem,env(safe-area-inset-top))] border-b border-zinc-800">
+          <h2
+            id={titleId}
+            className="text-sm font-bold text-zinc-100 uppercase tracking-widest"
+          >
             {bill ? "Edit Bill" : "New Bill"}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close bill editor"
-            className="p-1.5 -mr-1 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
+            className="min-h-11 min-w-11 p-2 -mr-2 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <X className="w-4 h-4" />
           </button>
@@ -361,61 +371,67 @@ export default function BillModal({
         >
           <div className="px-5 py-4 space-y-4">
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
+              <div
+                id={errorId}
+                role="alert"
+                className="flex items-center gap-2 p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm"
+              >
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 {error}
               </div>
             )}
 
             {/* Name */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Name *
-              </label>
+            <Field>
+              <FieldLabel htmlFor="bill-name" required>
+                Name
+              </FieldLabel>
               <input
+                ref={nameInputRef}
+                id="bill-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Electricity Bill"
                 className={cn(inputClass, "placeholder-zinc-600")}
-                autoFocus
+                required
               />
-            </div>
+            </Field>
 
             {/* Date */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Date *
-              </label>
+            <Field>
+              <FieldLabel htmlFor="bill-date" required>
+                Date
+              </FieldLabel>
               <input
+                id="bill-date"
                 type="date"
                 value={billDate}
                 onChange={(e) => setBillDate(e.target.value)}
                 className={inputClass}
+                required
               />
-            </div>
+            </Field>
 
             <div className="flex gap-4">
               {/* Currency */}
-              <div className="w-24 space-y-1.5 shrink-0">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Currency
-                </label>
+              <Field className="w-24 shrink-0">
+                <FieldLabel htmlFor="bill-currency">Currency</FieldLabel>
                 <input
+                  id="bill-currency"
                   type="text"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
                   placeholder="INR"
                   className={cn(inputClass, "uppercase")}
                 />
-              </div>
+              </Field>
 
               {/* Amount */}
-              <div className="flex-1 space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Amount
-                </label>
+              <Field className="flex-1">
+                <FieldLabel htmlFor="bill-amount">Amount</FieldLabel>
                 <input
+                  id="bill-amount"
                   type="number"
                   step="0.01"
                   value={amount}
@@ -423,15 +439,14 @@ export default function BillModal({
                   placeholder="0.00"
                   className={inputClass}
                 />
-              </div>
+              </Field>
             </div>
 
             {/* Folder */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Folder
-              </label>
+            <Field>
+              <FieldLabel htmlFor="bill-folder">Folder</FieldLabel>
               <select
+                id="bill-folder"
                 value={folderId}
                 onChange={(e) => setFolderId(e.target.value)}
                 className={inputClass}
@@ -443,53 +458,49 @@ export default function BillModal({
                   </option>
                 ))}
               </select>
-            </div>
+            </Field>
 
             {/* Description */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Description
-              </label>
+            <Field>
+              <FieldLabel htmlFor="bill-description">Description</FieldLabel>
               <textarea
+                id="bill-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Optional short description"
                 rows={2}
                 className={cn(inputClass, "placeholder-zinc-600 resize-none")}
               />
-            </div>
+            </Field>
 
             {/* Notes */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Notes
-              </label>
+            <Field>
+              <FieldLabel htmlFor="bill-notes">Notes</FieldLabel>
               <textarea
+                id="bill-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional notes"
                 rows={2}
                 className={cn(inputClass, "placeholder-zinc-600 resize-none")}
               />
-            </div>
+            </Field>
 
             {/* Attachments */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                Attachments
-              </label>
-              <div
-                onDragOver={(e: DragEvent<HTMLDivElement>) => {
+            <Field>
+              <FieldLabel htmlFor="bill-attachments">Attachments</FieldLabel>
+              <label
+                htmlFor="bill-attachments"
+                onDragOver={(e: DragEvent<HTMLLabelElement>) => {
                   e.preventDefault();
                   setDragging(true);
                 }}
                 onDragLeave={() => setDragging(false)}
-                onDrop={(e: DragEvent<HTMLDivElement>) => {
+                onDrop={(e: DragEvent<HTMLLabelElement>) => {
                   e.preventDefault();
                   setDragging(false);
                   addFiles(Array.from(e.dataTransfer.files));
                 }}
-                onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all",
                   dragging
@@ -503,11 +514,12 @@ export default function BillModal({
                     ? "Compressing\u2026"
                     : "Drop files or click to browse"}
                 </p>
-                <p className="text-[10px] text-zinc-600">
+                <p className="text-xs text-zinc-600">
                   Images auto-compressed &middot; PDFs max 5 MB
                 </p>
                 <input
                   ref={fileInputRef}
+                  id="bill-attachments"
                   type="file"
                   accept="image/*,application/pdf"
                   multiple
@@ -517,7 +529,7 @@ export default function BillModal({
                     e.target.value = "";
                   }}
                 />
-              </div>
+              </label>
 
               {pendingFiles.length > 0 && (
                 <div className="space-y-1 mt-2">
@@ -543,11 +555,12 @@ export default function BillModal({
                         <span className="text-xs text-zinc-300 truncate flex-1 min-w-0">
                           {f.name}
                         </span>
-                        <span className="text-[10px] text-zinc-600 shrink-0">
+                        <span className="text-xs text-zinc-600 shrink-0">
                           {formatBytes(f.size)}
                         </span>
                         <button
                           type="button"
+                          aria-label={`Remove ${f.name}`}
                           onClick={(ev) => {
                             ev.stopPropagation();
                             removeFile(i);
@@ -563,13 +576,13 @@ export default function BillModal({
               )}
 
               {bill && (bill.payload.attachments?.length ?? 0) > 0 && (
-                <p className="text-[10px] text-zinc-600 mt-1">
+                <p className="text-xs text-zinc-600 mt-1">
                   {bill.payload.attachments.length} existing attachment
                   {bill.payload.attachments.length !== 1 ? "s" : ""} (manage in
                   bill detail)
                 </p>
               )}
-            </div>
+            </Field>
           </div>
         </form>
 

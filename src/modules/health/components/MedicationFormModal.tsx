@@ -43,21 +43,25 @@ export default function MedicationFormModal({
       saving={saving}
     >
       <div>
-        <label className={LABEL_CLASSES}>Name *</label>
+        <label htmlFor="medication-name" className={LABEL_CLASSES}>
+          Name *
+        </label>
         <input
+          id="medication-name"
           type="text"
           value={formData.name || ""}
-          onChange={(e) =>
-            setFormData((f) => ({ ...f, name: e.target.value }))
-          }
+          onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
           placeholder="e.g., Metformin"
           className={INPUT_CLASSES}
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={LABEL_CLASSES}>Dosage</label>
+          <label htmlFor="medication-dosage" className={LABEL_CLASSES}>
+            Dosage
+          </label>
           <input
+            id="medication-dosage"
             type="text"
             value={formData.dosage || ""}
             onChange={(e) =>
@@ -71,8 +75,11 @@ export default function MedicationFormModal({
           />
         </div>
         <div>
-          <label className={LABEL_CLASSES}>Status</label>
+          <label htmlFor="medication-status" className={LABEL_CLASSES}>
+            Status
+          </label>
           <select
+            id="medication-status"
             value={formData.status || "active"}
             onChange={(e) =>
               setFormData((f) => ({
@@ -91,8 +98,11 @@ export default function MedicationFormModal({
         </div>
       </div>
       <div>
-        <label className={LABEL_CLASSES}>Prescribed By</label>
+        <label htmlFor="medication-prescriber" className={LABEL_CLASSES}>
+          Prescribed By
+        </label>
         <input
+          id="medication-prescriber"
           type="text"
           value={formData.prescribed_by || ""}
           onChange={(e) =>
@@ -107,8 +117,11 @@ export default function MedicationFormModal({
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className={LABEL_CLASSES}>Start Date</label>
+          <label htmlFor="medication-start-date" className={LABEL_CLASSES}>
+            Start Date
+          </label>
           <input
+            id="medication-start-date"
             type="date"
             value={formData.start_date || ""}
             onChange={(e) =>
@@ -121,8 +134,11 @@ export default function MedicationFormModal({
           />
         </div>
         <div>
-          <label className={LABEL_CLASSES}>End Date</label>
+          <label htmlFor="medication-end-date" className={LABEL_CLASSES}>
+            End Date
+          </label>
           <input
+            id="medication-end-date"
             type="date"
             value={formData.end_date || ""}
             onChange={(e) =>
@@ -135,8 +151,11 @@ export default function MedicationFormModal({
           />
         </div>
         <div>
-          <label className={LABEL_CLASSES}>Refill Date</label>
+          <label htmlFor="medication-refill-date" className={LABEL_CLASSES}>
+            Refill Date
+          </label>
           <input
+            id="medication-refill-date"
             type="date"
             value={formData.refill_date || ""}
             onChange={(e) =>
@@ -150,8 +169,11 @@ export default function MedicationFormModal({
         </div>
       </div>
       <div>
-        <label className={LABEL_CLASSES}>Notes</label>
+        <label htmlFor="medication-notes" className={LABEL_CLASSES}>
+          Notes
+        </label>
         <textarea
+          id="medication-notes"
           value={formData.notes || ""}
           onChange={(e) =>
             setFormData((f) => ({

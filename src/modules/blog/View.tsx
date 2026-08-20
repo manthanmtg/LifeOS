@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -12,7 +12,6 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BlogListSkeleton } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import BlogPublicCard from "@/modules/blog/components/BlogPublicCard";
 import { BlogPost } from "@/modules/blog/types";
@@ -25,28 +24,14 @@ import {
   sortPostsByNewest,
 } from "@/modules/blog/utils";
 
-export default function BlogView() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function BlogView({
+  initialPosts,
+}: {
+  initialPosts: BlogPost[];
+}) {
+  const posts = useMemo(() => sortPostsByNewest(initialPosts), [initialPosts]);
   const [query, setQuery] = useState("");
   const [tagFilter, setTagFilter] = useState<string>("all");
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    fetch("/api/content?module_type=blog_post", { signal: controller.signal })
-      .then((response) => response.json())
-      .then((payload) => {
-        const published = (payload.data || []).filter(
-          (post: BlogPost) => post.payload.status === "published",
-        ) as BlogPost[];
-        setPosts(sortPostsByNewest(published));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, []);
 
   const summary = useMemo(() => buildBlogSummary(posts), [posts]);
   const allTags = useMemo(() => getUniqueBlogTags(posts), [posts]);
@@ -79,10 +64,6 @@ export default function BlogView() {
   const featured = filteredPosts[0];
   const rest = filteredPosts.slice(1);
   const hasFilters = query.trim().length > 0 || tagFilter !== "all";
-
-  if (loading) {
-    return <BlogListSkeleton />;
-  }
 
   return (
     <div className="flex-1 px-6 py-14 md:py-16">
@@ -129,7 +110,8 @@ export default function BlogView() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
             <input
-              type="text"
+              aria-label="Search posts"
+              type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search posts, tags, and keywords..."
@@ -140,6 +122,7 @@ export default function BlogView() {
           <div className="flex items-center justify-between gap-3">
             <div className="-mx-1 flex flex-1 gap-2 overflow-x-auto px-1 pb-1">
               <button
+                type="button"
                 onClick={() => setTagFilter("all")}
                 className={cn(
                   "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs transition-colors",
@@ -152,6 +135,7 @@ export default function BlogView() {
               </button>
               {allTags.map((tag) => (
                 <button
+                  type="button"
                   key={tag}
                   onClick={() => setTagFilter(tag)}
                   className={cn(
@@ -171,6 +155,7 @@ export default function BlogView() {
 
             {hasFilters && (
               <button
+                type="button"
                 onClick={() => {
                   setQuery("");
                   setTagFilter("all");
@@ -218,7 +203,7 @@ export default function BlogView() {
                 href={`/blog/${featured.payload.slug}`}
                 className="group mb-6 block"
               >
-              <article className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-accent/8">
+                <article className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-accent/8">
                   {featured.payload.cover_image_url && (
                     <>
                       <img

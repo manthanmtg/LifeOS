@@ -282,9 +282,7 @@ export function SettingsTab({
                 <div className="text-sm text-zinc-200 font-medium">
                   {src.name}
                 </div>
-                <div className="text-[10px] text-zinc-500 font-mono">
-                  {src.id}
-                </div>
+                <div className="text-xs text-zinc-500 font-mono">{src.id}</div>
               </div>
               <button
                 onClick={() => handleDeleteArea(src.id)}
@@ -408,7 +406,7 @@ export function SettingsTab({
                   <label className="text-sm text-zinc-300 font-medium">
                     Step 1: Per-Area Fields
                   </label>
-                  <span className="text-[10px] text-zinc-600">
+                  <span className="text-xs text-zinc-600">
                     Entered for each area, each period
                   </span>
                 </div>
@@ -466,7 +464,7 @@ export function SettingsTab({
                   <label className="text-sm text-zinc-300 font-medium">
                     Step 2: Period-Level Fields
                   </label>
-                  <span className="text-[10px] text-zinc-600">
+                  <span className="text-xs text-zinc-600">
                     One value per period (not per area)
                   </span>
                 </div>
@@ -524,7 +522,7 @@ export function SettingsTab({
                   <label className="text-sm text-zinc-300 font-medium">
                     Step 3: Constants
                   </label>
-                  <span className="text-[10px] text-zinc-600">
+                  <span className="text-xs text-zinc-600">
                     Fixed values reusable in formulas
                   </span>
                 </div>
@@ -655,7 +653,7 @@ export function SettingsTab({
                   <label className="text-sm text-zinc-300 font-medium">
                     Step 4: Calculated Fields
                   </label>
-                  <span className="text-[10px] text-zinc-600">
+                  <span className="text-xs text-zinc-600">
                     Auto-computed using functions and formulas
                   </span>
                 </div>
@@ -685,7 +683,7 @@ export function SettingsTab({
                               {f.name}
                             </span>
                             {f.unit && (
-                              <span className="text-[10px] text-zinc-500">
+                              <span className="text-xs text-zinc-500">
                                 ({f.unit})
                               </span>
                             )}
@@ -695,7 +693,7 @@ export function SettingsTab({
                             </code>
                             <span
                               className={cn(
-                                "text-[10px] px-1.5 py-0.5 rounded",
+                                "text-xs px-1.5 py-0.5 rounded",
                                 f.format === "currency"
                                   ? "bg-success/15 text-success"
                                   : f.format === "percentage"
@@ -803,7 +801,7 @@ export function SettingsTab({
                     <label className="text-sm text-zinc-300 font-medium">
                       Step 5: Analytics Tags
                     </label>
-                    <span className="text-[10px] text-zinc-600">
+                    <span className="text-xs text-zinc-600">
                       Tell the analytics tab which fields matter
                     </span>
                   </div>
@@ -937,7 +935,7 @@ export function SettingsTab({
                             <span className="text-accent/50">({f.unit})</span>
                           )}
                         </span>
-                        <span className="text-[10px] text-zinc-500 font-mono">
+                        <span className="text-xs text-zinc-500 font-mono">
                           {f.type || "number"}
                         </span>
                       </div>
@@ -963,7 +961,7 @@ export function SettingsTab({
                             <span className="text-success/50">({f.unit})</span>
                           )}
                         </span>
-                        <span className="text-[10px] text-zinc-500 font-mono">
+                        <span className="text-xs text-zinc-500 font-mono">
                           {f.type || "number"}
                         </span>
                       </div>
@@ -1015,7 +1013,7 @@ export function SettingsTab({
                           </span>
                           <span
                             className={cn(
-                              "text-[10px] px-1.5 py-0.5 rounded",
+                              "text-xs px-1.5 py-0.5 rounded",
                               f.format === "currency"
                                 ? "bg-success/15 text-success"
                                 : f.format === "percentage"
@@ -1026,7 +1024,7 @@ export function SettingsTab({
                             {f.format}
                           </span>
                         </div>
-                        <code className="text-[10px] text-accent/40 mt-1.5 block font-mono bg-zinc-950/20 p-1.5 rounded">
+                        <code className="text-xs text-accent/40 mt-1.5 block font-mono bg-zinc-950/20 p-1.5 rounded">
                           {f.formula}
                         </code>
                       </div>

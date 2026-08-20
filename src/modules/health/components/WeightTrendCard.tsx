@@ -7,7 +7,7 @@ import type { WeightTrendPoint } from "./selectors";
 import { motion, AnimatePresence } from "framer-motion";
 
 const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+  "text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface WeightTrendCardProps {
   trendPoints: WeightTrendPoint[];
@@ -35,7 +35,7 @@ export default function WeightTrendCard({ trendPoints }: WeightTrendCardProps) {
           <p className={cn(labelCls, "mb-0")}>Weight Trend</p>
           <p className="text-2xl font-black italic tracking-tighter text-zinc-100 mt-1">
             {lastPoint.weightKg}{" "}
-            <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold not-italic ml-1">
+            <span className="text-xs uppercase tracking-widest text-zinc-500 font-bold not-italic ml-1">
               kg
             </span>
           </p>
@@ -74,7 +74,7 @@ export default function WeightTrendCard({ trendPoints }: WeightTrendCardProps) {
               />
               {/* Tooltip-like value on hover */}
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none">
-                <span className="text-[9px] font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20 whitespace-nowrap">
+                <span className="text-xs font-black text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20 whitespace-nowrap">
                   {point.weightKg}
                 </span>
               </div>
@@ -83,15 +83,15 @@ export default function WeightTrendCard({ trendPoints }: WeightTrendCardProps) {
         </AnimatePresence>
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-[10px] font-bold text-zinc-600 uppercase tracking-[0.15em]">
+      <div className="mt-4 flex items-center justify-between text-xs font-bold text-zinc-600 uppercase tracking-[0.15em]">
         <div className="flex flex-col">
-          <span className="text-zinc-700 text-[8px] tracking-widest mb-0.5">
+          <span className="text-zinc-700 text-xs tracking-widest mb-0.5">
             START
           </span>
           <span>{formatDate(firstPoint.date)}</span>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-zinc-700 text-[8px] tracking-widest mb-0.5">
+          <span className="text-zinc-700 text-xs tracking-widest mb-0.5">
             LATEST
           </span>
           <span>{formatDate(lastPoint.date)}</span>

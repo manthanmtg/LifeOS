@@ -72,7 +72,7 @@ export function ReadingMetrics({ items, loading }: ReadingMetricsProps) {
               className="rounded-xl border border-zinc-800/50 bg-zinc-950/30 backdrop-blur-sm px-3 py-2.5 hover:bg-zinc-950/50 transition-colors group relative overflow-hidden"
             >
               <stat.icon className="absolute -right-1 -bottom-1 w-8 h-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity" />
-              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-0.5 group-hover:text-zinc-400 transition-colors">
+              <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-0.5 group-hover:text-zinc-400 transition-colors">
                 {stat.label}
               </p>
               <p className={`text-xl font-bold tracking-tight ${stat.color}`}>

@@ -647,7 +647,7 @@ export default function PortfolioAdminView() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   {profile.available_for_hire && (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-1 mb-2 text-[10px] font-medium bg-success/15 text-success border border-success/20 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-1 mb-2 text-xs font-medium bg-success/15 text-success border border-success/20 rounded-full">
                       <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                       Available
                     </span>

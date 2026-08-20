@@ -68,7 +68,7 @@ export function RainTrackerPreferences({
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-zinc-600">
+                <p className="text-xs text-zinc-600">
                   Entries stay stored in millimeters. This only changes how
                   values are shown.
                 </p>

@@ -366,7 +366,7 @@ export default function EmiTrackerAdminView() {
   ) : null;
 
   return (
-    <div className="min-h-screen space-y-6">
+    <div className="min-h-dvh space-y-6">
       {!hasSelectedView && (
         <header className="flex items-start justify-between gap-4">
           <div className="min-w-0">

@@ -532,7 +532,7 @@ export default function WhiteboardAdminView() {
               <h1 className="text-lg font-bold text-zinc-50 truncate">
                 {activeBoard.payload.name}
               </h1>
-              <p className="text-[10px] text-zinc-600 font-medium">
+              <p className="text-xs text-zinc-600 font-medium">
                 {saving ? "Saving..." : "Auto-saves as you draw"}
               </p>
             </div>
@@ -605,7 +605,7 @@ export default function WhiteboardAdminView() {
           {activeBoard.payload.tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-[11px] font-medium"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-medium"
             >
               {t}
               <button
@@ -706,7 +706,7 @@ export default function WhiteboardAdminView() {
           >
             <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/70 backdrop-blur-sm space-y-4">
               <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
                   Name
                 </label>
                 <input
@@ -721,7 +721,7 @@ export default function WhiteboardAdminView() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
+                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
                   Tags <span className="text-zinc-700">(comma-separated)</span>
                 </label>
                 <input

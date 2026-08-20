@@ -132,7 +132,7 @@ export default function AttachmentUpload({
           <p className="text-xs text-zinc-300 font-medium">
             {uploading ? uploadProgress : "Drop files or click to browse"}
           </p>
-          <p className="text-[10px] text-zinc-600 mt-0.5">
+          <p className="text-xs text-zinc-600 mt-0.5">
             Images & PDFs — max 5 MB each — multiple files supported
           </p>
         </div>

@@ -34,7 +34,7 @@ export function dueBadge(dateStr?: string, label?: string) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide border shadow-sm ring-1",
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border shadow-sm ring-1",
         config.bg,
         config.border,
         config.color,

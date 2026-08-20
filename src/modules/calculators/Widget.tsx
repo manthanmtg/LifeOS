@@ -80,7 +80,7 @@ export default function CalculatorsWidget() {
       href="/admin/calculators"
       loading={!loaded}
       footer={
-        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+        <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">
           {summary.enabledCategories.length} categories available
         </div>
       }

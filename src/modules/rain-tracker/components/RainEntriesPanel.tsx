@@ -114,7 +114,7 @@ export function RainEntriesPanel({
               <CloudRain className="h-4 w-4 text-accent" />
               Entries
             </h3>
-            <p className="mt-1 text-[11px] text-zinc-500">{entryLabel}</p>
+            <p className="mt-1 text-xs text-zinc-500">{entryLabel}</p>
           </div>
           <div className="flex items-center gap-1.5">
             <button
@@ -173,7 +173,7 @@ export function RainEntriesPanel({
               <div>
                 <label
                   htmlFor="rain-min-amount"
-                  className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                  className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500"
                 >
                   Min ({displayUnit})
                 </label>
@@ -191,7 +191,7 @@ export function RainEntriesPanel({
               <div>
                 <label
                   htmlFor="rain-max-amount"
-                  className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500"
+                  className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500"
                 >
                   Max ({displayUnit})
                 </label>
@@ -207,7 +207,7 @@ export function RainEntriesPanel({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                   Notes
                 </label>
                 <input
@@ -257,7 +257,7 @@ export function RainEntriesPanel({
                 </div>
                 <form className="space-y-3" onSubmit={onSaveEntry}>
                   <div>
-                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                       Amount ({displayUnit})
                     </label>
                     <input
@@ -275,7 +275,7 @@ export function RainEntriesPanel({
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                         Date
                       </label>
                       <input
@@ -288,7 +288,7 @@ export function RainEntriesPanel({
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                         Time
                       </label>
                       <input
@@ -303,7 +303,7 @@ export function RainEntriesPanel({
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                         Source
                       </label>
                       <select
@@ -319,7 +319,7 @@ export function RainEntriesPanel({
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                      <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-zinc-500">
                         Notes
                       </label>
                       <input

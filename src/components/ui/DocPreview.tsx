@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useRef } from "react";
 import { X, Download, FileText, ImageIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useDialogAccessibility } from "./Dialog";
 
 interface DocPreviewProps {
   src: string;
@@ -21,13 +22,12 @@ export default function DocPreview({
   size,
   onClose,
 }: DocPreviewProps) {
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: closeRef,
+  });
 
   if (typeof document === "undefined") return null;
 
@@ -44,10 +44,12 @@ export default function DocPreview({
 
   return createPortal(
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="doc-preview-title"
+      tabIndex={-1}
     >
       {/* Header */}
       <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10 bg-gradient-to-b from-zinc-950/80 to-transparent">
@@ -62,10 +64,13 @@ export default function DocPreview({
             )}
           </div>
           <div className="min-w-0">
-            <h3 id="doc-preview-title" className="text-zinc-100 text-sm font-bold truncate">
+            <h3
+              id="doc-preview-title"
+              className="text-zinc-100 text-sm font-bold truncate"
+            >
               {filename}
             </h3>
-            <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-widest mt-0.5">
+            <p className="text-zinc-500 text-xs font-medium uppercase tracking-widest mt-0.5">
               {size ? formatBytes(size) : contentType}
             </p>
           </div>
@@ -81,9 +86,10 @@ export default function DocPreview({
             <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </a>
           <button
+            ref={closeRef}
+            type="button"
             onClick={onClose}
-            autoFocus
-            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+            className="min-h-11 min-w-11 p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Close document preview"
             title="Close (Esc)"
           >
@@ -139,7 +145,7 @@ export default function DocPreview({
       </div>
 
       {/* Footer Info */}
-      <div className="absolute bottom-6 text-zinc-500 text-[10px] font-medium uppercase tracking-widest text-center w-full pointer-events-none opacity-50">
+      <div className="absolute bottom-6 text-zinc-500 text-xs font-medium uppercase tracking-widest text-center w-full pointer-events-none opacity-50">
         Click outside to close
       </div>
     </div>,

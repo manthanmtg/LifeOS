@@ -225,7 +225,7 @@ export default function SnippetForm({
                   <button
                     type="button"
                     onClick={() => setShowPreview(!showPreview)}
-                    className="text-[10px] flex items-center gap-1.5 text-zinc-500 hover:text-zinc-300 transition-colors bg-zinc-800/50 px-2 py-1 rounded"
+                    className="text-xs flex items-center gap-1.5 text-zinc-500 hover:text-zinc-300 transition-colors bg-zinc-800/50 px-2 py-1 rounded"
                   >
                     <Eye className="w-3 h-3" />
                     {showPreview ? "Hide Preview" : "Show Preview"}
@@ -251,7 +251,7 @@ export default function SnippetForm({
                   <div className="flex items-center justify-between mb-3 border-b border-zinc-800/80 pb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent/80">
+                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent/80">
                         Live Preview
                       </p>
                     </div>
@@ -318,7 +318,7 @@ export default function SnippetForm({
                           .map((tag) => (
                             <span
                               key={tag}
-                              className="px-2 py-0.5 bg-accent/10 text-accent text-[10px] rounded-md font-medium"
+                              className="px-2 py-0.5 bg-accent/10 text-accent text-xs rounded-md font-medium"
                             >
                               #{tag}
                             </span>

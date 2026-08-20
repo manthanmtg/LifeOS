@@ -94,14 +94,13 @@ export default function PortfolioWidget() {
   const heroAvailability = p?.available_for_hire
     ? "open to opportunities"
     : "selective availability";
-  const readinessTone =
-    !p
-      ? "default"
-      : readiness?.pct && readiness.pct >= 85
-        ? "success"
-        : readiness?.pct && readiness.pct >= 55
-          ? "warning"
-          : "danger";
+  const readinessTone = !p
+    ? "default"
+    : readiness?.pct && readiness.pct >= 85
+      ? "success"
+      : readiness?.pct && readiness.pct >= 55
+        ? "warning"
+        : "danger";
 
   return (
     <WidgetCard
@@ -111,9 +110,10 @@ export default function PortfolioWidget() {
       href="/admin/portfolio"
       footer={
         p && (
-          <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">
             <span>
-              {readiness?.completed ?? 0}/{readiness?.total ?? 0} checks complete
+              {readiness?.completed ?? 0}/{readiness?.total ?? 0} checks
+              complete
             </span>
           </div>
         )

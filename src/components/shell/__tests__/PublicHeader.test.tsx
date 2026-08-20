@@ -1,123 +1,53 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import PublicHeader from "../PublicHeader";
 
+const modules = [
+  { slug: "slides", name: "Slides" },
+  { slug: "portfolio", name: "Portfolio" },
+  { slug: "blog", name: "Blog" },
+];
+
 describe("PublicHeader", () => {
-  beforeEach(() => {
-    vi.useRealTimers();
+  it("renders server-provided branding and ordered public navigation without fetching", () => {
     global.fetch = vi.fn();
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  });
 
-  it("loads branding, orders public modules, and excludes portfolio from navigation links", async () => {
-    vi.mocked(global.fetch)
-      .mockResolvedValueOnce({
-        json: async () => ({
-          data: [{ payload: { full_name: "Ada Lovelace" } }],
-        }),
-      } as Response)
-      .mockResolvedValueOnce({
-        json: async () => ({
-          data: {
-            moduleRegistry: {
-              blog: { name: "Blog", enabled: true, isPublic: true },
-              portfolio: { name: "Portfolio", enabled: true, isPublic: true },
-              slides: { name: "Slides", enabled: true, isPublic: true },
-              expenses: { name: "Expenses", enabled: true, isPublic: false },
-            },
-            moduleOrder: ["slides", "portfolio", "blog"],
-          },
-        }),
-      } as Response);
-
-    render(<PublicHeader initialUserName="Life OS" />);
-
-    await waitFor(() =>
-      expect(
-        screen.getByRole("link", { name: "Ada Lovelace" }),
-      ).toBeInTheDocument(),
+    render(
+      <PublicHeader initialUserName="Ada Lovelace" publicModules={modules} />,
     );
 
-    const links = screen.getAllByRole("link");
-    const labels = links.map((link) => link.textContent);
+    expect(
+      screen.getByRole("link", { name: "Ada Lovelace" }),
+    ).toBeInTheDocument();
+    const labels = screen.getAllByRole("link").map((link) => link.textContent);
 
     expect(labels).toContain("Slides");
     expect(labels).toContain("Blog");
     expect(labels).not.toContain("Portfolio");
-    expect(labels).not.toContain("Expenses");
     expect(labels.indexOf("Slides")).toBeLessThan(labels.indexOf("Blog"));
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it("falls back to default public modules when system config fetch fails", async () => {
-    vi.mocked(global.fetch)
-      .mockResolvedValueOnce({
-        json: async () => ({ data: [] }),
-      } as Response)
-      .mockRejectedValueOnce(new Error("system down"));
+  it("closes the mobile menu after tapping a navigation item", () => {
+    render(<PublicHeader publicModules={modules} />);
 
-    render(<PublicHeader />);
-
-    await waitFor(() =>
-      expect(screen.getByRole("link", { name: "Blog" })).toBeInTheDocument(),
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open navigation menu" }),
     );
+    const mobileBlogLinks = screen.getAllByRole("link", { name: "Blog" });
+    const mobileBlogLink = mobileBlogLinks[mobileBlogLinks.length - 1];
+    mobileBlogLink.addEventListener("click", (event) => event.preventDefault());
+    fireEvent.click(mobileBlogLink);
 
-    expect(
-      screen.queryByRole("link", { name: "Portfolio" }),
-    ).not.toBeInTheDocument();
-    expect(console.error).toHaveBeenCalled();
+    expect(screen.getAllByRole("link", { name: "Blog" })).toHaveLength(1);
   });
 
-  it("closes the mobile menu after tapping a navigation item", async () => {
-    vi.mocked(global.fetch)
-      .mockResolvedValueOnce({
-        json: async () => ({ data: [] }),
-      } as Response)
-      .mockResolvedValueOnce({
-        json: async () => ({
-          data: {
-            moduleRegistry: {
-              blog: { name: "Blog", enabled: true, isPublic: true },
-            },
-            moduleOrder: ["blog"],
-          },
-        }),
-      } as Response);
+  it("labels the mobile menu button and exposes its expanded state", () => {
+    render(<PublicHeader publicModules={[]} />);
 
-    render(<PublicHeader />);
-
-    await waitFor(() => expect(screen.getByRole("button")).toBeInTheDocument());
-
-    fireEvent.click(screen.getByRole("button"));
-    const mobileBlogLink = await screen.findAllByRole("link", { name: "Blog" });
-    const mobileNavLink = mobileBlogLink[mobileBlogLink.length - 1];
-    mobileNavLink.addEventListener("click", (event) => event.preventDefault());
-    fireEvent.click(mobileNavLink);
-
-    await waitFor(() =>
-      expect(screen.queryAllByRole("link", { name: "Blog" })).toHaveLength(1),
-    );
-  });
-
-  it("labels the mobile menu button and exposes its expanded state", async () => {
-    vi.mocked(global.fetch)
-      .mockResolvedValueOnce({
-        json: async () => ({ data: [] }),
-      } as Response)
-      .mockResolvedValueOnce({
-        json: async () => ({
-          data: {
-            moduleRegistry: {},
-            moduleOrder: [],
-          },
-        }),
-      } as Response);
-
-    render(<PublicHeader />);
-
-    const menuButton = await screen.findByRole("button", {
+    const menuButton = screen.getByRole("button", {
       name: "Open navigation menu",
     });
-
     expect(menuButton).toHaveAttribute("aria-expanded", "false");
 
     fireEvent.click(menuButton);

@@ -42,7 +42,7 @@ export function RainTrendChart({
             Monthly totals across the last 12 months
           </p>
         </div>
-        <span className="text-[10px] font-medium text-zinc-600">
+        <span className="text-xs font-medium text-zinc-600">
           Displaying {displayUnit}
         </span>
       </div>

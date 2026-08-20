@@ -85,7 +85,7 @@ export default function ProfileCard({
           <div className="flex items-center gap-2 mt-1">
             <span
               className={cn(
-                "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
                 typeConfig.bg,
                 typeConfig.border,
                 typeConfig.color,
@@ -95,12 +95,12 @@ export default function ProfileCard({
               {typeConfig.label}
             </span>
             {pl.relation && (
-              <span className="text-[11px] text-zinc-500">{pl.relation}</span>
+              <span className="text-xs text-zinc-500">{pl.relation}</span>
             )}
           </div>
         </div>
         {pl.blood_group !== "unknown" && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger shrink-0">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger shrink-0">
             {pl.blood_group}
           </span>
         )}
@@ -128,7 +128,7 @@ export default function ProfileCard({
           </span>
         )}
         {latestVisit && (
-          <span className="ml-auto text-zinc-600 text-[10px]">
+          <span className="ml-auto text-zinc-600 text-xs">
             Last visit: {formatDate(latestVisit.date)}
           </span>
         )}
@@ -138,7 +138,7 @@ export default function ProfileCard({
       {alerts > 0 && (
         <div className="mt-3 p-2 rounded-xl border border-warning/20 bg-warning/5 flex items-center gap-2">
           <AlertTriangle className="w-3 h-3 text-warning shrink-0" />
-          <span className="text-[11px] text-warning font-medium">
+          <span className="text-xs text-warning font-medium">
             {alerts} alert{alerts !== 1 ? "s" : ""} need attention
           </span>
         </div>
@@ -146,7 +146,7 @@ export default function ProfileCard({
 
       {/* Visit count footer */}
       {pl.visits.length > 0 && (
-        <p className="text-[10px] text-zinc-600 mt-2">
+        <p className="text-xs text-zinc-600 mt-2">
           {pl.visits.length} total visit{pl.visits.length !== 1 ? "s" : ""}
         </p>
       )}

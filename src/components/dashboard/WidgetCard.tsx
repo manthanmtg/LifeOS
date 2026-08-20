@@ -92,7 +92,7 @@ function WidgetCard({
     >
       {/* Dev-only overflow warning */}
       {showOverflow && (
-        <div className="absolute inset-x-0 bottom-0 z-50 bg-danger/90 text-zinc-50 text-[9px] font-bold uppercase tracking-wider text-center py-1">
+        <div className="absolute inset-x-0 bottom-0 z-50 bg-danger/90 text-zinc-50 text-xs font-bold uppercase tracking-wider text-center py-1">
           ⚠ Widget overflow — reduce content to fit contract
         </div>
       )}
@@ -105,7 +105,7 @@ function WidgetCard({
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3 mb-4 relative z-10 min-w-0">
-        <span className="min-w-0 truncate text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">
+        <span className="min-w-0 truncate text-xs font-bold text-zinc-500 uppercase tracking-[0.2em]">
           {title}
         </span>
         <div className="flex shrink-0 items-center gap-2">

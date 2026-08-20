@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { act } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ZenModeProvider from "../ZenMode";
@@ -30,7 +30,8 @@ describe("ZenModeProvider", () => {
     );
 
     fireZenShortcut();
-    expect(screen.getByText(/Zen Mode/)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/Zen mode active/i);
+    expect(screen.getByRole("button", { name: "Exit Zen Mode" })).toBeVisible();
 
     fireZenShortcut();
     expect(screen.queryByText(/Zen Mode/)).not.toBeInTheDocument();
@@ -45,12 +46,34 @@ describe("ZenModeProvider", () => {
 
     fireZenShortcut();
 
-    expect(screen.getByText(/Zen Mode/).closest("div")).toHaveClass(
+    expect(screen.getByRole("status")).toHaveClass(
       "left-4",
       "right-4",
       "text-center",
       "sm:left-auto",
       "sm:w-fit",
+    );
+  });
+
+  it("provides a pointer-accessible exit and exposes state on the provider", () => {
+    const { container } = render(
+      <ZenModeProvider>
+        <div>Content</div>
+      </ZenModeProvider>,
+    );
+
+    fireZenShortcut();
+    expect(container.firstElementChild).toHaveAttribute(
+      "data-zen-mode",
+      "true",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exit Zen Mode" }));
+
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(container.firstElementChild).toHaveAttribute(
+      "data-zen-mode",
+      "false",
     );
   });
 

@@ -161,7 +161,7 @@ export default function ExpenseList({
                           <div className="flex items-center gap-2 mt-0.5">
                             <span
                               className={cn(
-                                "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border",
+                                "text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border",
                                 colorClass,
                               )}
                             >
@@ -170,13 +170,13 @@ export default function ExpenseList({
                             {expense.payload.merchant && (
                               <>
                                 <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
-                                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter truncate">
+                                <span className="text-xs font-bold text-zinc-500 uppercase tracking-tighter truncate">
                                   {expense.payload.merchant}
                                 </span>
                               </>
                             )}
                             <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
-                            <span className="text-[9px] font-bold text-zinc-600 uppercase">
+                            <span className="text-xs font-bold text-zinc-600 uppercase">
                               {expense.displayDate}
                             </span>
                           </div>
@@ -198,7 +198,7 @@ export default function ExpenseList({
                               settings.numberFormat,
                             )}
                           </p>
-                          <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.1em]">
+                          <p className="text-xs font-black text-zinc-600 uppercase tracking-[0.1em]">
                             {expense.payload.account || "UPI"}
                           </p>
                         </div>
@@ -234,13 +234,13 @@ export default function ExpenseList({
             <div className="w-12 h-12 bg-zinc-800/50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-zinc-800">
               <Search className="w-5 h-5 text-zinc-600" />
             </div>
-            <p className="text-zinc-500 font-black text-[10px] italic tracking-[0.2em] uppercase">
+            <p className="text-zinc-500 font-black text-xs italic tracking-[0.2em] uppercase">
               Zero transactional footprints found
             </p>
           </div>
         )}
 
-        <button className="w-full py-4 bg-zinc-950/40 hover:bg-zinc-800 text-zinc-500 hover:text-accent text-[9px] font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 border-t border-zinc-800/50 group">
+        <button className="w-full py-4 bg-zinc-950/40 hover:bg-zinc-800 text-zinc-500 hover:text-accent text-xs font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-2 border-t border-zinc-800/50 group">
           Expand Temporal Ledger{" "}
           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
         </button>

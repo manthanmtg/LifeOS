@@ -4,7 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import { getOrderedAdminModules, type AdminModuleItem, type SystemConfig } from "@/lib/admin-modules";
+import {
+  getOrderedAdminModules,
+  type AdminModuleItem,
+  type SystemConfig,
+} from "@/lib/admin-modules";
 import {
   LayoutDashboard,
   Settings,
@@ -168,10 +172,7 @@ function readCachedModuleOrder(): string[] | null {
 
 function writeCachedModuleOrder(order: string[]) {
   try {
-    window.localStorage.setItem(
-      ADMIN_SIDEBAR_CACHE_KEY,
-      JSON.stringify(order),
-    );
+    window.localStorage.setItem(ADMIN_SIDEBAR_CACHE_KEY, JSON.stringify(order));
   } catch {
     // localStorage unavailable or quota issue; fail silently
   }
@@ -241,10 +242,10 @@ export default function AdminSidebar() {
             icon: IconMap[module.icon] || User,
           }))
       : getOrderedAdminModules(config).map((module) => ({
-        href: module.href,
-        name: module.name,
-        icon: IconMap[module.icon] || User,
-      }));
+          href: module.href,
+          name: module.name,
+          icon: IconMap[module.icon] || User,
+        }));
 
     return moduleOrder;
   }, [cachedModuleOrder, config]);
@@ -271,6 +272,7 @@ export default function AdminSidebar() {
         {mobileOpen && (
           <>
             <motion.div
+              data-zen-chrome
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -278,11 +280,12 @@ export default function AdminSidebar() {
               className="lg:hidden fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-[60]"
             />
             <motion.div
+              data-zen-chrome
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="lg:hidden fixed left-0 top-0 h-screen w-[85vw] max-w-[280px] bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex flex-col text-sm text-zinc-400 z-[70] shadow-lg shadow-zinc-950/40"
+              className="lg:hidden fixed left-0 top-0 h-dvh w-[85vw] max-w-[280px] bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex flex-col text-sm text-zinc-400 z-[70] shadow-lg shadow-zinc-950/40 [padding-top:env(safe-area-inset-top)] [padding-bottom:env(safe-area-inset-bottom)]"
             >
               <div className="flex items-center justify-between p-6">
                 <div className="flex items-center gap-3 min-w-0">
@@ -328,13 +331,23 @@ export default function AdminSidebar() {
               </div>
               <div className="flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
                 {renderNavLinks(
-                  links.slice(1),
+                  links.slice(1, -1),
                   pathname,
                   setMobileOpen,
                   "Modules",
                 )}
               </div>
               <div className="p-4 border-t border-zinc-800 space-y-1">
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setMobileOpen(false)}
+                  aria-current={
+                    pathname === "/admin/settings" ? "page" : undefined
+                  }
+                  className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
+                >
+                  <Settings className="w-4 h-4" /> System Settings
+                </Link>
                 <Link
                   href="/?public=1"
                   onClick={() => setMobileOpen(false)}
@@ -358,7 +371,10 @@ export default function AdminSidebar() {
       </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex h-full w-64 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex-col text-sm text-zinc-400 shrink-0 shadow-xl shadow-zinc-950/25">
+      <div
+        data-zen-chrome
+        className="hidden lg:flex h-full w-64 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900 border-r border-zinc-800/80 flex-col text-sm text-zinc-400 shrink-0 shadow-xl shadow-zinc-950/25"
+      >
         <div className="p-6">
           <div className="flex items-center gap-3 min-w-0">
             {config?.site_icon ? (
@@ -395,9 +411,21 @@ export default function AdminSidebar() {
           <GlobalModuleSearch variant="sidebar" />
         </div>
         <div className="flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
-          {renderNavLinks(links.slice(1), pathname, setMobileOpen, "Modules")}
+          {renderNavLinks(
+            links.slice(1, -1),
+            pathname,
+            setMobileOpen,
+            "Modules",
+          )}
         </div>
         <div className="p-4 border-t border-zinc-800 mt-auto space-y-1">
+          <Link
+            href="/admin/settings"
+            aria-current={pathname === "/admin/settings" ? "page" : undefined}
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"
+          >
+            <Settings className="w-4 h-4" /> System Settings
+          </Link>
           <Link
             href="/?public=1"
             className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/70 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950"

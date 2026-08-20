@@ -54,7 +54,7 @@ export function RainEntryList({
               className="group flex items-center gap-3 rounded-xl border border-zinc-800/60 bg-zinc-900/40 p-3 transition-all hover:border-zinc-700/60 hover:bg-zinc-900/70"
             >
               <div className="hidden min-w-[54px] flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 py-1.5 sm:flex">
-                <span className="text-[10px] font-medium leading-none text-zinc-500">
+                <span className="text-xs font-medium leading-none text-zinc-500">
                   {item.monthLabel}
                 </span>
                 <span className="text-sm font-bold leading-tight text-zinc-200">
@@ -76,12 +76,12 @@ export function RainEntryList({
                   <span className="text-base font-bold tabular-nums text-zinc-100">
                     {item.displayAmount}
                   </span>
-                  <span className="text-[11px] font-medium text-zinc-500">
+                  <span className="text-xs font-medium text-zinc-500">
                     {displayUnit}
                   </span>
                   <span
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                      "rounded border px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
                       intensity.bgColor,
                       intensity.color,
                     )}
@@ -89,7 +89,7 @@ export function RainEntryList({
                     {intensity.label}
                   </span>
                 </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-zinc-600">
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-600">
                   <span className="flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
                     {item.dateLabel} at {item.timeLabel}

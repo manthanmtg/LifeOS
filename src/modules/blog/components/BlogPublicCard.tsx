@@ -60,7 +60,7 @@ export default function BlogPublicCard({ post }: BlogPublicCardProps) {
                 {post.payload.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400"
+                    className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400"
                   >
                     {tag}
                   </span>

@@ -167,7 +167,7 @@ function Tooltip({
   return (
     <div className="group/tip relative flex items-center justify-center">
       {children}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-800 text-zinc-50 text-[10px] rounded opacity-0 group-hover/tip:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-zinc-700 shadow-xl">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-800 text-zinc-50 text-xs rounded opacity-0 group-hover/tip:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-zinc-700 shadow-xl">
         {content}
         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-zinc-800"></div>
       </div>
@@ -269,12 +269,12 @@ const SortableRecurringExpenseCard = memo(
                 {s.payload.name}
               </p>
               <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
                   {s.payload.category}
                 </span>
                 <span
                   className={cn(
-                    "text-[11px] px-2 py-0.5 rounded-full border",
+                    "text-xs px-2 py-0.5 rounded-full border",
                     s.payload.is_active
                       ? "bg-success/10 border-success/25 text-success"
                       : "bg-zinc-800 border-zinc-700 text-zinc-400",

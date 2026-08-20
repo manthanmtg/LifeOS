@@ -793,7 +793,7 @@ export default function AiUsageAdminView() {
             <Icon className="w-4 h-4" />
             <span className="hidden sm:inline">{label}</span>
             {badge !== undefined && badge > 0 && (
-              <span className="text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-md font-bold">
+              <span className="text-xs bg-accent/20 text-accent px-1.5 py-0.5 rounded-md font-bold">
                 {badge}
               </span>
             )}
@@ -878,7 +878,7 @@ export default function AiUsageAdminView() {
                                 <div className="flex items-center gap-2 mt-0.5">
                                   <span
                                     className={cn(
-                                      "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md",
+                                      "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md",
                                       meta.bg,
                                       meta.color,
                                     )}
@@ -886,7 +886,7 @@ export default function AiUsageAdminView() {
                                     {meta.name}
                                   </span>
                                   {p.plan && (
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-md flex items-center gap-1">
                                       <Gauge className="w-3 h-3" /> {p.plan}
                                     </span>
                                   )}
@@ -917,7 +917,7 @@ export default function AiUsageAdminView() {
                           {/* Stats Row */}
                           <div className="grid grid-cols-3 gap-3">
                             <div>
-                              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                                 Cost
                               </p>
                               <p
@@ -930,7 +930,7 @@ export default function AiUsageAdminView() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                                 Tokens
                               </p>
                               <p className="text-lg font-bold text-zinc-200 mt-0.5">
@@ -938,7 +938,7 @@ export default function AiUsageAdminView() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                                 Requests
                               </p>
                               <p className="text-lg font-bold text-zinc-200 mt-0.5">
@@ -951,12 +951,12 @@ export default function AiUsageAdminView() {
                           {budgetPct !== null && (
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between">
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 flex items-center gap-1">
+                                <p className="text-xs uppercase font-bold tracking-widest text-zinc-600 flex items-center gap-1">
                                   <Wallet className="w-3 h-3" /> Monthly Budget
                                 </p>
                                 <p
                                   className={cn(
-                                    "text-[10px] font-bold",
+                                    "text-xs font-bold",
                                     budgetPct > 80
                                       ? "text-danger"
                                       : budgetPct > 50
@@ -993,7 +993,7 @@ export default function AiUsageAdminView() {
                             if (!lim) return null;
                             if (lim.error && lim.windows.length === 0)
                               return (
-                                <div className="text-[10px] text-danger/70 flex items-center gap-1">
+                                <div className="text-xs text-danger/70 flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3" /> Rate
                                   limits unavailable
                                 </div>
@@ -1001,7 +1001,7 @@ export default function AiUsageAdminView() {
                             if (lim.windows.length === 0) return null;
                             return (
                               <div className="space-y-2 pt-0.5">
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 flex items-center gap-1">
+                                <p className="text-xs uppercase font-bold tracking-widest text-zinc-600 flex items-center gap-1">
                                   <Gauge className="w-3 h-3" /> Rate Limits
                                   {limitsLoading && (
                                     <RefreshCw className="w-3 h-3 animate-spin ml-1" />
@@ -1031,12 +1031,12 @@ export default function AiUsageAdminView() {
                                   return (
                                     <div key={w.label} className="space-y-1">
                                       <div className="flex items-center justify-between">
-                                        <span className="text-[10px] text-zinc-500">
+                                        <span className="text-xs text-zinc-500">
                                           {w.label}
                                         </span>
                                         <span
                                           className={cn(
-                                            "text-[10px] font-bold",
+                                            "text-xs font-bold",
                                             pct > 80
                                               ? "text-danger"
                                               : pct > 50
@@ -1085,7 +1085,7 @@ export default function AiUsageAdminView() {
                                 })}
                                 <button
                                   onClick={fetchLimits}
-                                  className="text-[10px] text-zinc-700 hover:text-zinc-400 flex items-center gap-1 transition-colors"
+                                  className="text-xs text-zinc-700 hover:text-zinc-400 flex items-center gap-1 transition-colors"
                                 >
                                   <RefreshCw className="w-3 h-3" /> Refresh
                                   limits
@@ -1096,7 +1096,7 @@ export default function AiUsageAdminView() {
 
                           {/* Footer */}
                           <div className="flex items-center justify-between pt-1 border-t border-zinc-800/50">
-                            <div className="flex items-center gap-2 text-[10px] text-zinc-600">
+                            <div className="flex items-center gap-2 text-xs text-zinc-600">
                               {p.last_synced_at && (
                                 <span className="flex items-center gap-1">
                                   <RefreshCw className="w-3 h-3" />{" "}
@@ -1113,7 +1113,7 @@ export default function AiUsageAdminView() {
                               href={meta.usageDashboardUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[10px] text-zinc-600 hover:text-zinc-400 flex items-center gap-1 transition-colors"
+                              className="text-xs text-zinc-600 hover:text-zinc-400 flex items-center gap-1 transition-colors"
                             >
                               Dashboard <ExternalLink className="w-3 h-3" />
                             </a>
@@ -1255,7 +1255,7 @@ export default function AiUsageAdminView() {
                             key={model}
                             className="flex items-center gap-3 py-1.5"
                           >
-                            <span className="text-[10px] font-bold text-zinc-700 w-4 text-right">
+                            <span className="text-xs font-bold text-zinc-700 w-4 text-right">
                               {i + 1}
                             </span>
                             <div
@@ -1269,7 +1269,7 @@ export default function AiUsageAdminView() {
                               <p className="text-sm text-zinc-200 font-medium truncate">
                                 {model}
                               </p>
-                              <p className="text-[10px] text-zinc-600 uppercase tracking-wider">
+                              <p className="text-xs text-zinc-600 uppercase tracking-wider">
                                 {m.name} · {data.calls.toLocaleString()} req ·{" "}
                                 {fmtTokens(data.tokens)} tok
                               </p>
@@ -1294,7 +1294,7 @@ export default function AiUsageAdminView() {
                         <CalendarDays className="w-4 h-4 text-accent" /> Daily
                         Spend
                       </h3>
-                      <p className="text-[10px] text-zinc-600 font-bold">
+                      <p className="text-xs text-zinc-600 font-bold">
                         Avg:{" "}
                         {fmtCost(
                           stats.totalCost /
@@ -1316,7 +1316,7 @@ export default function AiUsageAdminView() {
                               key={day}
                               className="flex-1 flex flex-col items-center group relative min-w-0"
                             >
-                              <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-zinc-800 text-zinc-200 text-[10px] px-2 py-1 rounded-md whitespace-nowrap z-10 pointer-events-none border border-zinc-700">
+                              <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded-md whitespace-nowrap z-10 pointer-events-none border border-zinc-700">
                                 {new Date(day).toLocaleDateString(undefined, {
                                   weekday: "short",
                                   month: "short",
@@ -1339,7 +1339,7 @@ export default function AiUsageAdminView() {
                         });
                       })()}
                     </div>
-                    <div className="flex justify-between text-[10px] text-zinc-600 font-mono">
+                    <div className="flex justify-between text-xs text-zinc-600 font-mono">
                       <span>{Object.keys(stats.dailyCosts).sort()[0]}</span>
                       <span>
                         {Object.keys(stats.dailyCosts).sort().slice(-1)[0]}
@@ -1450,7 +1450,7 @@ export default function AiUsageAdminView() {
                               </p>
                               <span
                                 className={cn(
-                                  "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md",
+                                  "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md",
                                   meta.bg,
                                   meta.color,
                                 )}
@@ -1458,16 +1458,16 @@ export default function AiUsageAdminView() {
                                 {meta.name}
                               </span>
                               {p.plan && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 bg-zinc-800/80 px-2 py-0.5 rounded-md">
+                                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 bg-zinc-800/80 px-2 py-0.5 rounded-md">
                                   {p.plan}
                                 </span>
                               )}
                               {p.is_active ? (
-                                <span className="text-[10px] text-success/80 font-bold uppercase tracking-wider flex items-center gap-1">
+                                <span className="text-xs text-success/80 font-bold uppercase tracking-wider flex items-center gap-1">
                                   <Power className="w-3 h-3" /> Active
                                 </span>
                               ) : (
-                                <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider flex items-center gap-1">
+                                <span className="text-xs text-zinc-600 font-bold uppercase tracking-wider flex items-center gap-1">
                                   <PowerOff className="w-3 h-3" /> Paused
                                 </span>
                               )}
@@ -1631,7 +1631,7 @@ export default function AiUsageAdminView() {
                           >
                             {meta.name}
                           </p>
-                          <p className="text-[10px] text-zinc-500 mt-1">
+                          <p className="text-xs text-zinc-500 mt-1">
                             {meta.description}
                           </p>
                         </div>
@@ -1758,7 +1758,7 @@ export default function AiUsageAdminView() {
                     </button>
                   </div>
                   {editingProvider && (
-                    <p className="text-[10px] text-zinc-600">
+                    <p className="text-xs text-zinc-600">
                       Leave blank to keep existing key unchanged
                     </p>
                   )}
@@ -1809,7 +1809,7 @@ export default function AiUsageAdminView() {
 
             {/* Unsupported */}
             <div className="space-y-3 pt-2">
-              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                 Other Providers (No Usage API Available)
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -1825,7 +1825,7 @@ export default function AiUsageAdminView() {
                       <span className={cn("text-xs font-bold", cfg.color)}>
                         {cfg.name}
                       </span>
-                      <p className="text-[10px] text-zinc-700 mt-0.5">
+                      <p className="text-xs text-zinc-700 mt-0.5">
                         {cfg.reason}
                       </p>
                     </div>
@@ -1947,7 +1947,7 @@ export default function AiUsageAdminView() {
                         <div className="px-4 pb-5 space-y-5">
                           {/* Steps */}
                           <div className="space-y-2">
-                            <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                            <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                               Setup Steps
                             </p>
                             <ol className="space-y-2">
@@ -1955,7 +1955,7 @@ export default function AiUsageAdminView() {
                                 <li key={i} className="flex items-start gap-3">
                                   <span
                                     className={cn(
-                                      "w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5",
+                                      "w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5",
                                       config.bg,
                                       config.color,
                                     )}
@@ -1972,7 +1972,7 @@ export default function AiUsageAdminView() {
 
                           {/* Plans Table */}
                           <div className="space-y-2">
-                            <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                            <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                               Available Plans & Rate Limits
                             </p>
                             <div className="rounded-xl border border-zinc-800/50 overflow-hidden">
@@ -2051,7 +2051,7 @@ export default function AiUsageAdminView() {
                           {/* Env var */}
                           <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/50 flex items-center justify-between">
                             <div>
-                              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-1">
+                              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600 mb-1">
                                 Environment Variable
                               </p>
                               <code className="text-xs text-zinc-400 font-mono">
@@ -2079,7 +2079,7 @@ export default function AiUsageAdminView() {
 
             {/* Unsupported */}
             <div className="pt-4 space-y-3">
-              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+              <p className="text-xs uppercase font-bold tracking-widest text-zinc-600">
                 Other Providers — Manual Dashboard Links
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2095,7 +2095,7 @@ export default function AiUsageAdminView() {
                       <span className={cn("text-xs font-bold", cfg.color)}>
                         {cfg.name}
                       </span>
-                      <p className="text-[10px] text-zinc-700 mt-0.5">
+                      <p className="text-xs text-zinc-700 mt-0.5">
                         {cfg.reason}
                       </p>
                     </div>
@@ -2138,11 +2138,11 @@ const StatCard = memo(function StatCard({
       >
         <Icon className={cn("w-4 h-4", accent)} />
       </div>
-      <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-1.5">
+      <p className="text-xs uppercase font-bold tracking-widest text-zinc-600 mb-1.5">
         {label}
       </p>
       <p className="text-2xl font-bold text-zinc-100 tracking-tight">{value}</p>
-      {sub && <p className="text-[10px] text-zinc-600 mt-1">{sub}</p>}
+      {sub && <p className="text-xs text-zinc-600 mt-1">{sub}</p>}
     </div>
   );
 });

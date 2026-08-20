@@ -192,7 +192,7 @@ export function ResumeManager({
                   </p>
                   <time
                     dateTime={res.payload.uploaded_at}
-                    className="text-[10px] text-zinc-500"
+                    className="text-xs text-zinc-500"
                   >
                     {formatUploadDate(res.payload.uploaded_at)}
                   </time>
@@ -209,7 +209,7 @@ export function ResumeManager({
                       : `Set ${res.payload.filename} as the active resume`
                   }
                   className={cn(
-                    "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
+                    "px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-all",
                     res.payload.is_active
                       ? "bg-accent text-zinc-50"
                       : "bg-zinc-900 text-zinc-500 hover:text-zinc-300 border border-zinc-700/50",
@@ -222,7 +222,7 @@ export function ResumeManager({
                     <button
                       onClick={() => confirmDelete(res._id)}
                       aria-label={`Confirm deletion of ${res.payload.filename}`}
-                      className="px-2 py-1 rounded-md text-[10px] font-bold bg-danger/15 text-danger border border-danger/25 hover:bg-danger/25 transition-colors"
+                      className="px-2 py-1 rounded-md text-xs font-bold bg-danger/15 text-danger border border-danger/25 hover:bg-danger/25 transition-colors"
                     >
                       Confirm
                     </button>
@@ -249,7 +249,7 @@ export function ResumeManager({
           ))}
         </div>
       )}
-      <p className="text-[10px] text-zinc-500 italic">
+      <p className="text-xs text-zinc-500 italic">
         Only one resume can be active. This will appear on your public
         portfolio.
       </p>

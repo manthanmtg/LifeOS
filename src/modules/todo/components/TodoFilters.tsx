@@ -92,7 +92,7 @@ export default function TodoFilters({
             {counts[f.id] > 0 && (
               <span
                 className={cn(
-                  "ml-1 px-1.5 py-0.5 rounded-lg text-[10px] font-black min-w-[1.2rem] text-center transition-colors",
+                  "ml-1 px-1.5 py-0.5 rounded-lg text-xs font-black min-w-[1.2rem] text-center transition-colors",
                   activeFilter === f.id
                     ? "bg-zinc-700 text-zinc-300"
                     : "bg-zinc-800 text-zinc-600 group-hover:text-zinc-500",

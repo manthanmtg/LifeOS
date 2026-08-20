@@ -9,7 +9,7 @@ import { getSortedMeasurements, getWeightTrendPoints } from "./selectors";
 import WeightTrendCard from "./WeightTrendCard";
 
 const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+  "text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface BodyStatsTabProps {
   payload: HealthPayload;
@@ -96,7 +96,7 @@ export default function BodyStatsTab({
               </div>
             )}
           </div>
-          <p className="text-[11px] text-zinc-500 mt-2">
+          <p className="text-xs text-zinc-500 mt-2">
             {formatDate(latestMeasurement.date)}
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function BodyStatsTab({
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span className="text-[11px] text-zinc-500 w-20 sm:w-24">
+                    <span className="text-xs text-zinc-500 w-20 sm:w-24">
                       {formatDate(m.date)}
                     </span>
                     {m.height_cm && (

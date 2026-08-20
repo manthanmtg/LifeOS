@@ -55,7 +55,7 @@ export default memo(function WhiteboardWidget() {
       loading={loading}
       href="/admin/whiteboard"
       footer={
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
           <div className="flex items-center gap-3">
             {(summary?.favorites ?? 0) > 0 && (
               <span className="flex items-center gap-1 text-warning">

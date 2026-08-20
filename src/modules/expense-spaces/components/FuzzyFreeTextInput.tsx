@@ -218,7 +218,7 @@ export default function FuzzyFreeTextInput({
           }`}
         >
           {matches.length > 0 && (
-            <p className="px-3 pb-1.5 pt-2 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+            <p className="px-3 pb-1.5 pt-2 text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">
               Used in this Expense Space
             </p>
           )}

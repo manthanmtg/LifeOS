@@ -95,7 +95,7 @@ export default function LabResultsTab({
                       )}
                       <span
                         className={cn(
-                          "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                          "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
                           lsConfig.bg,
                           lsConfig.color,
                         )}
@@ -104,16 +104,16 @@ export default function LabResultsTab({
                       </span>
                     </div>
                     {latest.reference_range && (
-                      <p className="text-[11px] text-zinc-600 mt-0.5">
+                      <p className="text-xs text-zinc-600 mt-0.5">
                         Ref: {latest.reference_range}
                       </p>
                     )}
-                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {formatDate(latest.date)}
                     </p>
                   </div>
                   {hasTrend && (
-                    <div className="flex items-center gap-1 text-[10px] text-zinc-500">
+                    <div className="flex items-center gap-1 text-xs text-zinc-500">
                       <TrendingUp className="w-3 h-3" />
                       {results.length} readings
                     </div>

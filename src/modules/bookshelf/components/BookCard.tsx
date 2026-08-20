@@ -53,7 +53,7 @@ function ReadingProgress({
 
   return (
     <div className="mt-auto pt-2 relative z-10">
-      <div className="flex items-center justify-between text-[10px] text-zinc-500 mb-1">
+      <div className="flex items-center justify-between text-xs text-zinc-500 mb-1">
         <span className="tabular-nums">
           {current}/{total} pages
         </span>
@@ -193,7 +193,7 @@ function BookCard({
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             <span
               className={cn(
-                "text-[10px] px-2 py-0.5 rounded-full border font-medium",
+                "text-xs px-2 py-0.5 rounded-full border font-medium",
                 STATUS_STYLES[payload.status as keyof typeof STATUS_STYLES],
               )}
             >
@@ -238,7 +238,7 @@ function BookCard({
 
       {/* Date info */}
       {(finishedDate || startedDate) && (
-        <div className="flex items-center gap-1.5 text-[10px] text-zinc-600 relative z-10">
+        <div className="flex items-center gap-1.5 text-xs text-zinc-600 relative z-10">
           <Calendar className="w-3 h-3" />
           {payload.status === "completed" && finishedDate
             ? `Finished ${finishedDate}`
@@ -266,13 +266,13 @@ function BookCard({
           {payload.tags.slice(0, 4).map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-500 text-[10px] hover:text-zinc-400 transition-colors"
+              className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-500 text-xs hover:text-zinc-400 transition-colors"
             >
               {tag}
             </span>
           ))}
           {payload.tags.length > 4 && (
-            <span className="px-2 py-0.5 rounded-md text-zinc-600 text-[10px]">
+            <span className="px-2 py-0.5 rounded-md text-zinc-600 text-xs">
               +{payload.tags.length - 4}
             </span>
           )}

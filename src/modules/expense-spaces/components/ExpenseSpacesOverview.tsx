@@ -174,7 +174,7 @@ export default function ExpenseSpacesOverview({
                         {space.payload.name}
                       </h2>
                       {space.payload.status === "archived" && (
-                        <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning-muted/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-warning">
+                        <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning-muted/20 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-warning">
                           <Archive
                             aria-hidden="true"
                             className="mr-1 h-3 w-3"
@@ -197,7 +197,7 @@ export default function ExpenseSpacesOverview({
 
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-600">
                       Total spend
                     </p>
                     <p className="mt-1 truncate text-lg font-bold tabular-nums text-zinc-50">
@@ -209,7 +209,7 @@ export default function ExpenseSpacesOverview({
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-600">
                       Activity
                     </p>
                     <p className="mt-1 text-sm font-semibold text-zinc-200">

@@ -304,7 +304,7 @@ export default function ExpenseSpaceAnalytics({
                 <p className="mt-4 break-words text-lg font-bold tabular-nums text-zinc-50 sm:text-xl">
                   {metric.value}
                 </p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                <p className="mt-1 text-xs font-bold uppercase tracking-wider text-zinc-600">
                   {metric.label}
                 </p>
               </div>

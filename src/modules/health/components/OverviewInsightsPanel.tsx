@@ -7,7 +7,7 @@ import type { HealthPayload } from "./types";
 import type { ProfileOverviewSnapshot } from "./selectors";
 
 const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+  "text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface OverviewInsightsPanelProps {
   payload: HealthPayload;
@@ -30,7 +30,7 @@ export default function OverviewInsightsPanel({
           {snapshot.nextTimelineItem && (
             <span
               className={cn(
-                "rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider",
+                "rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wider",
                 snapshot.nextTimelineItem.status === "overdue"
                   ? "bg-danger/10 text-danger"
                   : snapshot.nextTimelineItem.status === "warning"
@@ -49,7 +49,7 @@ export default function OverviewInsightsPanel({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
               Next follow-up
             </p>
             {snapshot.nextTimelineItem ? (
@@ -71,7 +71,7 @@ export default function OverviewInsightsPanel({
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
               Latest visit
             </p>
             {snapshot.latestVisit ? (
@@ -93,7 +93,7 @@ export default function OverviewInsightsPanel({
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
               Latest lab result
             </p>
             {snapshot.latestLabResult && latestLabStatus ? (
@@ -104,7 +104,7 @@ export default function OverviewInsightsPanel({
                   </p>
                   <span
                     className={cn(
-                      "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                      "rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wider",
                       latestLabStatus.bg,
                       latestLabStatus.color,
                     )}
@@ -128,7 +128,7 @@ export default function OverviewInsightsPanel({
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
               Records stored
             </p>
             <p className="mt-2 text-sm font-semibold text-zinc-100">
@@ -173,14 +173,14 @@ export default function OverviewInsightsPanel({
           </div>
           {payload.tags.length > 0 && (
             <div className="border-t border-zinc-800 pt-3">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
                 Tags
               </p>
               <div className="flex flex-wrap gap-2">
                 {payload.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] font-medium text-zinc-300"
+                    className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs font-medium text-zinc-300"
                   >
                     {tag}
                   </span>

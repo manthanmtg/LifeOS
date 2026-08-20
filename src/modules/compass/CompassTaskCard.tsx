@@ -65,8 +65,7 @@ export default function CompassTaskCard({
 
   const ageDays = useMemo(() => {
     return (
-      (now -
-        new Date(task.updated_at || task.created_at).getTime()) /
+      (now - new Date(task.updated_at || task.created_at).getTime()) /
       (1000 * 60 * 60 * 24)
     );
   }, [task.updated_at, task.created_at, now]);
@@ -125,7 +124,7 @@ export default function CompassTaskCard({
       <div className="flex flex-wrap gap-2 items-center text-zinc-500 mt-3 relative z-10">
         <span
           className={cn(
-            "text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border",
+            "text-xs uppercase font-bold px-1.5 py-0.5 rounded border",
             priority.color,
           )}
         >
@@ -134,7 +133,7 @@ export default function CompassTaskCard({
         {task.payload.category_tags?.slice(0, 2).map((tag) => (
           <span
             key={tag}
-            className="text-[10px] text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 px-1.5 py-0.5 rounded transition-colors group-hover:border-zinc-600"
+            className="text-xs text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 px-1.5 py-0.5 rounded transition-colors group-hover:border-zinc-600"
           >
             {tag}
           </span>

@@ -126,7 +126,7 @@ export default function IdeasPublicView({
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-1 text-[11px] font-medium",
+                        "rounded-full border px-2 py-1 text-xs font-medium",
                         IDEA_STATUS_STYLES[spotlight.payload.status],
                       )}
                     >
@@ -134,7 +134,7 @@ export default function IdeasPublicView({
                     </span>
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-1 text-[11px] font-medium capitalize",
+                        "rounded-full border px-2 py-1 text-xs font-medium capitalize",
                         IDEA_PRIORITY_STYLES[spotlight.payload.priority] ??
                           IDEA_PRIORITY_STYLES.medium,
                       )}
@@ -253,7 +253,7 @@ export default function IdeasPublicView({
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded border",
+                      "text-xs px-1.5 py-0.5 rounded border",
                       IDEA_STATUS_STYLES[idea.payload.status],
                     )}
                   >
@@ -261,7 +261,7 @@ export default function IdeasPublicView({
                   </span>
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded border",
+                      "text-xs px-1.5 py-0.5 rounded border",
                       IDEA_PRIORITY_STYLES[idea.payload.priority] ||
                         IDEA_PRIORITY_STYLES.medium,
                     )}
@@ -269,7 +269,7 @@ export default function IdeasPublicView({
                     {idea.payload.priority}
                   </span>
                   {idea.payload.category && (
-                    <span className="text-[10px] text-zinc-500">
+                    <span className="text-xs text-zinc-500">
                       {idea.payload.category}
                     </span>
                   )}
@@ -289,7 +289,7 @@ export default function IdeasPublicView({
                     {idea.payload.tags.slice(0, 5).map((tag) => (
                       <span
                         key={tag}
-                        className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded"
+                        className="px-1.5 py-0.5 bg-zinc-800 text-zinc-500 text-xs rounded"
                       >
                         {tag}
                       </span>

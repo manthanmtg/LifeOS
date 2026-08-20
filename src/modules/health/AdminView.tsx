@@ -955,7 +955,7 @@ export default function HealthAdminView() {
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
                 <span
                   className={cn(
-                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                    "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
                     typeConfig.bg,
                     typeConfig.border,
                     typeConfig.color,
@@ -968,7 +968,7 @@ export default function HealthAdminView() {
                   <span className="text-xs text-zinc-500">{p.relation}</span>
                 )}
                 {p.blood_group !== "unknown" && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger">
+                  <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-danger/10 border border-danger/20 text-danger">
                     <Droplets className="w-3 h-3 inline mr-1" />
                     {p.blood_group}
                   </span>
@@ -1005,7 +1005,7 @@ export default function HealthAdminView() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
-                "flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
+                "flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                 activeTab === tab.key
                   ? "bg-zinc-800 text-zinc-50 shadow-lg"
                   : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50",
@@ -1112,7 +1112,7 @@ export default function HealthAdminView() {
                           onClick={() =>
                             setVaccinationForm((form) => ({ ...form, name }))
                           }
-                          className="rounded-full border border-zinc-700 px-2.5 py-1 text-[10px] font-semibold text-zinc-400 hover:border-accent hover:text-zinc-200"
+                          className="rounded-full border border-zinc-700 px-2.5 py-1 text-xs font-semibold text-zinc-400 hover:border-accent hover:text-zinc-200"
                         >
                           {name}
                         </button>
@@ -1819,7 +1819,7 @@ export default function HealthAdminView() {
                       onClick={() =>
                         document.getElementById("health-doc-upload")?.click()
                       }
-                      className="text-[10px] font-bold uppercase tracking-wider text-accent hover:text-accent/80 transition-colors"
+                      className="text-xs font-bold uppercase tracking-wider text-accent hover:text-accent/80 transition-colors"
                     >
                       Add Files
                     </button>
@@ -1851,7 +1851,7 @@ export default function HealthAdminView() {
                             <p className="text-xs font-semibold text-zinc-300 truncate">
                               {att.filename}
                             </p>
-                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">
+                            <p className="text-xs text-zinc-500 uppercase tracking-widest mt-0.5">
                               {(att.size / 1024).toFixed(0)} KB
                             </p>
                           </div>
@@ -1878,7 +1878,7 @@ export default function HealthAdminView() {
                         <p className="text-xs text-zinc-500 font-medium">
                           No files attached
                         </p>
-                        <p className="text-[10px] text-zinc-700 uppercase tracking-widest mt-1">
+                        <p className="text-xs text-zinc-700 uppercase tracking-widest mt-1">
                           Drop images or PDFs here
                         </p>
                       </div>

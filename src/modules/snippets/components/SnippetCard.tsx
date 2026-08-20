@@ -103,7 +103,7 @@ export default function SnippetCard({
           <h3 className="text-sm font-semibold text-zinc-100 truncate">
             {snippet.payload.title}
           </h3>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 font-medium uppercase tracking-wider">
+          <span className="text-xs px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 font-medium uppercase tracking-wider">
             {snippet.payload.language}
           </span>
         </div>
@@ -173,7 +173,7 @@ export default function SnippetCard({
           />
         </pre>
         <div className="absolute top-2 right-2 opacity-0 group-hover/code:opacity-100 transition-opacity">
-          <span className="text-[10px] bg-zinc-950/80 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-800 backdrop-blur-sm">
+          <span className="text-xs bg-zinc-950/80 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-800 backdrop-blur-sm">
             {lineCount} lines
           </span>
         </div>
@@ -192,7 +192,7 @@ export default function SnippetCard({
               {snippet.payload.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 text-[10px] rounded-md hover:text-zinc-400 hover:border-zinc-600 transition-colors"
+                  className="px-1.5 py-0.5 bg-zinc-800/50 border border-zinc-700/50 text-zinc-500 text-xs rounded-md hover:text-zinc-400 hover:border-zinc-600 transition-colors"
                 >
                   #{tag}
                 </span>
@@ -203,12 +203,12 @@ export default function SnippetCard({
       )}
 
       <div className="px-4 py-1.5 border-t border-zinc-800/50 flex items-center justify-between">
-        <p className="text-[10px] text-zinc-600 font-medium">
+        <p className="text-xs text-zinc-600 font-medium">
           Added {formattedDate}
         </p>
         <button
           onClick={() => onCopy(snippet._id, snippet.payload.code)}
-          className="text-[10px] text-accent hover:text-accent-hover font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-md"
+          className="text-xs text-accent hover:text-accent-hover font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-md"
         >
           {isCopied ? "Copied!" : "Quick Copy"}
         </button>

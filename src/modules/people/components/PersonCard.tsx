@@ -136,7 +136,7 @@ const PersonCard = memo(function PersonCard({
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               <span
                 className={cn(
-                  "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
+                  "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded border",
                   RELATIONSHIP_STYLES[relationship] ||
                     "bg-zinc-800 text-zinc-500 border-zinc-700",
                 )}
@@ -144,7 +144,7 @@ const PersonCard = memo(function PersonCard({
                 {relationship}
               </span>
               {company && (
-                <span className="text-[10px] text-zinc-500 font-medium flex items-center gap-1 truncate">
+                <span className="text-xs text-zinc-500 font-medium flex items-center gap-1 truncate">
                   <Building2 className="w-3 h-3 shrink-0" />
                   {company}
                 </span>
@@ -191,7 +191,7 @@ const PersonCard = memo(function PersonCard({
             />
             <span
               className={cn(
-                "text-[10px] font-medium",
+                "text-xs font-medium",
                 days === null
                   ? "text-zinc-700"
                   : isStale

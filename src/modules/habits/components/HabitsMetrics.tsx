@@ -131,7 +131,7 @@ export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
           </div>
 
           <div className="relative z-10">
-            <p className="text-zinc-500 font-bold text-[9px] uppercase tracking-[0.2em] mb-1">
+            <p className="text-zinc-500 font-bold text-xs uppercase tracking-[0.2em] mb-1">
               {card.label}
             </p>
             <h3 className="text-2xl font-black tracking-tight text-zinc-50">
@@ -155,7 +155,7 @@ export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
               <div className="mt-2 flex items-center gap-1.5">
                 <span
                   className={cn(
-                    "px-1.5 py-0.5 rounded-md text-[9px] font-black",
+                    "px-1.5 py-0.5 rounded-md text-xs font-black",
                     card.trend >= 0
                       ? "bg-success/10 text-success"
                       : "bg-danger/10 text-danger",
@@ -163,7 +163,7 @@ export default function HabitsMetrics({ metrics }: HabitsMetricsProps) {
                 >
                   {card.trend >= 0 ? "↑" : "↓"} {Math.abs(card.trend)}%
                 </span>
-                <span className="text-[9px] text-zinc-600">vs last week</span>
+                <span className="text-xs text-zinc-600">vs last week</span>
               </div>
             )}
           </div>

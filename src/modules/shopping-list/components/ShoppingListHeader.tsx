@@ -15,7 +15,7 @@ export default function ShoppingListHeader({
     <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             <ShoppingBag className="h-3.5 w-3.5" />
             <span>Shopping List</span>
           </div>

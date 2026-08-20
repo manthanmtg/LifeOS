@@ -90,7 +90,7 @@ export default function MedicationsTab({
                         <div className="flex flex-wrap items-center gap-2 mt-1">
                           <span
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                              "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
                               sConfig.bg,
                               sConfig.color,
                             )}
@@ -98,12 +98,12 @@ export default function MedicationsTab({
                             {sConfig.label}
                           </span>
                           {med.dosage && (
-                            <span className="text-[11px] text-zinc-500">
+                            <span className="text-xs text-zinc-500">
                               {med.dosage}
                             </span>
                           )}
                           {med.prescribed_by && (
-                            <span className="text-[11px] text-zinc-600">
+                            <span className="text-xs text-zinc-600">
                               by {med.prescribed_by}
                             </span>
                           )}

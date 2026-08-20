@@ -86,19 +86,19 @@ export function ReadingItemCard({
           </p>
           <span
             className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded border font-medium inline-flex items-center gap-1",
+              "text-xs px-1.5 py-0.5 rounded border font-medium inline-flex items-center gap-1",
               PRIORITY_STYLES[item.payload.priority],
             )}
           >
             <PriorityIcon className="w-3 h-3" /> {item.payload.priority}
           </span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-zinc-400 capitalize">
+          <span className="text-xs px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-zinc-400 capitalize">
             {item.payload.type}
           </span>
           {item.payload.tags?.map((tag) => (
             <span
               key={tag}
-              className="text-[10px] px-1.5 py-0.5 rounded border border-accent/20 bg-accent/5 text-accent/80"
+              className="text-xs px-1.5 py-0.5 rounded border border-accent/20 bg-accent/5 text-accent/80"
             >
               {tag}
             </span>

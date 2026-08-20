@@ -72,7 +72,7 @@ export const TaskCard = memo(function TaskCard({
               {p.name}
             </h3>
             {p.description && (
-              <p className="text-[11px] text-zinc-500 line-clamp-1 leading-relaxed">
+              <p className="text-xs text-zinc-500 line-clamp-1 leading-relaxed">
                 {p.description}
               </p>
             )}
@@ -93,7 +93,7 @@ export const TaskCard = memo(function TaskCard({
       <div className="flex flex-wrap gap-1.5">
         <span
           className={cn(
-            "inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
+            "inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md border",
             CATEGORY_COLORS[p.category],
           )}
         >
@@ -102,7 +102,7 @@ export const TaskCard = memo(function TaskCard({
         </span>
         <span
           className={cn(
-            "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
+            "px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md border",
             STATUS_STYLES[p.status],
           )}
         >
@@ -110,7 +110,7 @@ export const TaskCard = memo(function TaskCard({
         </span>
         <span
           className={cn(
-            "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border",
+            "px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md border",
             p.service_type === "managed"
               ? "bg-accent/15 text-accent border-accent/20"
               : "bg-zinc-500/10 text-zinc-400 border-zinc-700",
@@ -119,7 +119,7 @@ export const TaskCard = memo(function TaskCard({
           {p.service_type || "self"}
         </span>
         {p.is_recurring && p.frequency_months && (
-          <span className="px-2 py-0.5 text-[10px] font-medium text-zinc-500 bg-zinc-800/50 rounded-md border border-zinc-800">
+          <span className="px-2 py-0.5 text-xs font-medium text-zinc-500 bg-zinc-800/50 rounded-md border border-zinc-800">
             {formatFrequency(p.frequency_months)}
           </span>
         )}
@@ -129,7 +129,7 @@ export const TaskCard = memo(function TaskCard({
       {p.status === "overdue" && (
         <button
           onClick={() => onMarkComplete(task)}
-          className="w-full flex items-center gap-2 p-2.5 rounded-xl border border-danger/20 bg-danger/10 text-danger text-[11px] font-bold hover:bg-danger/15 transition-all active:scale-[0.98]"
+          className="w-full flex items-center gap-2 p-2.5 rounded-xl border border-danger/20 bg-danger/10 text-danger text-xs font-bold hover:bg-danger/15 transition-all active:scale-[0.98]"
         >
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
           <span className="flex-1 text-left">
@@ -140,7 +140,7 @@ export const TaskCard = memo(function TaskCard({
       )}
 
       {/* Dates & Cost */}
-      <div className="space-y-1 text-[11px]">
+      <div className="space-y-1 text-xs">
         <div className="flex items-center justify-between text-zinc-500">
           <span>Last completed</span>
           <span className="text-zinc-300 font-medium">
@@ -158,7 +158,7 @@ export const TaskCard = memo(function TaskCard({
             >
               {formatDate(p.next_due)}
               {days !== null && (
-                <span className="ml-1 text-[10px] font-normal opacity-70">
+                <span className="ml-1 text-xs font-normal opacity-70">
                   ({days === 0 ? "today" : `in ${days}d`})
                 </span>
               )}
@@ -197,7 +197,7 @@ export const TaskCard = memo(function TaskCard({
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-tighter text-zinc-600">
+            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-tighter text-zinc-600">
               <span>Progress</span>
               <span>{Math.round(progress)}% of cycle</span>
             </div>
@@ -210,7 +210,7 @@ export const TaskCard = memo(function TaskCard({
           {p.tags.map((tag) => (
             <span
               key={tag}
-              className="px-1.5 py-0.5 text-[9px] font-medium text-zinc-500 bg-zinc-800/30 rounded border border-zinc-800/50"
+              className="px-1.5 py-0.5 text-xs font-medium text-zinc-500 bg-zinc-800/30 rounded border border-zinc-800/50"
             >
               #{tag}
             </span>
@@ -223,7 +223,7 @@ export const TaskCard = memo(function TaskCard({
         {p.status !== "completed" && p.status !== "overdue" && (
           <button
             onClick={() => onMarkComplete(task)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg bg-success/10 text-success hover:bg-success/20 border border-success/20 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-success/10 text-success hover:bg-success/20 border border-success/20 transition-all active:scale-95"
           >
             <Check className="w-3.5 h-3.5" /> Log
           </button>
@@ -231,7 +231,7 @@ export const TaskCard = memo(function TaskCard({
         {p.history.length > 0 && (
           <button
             onClick={() => onShowHistory(task)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50 transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50 transition-all"
             title="View History"
           >
             <History className="w-3.5 h-3.5" />

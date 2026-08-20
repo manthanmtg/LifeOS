@@ -31,7 +31,7 @@ export default function OverviewSummaryGrid({
           <p className="text-xl font-bold text-zinc-50">
             {snapshot.activeConditionCount}
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
             Conditions
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function OverviewSummaryGrid({
           <p className="text-xl font-bold text-zinc-50">
             {snapshot.activeMedicationCount}
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
             Active Meds
           </p>
         </div>
@@ -57,11 +57,11 @@ export default function OverviewSummaryGrid({
         </div>
         <div>
           <p className="text-xl font-bold text-zinc-50">{visitCount}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
             Visits
           </p>
           {snapshot.totalVisitCostInr > 0 && (
-            <p className="mt-0.5 text-[10px] text-zinc-600">
+            <p className="mt-0.5 text-xs text-zinc-600">
               ₹{snapshot.totalVisitCostInr.toLocaleString()} total
             </p>
           )}
@@ -90,7 +90,7 @@ export default function OverviewSummaryGrid({
               </p>
               <p
                 className={cn(
-                  "mt-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  "mt-0.5 text-xs font-bold uppercase tracking-wider",
                   bmiCategory(latestBMI).color,
                 )}
               >
@@ -100,7 +100,7 @@ export default function OverviewSummaryGrid({
           ) : (
             <>
               <p className="text-xl font-bold text-zinc-600">—</p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+              <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                 BMI
               </p>
             </>

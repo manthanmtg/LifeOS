@@ -48,7 +48,7 @@ export function StatCard({
         >
           {value}
         </p>
-        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+        <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
           {label}
           {sublabel && (
             <span className="text-zinc-600 ml-1 normal-case font-normal italic">
@@ -97,7 +97,7 @@ export function ModalSection({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Icon className="w-3.5 h-3.5 text-zinc-500" />
-        <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
           {title}
         </h3>
       </div>
@@ -120,7 +120,10 @@ export function FilterSelect({
   const id = `filter-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+      <label
+        htmlFor={id}
+        className="text-xs font-bold text-zinc-500 uppercase tracking-wider"
+      >
         {label}
       </label>
       <div className="relative">

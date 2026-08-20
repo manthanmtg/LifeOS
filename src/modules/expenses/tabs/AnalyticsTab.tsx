@@ -192,7 +192,7 @@ export default function AnalyticsTab({
                   setActiveTab(t as "overview" | "categories" | "tags")
                 }
                 className={cn(
-                  "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  "px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
                   activeTab === t
                     ? "bg-zinc-800 text-zinc-50"
                     : "text-zinc-500 hover:text-zinc-300",
@@ -205,7 +205,10 @@ export default function AnalyticsTab({
         </div>
 
         <div className="flex items-center gap-2">
-          <button aria-label="Download analytics report" className="p-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 rounded-2xl transition-all border border-zinc-700/50">
+          <button
+            aria-label="Download analytics report"
+            className="p-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-50 rounded-2xl transition-all border border-zinc-700/50"
+          >
             <Download className="w-4 h-4" />
           </button>
           <button className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover text-zinc-50 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-accent/20">
@@ -221,14 +224,14 @@ export default function AnalyticsTab({
           animate={{ opacity: 1, y: 0 }}
           className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] shadow-xl overflow-hidden relative"
         >
-          <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em] mb-1">
             Total Inflow
           </p>
           <h3 className="text-3xl font-black text-success tracking-tighter">
             {sym}
             {formatNumber(summary.totalIncome, settings.numberFormat)}
           </h3>
-          <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
+          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
             <TrendingUp className="w-3 h-3" /> Velocity Secured
           </div>
           <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -242,14 +245,14 @@ export default function AnalyticsTab({
           transition={{ delay: 0.1 }}
           className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] shadow-xl overflow-hidden relative"
         >
-          <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em] mb-1">
             Total Outflow
           </p>
           <h3 className="text-3xl font-black text-zinc-50 tracking-tighter">
             {sym}
             {formatNumber(summary.totalExpense, settings.numberFormat)}
           </h3>
-          <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
+          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
             <TrendingDown className="w-3 h-3" /> Resources Deployed
           </div>
           <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -263,7 +266,7 @@ export default function AnalyticsTab({
           transition={{ delay: 0.2 }}
           className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] shadow-xl overflow-hidden relative"
         >
-          <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em] mb-1">
             Net Savings
           </p>
           <h3
@@ -276,7 +279,7 @@ export default function AnalyticsTab({
             {sym}
             {formatNumber(Math.abs(summary.netSavings), settings.numberFormat)}
           </h3>
-          <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
+          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-zinc-500 italic opacity-50 uppercase tracking-widest">
             <ArrowUpRight className="w-3 h-3" /> Wealth Retention
           </div>
           <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -290,7 +293,7 @@ export default function AnalyticsTab({
           transition={{ delay: 0.3 }}
           className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] shadow-xl overflow-hidden relative"
         >
-          <p className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em] mb-1">
+          <p className="text-zinc-500 text-xs font-black uppercase tracking-[0.2em] mb-1">
             Savings Rate
           </p>
           <h3 className="text-3xl font-black text-zinc-50 tracking-tighter">
@@ -306,7 +309,7 @@ export default function AnalyticsTab({
                 className="h-full bg-accent"
               />
             </div>
-            <span className="text-[8px] font-black text-zinc-600 uppercase tracking-tighter italic">
+            <span className="text-xs font-black text-zinc-600 uppercase tracking-tighter italic">
               Capital Efficiency
             </span>
           </div>
@@ -440,7 +443,7 @@ export default function AnalyticsTab({
               <div className="flex-1 space-y-8">
                 <div>
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">
                       Resources Retained
                     </span>
                     <span className="text-lg font-black text-zinc-50 italic">
@@ -461,7 +464,7 @@ export default function AnalyticsTab({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-3xl group">
-                    <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">
+                    <p className="text-xs font-black text-zinc-600 uppercase mb-1">
                       Avg Monthly In
                     </p>
                     <p className="text-xl font-black text-success tracking-tighter group-hover:scale-105 transition-transform origin-left">
@@ -473,7 +476,7 @@ export default function AnalyticsTab({
                     </p>
                   </div>
                   <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-3xl group">
-                    <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">
+                    <p className="text-xs font-black text-zinc-600 uppercase mb-1">
                       Avg Monthly Out
                     </p>
                     <p className="text-xl font-black text-zinc-50 tracking-tighter group-hover:scale-105 transition-transform origin-left">
@@ -487,7 +490,7 @@ export default function AnalyticsTab({
                 </div>
 
                 <div className="pt-6 border-t border-zinc-800/50">
-                  <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">
+                  <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">
                     Top Targets (Spending)
                   </h4>
                   <div className="space-y-4">
@@ -497,14 +500,14 @@ export default function AnalyticsTab({
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-black text-zinc-700 italic">
+                          <span className="text-xs font-black text-zinc-700 italic">
                             0{idx + 1}
                           </span>
                           <span className="text-xs font-black text-zinc-300 uppercase letter-tight">
                             {item.name}
                           </span>
                         </div>
-                        <span className="text-[10px] font-black text-danger/70">
+                        <span className="text-xs font-black text-danger/70">
                           -{sym}
                           {formatNumber(item.value, settings.numberFormat)}
                         </span>
@@ -561,10 +564,10 @@ export default function AnalyticsTab({
                   {categoryData.expense.slice(0, 5).map((cat, i) => (
                     <div key={cat.name} className="flex flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                        <span className="text-xs font-black text-zinc-400 uppercase tracking-tighter">
                           {cat.name}
                         </span>
-                        <span className="text-[10px] font-black text-zinc-50">
+                        <span className="text-xs font-black text-zinc-50">
                           {((cat.value / summary.totalExpense) * 100).toFixed(
                             0,
                           )}
@@ -623,10 +626,10 @@ export default function AnalyticsTab({
                   {categoryData.income.slice(0, 5).map((cat, i) => (
                     <div key={cat.name} className="flex flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">
+                        <span className="text-xs font-black text-zinc-400 uppercase tracking-tighter">
                           {cat.name}
                         </span>
-                        <span className="text-[10px] font-black text-success">
+                        <span className="text-xs font-black text-success">
                           {summary.totalIncome > 0
                             ? ((cat.value / summary.totalIncome) * 100).toFixed(
                                 0,
@@ -648,7 +651,7 @@ export default function AnalyticsTab({
                     </div>
                   ))}
                   {categoryData.income.length === 0 && (
-                    <p className="text-[10px] font-bold text-zinc-600 italic text-center py-12">
+                    <p className="text-xs font-bold text-zinc-600 italic text-center py-12">
                       Zero revenue intelligence data
                     </p>
                   )}
@@ -687,7 +690,7 @@ export default function AnalyticsTab({
                   className="bg-zinc-950 p-6 rounded-[2.5rem] border border-zinc-800 hover:border-accent/40 hover:bg-zinc-900/50 transition-all group relative overflow-hidden"
                 >
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-accent transition-colors">
+                    <span className="text-xs font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-accent transition-colors">
                       {tag.name}
                     </span>
                     <p className="text-xl font-black text-zinc-50 tracking-tighter mb-4 italic group-hover:scale-110 transition-transform">
@@ -705,10 +708,10 @@ export default function AnalyticsTab({
                       />
                     </div>
                     <div className="flex justify-between w-full mt-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[8px] font-black text-success">
+                      <span className="text-xs font-black text-success">
                         +{formatNumber(tag.income, settings.numberFormat)}
                       </span>
-                      <span className="text-[8px] font-black text-danger">
+                      <span className="text-xs font-black text-danger">
                         -{formatNumber(tag.expense, settings.numberFormat)}
                       </span>
                     </div>

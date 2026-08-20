@@ -4,7 +4,7 @@ import { BlogListSkeleton } from "@/components/ui/Skeletons";
 
 export default function BlogLoading() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <PublicHeader />
       <BlogListSkeleton />
       <PublicFooter />

@@ -1,25 +1,24 @@
 import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import BlogView from "@/modules/blog/View";
-import { getDb } from "@/lib/mongodb";
+import { getPublishedBlogPosts, getPublicSiteData } from "@/lib/public-data";
 
 export default async function BlogPage() {
-  let userName = "Life OS";
-  try {
-    const db = await getDb();
-    const portfolio = await db
-      .collection("content")
-      .findOne({ module_type: "portfolio_profile" });
-    if (portfolio?.payload?.full_name) userName = portfolio.payload.full_name;
-  } catch {}
+  const [site, posts] = await Promise.all([
+    getPublicSiteData(),
+    getPublishedBlogPosts(),
+  ]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <PublicHeader initialUserName={userName} />
+    <div className="min-h-dvh flex flex-col">
+      <PublicHeader
+        initialUserName={site.userName}
+        publicModules={site.publicModules}
+      />
       <main className="flex-1">
-        <BlogView />
+        <BlogView initialPosts={posts} />
       </main>
-      <PublicFooter />
+      <PublicFooter socialLinks={site.socialLinks} />
     </div>
   );
 }

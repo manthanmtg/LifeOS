@@ -65,7 +65,7 @@ export default function QuickAddTodo({ onAdd, isSaving }: QuickAddTodoProps) {
               aria-label={`${p} priority`}
               aria-pressed={priority === p}
               className={cn(
-                "flex-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all sm:flex-none",
+                "flex-1 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all sm:flex-none",
                 priority === p
                   ? p === "high"
                     ? "bg-danger text-zinc-950 shadow-lg shadow-danger/20"

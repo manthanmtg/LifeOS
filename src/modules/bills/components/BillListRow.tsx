@@ -8,10 +8,17 @@ import {
   ImageIcon,
   Folder,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { formatDate } from "../helpers";
-import PdfThumbnail from "./PdfThumbnail";
 import type { Bill, BillFolder } from "../types";
+
+const PdfThumbnail = dynamic(() => import("./PdfThumbnail"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-zinc-800" />
+  ),
+});
 
 interface BillListRowProps {
   bill: Bill;
@@ -70,18 +77,18 @@ export default function BillListRow({
               {bill.payload.name}
             </h4>
             {bill.payload.amount !== undefined && (
-              <span className="text-[10px] font-bold text-success-muted shrink-0">
+              <span className="text-xs font-bold text-success-muted shrink-0">
                 {bill.payload.currency} {bill.payload.amount.toLocaleString()}
               </span>
             )}
           </div>
-          <div className="text-[11px] text-zinc-500 truncate flex items-center gap-3 mt-1 font-medium">
+          <div className="text-xs text-zinc-500 truncate flex items-center gap-3 mt-1 font-medium">
             <span className="flex items-center gap-1.5 italic">
               <Calendar className="w-3.5 h-3.5" />
               {formatDate(bill.payload.bill_date)}
             </span>
             {folder && (
-              <span className="flex items-center gap-1.5 uppercase tracking-wider font-bold text-[9px]">
+              <span className="flex items-center gap-1.5 uppercase tracking-wider font-bold text-xs">
                 <Folder className="w-3 h-3 text-accent/50" />
                 {folder.payload.name}
               </span>
@@ -92,7 +99,7 @@ export default function BillListRow({
 
       <div className="flex items-center gap-4 shrink-0">
         {attachCount > 0 && (
-          <span className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-500 bg-zinc-800/80 px-2 py-1 rounded-lg">
+          <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 bg-zinc-800/80 px-2 py-1 rounded-lg">
             <Paperclip className="w-3.5 h-3.5" />
             {attachCount}
           </span>

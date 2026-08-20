@@ -71,12 +71,12 @@ export default function ItemSection({
               <button
                 type="button"
                 onClick={onAction}
-                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-danger"
+                className="rounded-full px-2.5 py-1 text-xs font-medium text-zinc-500 transition-colors hover:text-danger"
               >
                 {actionLabel}
               </button>
             ) : null}
-            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[11px] text-zinc-500">
+            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-500">
               {count}
             </span>
           </div>
@@ -96,12 +96,12 @@ export default function ItemSection({
                   event.stopPropagation();
                   onAction();
                 }}
-                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-danger"
+                className="rounded-full px-2.5 py-1 text-xs font-medium text-zinc-500 transition-colors hover:text-danger"
               >
                 {actionLabel}
               </button>
             ) : null}
-            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[11px] text-zinc-500">
+            <span className="rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-500">
               {count}
             </span>
           </div>

@@ -52,7 +52,7 @@ export default function PeopleMetrics({ people }: PeopleMetricsProps) {
             <p className={cn("text-lg font-bold tabular-nums", card.color)}>
               {card.value}
             </p>
-            <p className="truncate text-[10px] font-medium text-zinc-500">
+            <p className="truncate text-xs font-medium text-zinc-500">
               {card.label}
             </p>
           </div>

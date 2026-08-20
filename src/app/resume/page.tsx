@@ -1,27 +1,15 @@
-import { getDb } from "@/lib/mongodb";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getPublicSiteData } from "@/lib/public-data";
 import ResumeViewer from "./ResumeViewer";
 
 export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const db = await getDb();
-    const profile = await db
-      .collection("content")
-      .findOne({ module_type: "portfolio_profile" });
-
-    let title = "Resume";
-    if (profile?.payload?.full_name) {
-      title = `${profile.payload.full_name} Resume`;
-    }
-
-    return {
-      title: title,
-    };
-  } catch {
-    return { title: "Resume" };
-  }
+  const site = await getPublicSiteData();
+  return { title: `${site.userName} Resume` };
 }
 
-export default function ResumePage() {
+export default async function ResumePage() {
+  const site = await getPublicSiteData();
+  if (!site.resumeAvailable) notFound();
   return <ResumeViewer />;
 }

@@ -2,13 +2,21 @@
 
 import { Plus, FileText, Edit3, Trash2, Eye } from "lucide-react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DOC_TYPE_CONFIG } from "./constants";
 import { formatDate } from "./helpers";
-import PdfThumbnail from "@/modules/bills/components/PdfThumbnail";
 import type { HealthPayload, HealthDocument } from "./types";
 import { getSortedDocuments } from "./selectors";
+
+const PdfThumbnail = dynamic(
+  () => import("@/modules/bills/components/PdfThumbnail"),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full animate-pulse bg-zinc-800" />,
+  },
+);
 
 interface DocumentsTabProps {
   payload: HealthPayload;
@@ -92,14 +100,14 @@ export default function DocumentsTab({
                         <div className="flex items-center gap-2 mt-1">
                           <span
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/50 border border-zinc-700/30",
+                              "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800/50 border border-zinc-700/30",
                               dtConfig.color,
                             )}
                           >
                             {dtConfig.label}
                           </span>
                           {doc.date && (
-                            <span className="text-[11px] text-zinc-500 font-medium">
+                            <span className="text-xs text-zinc-500 font-medium">
                               {formatDate(doc.date)}
                             </span>
                           )}

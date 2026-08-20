@@ -201,7 +201,7 @@ export default function BingeMetrics({
             <t.icon className={`w-4 h-4 ${t.color} opacity-60`} />
             <div>
               <p className="text-sm font-semibold text-zinc-50">{t.value}</p>
-              <p className="text-[10px] text-zinc-500">{t.label}</p>
+              <p className="text-xs text-zinc-500">{t.label}</p>
             </div>
           </motion.div>
         ))}

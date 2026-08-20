@@ -42,25 +42,24 @@ export function ReadingPublicItemCard({ item }: ReadingPublicItemCardProps) {
           </p>
           <span
             className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded-full border font-bold uppercase tracking-tighter inline-flex items-center gap-1",
+              "text-xs px-1.5 py-0.5 rounded-full border font-bold uppercase tracking-tighter inline-flex items-center gap-1",
               PRIORITY_STYLES[item.payload.priority],
             )}
           >
             <PriorityIcon className="w-2.5 h-2.5" /> {item.payload.priority}
           </span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800 text-zinc-400 font-bold uppercase tracking-tighter">
+          <span className="text-xs px-1.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800 text-zinc-400 font-bold uppercase tracking-tighter">
             {item.payload.type}
           </span>
           {item.payload.tags?.map((tag) => (
             <span
               key={tag}
-              className="text-[10px] px-1.5 py-0.5 rounded-full border border-accent/20 bg-accent/5 text-accent/80 font-medium"
+              className="text-xs px-1.5 py-0.5 rounded-full border border-accent/20 bg-accent/5 text-accent/80 font-medium"
             >
               #{tag}
             </span>
           ))}
         </div>
-
 
         <div className="flex items-center gap-2 text-xs text-zinc-500 flex-wrap">
           {item.payload.source_domain && (

@@ -22,7 +22,7 @@ export default function PeopleFocusStrip({ summary }: PeopleFocusStripProps) {
             <Clock3 className="h-4 w-4 text-warning" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-warning">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-warning">
               Needs Attention
             </p>
             <p className="mt-1 text-sm font-semibold text-zinc-100">
@@ -50,7 +50,7 @@ export default function PeopleFocusStrip({ summary }: PeopleFocusStripProps) {
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
               Next Warm Touch
             </p>
             <p className="mt-1 text-sm font-semibold text-zinc-100">

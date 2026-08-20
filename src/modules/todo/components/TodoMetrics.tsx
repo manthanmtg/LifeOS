@@ -75,7 +75,7 @@ export default function TodoMetrics({ todos, currentDate }: TodoMetricsProps) {
         >
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">
                 {card.label}
               </span>
               <span
@@ -83,7 +83,7 @@ export default function TodoMetrics({ todos, currentDate }: TodoMetricsProps) {
               >
                 {card.value}
               </span>
-              <span className="text-[10px] font-medium text-zinc-600 mt-2 block">
+              <span className="text-xs font-medium text-zinc-600 mt-2 block">
                 {card.description}
               </span>
             </div>

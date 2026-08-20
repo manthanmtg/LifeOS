@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
+import { useDialogAccessibility } from "./Dialog";
 
 interface CommandItem {
   id: string;
@@ -87,6 +88,11 @@ export default function CommandPalette() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const hasRequestedConfigRef = useRef(false);
+  const dialogRef = useDialogAccessibility({
+    isOpen: open,
+    onClose: () => setOpen(false),
+    initialFocusRef: inputRef,
+  });
 
   useEffect(() => {
     if (!open || hasRequestedConfigRef.current) return;
@@ -156,17 +162,10 @@ export default function CommandPalette() {
           return next;
         });
       }
-      if (e.key === "Escape") setOpen(false);
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
-
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
-  }, [open]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -190,6 +189,7 @@ export default function CommandPalette() {
       {open && (
         <>
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -206,6 +206,7 @@ export default function CommandPalette() {
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
+            tabIndex={-1}
           >
             <div className="bg-zinc-900/90 backdrop-blur-2xl border border-zinc-800/50 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
               {/* Search input */}
@@ -227,7 +228,7 @@ export default function CommandPalette() {
                   aria-controls="command-results"
                   aria-activedescendant={filtered[selectedIndex]?.id}
                 />
-                <kbd className="text-[10px] text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700 font-mono">
+                <kbd className="text-xs text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700 font-mono">
                   ESC
                 </kbd>
               </div>
@@ -282,7 +283,7 @@ export default function CommandPalette() {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-zinc-800 flex flex-wrap gap-x-4 gap-y-1 items-center text-[11px] text-zinc-500">
+              <div className="px-4 py-2.5 border-t border-zinc-800 flex flex-wrap gap-x-4 gap-y-1 items-center text-xs text-zinc-500">
                 <span className="flex items-center gap-1">
                   <kbd className="px-1 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-mono">
                     ↑↓

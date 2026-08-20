@@ -46,7 +46,7 @@ function StatCard({
       />
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
             {label}
           </p>
           <p className="text-3xl font-bold tracking-tight text-zinc-50 tabular-nums">
@@ -114,7 +114,7 @@ function InsightCard({
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             {title}
           </p>
           <p className="truncate text-sm font-semibold text-zinc-100">
@@ -183,7 +183,7 @@ export function RainOverview({
                 <CloudLightning className="h-4 w-4 text-accent" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Max Single
                 </p>
                 <p className="text-lg font-bold tabular-nums text-zinc-100">
@@ -199,7 +199,7 @@ export function RainOverview({
                 <Calendar className="h-4 w-4 text-success" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Rainy Days
                 </p>
                 <p className="text-lg font-bold tabular-nums text-zinc-100">
@@ -214,7 +214,7 @@ export function RainOverview({
                 <Droplets className="h-4 w-4 text-warning" />
               </div>
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Daily window
                 </p>
                 <p className="text-lg font-bold tabular-nums text-zinc-100">

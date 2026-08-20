@@ -118,7 +118,7 @@ function YoYBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 text-[9px] font-medium px-1 py-0.5 rounded ml-1",
+        "inline-flex items-center gap-0.5 text-xs font-medium px-1 py-0.5 rounded ml-1",
         isUp ? "text-success bg-success/10" : "text-danger bg-danger/10",
       )}
     >
@@ -648,7 +648,7 @@ export function SpreadsheetTab({
                     <div className="font-medium text-zinc-200 text-xs md:text-sm truncate">
                       {area.name}
                     </div>
-                    <div className="text-[10px] text-zinc-600 font-mono hidden md:block">
+                    <div className="text-xs text-zinc-600 font-mono hidden md:block">
                       {area.id}
                     </div>
                   </td>
@@ -683,7 +683,7 @@ export function SpreadsheetTab({
                               >
                                 {f.name}
                                 {f.unit && (
-                                  <span className="text-zinc-600 ml-0.5 text-[10px]">
+                                  <span className="text-zinc-600 ml-0.5 text-xs">
                                     {f.unit}
                                   </span>
                                 )}
@@ -735,7 +735,7 @@ export function SpreadsheetTab({
                     <div className="font-bold text-zinc-100 text-xs md:text-sm">
                       Totals
                     </div>
-                    <div className="text-[10px] text-zinc-500 hidden md:block">
+                    <div className="text-xs text-zinc-500 hidden md:block">
                       Sum across all areas
                     </div>
                   </td>
@@ -764,7 +764,7 @@ export function SpreadsheetTab({
                                 <span className="w-24 text-right text-zinc-100 font-mono font-bold p-1">
                                   {formatNum(total, 1)}
                                   {f.unit && (
-                                    <span className="text-zinc-500 text-[10px] ml-0.5">
+                                    <span className="text-zinc-500 text-xs ml-0.5">
                                       {f.unit}
                                     </span>
                                   )}
@@ -792,7 +792,7 @@ export function SpreadsheetTab({
                     <div className="font-semibold text-success text-xs md:text-sm">
                       Period Inputs
                     </div>
-                    <div className="text-[10px] text-zinc-500 mt-1 hidden md:block">
+                    <div className="text-xs text-zinc-500 mt-1 hidden md:block">
                       Values per period
                     </div>
                   </td>
@@ -831,7 +831,7 @@ export function SpreadsheetTab({
                                 </span>
                                 {f.unit && (
                                   <span
-                                    className="min-w-0 max-w-[72px] shrink truncate text-[10px] text-success-muted md:max-w-[88px]"
+                                    className="min-w-0 max-w-[72px] shrink truncate text-xs text-success-muted md:max-w-[88px]"
                                     title={f.unit}
                                   >
                                     {f.unit}
@@ -888,7 +888,7 @@ export function SpreadsheetTab({
                     <div className="font-semibold text-accent text-xs md:text-sm">
                       Calculated
                     </div>
-                    <div className="text-[10px] text-zinc-500 mt-1 hidden md:block">
+                    <div className="text-xs text-zinc-500 mt-1 hidden md:block">
                       Auto-computed
                     </div>
                   </td>

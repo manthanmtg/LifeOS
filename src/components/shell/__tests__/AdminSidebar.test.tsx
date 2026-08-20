@@ -126,7 +126,7 @@ describe("AdminSidebar", () => {
   });
 
   it("uses cached sidebar order immediately and refreshes cache for next load", async () => {
-    localStorage.setItem(
+    window.localStorage.setItem(
       ADMIN_SIDEBAR_CACHE_KEY,
       JSON.stringify(["portfolio", "blog", "expenses"]),
     );
@@ -135,7 +135,9 @@ describe("AdminSidebar", () => {
     vi.mocked(global.fetch).mockImplementation(
       () =>
         new Promise<Response>((resolve) => {
-          resolveConfig = resolve as (value: Response | PromiseLike<Response>) => void;
+          resolveConfig = resolve as (
+            value: Response | PromiseLike<Response>,
+          ) => void;
         }) as Promise<Response>,
     );
 
@@ -148,7 +150,6 @@ describe("AdminSidebar", () => {
       "Portfolio",
       "Blog",
       "Expenses",
-      "System Settings",
     ]);
 
     const nextConfig: {
@@ -170,10 +171,11 @@ describe("AdminSidebar", () => {
         "Portfolio",
         "Blog",
         "Expenses",
-        "System Settings",
       ]);
       expect(
-        JSON.parse(localStorage.getItem(ADMIN_SIDEBAR_CACHE_KEY) || "[]"),
+        JSON.parse(
+          window.localStorage.getItem(ADMIN_SIDEBAR_CACHE_KEY) || "[]",
+        ),
       ).toEqual(
         getOrderedAdminModules({
           orderingStrategy: nextConfig.orderingStrategy,
@@ -216,7 +218,7 @@ describe("AdminSidebar", () => {
       1,
     );
 
-    window.dispatchEvent(new Event("open-mobile-sidebar"));
+    fireEvent(window, new Event("open-mobile-sidebar"));
     await waitFor(() => {
       expect(
         screen.getAllByRole("navigation", { name: "Modules" }),

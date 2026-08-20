@@ -1,55 +1,39 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import PublicFooter from "../PublicFooter";
 
 describe("PublicFooter", () => {
-  beforeEach(() => {
+  it("renders only usable server-provided social links without fetching", () => {
     global.fetch = vi.fn();
-  });
 
-  it("renders only social links with both platform and URL", async () => {
-    vi.mocked(global.fetch).mockResolvedValueOnce({
-      json: async () => ({
-        data: [
-          {
-            payload: {
-              social_links: [
-                { platform: "GitHub", url: "https://github.com/example" },
-                { platform: "X", url: "" },
-                { platform: "", url: "https://example.com" },
-              ],
-            },
-          },
-        ],
-      }),
-    } as Response);
+    render(
+      <PublicFooter
+        socialLinks={[
+          { platform: "GitHub", url: "https://github.com/example" },
+          { platform: "X", url: "" },
+          { platform: "", url: "https://example.com" },
+        ]}
+      />,
+    );
 
-    render(<PublicFooter />);
-
-    expect(
-      await screen.findByRole("link", { name: /GitHub/i }),
-    ).toHaveAttribute("href", "https://github.com/example");
+    expect(screen.getByRole("link", { name: /GitHub/i })).toHaveAttribute(
+      "href",
+      "https://github.com/example",
+    );
     expect(screen.queryByRole("link", { name: /X/i })).not.toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it("groups social links in a labeled navigation landmark", async () => {
-    vi.mocked(global.fetch).mockResolvedValueOnce({
-      json: async () => ({
-        data: [
-          {
-            payload: {
-              social_links: [
-                { platform: "GitHub", url: "https://github.com/example" },
-              ],
-            },
-          },
-        ],
-      }),
-    } as Response);
+  it("groups social links in a labeled navigation landmark", () => {
+    render(
+      <PublicFooter
+        socialLinks={[
+          { platform: "GitHub", url: "https://github.com/example" },
+        ]}
+      />,
+    );
 
-    render(<PublicFooter />);
-
-    const socialNav = await screen.findByRole("navigation", {
+    const socialNav = screen.getByRole("navigation", {
       name: /social links/i,
     });
     expect(socialNav).toContainElement(
@@ -57,16 +41,8 @@ describe("PublicFooter", () => {
     );
   });
 
-  it("keeps the static footer content when profile fetch fails", async () => {
-    vi.mocked(global.fetch).mockRejectedValueOnce(new Error("unavailable"));
-
+  it("keeps static footer content without profile data", () => {
     render(<PublicFooter />);
-
-    await waitFor(() =>
-      expect(global.fetch).toHaveBeenCalledWith(
-        "/api/content?module_type=portfolio_profile",
-      ),
-    );
     expect(screen.getByText(/Built with/)).toBeInTheDocument();
   });
 });

@@ -52,11 +52,8 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
   const data = (items as DeckItem[]).filter((item) => item.is_public);
   const [viewingIndex, setViewingIndex] = useState<number | null>(null);
 
-  const openDeck = (index: number, event?: { key?: string }) => {
+  const openDeck = (index: number) => {
     if (data[index]?.payload?.deck_url) {
-      if (event?.key && event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
       setViewingIndex(index);
     }
   };
@@ -88,102 +85,110 @@ export default function SlidesPublicView({ items }: { items: unknown[] }) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05, duration: 0.3 }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Open deck ${item.payload.title}`}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors group cursor-pointer"
-              onClick={() => openDeck(idx)}
-              onKeyDown={(e) => openDeck(idx, e)}
+              className={cn(
+                "relative bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors group",
+                item.payload.deck_url && "cursor-pointer",
+              )}
             >
-              {/* Live Preview */}
-              <div className="w-full aspect-video rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center mb-2.5 relative">
-                <Suspense fallback={<SlideCardSkeleton />}>
-                  <DeckPreview deck={item} className="w-full h-full" />
-                </Suspense>
+              {item.payload.deck_url && (
+                <button
+                  type="button"
+                  aria-label={`Open deck ${item.payload.title}`}
+                  onClick={() => openDeck(idx)}
+                  className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                />
+              )}
 
-                {/* Play overlay */}
-                {item.payload.deck_url && (
-                  <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/40 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-50/10 backdrop-blur rounded-full p-3 border border-zinc-50/20">
-                      <Play className="w-5 h-5 text-zinc-50 fill-zinc-50" />
+              <div className="relative z-10 pointer-events-none">
+                {/* Live Preview */}
+                <div className="w-full aspect-video rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center mb-2.5 relative">
+                  <Suspense fallback={<SlideCardSkeleton />}>
+                    <DeckPreview deck={item} className="w-full h-full" />
+                  </Suspense>
+
+                  {/* Play overlay */}
+                  {item.payload.deck_url && (
+                    <div className="absolute inset-0 bg-zinc-950/20 md:bg-zinc-950/0 md:group-hover:bg-zinc-950/40 md:group-focus-within:bg-zinc-950/40 transition-colors flex items-center justify-center">
+                      <div className="opacity-70 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity bg-zinc-50/10 backdrop-blur rounded-full p-3 border border-zinc-50/20">
+                        <Play className="w-5 h-5 text-zinc-50 fill-zinc-50" />
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                <h3 className="text-zinc-50 font-medium line-clamp-1 text-sm">
+                  {item.payload.title}
+                </h3>
+                {item.payload.description && (
+                  <p className="text-zinc-500 text-xs mt-0.5 line-clamp-2">
+                    {item.payload.description}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-1 mt-2 flex-wrap">
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 rounded-md text-xs font-medium border",
+                      FORMAT_STYLES[item.payload.format],
+                    )}
+                  >
+                    {FORMAT_LABELS[item.payload.format]}
+                  </span>
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 rounded-md text-xs font-medium border",
+                      VISIBILITY_STYLES[item.payload.visibility],
+                    )}
+                  >
+                    {VISIBILITY_LABELS[item.payload.visibility]}
+                  </span>
+                </div>
+
+                {item.payload.tags.length > 0 && (
+                  <div className="flex items-center gap-1 mt-2 flex-wrap">
+                    <Tag className="w-3 h-3 text-zinc-600 shrink-0" />
+                    {item.payload.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-1.5 py-0.5 rounded text-xs bg-zinc-800 text-zinc-400 border border-zinc-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {item.payload.tags.length > 3 && (
+                      <span className="text-xs text-zinc-600">
+                        +{item.payload.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {item.payload.folder && (
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <Folder className="w-3 h-3 text-zinc-600" />
+                    <span className="text-xs text-zinc-500">
+                      {item.payload.folder}
+                    </span>
+                  </div>
+                )}
+
+                {item.payload.author && (
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <User className="w-3 h-3 text-zinc-600" />
+                    <span className="text-xs text-zinc-500">
+                      {item.payload.author}
+                    </span>
                   </div>
                 )}
               </div>
 
-              <h3 className="text-zinc-50 font-medium line-clamp-1 text-sm">
-                {item.payload.title}
-              </h3>
-              {item.payload.description && (
-                <p className="text-zinc-500 text-xs mt-0.5 line-clamp-2">
-                  {item.payload.description}
-                </p>
-              )}
-
-              <div className="flex items-center gap-1 mt-2 flex-wrap">
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-md text-[9px] font-medium border",
-                    FORMAT_STYLES[item.payload.format],
-                  )}
-                >
-                  {FORMAT_LABELS[item.payload.format]}
-                </span>
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-md text-[9px] font-medium border",
-                    VISIBILITY_STYLES[item.payload.visibility],
-                  )}
-                >
-                  {VISIBILITY_LABELS[item.payload.visibility]}
-                </span>
-              </div>
-
-              {item.payload.tags.length > 0 && (
-                <div className="flex items-center gap-1 mt-2 flex-wrap">
-                  <Tag className="w-3 h-3 text-zinc-600 shrink-0" />
-                  {item.payload.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-1.5 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-400 border border-zinc-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {item.payload.tags.length > 3 && (
-                    <span className="text-[10px] text-zinc-600">
-                      +{item.payload.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {item.payload.folder && (
-                <div className="flex items-center gap-1 mt-1.5">
-                  <Folder className="w-3 h-3 text-zinc-600" />
-                  <span className="text-[10px] text-zinc-500">
-                    {item.payload.folder}
-                  </span>
-                </div>
-              )}
-
-              {item.payload.author && (
-                <div className="flex items-center gap-1 mt-1.5">
-                  <User className="w-3 h-3 text-zinc-600" />
-                  <span className="text-[10px] text-zinc-500">
-                    {item.payload.author}
-                  </span>
-                </div>
-              )}
-
               {item.payload.deck_url && (
                 <div className="mt-2.5 pt-2.5 border-t border-zinc-800">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setViewingIndex(idx);
-                    }}
-                    className="flex items-center gap-2 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+                    type="button"
+                    aria-label={`Present ${item.payload.title}`}
+                    onClick={() => setViewingIndex(idx)}
+                    className="relative z-20 flex min-h-11 items-center gap-2 rounded-lg px-2 text-xs font-medium text-accent hover:bg-accent/10 hover:text-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <Play className="w-3.5 h-3.5" /> Present
                   </button>

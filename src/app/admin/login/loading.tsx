@@ -7,7 +7,7 @@ export default function LoginLoading() {
       aria-label="Loading login"
       aria-busy="true"
       aria-live="polite"
-      className="min-h-screen flex items-center justify-center bg-zinc-950 text-zinc-50 relative overflow-hidden"
+      className="min-h-dvh flex items-center justify-center bg-zinc-950 text-zinc-50 relative overflow-hidden [padding-top:env(safe-area-inset-top)] [padding-bottom:env(safe-area-inset-bottom)]"
     >
       <div className="absolute top-0 blur-[150px] bg-zinc-800/50 w-full h-[500px] rounded-full -translate-y-1/2" />
 

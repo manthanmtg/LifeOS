@@ -59,23 +59,29 @@ export default function RecurringExpensesPublicView({
     hasSingleCurrency,
     primaryCurrency,
     nextUp,
-    byCategory
+    byCategory,
   } = useMemo(() => {
     const activeSubs = (items as unknown as RecurringExpense[]).filter(
       (s) => s.payload.is_active,
     );
 
-    const enrichedSubs = activeSubs.map(sub => {
+    const enrichedSubs = activeSubs.map((sub) => {
       const dateObj = new Date(sub.payload.next_renewal_date);
       return {
         ...sub,
         _parsedDate: dateObj.getTime(),
         _formattedDate: dateObj.toLocaleDateString(),
-        _monthlyCost: monthlyEquivalent(sub.payload.cost, sub.payload.billing_cycle)
+        _monthlyCost: monthlyEquivalent(
+          sub.payload.cost,
+          sub.payload.billing_cycle,
+        ),
       };
     });
 
-    const totalMonthly = enrichedSubs.reduce((s, sub) => s + sub._monthlyCost, 0);
+    const totalMonthly = enrichedSubs.reduce(
+      (s, sub) => s + sub._monthlyCost,
+      0,
+    );
     const totalYearly = totalMonthly * 12;
 
     const currencies = new Set(enrichedSubs.map((sub) => sub.payload.currency));
@@ -88,9 +94,10 @@ export default function RecurringExpensesPublicView({
 
     const byCategory = Object.entries(
       enrichedSubs.reduce<Record<string, number>>((acc, item) => {
-        acc[item.payload.category] = (acc[item.payload.category] || 0) + item._monthlyCost;
+        acc[item.payload.category] =
+          (acc[item.payload.category] || 0) + item._monthlyCost;
         return acc;
-      }, {})
+      }, {}),
     )
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4);
@@ -102,7 +109,7 @@ export default function RecurringExpensesPublicView({
       hasSingleCurrency,
       primaryCurrency,
       nextUp,
-      byCategory
+      byCategory,
     };
   }, [items]);
 
@@ -120,21 +127,19 @@ export default function RecurringExpensesPublicView({
       <div className="relative overflow-hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
         <div className="absolute -top-10 right-0 h-28 w-28 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative flex items-start justify-between gap-4">
-            <div>
-              <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-zinc-500 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-accent" /> Expense Snapshot
-              </p>
-              <p className="text-2xl md:text-3xl font-bold text-zinc-50">
-                {hasSingleCurrency
-                  ? formatRecurringAmount(totalMonthly, primaryCurrency)
-                  : `${totalMonthly.toFixed(2)} /mo`}
-              </p>
-              {!hasSingleCurrency && (
-                <p className="text-xs text-zinc-500 mt-1">
-                  Mixed currencies
-                </p>
-              )}
-              <p className="text-sm text-zinc-400 mt-1">monthly burn</p>
+          <div>
+            <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-zinc-500 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-accent" /> Expense Snapshot
+            </p>
+            <p className="text-2xl md:text-3xl font-bold text-zinc-50">
+              {hasSingleCurrency
+                ? formatRecurringAmount(totalMonthly, primaryCurrency)
+                : `${totalMonthly.toFixed(2)} /mo`}
+            </p>
+            {!hasSingleCurrency && (
+              <p className="text-xs text-zinc-500 mt-1">Mixed currencies</p>
+            )}
+            <p className="text-sm text-zinc-400 mt-1">monthly burn</p>
           </div>
           <div className="text-right text-xs text-zinc-400">
             <p>{subs.length} active services</p>
@@ -167,7 +172,7 @@ export default function RecurringExpensesPublicView({
               key={category}
               className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3"
             >
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wide">
+              <p className="text-xs text-zinc-500 uppercase tracking-wide">
                 {category}
               </p>
               <p className="text-sm font-semibold text-zinc-100 mt-1">
@@ -195,7 +200,7 @@ export default function RecurringExpensesPublicView({
               </p>
               <span
                 className={cn(
-                  "text-[11px] px-2 py-0.5 rounded-full border",
+                  "text-xs px-2 py-0.5 rounded-full border",
                   "bg-zinc-800 border-zinc-700 text-zinc-300",
                 )}
               >

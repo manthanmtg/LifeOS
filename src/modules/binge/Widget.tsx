@@ -72,7 +72,7 @@ export default memo(function BingeWidget() {
       loading={loading}
       href="/admin/binge"
       footer={
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/60 bg-zinc-800/60 px-2 py-1 text-zinc-400">
             <Tv className="w-3 h-3" /> {summary.total} titles
           </span>

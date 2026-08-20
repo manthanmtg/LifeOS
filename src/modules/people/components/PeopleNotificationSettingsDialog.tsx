@@ -432,7 +432,7 @@ export default function PeopleNotificationSettingsDialog({
             key={`${kind}-${relationship}`}
             className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 space-y-3"
           >
-            <legend className="px-2 text-[10px] uppercase tracking-wider text-zinc-400">
+            <legend className="px-2 text-xs uppercase tracking-wider text-zinc-400">
               {title} {relationshipLabel}
             </legend>
 

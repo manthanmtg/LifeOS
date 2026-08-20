@@ -76,7 +76,7 @@ function VaccineRow({
               {vaccination.name}
             </p>
             {vaccination.dose_label && (
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-zinc-400">
                 {vaccination.dose_label}
               </span>
             )}

@@ -198,14 +198,14 @@ export default function WhiteboardPublicView({
                     {board.payload.tags.slice(0, 3).map((t) => (
                       <span
                         key={t}
-                        className="px-2 py-0.5 bg-zinc-800 text-zinc-500 text-[10px] rounded-md font-medium"
+                        className="px-2 py-0.5 bg-zinc-800 text-zinc-500 text-xs rounded-md font-medium"
                       >
                         {t}
                       </span>
                     ))}
                   </div>
                   {elementCount > 0 && (
-                    <span className="flex items-center gap-1 text-[10px] text-zinc-600">
+                    <span className="flex items-center gap-1 text-xs text-zinc-600">
                       <Shapes className="w-3 h-3" /> {elementCount}
                     </span>
                   )}

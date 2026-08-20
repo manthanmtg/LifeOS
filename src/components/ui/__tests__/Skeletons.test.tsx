@@ -77,12 +77,14 @@ describe("Skeletons", () => {
 
   it("renders and omits header in AdminModuleSkeleton based on withHeader", () => {
     const withHeader = render(<AdminModuleSkeleton withHeader />);
-    const withHeaderContainer = withHeader.container.firstElementChild as HTMLElement;
+    const withHeaderContainer = withHeader.container
+      .firstElementChild as HTMLElement;
 
     expect(withHeaderContainer.querySelector(".h-8.w-48")).not.toBeNull();
 
     const withoutHeader = render(<AdminModuleSkeleton withHeader={false} />);
-    const withoutHeaderContainer = withoutHeader.container.firstElementChild as HTMLElement;
+    const withoutHeaderContainer = withoutHeader.container
+      .firstElementChild as HTMLElement;
     const header = withoutHeaderContainer.querySelector(".h-8.w-48");
     const statGrid = withoutHeaderContainer.querySelector(".grid.grid-cols-2");
 

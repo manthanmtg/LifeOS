@@ -160,7 +160,8 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
       </div>
 
       <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest">
-        {filteredEntries.length} {filteredEntries.length === 1 ? "entry" : "entries"}
+        {filteredEntries.length}{" "}
+        {filteredEntries.length === 1 ? "entry" : "entries"}
       </p>
 
       <div className="space-y-2">
@@ -200,7 +201,7 @@ export function AiUsageLogTab({ entries }: { entries: AiUsageEntry[] }) {
                         {entry.payload.model}
                       </span>
                       {entry.payload.synced && (
-                        <span className="text-[10px] bg-zinc-800/50 text-zinc-600 px-1.5 py-0.5 rounded font-mono">
+                        <span className="text-xs bg-zinc-800/50 text-zinc-600 px-1.5 py-0.5 rounded font-mono">
                           synced
                         </span>
                       )}

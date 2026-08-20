@@ -69,7 +69,7 @@ export default function WhiteboardPreview({
     return (
       <div className="text-center">
         <PenLine className="w-6 h-6 text-zinc-700 mx-auto mb-1" />
-        <p className="text-[10px] text-zinc-700 font-medium">Empty canvas</p>
+        <p className="text-xs text-zinc-700 font-medium">Empty canvas</p>
       </div>
     );
   }

@@ -314,7 +314,7 @@ function expiryBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border",
         config.bg,
         config.border,
         config.color,
@@ -947,7 +947,7 @@ export default function VehicleAdminView() {
             {/* Stats row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                   Odometer
                 </p>
                 <p className="text-2xl font-bold text-zinc-50">
@@ -956,7 +956,7 @@ export default function VehicleAdminView() {
                 <p className="text-xs text-zinc-500">{p.odometer_unit}</p>
               </div>
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                   Fuel Type
                 </p>
                 <div className="flex items-center gap-2">
@@ -967,7 +967,7 @@ export default function VehicleAdminView() {
                 </div>
               </div>
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                   Service Cost
                 </p>
                 <p className="text-2xl font-bold text-zinc-50">
@@ -976,7 +976,7 @@ export default function VehicleAdminView() {
                 <p className="text-xs text-zinc-500">total spent</p>
               </div>
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                   Fuel Cost
                 </p>
                 <p className="text-2xl font-bold text-zinc-50">
@@ -994,7 +994,7 @@ export default function VehicleAdminView() {
                     <TrendingUp className="w-5 h-5 text-success" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                       Avg Fuel Efficiency
                     </p>
                     <p className="text-2xl font-bold text-success">
@@ -1065,7 +1065,7 @@ export default function VehicleAdminView() {
                       <item.icon
                         className={cn("w-4 h-4", textColors[status])}
                       />
-                      <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                      <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                         {item.label}
                       </span>
                     </div>
@@ -1096,7 +1096,7 @@ export default function VehicleAdminView() {
             {/* Vehicle info */}
             {(p.color || p.registration_number || p.notes) && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                   Details
                 </p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1200,17 +1200,17 @@ export default function VehicleAdminView() {
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <span
                                   className={cn(
-                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
+                                    "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800",
                                     stConfig.color,
                                   )}
                                 >
                                   {stConfig.label}
                                 </span>
-                                <span className="text-[11px] text-zinc-500">
+                                <span className="text-xs text-zinc-500">
                                   {formatDate(record.date)}
                                 </span>
                                 {record.odometer && (
-                                  <span className="text-[11px] text-zinc-600 flex items-center gap-1">
+                                  <span className="text-xs text-zinc-600 flex items-center gap-1">
                                     <Gauge className="w-3 h-3" />{" "}
                                     {record.odometer.toLocaleString()}{" "}
                                     {p.odometer_unit}
@@ -1218,7 +1218,7 @@ export default function VehicleAdminView() {
                                 )}
                               </div>
                               {record.garage && (
-                                <p className="text-[11px] text-zinc-600 mt-1 flex items-center gap-1">
+                                <p className="text-xs text-zinc-600 mt-1 flex items-center gap-1">
                                   <MapPin className="w-3 h-3" /> {record.garage}
                                 </p>
                               )}
@@ -1292,7 +1292,7 @@ export default function VehicleAdminView() {
                       <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Date
                             </label>
                             <input
@@ -1308,7 +1308,7 @@ export default function VehicleAdminView() {
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Type
                             </label>
                             <select
@@ -1332,7 +1332,7 @@ export default function VehicleAdminView() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                             Description *
                           </label>
                           <input
@@ -1351,7 +1351,7 @@ export default function VehicleAdminView() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Cost
                             </label>
                             <input
@@ -1372,7 +1372,7 @@ export default function VehicleAdminView() {
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Odometer
                             </label>
                             <input
@@ -1393,7 +1393,7 @@ export default function VehicleAdminView() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                             Garage / Workshop
                           </label>
                           <input
@@ -1411,7 +1411,7 @@ export default function VehicleAdminView() {
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                             Notes
                           </label>
                           <textarea
@@ -1506,29 +1506,29 @@ export default function VehicleAdminView() {
                             <p className="text-sm font-semibold text-zinc-200">
                               {log.quantity} {log.fuel_unit}
                               {log.full_tank && (
-                                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
+                                <span className="ml-2 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
                                   Full Tank
                                 </span>
                               )}
                             </p>
                             <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-[11px] text-zinc-500">
+                              <span className="text-xs text-zinc-500">
                                 {formatDate(log.date)}
                               </span>
                               {log.odometer && (
-                                <span className="text-[11px] text-zinc-600 flex items-center gap-1">
+                                <span className="text-xs text-zinc-600 flex items-center gap-1">
                                   <Gauge className="w-3 h-3" />{" "}
                                   {log.odometer.toLocaleString()}{" "}
                                   {p.odometer_unit}
                                 </span>
                               )}
                               {log.station && (
-                                <span className="text-[11px] text-zinc-600 flex items-center gap-1">
+                                <span className="text-xs text-zinc-600 flex items-center gap-1">
                                   <MapPin className="w-3 h-3" /> {log.station}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-zinc-600 mt-0.5">
+                            <p className="text-xs text-zinc-600 mt-0.5">
                               Rate:{" "}
                               {log.currency === "INR" ? "₹" : log.currency}{" "}
                               {formatFuelRate(
@@ -1597,7 +1597,7 @@ export default function VehicleAdminView() {
                       <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Date
                             </label>
                             <input
@@ -1613,7 +1613,7 @@ export default function VehicleAdminView() {
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Full Tank?
                             </label>
                             <button
@@ -1638,7 +1638,7 @@ export default function VehicleAdminView() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Quantity *
                             </label>
                             <div className="flex gap-2">
@@ -1674,7 +1674,7 @@ export default function VehicleAdminView() {
                             </div>
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Total Cost *
                             </label>
                             <input
@@ -1697,7 +1697,7 @@ export default function VehicleAdminView() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Odometer
                             </label>
                             <input
@@ -1717,7 +1717,7 @@ export default function VehicleAdminView() {
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Station
                             </label>
                             <input
@@ -1813,7 +1813,7 @@ export default function VehicleAdminView() {
                         <div>
                           <span
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider",
+                              "text-xs font-bold uppercase tracking-wider",
                               dConfig.color,
                             )}
                           >
@@ -1914,7 +1914,7 @@ export default function VehicleAdminView() {
                       <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Type
                             </label>
                             <select
@@ -1935,7 +1935,7 @@ export default function VehicleAdminView() {
                             </select>
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                               Expiry Date
                             </label>
                             <input
@@ -1952,7 +1952,7 @@ export default function VehicleAdminView() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                             Title *
                           </label>
                           <input
@@ -1970,7 +1970,7 @@ export default function VehicleAdminView() {
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                             Notes
                           </label>
                           <textarea
@@ -2055,7 +2055,7 @@ export default function VehicleAdminView() {
         <div className="bg-gradient-to-r from-warning/5 via-danger/5 to-transparent border border-warning/10 rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-4 h-4 text-warning" />
-            <p className="text-[10px] font-bold text-warning uppercase tracking-widest">
+            <p className="text-xs font-bold text-warning uppercase tracking-widest">
               Attention Required ({allAlerts.length})
             </p>
           </div>
@@ -2174,13 +2174,13 @@ export default function VehicleAdminView() {
                 {/* Registration & Odometer */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   {vp.registration_number && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
+                    <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
                       {vp.registration_number}
                     </span>
                   )}
                   <span
                     className={cn(
-                      "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                      "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border",
                       ftConf.bg,
                       ftConf.border,
                       ftConf.color,
@@ -2210,7 +2210,7 @@ export default function VehicleAdminView() {
                 </div>
 
                 {/* Footer stats */}
-                <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-500">
                   <span className="flex items-center gap-1">
                     <Wrench className="w-3 h-3" />{" "}
                     {(vp.service_records || []).length} services
@@ -2270,7 +2270,7 @@ export default function VehicleAdminView() {
                 <div className="p-6 space-y-5 flex-1 min-h-0 overflow-y-auto">
                   {/* Name */}
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                       Vehicle Name *
                     </label>
                     <input
@@ -2287,7 +2287,7 @@ export default function VehicleAdminView() {
                   {/* Make / Model / Year */}
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Make
                       </label>
                       <input
@@ -2302,7 +2302,7 @@ export default function VehicleAdminView() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Model
                       </label>
                       <input
@@ -2317,7 +2317,7 @@ export default function VehicleAdminView() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Year
                       </label>
                       <input
@@ -2340,7 +2340,7 @@ export default function VehicleAdminView() {
                   {/* Registration / Color */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Registration Number
                       </label>
                       <input
@@ -2358,7 +2358,7 @@ export default function VehicleAdminView() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Color
                       </label>
                       <input
@@ -2377,7 +2377,7 @@ export default function VehicleAdminView() {
                   {/* Fuel Type / Odometer */}
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Fuel Type
                       </label>
                       <select
@@ -2398,7 +2398,7 @@ export default function VehicleAdminView() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Odometer
                       </label>
                       <input
@@ -2415,7 +2415,7 @@ export default function VehicleAdminView() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Unit
                       </label>
                       <select
@@ -2436,12 +2436,12 @@ export default function VehicleAdminView() {
 
                   {/* Expiry dates */}
                   <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl space-y-4">
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
                       <Calendar className="w-3.5 h-3.5" /> Important Dates
                     </p>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                           Insurance Expiry
                         </label>
                         <input
@@ -2459,7 +2459,7 @@ export default function VehicleAdminView() {
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                           PUC Expiry
                         </label>
                         <input
@@ -2479,7 +2479,7 @@ export default function VehicleAdminView() {
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                           Next Service
                         </label>
                         <input
@@ -2498,7 +2498,7 @@ export default function VehicleAdminView() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                         Service at Odometer
                       </label>
                       <input
@@ -2521,7 +2521,7 @@ export default function VehicleAdminView() {
 
                   {/* Notes */}
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5">
                       Notes
                     </label>
                     <textarea

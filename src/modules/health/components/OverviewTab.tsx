@@ -11,7 +11,7 @@ import OverviewInsightsPanel from "./OverviewInsightsPanel";
 import ConditionsPanel from "./ConditionsPanel";
 
 const labelCls =
-  "text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
+  "text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-1.5";
 
 interface OverviewTabProps {
   profile: HealthProfile;

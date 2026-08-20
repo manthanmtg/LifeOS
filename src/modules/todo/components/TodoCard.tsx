@@ -137,7 +137,7 @@ export default function TodoCard({
         <div className="mt-auto pt-4 flex flex-wrap gap-2">
           <span
             className={cn(
-              "text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border shadow-sm transition-all",
+              "text-xs font-black uppercase tracking-widest px-2 py-1 rounded-lg border shadow-sm transition-all",
               colors.text,
               colors.bg,
               colors.border,
@@ -147,7 +147,7 @@ export default function TodoCard({
             {priority}
           </span>
           {due_date && (
-            <span className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-800/40 px-2 py-1 rounded-lg">
+            <span className="flex items-center gap-1 text-xs font-bold text-zinc-500 uppercase tracking-widest bg-zinc-800/40 px-2 py-1 rounded-lg">
               <Calendar className="w-2.5 h-2.5" />
               {gridDueDateLabel}
             </span>
@@ -198,7 +198,7 @@ export default function TodoCard({
         <div className="flex items-center gap-3 mt-1">
           <span
             className={cn(
-              "text-[9px] font-black uppercase tracking-widest transition-all",
+              "text-xs font-black uppercase tracking-widest transition-all",
               colors.text,
               !completed && colors.shadow,
               !completed && "shadow-[0_0_8px_-2px_currentColor]",
@@ -207,13 +207,13 @@ export default function TodoCard({
             {priority}
           </span>
           {due_date && (
-            <span className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-600 uppercase tracking-wider">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-600 uppercase tracking-wider">
               <Calendar className="w-3 h-3" />
               {listDueDateLabel}
             </span>
           )}
           {completed_at && (
-            <span className="flex items-center gap-1.5 text-[9px] font-bold text-success/60 uppercase tracking-wider italic">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-success/60 uppercase tracking-wider italic">
               <Clock className="w-3 h-3" />
               {completedDateLabel}
             </span>

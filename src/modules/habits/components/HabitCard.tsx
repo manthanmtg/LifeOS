@@ -59,7 +59,12 @@ export default function HabitCard({
   const isFullyCompletedToday = countToday >= targetCount;
 
   const last30Rate = useMemo(
-    () => getCompletionRateForDays(habit.payload.completions, targetCount, days.slice(-30)),
+    () =>
+      getCompletionRateForDays(
+        habit.payload.completions,
+        targetCount,
+        days.slice(-30),
+      ),
     [days, habit.payload.completions, targetCount],
   );
 
@@ -102,7 +107,7 @@ export default function HabitCard({
               </span>
             </p>
             {habit.payload.description && (
-              <p className="text-[10px] text-zinc-500 font-medium truncate mt-0.5 uppercase tracking-widest">
+              <p className="text-xs text-zinc-500 font-medium truncate mt-0.5 uppercase tracking-widest">
                 {habit.payload.description}
               </p>
             )}
@@ -111,7 +116,7 @@ export default function HabitCard({
 
         <div className="flex items-start gap-2 sm:items-center shrink-0 flex-wrap justify-end">
           {/* Streak badges */}
-          <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider">
             <span className="flex items-center gap-1 text-warning/80 group-hover:text-warning transition-colors">
               <Flame className="w-3.5 h-3.5 fill-warning/10" />
               <span>{streakInfo.current}d</span>
@@ -125,7 +130,7 @@ export default function HabitCard({
           {/* 30-day rate pill */}
           <span
             className={cn(
-              "px-2 py-0.5 rounded-lg text-[9px] font-black tracking-widest uppercase",
+              "px-2 py-0.5 rounded-lg text-xs font-black tracking-widest uppercase",
               last30Rate >= 70
                 ? "bg-success/10 text-success border border-success/20"
                 : last30Rate >= 40
@@ -146,7 +151,7 @@ export default function HabitCard({
                 : "Mark habit as done today"
             }
             className={cn(
-              "px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm",
+              "px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm",
               isFullyCompletedToday
                 ? "bg-success/20 text-success border border-success/30 shadow-[0_0_15px_rgba(52,211,153,0.15)]"
                 : countToday > 0
@@ -161,7 +166,11 @@ export default function HabitCard({
             ) : isFullyCompletedToday ? (
               <Check className="w-3 h-3 stroke-[3]" />
             ) : null}
-            {isFullyCompletedToday ? "Done" : countToday > 0 ? `${countToday}/${targetCount}` : "Log"}
+            {isFullyCompletedToday
+              ? "Done"
+              : countToday > 0
+                ? `${countToday}/${targetCount}`
+                : "Log"}
           </motion.button>
 
           {/* Edit/Delete */}

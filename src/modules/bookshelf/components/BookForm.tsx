@@ -214,7 +214,7 @@ export default function BookForm({
         {!isEditing && (
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-zinc-600" />
-            <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-medium">
+            <span className="text-xs uppercase tracking-wider text-zinc-600 font-medium">
               Quick status
             </span>
             {QUICK_ADD_STATUSES.map((qs) => (

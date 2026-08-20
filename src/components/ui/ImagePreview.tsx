@@ -4,6 +4,7 @@ import React from "react";
 import { X, Download } from "lucide-react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { useDialogAccessibility } from "./Dialog";
 
 interface ImagePreviewProps {
   src: string;
@@ -12,22 +13,23 @@ interface ImagePreviewProps {
 }
 
 export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
-  React.useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  const closeRef = React.useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: closeRef,
+  });
 
   if (typeof document === "undefined") return null;
 
   return createPortal(
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-label={alt || "Image preview"}
+      tabIndex={-1}
     >
       <button
         type="button"
@@ -56,8 +58,9 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
             <Download className="w-5 h-5" />
           </a>
           <button
+            ref={closeRef}
+            type="button"
             onClick={onClose}
-            autoFocus
             className="min-h-11 min-w-11 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Close image preview"
             title="Close Preview"
@@ -81,7 +84,7 @@ export default function ImagePreview({ src, alt, onClose }: ImagePreviewProps) {
       </div>
 
       {/* Footer Info / Tip */}
-      <div className="absolute bottom-6 z-10 text-zinc-500 text-[10px] sm:text-xs font-medium uppercase tracking-widest text-center w-full pointer-events-none">
+      <div className="absolute bottom-6 z-10 text-zinc-500 text-xs sm:text-xs font-medium uppercase tracking-widest text-center w-full pointer-events-none">
         Click backdrop to close
       </div>
     </div>,

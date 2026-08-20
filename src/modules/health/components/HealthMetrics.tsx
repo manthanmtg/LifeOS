@@ -37,7 +37,7 @@ export default function HealthMetrics({
         </div>
         <div>
           <p className="text-2xl font-bold text-zinc-50">{profiles.length}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
             Profile{profiles.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function HealthMetrics({
           >
             {alertCount}
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
             Alert{alertCount !== 1 ? "s" : ""}
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function HealthMetrics({
         </div>
         <div>
           <p className="text-2xl font-bold text-zinc-50">{totalActiveMeds}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
             Active Med{totalActiveMeds !== 1 ? "s" : ""}
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function HealthMetrics({
           <p className="text-2xl font-bold text-zinc-50">
             {totalActiveConditions}
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-0.5">
             Condition{totalActiveConditions !== 1 ? "s" : ""}
           </p>
         </div>

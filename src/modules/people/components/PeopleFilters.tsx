@@ -51,7 +51,7 @@ export default function PeopleFilters({
             {counts[f.id] > 0 && (
               <span
                 className={cn(
-                  "px-1.5 py-0.5 rounded text-[10px] font-bold min-w-[1.2rem] text-center",
+                  "px-1.5 py-0.5 rounded text-xs font-bold min-w-[1.2rem] text-center",
                   activeFilter === f.id
                     ? "bg-accent text-zinc-950"
                     : "bg-zinc-800 text-zinc-600",

@@ -18,7 +18,6 @@ import {
   FileText,
   MessageSquare,
   ClipboardList,
-  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CompassTask } from "./types";
@@ -98,7 +97,6 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
     number | null
   >(null);
 
-
   // Editing states
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(
@@ -120,10 +118,6 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
       addCommentRef.current.focus();
     }
   }, [isAddingComment]);
-
-
-
-
 
   const updateField = (key: keyof typeof payload, value: unknown) => {
     setPayload((prev) => ({ ...prev, [key]: value }));
@@ -373,7 +367,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       <ClipboardList className="w-3.5 h-3.5" />
                     </button>
                   </span>
-                  <span className="text-[10px] text-zinc-500">
+                  <span className="text-xs text-zinc-500">
                     {payload.checklist?.filter((c) => c.completed).length || 0}{" "}
                     / {payload.checklist?.length || 0}
                   </span>
@@ -384,17 +378,17 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       key={item.id || i}
                       className="flex items-start gap-3 group/item bg-zinc-900/40 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 rounded-lg p-2 transition-all"
                     >
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleChecklist(i);
-                      }}
-                      aria-label={`Toggle checklist item ${item.text} complete`}
-                      className={cn(
-                        "mt-1 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
-                        item.completed
-                          ? "bg-accent border-accent text-zinc-50"
-                          : "border-zinc-700 hover:border-zinc-500",
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleChecklist(i);
+                        }}
+                        aria-label={`Toggle checklist item ${item.text} complete`}
+                        className={cn(
+                          "mt-1 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors",
+                          item.completed
+                            ? "bg-accent border-accent text-zinc-50"
+                            : "border-zinc-700 hover:border-zinc-500",
                         )}
                       >
                         {item.completed && <Check className="w-3 h-3" />}
@@ -415,7 +409,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                               <FileText className="w-3 h-3 text-zinc-600" />
                             )}
                             {item.comments?.length > 0 && (
-                              <span className="flex items-center gap-1 text-[10px] text-zinc-600">
+                              <span className="flex items-center gap-1 text-xs text-zinc-600">
                                 <MessageSquare className="w-3 h-3" />{" "}
                                 {item.comments.length}
                               </span>
@@ -423,43 +417,43 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                           </div>
                         )}
                       </div>
-                    <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 shrink-0">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveChecklistItem(i, "up");
-                        }}
-                        disabled={i === 0}
-                        aria-label={`Move checklist item ${item.text} up`}
-                        className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
-                        title="Move Up"
-                      >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 shrink-0">
                         <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveChecklistItem(i, "down");
-                        }}
-                        disabled={i === (payload.checklist?.length || 0) - 1}
-                        aria-label={`Move checklist item ${item.text} down`}
-                        className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
-                        title="Move Down"
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeChecklist(i);
-                        }}
-                        aria-label={`Remove checklist item ${item.text}`}
-                        className="p-1 text-zinc-500 hover:text-danger transition-colors"
-                        title="Remove Item"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveChecklistItem(i, "up");
+                          }}
+                          disabled={i === 0}
+                          aria-label={`Move checklist item ${item.text} up`}
+                          className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                          title="Move Up"
+                        >
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveChecklistItem(i, "down");
+                          }}
+                          disabled={i === (payload.checklist?.length || 0) - 1}
+                          aria-label={`Move checklist item ${item.text} down`}
+                          className="p-1 text-zinc-500 hover:text-accent disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                          title="Move Down"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeChecklist(i);
+                          }}
+                          aria-label={`Remove checklist item ${item.text}`}
+                          className="p-1 text-zinc-500 hover:text-danger transition-colors"
+                          title="Remove Item"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -541,13 +535,13 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                   {payload.comments.map((comment, i) => (
                     <div key={i} className="flex gap-4 group/comment">
                       <div className="w-9 h-9 rounded-full bg-zinc-800/80 flex items-center justify-center shrink-0 border border-zinc-700/50 mt-1">
-                        <span className="text-[10px] font-bold text-zinc-400 tracking-tighter">
+                        <span className="text-xs font-bold text-zinc-400 tracking-tighter">
                           USER
                         </span>
                       </div>
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest leading-none">
+                          <span className="text-xs font-semibold text-zinc-500 uppercase tracking-widest leading-none">
                             {new Date(comment.created_at).toLocaleString([], {
                               month: "short",
                               day: "numeric",
@@ -840,6 +834,6 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
           }}
         />
       )}
-        </div>
+    </div>
   );
 }

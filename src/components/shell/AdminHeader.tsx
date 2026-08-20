@@ -120,7 +120,10 @@ export default function AdminHeader() {
   return (
     <>
       {/* Mobile: Unified top bar — hamburger + quick-access icons */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/50">
+      <div
+        data-zen-chrome
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/50 [padding-top:env(safe-area-inset-top)]"
+      >
         <div className="flex items-center h-12">
           {/* Hamburger */}
           <button
@@ -172,7 +175,10 @@ export default function AdminHeader() {
       </div>
 
       {/* Desktop: Standard header */}
-      <header className="hidden lg:block pb-5 mb-5 border-b border-zinc-800/50">
+      <header
+        data-zen-chrome
+        className="hidden lg:block pb-5 mb-5 border-b border-zinc-800/50"
+      >
         <div className="flex items-center justify-between gap-4">
           {/* Quick Access Modules */}
           <nav
@@ -224,7 +230,7 @@ export default function AdminHeader() {
 
           {/* Command Palette Hint */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 text-[10px] text-zinc-600">
+            <div className="flex items-center gap-1.5 text-xs text-zinc-600">
               <Sparkles className="w-3 h-3" />
               <span>Quick access</span>
             </div>

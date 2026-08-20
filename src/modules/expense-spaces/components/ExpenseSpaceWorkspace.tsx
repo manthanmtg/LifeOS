@@ -55,10 +55,15 @@ export default function ExpenseSpaceWorkspace({
   onDelete,
   onReload,
 }: Props) {
-  const [pendingTab, setPendingTab] = useState<ExpenseSpaceTab | null>(null);
+  const [pendingTransition, setPendingTransition] = useState<{
+    from: ExpenseSpaceTab;
+    to: ExpenseSpaceTab;
+  } | null>(null);
+  const pendingTab =
+    pendingTransition?.from === tab ? pendingTransition.to : null;
   const tabPendingForSkeleton =
     pendingTab === "analytics" || pendingTab === "settings" ? pendingTab : null;
-  const isTabPending = tabPendingForSkeleton !== null && pendingTab !== tab;
+  const isTabPending = tabPendingForSkeleton !== null;
   const activeTab: ExpenseSpaceTab = pendingTab ?? tab;
 
   const totalSpend = summary?.summary.total_spend ?? 0;
@@ -92,7 +97,7 @@ export default function ExpenseSpaceWorkspace({
                 {space.payload.name}
               </h1>
               {space.payload.status === "archived" && (
-                <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning-muted/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-warning">
+                <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning-muted/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-warning">
                   <Archive aria-hidden="true" className="mr-1 h-3 w-3" />{" "}
                   Archived
                 </span>
@@ -168,7 +173,7 @@ export default function ExpenseSpaceWorkspace({
               aria-selected={activeTab === item.id}
               onClick={() => {
                 if (item.id === activeTab) return;
-                setPendingTab(item.id);
+                setPendingTransition({ from: tab, to: item.id });
                 onTabChange(item.id);
               }}
               className={cn(
@@ -226,7 +231,7 @@ function SummaryMetric({
 }) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-950/45 p-4">
-      <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+      <dt className="text-xs font-bold uppercase tracking-wider text-zinc-600">
         {label}
       </dt>
       <dd

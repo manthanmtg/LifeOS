@@ -108,28 +108,36 @@ export default function BookshelfPublicView({
                 A curated collection of what I am reading and learning.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-4 gap-2 text-center md:text-left">
               <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Books</p>
+                <p className="text-xs uppercase tracking-wider text-zinc-500">
+                  Books
+                </p>
                 <p className="text-lg font-semibold text-zinc-50 leading-tight">
                   {stats.total}
                 </p>
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Reading</p>
+                <p className="text-xs uppercase tracking-wider text-zinc-500">
+                  Reading
+                </p>
                 <p className="text-lg font-semibold text-warning leading-tight">
                   {stats.reading}
                 </p>
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Done</p>
+                <p className="text-xs uppercase tracking-wider text-zinc-500">
+                  Done
+                </p>
                 <p className="text-lg font-semibold text-success leading-tight">
                   {stats.completed}
                 </p>
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-left">
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">Rating</p>
+                <p className="text-xs uppercase tracking-wider text-zinc-500">
+                  Rating
+                </p>
                 <p className="text-lg font-semibold text-zinc-50 leading-tight">
                   {stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "N/A"}
                 </p>
@@ -214,7 +222,7 @@ export default function BookshelfPublicView({
                   </h3>
                   <span
                     className={cn(
-                      "text-[10px] px-2 py-0.5 rounded-full border font-medium",
+                      "text-xs px-2 py-0.5 rounded-full border font-medium",
                       STATUS_STYLES[status],
                     )}
                   >

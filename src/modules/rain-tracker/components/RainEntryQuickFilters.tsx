@@ -21,7 +21,7 @@ export function RainEntryQuickFilters({
           type="button"
           onClick={() => onChange(preset.id)}
           className={cn(
-            "rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors",
+            "rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors",
             activePreset === preset.id
               ? "border-accent/20 bg-accent/10 text-accent"
               : "border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:text-zinc-300",

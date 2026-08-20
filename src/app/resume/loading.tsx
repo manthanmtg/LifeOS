@@ -4,7 +4,7 @@ import { SkeletonBlock } from "@/components/ui/Skeletons";
 
 export default function ResumeLoading() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <PublicHeader />
       <main
         role="status"

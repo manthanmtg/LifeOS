@@ -54,7 +54,7 @@ export default function HealthProfileToolbar({
             aria-pressed={listFilter === filter.key}
             onClick={() => onFilterChange(filter.key)}
             className={cn(
-              "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border px-3 py-2.5 sm:py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+              "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border px-3 py-2.5 sm:py-1.5 text-xs font-bold uppercase tracking-wider transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
               listFilter === filter.key
                 ? "border-accent/30 bg-accent/10 text-accent"
                 : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-200",

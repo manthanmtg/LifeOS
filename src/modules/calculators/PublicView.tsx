@@ -307,7 +307,7 @@ export default function CalculatorsPublicView({
                       className="text-left group rounded-2xl border border-zinc-800 bg-zinc-900/80 p-4 hover:border-zinc-700 transition-colors"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+                        <span className="text-xs uppercase tracking-[0.16em] text-zinc-500">
                           {calculator.shortName}
                         </span>
                         <span className="inline-flex items-center gap-1 text-xs text-zinc-500 group-hover:text-accent transition-colors">

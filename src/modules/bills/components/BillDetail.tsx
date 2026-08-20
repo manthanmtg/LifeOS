@@ -202,7 +202,7 @@ export default function BillDetail({
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 space-y-5">
             {bill.payload.description && (
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
                   Description
                 </p>
                 <p className="text-sm text-zinc-300 leading-relaxed">
@@ -213,7 +213,7 @@ export default function BillDetail({
 
             {bill.payload.notes && (
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
                   Notes
                 </p>
                 <p className="text-sm text-zinc-400 leading-relaxed whitespace-pre-wrap">
@@ -224,7 +224,7 @@ export default function BillDetail({
 
             {/* Attachments */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">
                 Attachments ({bill.payload.attachments?.length ?? 0})
               </p>
 
@@ -284,7 +284,7 @@ export default function BillDetail({
                         <p className="text-xs font-medium text-zinc-200 truncate">
                           {att.filename}
                         </p>
-                        <p className="text-[10px] text-zinc-600">
+                        <p className="text-xs text-zinc-600">
                           {formatBytes(att.size)}
                         </p>
                       </div>

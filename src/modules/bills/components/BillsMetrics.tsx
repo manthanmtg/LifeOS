@@ -47,7 +47,9 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
 
     const countTrend =
       lastMonthBills.length === 0
-        ? currentMonthBills.length === 0 ? 0 : 100
+        ? currentMonthBills.length === 0
+          ? 0
+          : 100
         : Math.round(
             ((currentMonthBills.length - lastMonthBills.length) /
               lastMonthBills.length) *
@@ -55,7 +57,9 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
           );
     const amountTrend =
       lastTotal === 0
-        ? currentTotal === 0 ? 0 : 100
+        ? currentTotal === 0
+          ? 0
+          : 100
         : Math.round(((currentTotal - lastTotal) / lastTotal) * 100);
 
     return {
@@ -107,7 +111,7 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">
                 {card.label}
               </p>
               <h3 className="text-2xl font-black text-zinc-100 italic">
@@ -124,18 +128,18 @@ export default function BillsMetrics({ bills }: BillsMetricsProps) {
                     <span
                       className={
                         card.trend >= 0
-                          ? "text-[10px] font-bold text-danger"
-                          : "text-[10px] font-bold text-success"
+                          ? "text-xs font-bold text-danger"
+                          : "text-xs font-bold text-success"
                       }
                     >
                       {Math.abs(card.trend)}% {card.trend >= 0 ? "up" : "down"}
                     </span>
-                    <span className="text-[10px] text-zinc-600 font-medium">
+                    <span className="text-xs text-zinc-600 font-medium">
                       vs last month
                     </span>
                   </>
                 ) : (
-                  <span className="text-[10px] text-zinc-600 font-medium">
+                  <span className="text-xs text-zinc-600 font-medium">
                     {card.subValue}
                   </span>
                 )}

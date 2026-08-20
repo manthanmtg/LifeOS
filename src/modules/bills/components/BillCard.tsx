@@ -2,10 +2,17 @@
 
 import { Calendar, Edit3, Paperclip, Receipt } from "lucide-react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { formatDate } from "../helpers";
-import PdfThumbnail from "./PdfThumbnail";
 import type { Bill, BillFolder } from "../types";
+
+const PdfThumbnail = dynamic(() => import("./PdfThumbnail"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-28 w-full shrink-0 animate-pulse border-b border-zinc-800/50 bg-zinc-800 sm:h-32" />
+  ),
+});
 
 interface BillCardProps {
   bill: Bill;
@@ -77,12 +84,12 @@ export default function BillCard({
               {bill.payload.name}
             </h3>
             <div className="flex items-center gap-2 mt-1">
-              <p className="text-[10px] text-zinc-500 flex items-center gap-1 font-medium italic">
+              <p className="text-xs text-zinc-500 flex items-center gap-1 font-medium italic">
                 <Calendar className="w-3 h-3" />
                 {formatDate(bill.payload.bill_date)}
               </p>
               {bill.payload.amount !== undefined && (
-                <span className="text-[10px] font-bold text-success-muted bg-success/5 px-1.5 py-0.5 rounded-md border border-success/10">
+                <span className="text-xs font-bold text-success-muted bg-success/5 px-1.5 py-0.5 rounded-md border border-success/10">
                   {bill.payload.currency} {bill.payload.amount.toLocaleString()}
                 </span>
               )}
@@ -109,13 +116,13 @@ export default function BillCard({
 
         <div className="flex items-center gap-3 pt-3 mt-auto border-t border-zinc-800/40">
           {folder && (
-            <span className="flex items-center gap-1 text-[10px] text-zinc-600 font-bold uppercase tracking-wider">
+            <span className="flex items-center gap-1 text-xs text-zinc-600 font-bold uppercase tracking-wider">
               <div className="w-1.5 h-1.5 rounded-full bg-accent/40" />
               {folder.payload.name}
             </span>
           )}
           {attachCount > 0 && (
-            <span className="flex items-center gap-1 text-[10px] text-zinc-500 ml-auto font-bold bg-zinc-800/50 px-1.5 py-0.5 rounded-md">
+            <span className="flex items-center gap-1 text-xs text-zinc-500 ml-auto font-bold bg-zinc-800/50 px-1.5 py-0.5 rounded-md">
               <Paperclip className="w-3 h-3" />
               {attachCount}
             </span>

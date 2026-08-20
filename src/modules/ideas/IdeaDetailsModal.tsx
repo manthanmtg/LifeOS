@@ -206,7 +206,7 @@ export default function IdeaDetailsModal({
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-1 text-[11px] font-medium",
+                        "rounded-full border px-2 py-1 text-xs font-medium",
                         IDEA_STATUS_STYLES[idea.payload.status],
                       )}
                     >
@@ -215,7 +215,7 @@ export default function IdeaDetailsModal({
                     </span>
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-1 text-[11px] font-medium capitalize",
+                        "rounded-full border px-2 py-1 text-xs font-medium capitalize",
                         IDEA_PRIORITY_STYLES[idea.payload.priority] ??
                           IDEA_PRIORITY_STYLES.medium,
                       )}
@@ -223,7 +223,7 @@ export default function IdeaDetailsModal({
                       {idea.payload.priority}
                     </span>
                     {idea.payload.category ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-400">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-400">
                         <FolderOpen className="h-3 w-3" />
                         {idea.payload.category}
                       </span>

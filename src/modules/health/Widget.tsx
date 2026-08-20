@@ -68,7 +68,7 @@ export default memo(function HealthWidget() {
       href="/admin/health"
       footer={
         summary && (
-          <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider">
             {summary.latestVisit ? (
               <span className="flex items-center gap-1.5 text-zinc-500">
                 <Calendar className="w-3 h-3" />

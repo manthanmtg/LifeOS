@@ -128,7 +128,7 @@ export default function SettingsTab({
 
             <div className="space-y-6">
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
                   Default Currency
                 </label>
                 <div className="relative">
@@ -150,7 +150,7 @@ export default function SettingsTab({
               </div>
 
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
                   Monthly Budget
                 </label>
                 <div className="relative">
@@ -169,7 +169,7 @@ export default function SettingsTab({
               </div>
 
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-zinc-600 block mb-2 px-1">
                   Number Formatting
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -191,10 +191,10 @@ export default function SettingsTab({
                           : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-700",
                       )}
                     >
-                      <p className="text-[10px] font-black uppercase tracking-widest mb-1">
+                      <p className="text-xs font-black uppercase tracking-widest mb-1">
                         {f.label}
                       </p>
-                      <p className="text-[9px] font-bold opacity-50 tracking-tighter">
+                      <p className="text-xs font-bold opacity-50 tracking-tighter">
                         {f.id === "indian" ? "1,00,000" : "100,000"}
                       </p>
                     </button>
@@ -209,7 +209,7 @@ export default function SettingsTab({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 justify-center text-accent font-black text-[10px] uppercase tracking-widest"
+            className="flex items-center gap-3 justify-center text-accent font-black text-xs uppercase tracking-widest"
           >
             <RefreshCw className="w-3 h-3 animate-spin" /> Saving parameters...
           </motion.div>

@@ -63,7 +63,7 @@ export default function AlertsBanner({ alerts }: AlertsBannerProps) {
         ))}
       </div>
       {hasMore && (
-        <p className="text-[10px] text-warning/60 font-medium uppercase tracking-wider mt-2 text-right">
+        <p className="text-xs text-warning/60 font-medium uppercase tracking-wider mt-2 text-right">
           +{alerts.length - 5} more alerts
         </p>
       )}

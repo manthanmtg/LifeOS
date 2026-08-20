@@ -100,7 +100,7 @@ export function ReadingFilters({
           <div className="flex items-center gap-2 pt-2 border-t border-zinc-800/50 w-full flex-wrap">
             <div className="flex items-center gap-1.5 pr-2 border-r border-zinc-800/50">
               <Tag className="w-3 h-3 text-zinc-500" />
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                 Tags
               </span>
             </div>

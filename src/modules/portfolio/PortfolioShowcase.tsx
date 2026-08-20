@@ -22,10 +22,10 @@ function cleanSocialLinks(profile: PortfolioProfile) {
 
 export default function PortfolioShowcase({
   profile,
-  resume,
+  resumeAvailable = false,
 }: {
   profile: PortfolioProfile;
-  resume?: { filename: string; content: string } | null;
+  resumeAvailable?: boolean;
 }) {
   const socialLinks = cleanSocialLinks(profile);
   const skills = profile.skills || [];
@@ -55,7 +55,7 @@ export default function PortfolioShowcase({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20 text-success text-[10px] uppercase tracking-widest font-bold"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20 text-success text-xs uppercase tracking-widest font-bold"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                   Open to new projects
@@ -87,7 +87,7 @@ export default function PortfolioShowcase({
                   {link.platform}
                 </motion.a>
               ))}
-              {resume && (
+              {resumeAvailable && (
                 <motion.a
                   href="/resume"
                   target="_blank"
@@ -108,7 +108,7 @@ export default function PortfolioShowcase({
         <section className="relative z-10 px-6 mt-20 md:mt-32">
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12">
             <div className="space-y-4">
-              <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-accent">
+              <p className="text-xs uppercase tracking-[0.3em] font-bold text-accent">
                 Background
               </p>
               <div className="h-px w-12 bg-accent/30" />
@@ -127,7 +127,7 @@ export default function PortfolioShowcase({
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-between gap-3 mb-10">
               <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-accent">
+                <p className="text-xs uppercase tracking-[0.3em] font-bold text-accent">
                   Skills
                 </p>
                 <p className="text-zinc-500 text-xs">
@@ -135,7 +135,7 @@ export default function PortfolioShowcase({
                 </p>
               </div>
               <div className="h-px flex-1 bg-zinc-800 mx-8 hidden md:block" />
-              <p className="text-zinc-500 text-[10px] uppercase tracking-widest">
+              <p className="text-zinc-500 text-xs uppercase tracking-widest">
                 {skills.length} total
               </p>
             </div>

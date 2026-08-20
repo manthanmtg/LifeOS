@@ -529,7 +529,7 @@ export default function AnalyticsAdminView() {
               {card.trend !== undefined && card.trend !== 0 && (
                 <span
                   className={cn(
-                    "px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-0.5",
+                    "px-2 py-1 rounded-full text-xs font-bold flex items-center gap-0.5",
                     card.trend > 0
                       ? "bg-success/10 text-success"
                       : "bg-danger/10 text-danger",
@@ -544,7 +544,7 @@ export default function AnalyticsAdminView() {
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1">
               {card.label}
             </p>
             <p className="text-3xl font-black text-zinc-50">
@@ -682,7 +682,7 @@ export default function AnalyticsAdminView() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-zinc-900">
-            <h4 className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mb-5">
+            <h4 className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-5">
               Device Breakdown
             </h4>
             <div className="flex items-center justify-around">
@@ -694,7 +694,7 @@ export default function AnalyticsAdminView() {
                       : 0}
                     %
                   </div>
-                  <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter flex items-center justify-center gap-1">
+                  <div className="text-xs font-bold text-zinc-500 uppercase tracking-tighter flex items-center justify-center gap-1">
                     {d.name === "Desktop" ? (
                       <Monitor className="w-2.5 h-2.5" />
                     ) : d.name === "Mobile" ? (
@@ -749,16 +749,16 @@ export default function AnalyticsAdminView() {
                         {(event.action || "page_view").replace("_", " ")}
                       </span>
                     </p>
-                    <span className="text-[10px] text-zinc-600 font-mono italic">
+                    <span className="text-xs text-zinc-600 font-mono italic">
                       #{event.session_id}
                     </span>
                   </div>
-                  <p className="text-[11px] text-zinc-500 truncate font-medium flex items-center gap-1">
+                  <p className="text-xs text-zinc-500 truncate font-medium flex items-center gap-1">
                     <ChevronRight className="w-3 h-3 shrink-0" /> {event.path}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-[10px] font-bold text-zinc-600">
+                  <p className="text-xs font-bold text-zinc-600">
                     {event.displayTime}
                   </p>
                 </div>
@@ -781,7 +781,7 @@ export default function AnalyticsAdminView() {
                   className="flex items-center justify-between p-4 bg-zinc-900/20 border border-zinc-900 rounded-2xl hover:border-zinc-800 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-[10px] font-black text-zinc-500 uppercase">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-xs font-black text-zinc-500 uppercase">
                       {idx + 1}
                     </div>
                     <div>
@@ -797,7 +797,7 @@ export default function AnalyticsAdminView() {
                     <p className="text-lg font-black text-zinc-50 leading-none">
                       {count}
                     </p>
-                    <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mt-1">
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest mt-1">
                       Events
                     </p>
                   </div>
@@ -823,7 +823,7 @@ export default function AnalyticsAdminView() {
               {Array.from({ length: 24 }, (_, h) => (
                 <div
                   key={h}
-                  className="flex-1 text-center text-[9px] text-zinc-600 font-mono"
+                  className="flex-1 text-center text-xs text-zinc-600 font-mono"
                 >
                   {h === 0
                     ? "12a"
@@ -841,7 +841,7 @@ export default function AnalyticsAdminView() {
                 key={dayIdx}
                 className="flex items-center gap-[2px] mb-[2px]"
               >
-                <span className="w-10 text-[10px] font-bold text-zinc-500 text-right pr-2 shrink-0">
+                <span className="w-10 text-xs font-bold text-zinc-500 text-right pr-2 shrink-0">
                   {stats.DAY_NAMES[dayIdx]}
                 </span>
                 {hours.map((count, hourIdx) => {
@@ -891,7 +891,7 @@ export default function AnalyticsAdminView() {
                       background: `linear-gradient(90deg, var(--color-accent) ${pct}%, transparent ${pct}%)`,
                     }}
                   />
-                  <span className="w-6 h-6 rounded-md bg-zinc-900 flex items-center justify-center text-[10px] font-black text-zinc-500 shrink-0 relative z-10">
+                  <span className="w-6 h-6 rounded-md bg-zinc-900 flex items-center justify-center text-xs font-black text-zinc-500 shrink-0 relative z-10">
                     {idx + 1}
                   </span>
                   <span className="text-sm font-medium text-zinc-300 truncate flex-1 relative z-10 font-mono">
@@ -901,7 +901,7 @@ export default function AnalyticsAdminView() {
                     <span className="text-sm font-black text-zinc-50">
                       {count}
                     </span>
-                    <span className="text-[10px] text-zinc-600 ml-1.5 font-bold">
+                    <span className="text-xs text-zinc-600 ml-1.5 font-bold">
                       {pct.toFixed(1)}%
                     </span>
                   </div>
@@ -967,7 +967,7 @@ export default function AnalyticsAdminView() {
           {/* Top referrer domains */}
           {stats.topReferrers.length > 0 && (
             <>
-              <h4 className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mb-3">
+              <h4 className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-3">
                 Top Referrer Domains
               </h4>
               <div className="space-y-1">
@@ -1001,7 +1001,7 @@ export default function AnalyticsAdminView() {
               Side-by-side comparison of traffic sources.
             </p>
           </div>
-          <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
             <span className="flex items-center gap-1.5 text-accent">
               <div className="w-2 h-2 rounded-full bg-accent" />
               Admin

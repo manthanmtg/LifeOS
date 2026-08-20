@@ -131,7 +131,7 @@ export function SortableIdeaCard({
       <div className="flex items-center gap-1.5 flex-wrap mb-1 ml-4">
         <span
           className={cn(
-            "text-[9px] px-1.5 py-0.5 rounded-full border leading-none font-medium",
+            "text-xs px-1.5 py-0.5 rounded-full border leading-none font-medium",
             IDEA_PRIORITY_STYLES[idea.payload.priority] ??
               IDEA_PRIORITY_STYLES.medium,
           )}
@@ -139,14 +139,14 @@ export function SortableIdeaCard({
           {idea.payload.priority}
         </span>
         {idea.payload.category && (
-          <span className="text-[9px] text-zinc-500 font-medium uppercase tracking-wider">
+          <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
             {idea.payload.category}
           </span>
         )}
       </div>
 
       {idea.payload.description ? (
-        <p className="ml-4 mt-2 line-clamp-2 text-[11px] leading-5 text-zinc-400">
+        <p className="ml-4 mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">
           {idea.payload.description}
         </p>
       ) : null}
@@ -154,7 +154,7 @@ export function SortableIdeaCard({
       <button
         type="button"
         onClick={() => onOpen(idea)}
-        className="ml-4 mt-2 rounded text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/40"
+        className="ml-4 mt-2 rounded text-xs text-zinc-500 transition-colors hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/40"
         aria-label={`View full details for ${idea.payload.title}`}
       >
         {idea.payload.promoted_to_portfolio
@@ -192,7 +192,7 @@ export function DroppableColumn({
       )}
     >
       <div className="flex items-center justify-between mb-4 px-1 shrink-0">
-        <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-[0.1em] flex items-center gap-2">
+        <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-[0.1em] flex items-center gap-2">
           <span
             className={cn(
               "inline-block w-1.5 h-1.5 rounded-full",
@@ -201,7 +201,7 @@ export function DroppableColumn({
           />
           {IDEA_STATUS_LABELS[id] ?? title}
         </h3>
-        <span className="text-[10px] font-bold text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-full ring-1 ring-zinc-700/50">
+        <span className="text-xs font-bold text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-full ring-1 ring-zinc-700/50">
           {count}
         </span>
       </div>
@@ -263,7 +263,7 @@ export function DragPreviewCard({ idea }: { idea: IdeaRecord }) {
       <div className="flex items-center gap-1.5 ml-6">
         <span
           className={cn(
-            "text-[9px] px-2 py-0.5 rounded-full border leading-none font-bold",
+            "text-xs px-2 py-0.5 rounded-full border leading-none font-bold",
             IDEA_PRIORITY_STYLES[idea.payload.priority] ??
               IDEA_PRIORITY_STYLES.medium,
           )}

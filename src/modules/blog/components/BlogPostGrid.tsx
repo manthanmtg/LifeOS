@@ -92,7 +92,7 @@ function BlogPostGrid({
                 </p>
                 <span
                   className={cn(
-                    "rounded px-1.5 py-0.5 text-[10px] font-medium",
+                    "rounded px-1.5 py-0.5 text-xs font-medium",
                     STATUS_STYLES[post.payload.status],
                   )}
                 >
@@ -118,7 +118,7 @@ function BlogPostGrid({
                   {post.payload.tags.slice(0, 4).map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400"
+                      className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400"
                     >
                       {tag}
                     </span>

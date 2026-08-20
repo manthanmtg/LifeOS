@@ -151,7 +151,7 @@ export default function IdeaFormPanel({
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
-                  className="rounded-full border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-accent/40 hover:text-zinc-50"
+                  className="rounded-full border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300 transition-colors hover:border-accent/40 hover:text-zinc-50"
                 >
                   {cat}
                 </button>

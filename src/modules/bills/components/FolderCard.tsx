@@ -131,7 +131,7 @@ export default function FolderCard({
               <h4 className="text-sm font-bold text-zinc-100 truncate group-hover:text-accent transition-colors">
                 {folder.payload.name}
               </h4>
-              <p className="text-[10px] text-zinc-500 mt-1 font-bold uppercase tracking-widest flex items-center gap-1.5">
+              <p className="text-xs text-zinc-500 mt-1 font-bold uppercase tracking-widest flex items-center gap-1.5">
                 <span>
                   {billCount} bill{billCount !== 1 ? "s" : ""}
                 </span>
