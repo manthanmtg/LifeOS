@@ -189,4 +189,58 @@ describe("emi-utils", () => {
     ]);
     expect(stats.nearestDue?.loan.payload.title).toBe("Second Loan");
   });
+
+  it("excludes schedule-complete loans from active quick stats", () => {
+    const paidOffLoan = createLoan({
+      _id: "loan-paid-off",
+      title: "Paid Off Loan",
+      first_due_date: "2026-01-15T00:00:00.000Z",
+      status: "active",
+    });
+
+    const stats = calculateQuickStats(
+      [paidOffLoan],
+      new Date("2026-04-16T00:00:00.000Z"),
+      2,
+    );
+
+    expect(stats).toEqual({
+      activeCount: 0,
+      outstandingByCurrency: [],
+      nearestDue: null,
+    });
+  });
+
+  it("keeps a loan active until its canonical UTC due time", () => {
+    const finalDueToday = createLoan({
+      tenure_months: 1,
+      monthly_emi: 1200,
+      due_day_of_month: 5,
+      first_due_date: "2026-05-05T00:00:00.000Z",
+    });
+
+    const stats = calculateQuickStats(
+      [finalDueToday],
+      new Date("2026-05-05T08:00:00.000Z"),
+      2,
+    );
+
+    expect(stats.activeCount).toBe(1);
+    expect(stats.nearestDue?.row.due_date).toBe("2026-05-05T12:00:00.000Z");
+  });
+
+  it("does not build schedules for explicitly inactive legacy loans", () => {
+    const malformedClosedLoan = createLoan({
+      status: "closed",
+      first_due_date: "not-a-date",
+    });
+
+    expect(() =>
+      calculateQuickStats(
+        [malformedClosedLoan],
+        new Date("2026-05-05T08:00:00.000Z"),
+        2,
+      ),
+    ).not.toThrow();
+  });
 });

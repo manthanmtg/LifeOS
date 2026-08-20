@@ -45,11 +45,6 @@ function isLoanSection(value: string | null): value is LoanSection {
   return !!value && VALID_SECTIONS.includes(value as LoanSection);
 }
 
-function filteredByStatus(loans: EmiLoan[], status: PortfolioStatusFilter) {
-  if (status === "all") return loans;
-  return loans.filter((loan) => loan.payload.status === status);
-}
-
 export default function EmiTrackerAdminView() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -151,63 +146,54 @@ export default function EmiTrackerAdminView() {
     [loans, now, settings.roundingDecimals],
   );
 
-  const filteredLoans = useMemo(
-    () => filteredByStatus(loans, statusFilter),
-    [loans, statusFilter],
+  const allLoanCards = useMemo(
+    () => getLoanCards(loans, now, "", settings.roundingDecimals),
+    [loans, now, settings.roundingDecimals],
   );
-
+  const matchingLoanCards = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return allLoanCards;
+    return allLoanCards.filter(
+      ({ loan }) =>
+        loan.payload.title.toLowerCase().includes(query) ||
+        loan.payload.lender_name?.toLowerCase().includes(query),
+    );
+  }, [allLoanCards, searchQuery]);
   const activeLoanCards = useMemo(
     () =>
-      getLoanCards(
-        filteredByStatus(loans, "active"),
-        now,
-        searchQuery,
-        settings.roundingDecimals,
+      matchingLoanCards.filter(
+        ({ effectiveStatus }) => effectiveStatus === "active",
       ),
-    [loans, now, searchQuery, settings.roundingDecimals],
+    [matchingLoanCards],
   );
   const closedLoanCards = useMemo(
     () =>
-      getLoanCards(
-        filteredByStatus(loans, "closed"),
-        now,
-        searchQuery,
-        settings.roundingDecimals,
+      matchingLoanCards.filter(
+        ({ effectiveStatus }) => effectiveStatus === "closed",
       ),
-    [loans, now, searchQuery, settings.roundingDecimals],
+    [matchingLoanCards],
   );
   const nonClosedLoanCards = useMemo(
     () =>
-      getLoanCards(
-        loans.filter((loan) => loan.payload.status !== "closed"),
-        now,
-        searchQuery,
-        settings.roundingDecimals,
+      matchingLoanCards.filter(
+        ({ effectiveStatus }) => effectiveStatus !== "closed",
       ),
-    [loans, now, searchQuery, settings.roundingDecimals],
-  );
-  const loanCards = useMemo(
-    () =>
-      getLoanCards(filteredLoans, now, searchQuery, settings.roundingDecimals),
-    [filteredLoans, now, searchQuery, settings.roundingDecimals],
-  );
-  const allLoanCards = useMemo(
-    () => getLoanCards(loans, now, searchQuery, settings.roundingDecimals),
-    [loans, now, searchQuery, settings.roundingDecimals],
+    [matchingLoanCards],
   );
   const primaryLoanCards =
     statusFilter === "all"
       ? nonClosedLoanCards
       : statusFilter === "active"
         ? activeLoanCards
-        : loanCards;
+        : closedLoanCards;
   const showClosedSection =
     statusFilter !== "closed" && closedLoanCards.length > 0;
   const showClosedLoans =
     statusFilter === "all" ||
     closedLoansExpanded ||
     searchQuery.trim().length > 0 ||
-    selectedLoan?.payload.status === "closed";
+    allLoanCards.find(({ loan }) => loan._id === selectedLoan?._id)
+      ?.effectiveStatus === "closed";
   const filterCounts = useMemo(
     () => ({
       active: portfolioModel.activeCount,

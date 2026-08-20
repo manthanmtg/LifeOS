@@ -188,6 +188,64 @@ describe("GET /api/widgets/summary", () => {
     expect(data.completedThisMonth).toBe(2);
   });
 
+  it("excludes schedule-complete loans from the EMI widget summary", async () => {
+    const loanPayload = {
+      category: "Personal",
+      currency: "INR",
+      principal: 1200,
+      tenure_months: 3,
+      interest_type: "fixed",
+      annual_interest_rate: 0,
+      monthly_emi: 400,
+      processing_fee_financed: false,
+      start_date: "2026-01-01T00:00:00.000Z",
+      due_day_of_month: 5,
+      recast_strategy: "keep_tenure_adjust_emi",
+      rate_adjustments: [],
+      payments: [],
+      documents: [],
+      status: "active",
+    };
+    mockCollection().toArray.mockResolvedValue([
+      {
+        _id: "paid-off",
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+        payload: {
+          ...loanPayload,
+          title: "Paid Off Loan",
+          first_due_date: "2026-01-05T00:00:00.000Z",
+        },
+      },
+      {
+        _id: "active",
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+        payload: {
+          ...loanPayload,
+          title: "Active Loan",
+          first_due_date: "2026-05-05T00:00:00.000Z",
+        },
+      },
+    ]);
+
+    const response = await GET(
+      createRequest(
+        "http://localhost/api/widgets/summary?module_type=emi_loan&decimals=2&currency=INR",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      success: true,
+      data: {
+        activeCount: 1,
+        outstandingByCurrency: [{ currency: "INR", amount: 1200 }],
+        nearest: { title: "Active Loan", due: "2026-05-05T12:00:00.000Z" },
+      },
+    });
+  });
+
   it("returns a compact active-space summary for expense_space", async () => {
     mockCollection().toArray.mockResolvedValueOnce([
       {

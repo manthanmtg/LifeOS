@@ -11,6 +11,7 @@ interface LoanCardProps {
   outstanding: number;
   nextDue: ScheduleRow | null;
   progress: number;
+  effectiveStatus: EmiLoan["payload"]["status"];
   isSelected: boolean;
   onClick: (id: string) => void;
   decimals: number;
@@ -32,6 +33,7 @@ export default function LoanCard({
   outstanding,
   nextDue,
   progress,
+  effectiveStatus,
   isSelected,
   onClick,
   decimals,
@@ -78,12 +80,12 @@ export default function LoanCard({
             <span
               className={cn(
                 "rounded-full border px-2 py-0.5 text-xs font-bold",
-                loan.payload.status === "active"
+                effectiveStatus === "active"
                   ? "border-success/20 bg-success/10 text-success"
                   : "border-zinc-700 bg-zinc-900 text-zinc-400",
               )}
             >
-              {statusLabel(loan.payload.status)}
+              {statusLabel(effectiveStatus)}
             </span>
           </div>
           <p className="mt-1 text-sm leading-relaxed text-zinc-500">

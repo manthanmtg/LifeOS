@@ -186,14 +186,18 @@ export function parseDateInputToISO(dateOnly: string) {
 }
 
 function clampDueDay(year: number, monthIndex: number, dueDay: number) {
-  return new Date(year, monthIndex, dueDay, 12, 0, 0, 0);
+  return new Date(Date.UTC(year, monthIndex, dueDay, 12, 0, 0, 0));
 }
 
 function computeFirstDueDate(startISO: string, dueDay: number) {
   const start = new Date(startISO);
-  const candidate = clampDueDay(start.getFullYear(), start.getMonth(), dueDay);
+  const candidate = clampDueDay(
+    start.getUTCFullYear(),
+    start.getUTCMonth(),
+    dueDay,
+  );
   if (candidate.getTime() >= start.getTime()) return candidate;
-  return clampDueDay(start.getFullYear(), start.getMonth() + 1, dueDay);
+  return clampDueDay(start.getUTCFullYear(), start.getUTCMonth() + 1, dueDay);
 }
 
 export function computeEmiFromFormula(
@@ -301,7 +305,11 @@ export function computeSchedule(
       monthIndex === 0
         ? loan.annual_interest_rate
         : getAnnualRateForDueDate(
-            new Date(dueDate.getFullYear(), dueDate.getMonth() - 1, dueDay, 12),
+            clampDueDay(
+              dueDate.getUTCFullYear(),
+              dueDate.getUTCMonth() - 1,
+              dueDay,
+            ),
           );
     if (rate === prevRate) return;
 
@@ -315,8 +323,8 @@ export function computeSchedule(
 
   for (let i = 0; i < maxMonths && i < hardCapMonths; i++) {
     const dueDate = clampDueDay(
-      firstDue.getFullYear(),
-      firstDue.getMonth() + i,
+      firstDue.getUTCFullYear(),
+      firstDue.getUTCMonth() + i,
       dueDay,
     );
 
@@ -358,8 +366,8 @@ export function computeSchedule(
       i === 0
         ? Number.NEGATIVE_INFINITY
         : clampDueDay(
-            firstDue.getFullYear(),
-            firstDue.getMonth() + i - 1,
+            firstDue.getUTCFullYear(),
+            firstDue.getUTCMonth() + i - 1,
             dueDay,
           ).getTime();
     const windowEnd = dueDate.getTime();
@@ -432,6 +440,24 @@ export function getOutstandingAsOf(schedule: ScheduleRow[], asOf: Date) {
   return { outstanding, nextDue: next, lastDue: last };
 }
 
+export function getEffectiveLoanStatus(
+  loan: EmiLoan,
+  schedule: ScheduleResult,
+  outstanding: number,
+  nextDue: ScheduleRow | null,
+  decimals: number,
+): EmiLoan["payload"]["status"] {
+  if (loan.payload.status !== "active") return loan.payload.status;
+
+  const zeroTolerance = Math.pow(10, -Math.max(0, decimals));
+  const scheduleIsComplete =
+    schedule.rows.length > 0 &&
+    nextDue === null &&
+    outstanding <= zeroTolerance;
+
+  return scheduleIsComplete ? "closed" : "active";
+}
+
 export function toCSV(rows: Record<string, unknown>[]) {
   if (rows.length === 0) return "";
   const headers = Object.keys(rows[0]);
@@ -487,13 +513,25 @@ export function calculateQuickStats(
   outstandingByCurrency: Array<{ currency: string; amount: number }>;
   nearestDue: NearestDueContext | null;
 } {
-  const active = loans.filter((l) => l.payload.status === "active");
   const currencies: Record<string, number> = {};
   let nearest: NearestDueContext | null = null;
+  let activeCount = 0;
 
-  active.forEach((l) => {
+  loans.forEach((l) => {
+    if (l.payload.status !== "active") return;
+
     const schedule = computeSchedule(l.payload, decimals);
     const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+    const effectiveStatus = getEffectiveLoanStatus(
+      l,
+      schedule,
+      outstanding,
+      nextDue,
+      decimals,
+    );
+    if (effectiveStatus !== "active") return;
+
+    activeCount += 1;
     currencies[l.payload.currency] =
       (currencies[l.payload.currency] || 0) + outstanding;
 
@@ -509,13 +547,13 @@ export function calculateQuickStats(
   });
 
   return {
-    activeCount: active.length,
-    outstandingByCurrency: Object.entries(currencies).map(
-      ([currency, amount]) => ({
+    activeCount,
+    outstandingByCurrency: Object.entries(currencies)
+      .map(([currency, amount]) => ({
         currency,
-        amount,
-      }),
-    ),
+        amount: roundTo(amount, decimals),
+      }))
+      .sort((a, b) => a.currency.localeCompare(b.currency)),
     nearestDue: nearest,
   };
 }
@@ -555,12 +593,19 @@ export function getLoanCards(
   return filtered.map((loan) => {
     const schedule = computeSchedule(loan.payload, decimals);
     const { outstanding, nextDue } = getOutstandingAsOf(schedule.rows, now);
+    const effectiveStatus = getEffectiveLoanStatus(
+      loan,
+      schedule,
+      outstanding,
+      nextDue,
+      decimals,
+    );
     const totalPrincipal = loan.payload.principal;
     const progress = Math.min(
       1,
       Math.max(0, (totalPrincipal - outstanding) / totalPrincipal),
     );
-    return { loan, outstanding, nextDue, progress };
+    return { loan, outstanding, nextDue, progress, effectiveStatus };
   });
 }
 
