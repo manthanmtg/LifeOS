@@ -16,6 +16,7 @@ interface Props {
   open: boolean;
   space: ExpenseSpaceDocument;
   entry?: ExpenseSpaceEntryDocument | null;
+  mode?: "create" | "edit" | "duplicate";
   payeeSuggestions: string[];
   descriptionSuggestions: string[];
   tagSuggestions: string[];
@@ -41,6 +42,7 @@ export default function ExpenseEntryForm({
   open,
   space,
   entry,
+  mode = entry ? "edit" : "create",
   payeeSuggestions,
   descriptionSuggestions,
   tagSuggestions,
@@ -288,7 +290,11 @@ export default function ExpenseEntryForm({
               id="expense-entry-title"
               className="mt-2 text-2xl font-bold text-zinc-50"
             >
-              {entry ? "Edit expense" : "Add expense"}
+              {mode === "duplicate"
+                ? "Duplicate expense"
+                : mode === "edit"
+                  ? "Edit expense"
+                  : "Add expense"}
             </h2>
           </div>
           <Button
@@ -708,7 +714,11 @@ export default function ExpenseEntryForm({
               aria-label={saving ? "Saving expense" : undefined}
               className="h-11"
             >
-              {saving ? "Saving…" : entry ? "Save expense" : "Add expense"}
+              {saving
+                ? "Saving…"
+                : mode === "edit"
+                  ? "Save expense"
+                  : "Add expense"}
             </Button>
           </div>
         </form>

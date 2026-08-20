@@ -140,6 +140,61 @@ describe("Expense Spaces AdminView", () => {
     expect(screen.getByRole("button", { name: /add expense/i })).toBeDisabled();
   });
 
+  it("opens a prefilled add-expense form when an expense is duplicated", async () => {
+    navigationState.searchParams = new URLSearchParams(
+      `space=${spaceId}&tab=expenses`,
+    );
+    global.fetch = vi.fn((url) =>
+      String(url).endsWith(`/${spaceId}`)
+        ? response({ data: { ...space, entry_count: 1 } })
+        : String(url).includes("/entries")
+          ? response({
+              data: {
+                entries: [
+                  {
+                    _id: "507f1f77bcf86cd799439012",
+                    module_type: "expense_space_entry",
+                    is_public: false,
+                    created_at: "2026-08-18T00:00:00.000Z",
+                    updated_at: "2026-08-18T00:00:00.000Z",
+                    payload: {
+                      space_id: spaceId,
+                      amount: 34000,
+                      currency: "INR",
+                      date: "2025-09-25",
+                      description: "Halsina Mara",
+                      paid_to: "Mill",
+                      category_id: categoryId,
+                      payment_method: "Cash",
+                      tags: ["renovation"],
+                    },
+                  },
+                ],
+                page: 1,
+                pageSize: 50,
+                total: 1,
+                totalPages: 1,
+                facets: {
+                  paid_to: ["Mill"],
+                  descriptions: ["Halsina Mara"],
+                  tags: ["renovation"],
+                  payment_methods: ["Cash"],
+                },
+              },
+            })
+          : response({ data: [space] }),
+    );
+    render(<AdminView />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /duplicate halsina mara/i }),
+    );
+
+    expect(screen.getByRole("dialog")).toHaveTextContent(/duplicate expense/i);
+    expect(screen.getByLabelText(/amount/i)).toHaveValue(34000);
+    expect(screen.getByLabelText(/description/i)).toHaveValue("Halsina Mara");
+  });
+
   it("writes tab navigation to the URL", async () => {
     navigationState.searchParams = new URLSearchParams(
       `space=${spaceId}&tab=expenses`,

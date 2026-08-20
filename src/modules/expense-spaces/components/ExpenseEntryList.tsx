@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  Copy,
   Filter,
   Pencil,
   Plus,
@@ -48,6 +49,8 @@ export default function ExpenseEntryList({
   const [editing, setEditing] = useState<ExpenseSpaceEntryDocument | null>(
     null,
   );
+  const [duplicateSource, setDuplicateSource] =
+    useState<ExpenseSpaceEntryDocument | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const { data, loading, error, reload, create, update, remove } =
     useExpenseEntries(space._id, filters);
@@ -101,6 +104,12 @@ export default function ExpenseEntryList({
         cause instanceof Error ? cause.message : "Unable to delete expense",
       );
     }
+  };
+
+  const duplicateEntry = (entry: ExpenseSpaceEntryDocument) => {
+    setEditing(null);
+    setDuplicateSource(entry);
+    setFormOpen(true);
   };
 
   return (
@@ -346,7 +355,7 @@ export default function ExpenseEntryList({
                   <th className="px-4 py-3 font-semibold">Expense</th>
                   <th className="px-4 py-3 font-semibold">Category</th>
                   <th className="px-4 py-3 text-right font-semibold">Amount</th>
-                  <th className="px-4 py-3 text-right font-semibold">
+                  <th className="px-3 py-3 text-right font-semibold">
                     Actions
                   </th>
                 </tr>
@@ -378,8 +387,19 @@ export default function ExpenseEntryList({
                         space.payload.number_format,
                       )}
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-3 py-4">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label={`Duplicate ${entry.payload.description}`}
+                          disabled={space.payload.status === "archived"}
+                          onClick={() => duplicateEntry(entry)}
+                          className="h-11 w-11"
+                        >
+                          <Copy aria-hidden="true" className="h-4 w-4" />
+                        </Button>
                         <Button
                           type="button"
                           size="icon"
@@ -453,6 +473,16 @@ export default function ExpenseEntryList({
                     type="button"
                     variant="ghost"
                     disabled={space.payload.status === "archived"}
+                    onClick={() => duplicateEntry(entry)}
+                    className="h-11"
+                  >
+                    <Copy aria-hidden="true" className="mr-2 h-4 w-4" />
+                    Duplicate
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={space.payload.status === "archived"}
                     onClick={() => {
                       setEditing(entry);
                       setFormOpen(true);
@@ -514,13 +544,15 @@ export default function ExpenseEntryList({
       <ExpenseEntryForm
         open={formOpen}
         space={space}
-        entry={editing}
+        entry={editing ?? duplicateSource}
+        mode={editing ? "edit" : duplicateSource ? "duplicate" : "create"}
         payeeSuggestions={data.facets.paid_to}
         descriptionSuggestions={data.facets.descriptions}
         tagSuggestions={data.facets.tags}
         onClose={() => {
           setFormOpen(false);
           setEditing(null);
+          setDuplicateSource(null);
         }}
         onSave={async (input) => {
           const result = editing
