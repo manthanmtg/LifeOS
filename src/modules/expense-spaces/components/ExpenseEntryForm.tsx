@@ -38,6 +38,17 @@ function localToday() {
 const normalize = (value: string) =>
   value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US");
 
+function normalizeCategoryPath(value: string) {
+  return value
+    .trim()
+    .replace(/^[\\/]+/, "")
+    .replace(/[\\/]+/g, " / ")
+    .replace(/_/g, " ")
+    .replace(/-(?!\d)|(?<!\d)-/g, " / ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export default function ExpenseEntryForm({
   open,
   space,
@@ -421,7 +432,9 @@ export default function ExpenseEntryForm({
                       autoFocus
                       value={inlineCategory}
                       onChange={(event) => {
-                        setInlineCategory(event.target.value);
+                        setInlineCategory(
+                          normalizeCategoryPath(event.target.value),
+                        );
                         setError(null);
                       }}
                       onBlur={() => setInlineCategoryTouched(true)}
@@ -445,7 +458,9 @@ export default function ExpenseEntryForm({
                       aria-label="First subcategory"
                       value={inlineSubcategory}
                       onChange={(event) =>
-                        setInlineSubcategory(event.target.value)
+                        setInlineSubcategory(
+                          normalizeCategoryPath(event.target.value),
+                        )
                       }
                       maxLength={80}
                       placeholder="e.g. Flooring"
@@ -552,7 +567,9 @@ export default function ExpenseEntryForm({
                           autoFocus
                           value={inlineSubcategory}
                           onChange={(event) => {
-                            setInlineSubcategory(event.target.value);
+                            setInlineSubcategory(
+                              normalizeCategoryPath(event.target.value),
+                            );
                             setError(null);
                           }}
                           onBlur={() => setInlineSubcategoryTouched(true)}

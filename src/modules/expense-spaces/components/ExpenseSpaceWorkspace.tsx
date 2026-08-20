@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Archive,
@@ -9,6 +8,7 @@ import {
   Settings2,
   WalletCards,
 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type {
@@ -56,11 +56,10 @@ export default function ExpenseSpaceWorkspace({
   onReload,
 }: Props) {
   const [pendingTab, setPendingTab] = useState<ExpenseSpaceTab | null>(null);
-  const activeTab = pendingTab ?? tab;
-
-  useEffect(() => {
-    setPendingTab((current) => (current === tab ? null : current));
-  }, [tab]);
+  const tabPendingForSkeleton =
+    pendingTab === "analytics" || pendingTab === "settings" ? pendingTab : null;
+  const isTabPending = tabPendingForSkeleton !== null && pendingTab !== tab;
+  const activeTab: ExpenseSpaceTab = pendingTab ?? tab;
 
   const totalSpend = summary?.summary.total_spend ?? 0;
   const thisMonthSpend = summary?.summary.this_month_spend ?? 0;
@@ -185,9 +184,13 @@ export default function ExpenseSpaceWorkspace({
         </div>
       </div>
 
-      <div role="tabpanel" aria-busy={pendingTab ? true : undefined}>
-        {pendingTab === "analytics" || pendingTab === "settings" ? (
-          <ExpenseSpaceTabLoadingSkeleton tab={pendingTab} />
+      <div role="tabpanel">
+        {isTabPending ? (
+          <div aria-busy="true">
+            {tabPendingForSkeleton && (
+              <ExpenseSpaceTabLoadingSkeleton tab={tabPendingForSkeleton} />
+            )}
+          </div>
         ) : tab === "expenses" ? (
           <ExpenseEntryList
             space={space}

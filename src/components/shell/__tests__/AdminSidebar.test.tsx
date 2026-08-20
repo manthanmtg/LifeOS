@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { navigationState } from "@/test/mocks/navigation";
 import { getOrderedAdminModules } from "@/lib/admin-modules";
@@ -12,13 +18,36 @@ function getModuleNames(modulesNav: HTMLElement) {
 }
 
 describe("AdminSidebar", () => {
+  function createLocalStorageMock() {
+    const store = new Map<string, string>();
+    return {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      },
+      clear: () => {
+        store.clear();
+      },
+      key: (index: number) => Array.from(store.keys())[index] ?? null,
+      get length() {
+        return store.size;
+      },
+    } as Storage;
+  }
+
   beforeEach(() => {
     navigationState.pathname = "/admin/blog";
     global.fetch = vi
       .fn()
       .mockResolvedValue({ json: async () => ({ data: {} }) } as Response);
     document.head.innerHTML = "";
-    localStorage.clear();
+    Object.defineProperty(window, "localStorage", {
+      value: createLocalStorageMock(),
+      configurable: true,
+    });
   });
 
   it("renders the default shell links and marks the active module", async () => {
@@ -27,7 +56,9 @@ describe("AdminSidebar", () => {
     const mainNav = await screen.findByRole("navigation", {
       name: "Main navigation",
     });
-    const modulesNav = await screen.findByRole("navigation", { name: "Modules" });
+    const modulesNav = await screen.findByRole("navigation", {
+      name: "Modules",
+    });
     const dashboardLinks = within(mainNav).getAllByRole("link", {
       name: "Dashboard",
     });
@@ -41,8 +72,9 @@ describe("AdminSidebar", () => {
     expect(blogLinks).toHaveLength(1);
     expect(blogLinks[0]).toHaveAttribute("aria-current", "page");
     expect(systemSettingsLink).toHaveAttribute("href", "/admin/settings");
-    expect(screen.getByRole("heading", { level: 2, name: "Life OS" }))
-      .toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Life OS" }),
+    ).toBeInTheDocument();
   });
 
   it("falls back to defaults when system config fetch fails", async () => {
@@ -53,37 +85,44 @@ describe("AdminSidebar", () => {
     expect(
       await screen.findByRole("navigation", { name: "Main navigation" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: "Life OS" }))
-      .toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Life OS" }),
+    ).toBeInTheDocument();
   });
 
   it("applies a custom title and excludes disabled modules", async () => {
     vi.mocked(global.fetch).mockResolvedValue({
-      json: async () => ({
-        data: {
-          site_title: "Ops Console",
-          moduleRegistry: {
-            blog: { enabled: false, isPublic: false },
-            expenses: { enabled: false, isPublic: false },
-            portfolio: { enabled: true, isPublic: true },
+      json: async () =>
+        ({
+          data: {
+            site_title: "Ops Console",
+            moduleRegistry: {
+              blog: { enabled: false, isPublic: false },
+              expenses: { enabled: false, isPublic: false },
+              portfolio: { enabled: true, isPublic: true },
+            },
           },
-        },
-      } as const),
+        }) as const,
     } as Response);
 
     render(<AdminSidebar />);
 
-    const modulesNav = await screen.findByRole("navigation", { name: "Modules" });
+    const modulesNav = await screen.findByRole("navigation", {
+      name: "Modules",
+    });
 
     expect(
       await screen.findByRole("heading", { level: 2, name: "Ops Console" }),
     ).toBeInTheDocument();
-    expect(within(modulesNav).queryByRole("link", { name: "Blog" }))
-      .not.toBeInTheDocument();
-    expect(within(modulesNav).queryByRole("link", { name: "Expenses" }))
-      .not.toBeInTheDocument();
-    expect(within(modulesNav).getByRole("link", { name: "Portfolio" }))
-      .toBeInTheDocument();
+    expect(
+      within(modulesNav).queryByRole("link", { name: "Blog" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(modulesNav).queryByRole("link", { name: "Expenses" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(modulesNav).getByRole("link", { name: "Portfolio" }),
+    ).toBeInTheDocument();
   });
 
   it("uses cached sidebar order immediately and refreshes cache for next load", async () => {
@@ -92,33 +131,38 @@ describe("AdminSidebar", () => {
       JSON.stringify(["portfolio", "blog", "expenses"]),
     );
 
-    let resolveConfig: (value: Response) => void;
-    vi
-      .mocked(global.fetch)
-      .mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            resolveConfig = resolve as (value: Response) => void;
-          }) as Promise<Response>,
-      );
+    let resolveConfig!: (value: Response | PromiseLike<Response>) => void;
+    vi.mocked(global.fetch).mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveConfig = resolve as (value: Response | PromiseLike<Response>) => void;
+        }) as Promise<Response>,
+    );
 
     render(<AdminSidebar />);
 
-    const modulesNav = await screen.findByRole("navigation", { name: "Modules" });
+    const modulesNav = await screen.findByRole("navigation", {
+      name: "Modules",
+    });
     expect(getModuleNames(modulesNav)).toEqual([
       "Portfolio",
       "Blog",
       "Expenses",
+      "System Settings",
     ]);
 
-    const nextConfig = {
+    const nextConfig: {
+      orderingStrategy: "name" | "custom" | "visits";
+      moduleOrder: string[];
+    } = {
       orderingStrategy: "name",
       moduleOrder: ["expenses", "blog", "portfolio", "recurring-expenses"],
-    } as const;
+    };
     resolveConfig({
-      json: async () => ({
-        data: nextConfig,
-      } as const),
+      json: async () =>
+        ({
+          data: nextConfig,
+        }) as const,
     } as Response);
 
     await waitFor(() => {
@@ -126,6 +170,7 @@ describe("AdminSidebar", () => {
         "Portfolio",
         "Blog",
         "Expenses",
+        "System Settings",
       ]);
       expect(
         JSON.parse(localStorage.getItem(ADMIN_SIDEBAR_CACHE_KEY) || "[]"),
@@ -148,11 +193,12 @@ describe("AdminSidebar", () => {
     document.head.append(iconLink, appleLink);
 
     vi.mocked(global.fetch).mockResolvedValue({
-      json: async () => ({
-        data: {
-          site_icon: "/assets/icons/site.ico",
-        },
-      } as const),
+      json: async () =>
+        ({
+          data: {
+            site_icon: "/assets/icons/site.ico",
+          },
+        }) as const,
     } as Response);
 
     render(<AdminSidebar />);
@@ -166,14 +212,18 @@ describe("AdminSidebar", () => {
   it("opens and closes the mobile sidebar on event and close button", async () => {
     render(<AdminSidebar />);
 
-    expect(screen.getAllByRole("navigation", { name: "Modules" })).toHaveLength(1);
+    expect(screen.getAllByRole("navigation", { name: "Modules" })).toHaveLength(
+      1,
+    );
 
     window.dispatchEvent(new Event("open-mobile-sidebar"));
     await waitFor(() => {
-      expect(screen.getAllByRole("navigation", { name: "Modules" })).toHaveLength(2);
-      expect(screen.getAllByRole("navigation", { name: "Main navigation" })).toHaveLength(
-        2,
-      );
+      expect(
+        screen.getAllByRole("navigation", { name: "Modules" }),
+      ).toHaveLength(2);
+      expect(
+        screen.getAllByRole("navigation", { name: "Main navigation" }),
+      ).toHaveLength(2);
     });
 
     const closeButton = await screen.findByRole("button", {
@@ -182,10 +232,12 @@ describe("AdminSidebar", () => {
     fireEvent.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.getAllByRole("navigation", { name: "Modules" })).toHaveLength(1);
-      expect(screen.getAllByRole("navigation", { name: "Main navigation" })).toHaveLength(
-        1,
-      );
+      expect(
+        screen.getAllByRole("navigation", { name: "Modules" }),
+      ).toHaveLength(1);
+      expect(
+        screen.getAllByRole("navigation", { name: "Main navigation" }),
+      ).toHaveLength(1);
       expect(
         screen.queryByRole("button", { name: /close navigation menu/i }),
       ).not.toBeInTheDocument();
