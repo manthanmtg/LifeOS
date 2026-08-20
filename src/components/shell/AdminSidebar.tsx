@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useMemo } from "react";
-import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
+import { useState, useEffect, useMemo, useLayoutEffect } from "react";
+import { getOrderedAdminModules, type AdminModuleItem, type SystemConfig } from "@/lib/admin-modules";
 import {
   LayoutDashboard,
   Settings,
@@ -43,6 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import GlobalModuleSearch from "@/components/shell/GlobalModuleSearch";
+import { moduleRegistry } from "@/registry";
 
 interface LinkItem {
   href: string;
@@ -128,14 +129,71 @@ const IconMap: Record<string, LucideIcon> = {
   WalletCards,
 };
 
+export const ADMIN_SIDEBAR_CACHE_KEY = "lifeos-admin-sidebar-order-v1";
+
+const registryModules: AdminModuleItem[] = Object.entries(moduleRegistry).map(
+  ([key, module]) => ({
+    key,
+    href: `/admin/${key}`,
+    name: module.name,
+    description: module.description,
+    tags: module.tags,
+    icon: module.icon,
+  }),
+);
+
+const registryModuleMap = new Map(registryModules.map((module) => [module.key, module]));
+
+function readCachedModuleOrder(): string[] | null {
+  try {
+    const raw = window.localStorage.getItem(ADMIN_SIDEBAR_CACHE_KEY);
+    if (raw === null) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+
+    const normalized = Array.from(
+      new Set(
+        parsed.filter((value): value is string => typeof value === "string"),
+      ),
+    );
+
+    return normalized;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedModuleOrder(order: string[]) {
+  try {
+    window.localStorage.setItem(
+      ADMIN_SIDEBAR_CACHE_KEY,
+      JSON.stringify(order),
+    );
+  } catch {
+    // localStorage unavailable or quota issue; fail silently
+  }
+}
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [siteTitle, setSiteTitle] = useState("Life OS");
   const [config, setConfig] = useState<SystemConfig | null>(null);
+  const [cachedModuleOrder, setCachedModuleOrder] = useState<string[] | null>(
+    null,
+  );
+
+  useLayoutEffect(() => {
+    const cached = readCachedModuleOrder();
+    if (cached !== null) {
+      setCachedModuleOrder(cached);
+    }
+  }, []);
 
   useEffect(() => {
     async function loadConfig() {
+      const cached = readCachedModuleOrder();
       try {
         const r = await fetch("/api/system");
         const d = await r.json();
@@ -144,7 +202,20 @@ export default function AdminSidebar() {
           setSiteTitle(cfg.site_title);
         }
         setConfig(cfg || null);
+
+        const orderedModules = getOrderedAdminModules(cfg || null);
+        const orderedKeys = orderedModules.map((module) => module.key);
+        writeCachedModuleOrder(orderedKeys);
+
+        if (cached === null) {
+          setCachedModuleOrder(orderedKeys);
+        }
       } catch {
+        if (cached === null) {
+          const orderedModules = getOrderedAdminModules(null);
+          const fallbackKeys = orderedModules.map((module) => module.key);
+          setCachedModuleOrder(fallbackKeys);
+        }
         // silently fail
       }
     }
@@ -161,15 +232,24 @@ export default function AdminSidebar() {
     if (apple) apple.href = config.site_icon;
   }, [config?.site_icon]);
 
-  const sortedModules = useMemo(
-    () =>
-      getOrderedAdminModules(config).map((module) => ({
+  const sortedModules = useMemo(() => {
+    const moduleOrder = cachedModuleOrder
+      ? cachedModuleOrder
+          .map((moduleKey) => registryModuleMap.get(moduleKey))
+          .filter((module): module is AdminModuleItem => Boolean(module))
+          .map((module) => ({
+            href: module.href,
+            name: module.name,
+            icon: IconMap[module.icon] || User,
+          }))
+      : getOrderedAdminModules(config).map((module) => ({
         href: module.href,
         name: module.name,
         icon: IconMap[module.icon] || User,
-      })),
-    [config],
-  );
+      }));
+
+    return moduleOrder;
+  }, [cachedModuleOrder, config]);
 
   const links = useMemo(
     () => [

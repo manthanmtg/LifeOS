@@ -1,7 +1,15 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { navigationState } from "@/test/mocks/navigation";
-import AdminSidebar from "../AdminSidebar";
+import { getOrderedAdminModules } from "@/lib/admin-modules";
+import AdminSidebar, { ADMIN_SIDEBAR_CACHE_KEY } from "../AdminSidebar";
+
+function getModuleNames(modulesNav: HTMLElement) {
+  return within(modulesNav)
+    .getAllByRole("link")
+    .map((link) => link.textContent?.trim())
+    .filter((name): name is string => Boolean(name));
+}
 
 describe("AdminSidebar", () => {
   beforeEach(() => {
@@ -10,6 +18,7 @@ describe("AdminSidebar", () => {
       .fn()
       .mockResolvedValue({ json: async () => ({ data: {} }) } as Response);
     document.head.innerHTML = "";
+    localStorage.clear();
   });
 
   it("renders the default shell links and marks the active module", async () => {
@@ -75,6 +84,58 @@ describe("AdminSidebar", () => {
       .not.toBeInTheDocument();
     expect(within(modulesNav).getByRole("link", { name: "Portfolio" }))
       .toBeInTheDocument();
+  });
+
+  it("uses cached sidebar order immediately and refreshes cache for next load", async () => {
+    localStorage.setItem(
+      ADMIN_SIDEBAR_CACHE_KEY,
+      JSON.stringify(["portfolio", "blog", "expenses"]),
+    );
+
+    let resolveConfig: (value: Response) => void;
+    vi
+      .mocked(global.fetch)
+      .mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveConfig = resolve as (value: Response) => void;
+          }) as Promise<Response>,
+      );
+
+    render(<AdminSidebar />);
+
+    const modulesNav = await screen.findByRole("navigation", { name: "Modules" });
+    expect(getModuleNames(modulesNav)).toEqual([
+      "Portfolio",
+      "Blog",
+      "Expenses",
+    ]);
+
+    const nextConfig = {
+      orderingStrategy: "name",
+      moduleOrder: ["expenses", "blog", "portfolio", "recurring-expenses"],
+    } as const;
+    resolveConfig({
+      json: async () => ({
+        data: nextConfig,
+      } as const),
+    } as Response);
+
+    await waitFor(() => {
+      expect(getModuleNames(modulesNav)).toEqual([
+        "Portfolio",
+        "Blog",
+        "Expenses",
+      ]);
+      expect(
+        JSON.parse(localStorage.getItem(ADMIN_SIDEBAR_CACHE_KEY) || "[]"),
+      ).toEqual(
+        getOrderedAdminModules({
+          orderingStrategy: nextConfig.orderingStrategy,
+          moduleOrder: nextConfig.moduleOrder,
+        }).map((module) => module.key),
+      );
+    });
   });
 
   it("updates favicon links when site_icon is configured", async () => {
