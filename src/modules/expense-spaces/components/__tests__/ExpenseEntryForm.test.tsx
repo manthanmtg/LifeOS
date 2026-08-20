@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import ExpenseEntryForm from "../ExpenseEntryForm";
-import type { ExpenseSpaceDocument, ExpenseSpaceEntryInput } from "../../types";
+import type {
+  ExpenseSpaceDocument,
+  ExpenseSpaceEntryInput,
+  ExpenseSpaceUpdateInput,
+} from "../../types";
 
 const foodId = "22222222-2222-4222-8222-222222222222";
 const groceriesId = "33333333-3333-4333-8333-333333333333";
@@ -103,15 +107,17 @@ describe("ExpenseEntryForm", () => {
     expect(screen.queryByRole("option", { name: "Groceries" })).toBeNull();
   });
 
-  it("persists inline taxonomy before saving the expense", async () => {
+  it("persists a new category before saving the expense", async () => {
     const calls: string[] = [];
-    const onSaveSpaceTaxonomy = vi.fn(async (payload) => {
-      calls.push("taxonomy");
-      return {
-        ...space,
-        payload: { ...space.payload, categories: payload.categories },
-      };
-    });
+    const onSaveSpaceTaxonomy = vi.fn(
+      async (payload: ExpenseSpaceUpdateInput) => {
+        calls.push("taxonomy");
+        return {
+          ...space,
+          payload: { ...space.payload, categories: payload.categories },
+        };
+      },
+    );
     const onSave = vi.fn<(input: ExpenseSpaceEntryInput) => Promise<void>>(
       async () => {
         calls.push("entry");
@@ -130,10 +136,8 @@ describe("ExpenseEntryForm", () => {
       />,
     );
     fillRequired();
-    fireEvent.click(
-      screen.getByRole("button", { name: /add category inline/i }),
-    );
-    fireEvent.change(screen.getByLabelText(/new category name/i), {
+    fireEvent.click(screen.getByRole("button", { name: /new category/i }));
+    fireEvent.change(screen.getByLabelText(/^category name/i), {
       target: { value: "Fixtures" },
     });
     fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
@@ -149,11 +153,13 @@ describe("ExpenseEntryForm", () => {
     });
   });
 
-  it("accepts a new inline category without selecting an existing category", async () => {
-    const onSaveSpaceTaxonomy = vi.fn(async (payload) => ({
-      ...space,
-      payload: { ...space.payload, categories: payload.categories },
-    }));
+  it("accepts a new category without selecting an existing category", async () => {
+    const onSaveSpaceTaxonomy = vi.fn(
+      async (payload: ExpenseSpaceUpdateInput) => ({
+        ...space,
+        payload: { ...space.payload, categories: payload.categories },
+      }),
+    );
     const onSave = vi.fn<(input: ExpenseSpaceEntryInput) => Promise<void>>(
       async () => {},
     );
@@ -181,10 +187,8 @@ describe("ExpenseEntryForm", () => {
     fireEvent.change(screen.getByLabelText(/paid to/i), {
       target: { value: "Supplier" },
     });
-    fireEvent.click(
-      screen.getByRole("button", { name: /add category inline/i }),
-    );
-    fireEvent.change(screen.getByLabelText(/new category name/i), {
+    fireEvent.click(screen.getByRole("button", { name: /new category/i }));
+    fireEvent.change(screen.getByLabelText(/^category name/i), {
       target: { value: "Fixtures" },
     });
     fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
@@ -192,6 +196,173 @@ describe("ExpenseEntryForm", () => {
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
     expect(onSaveSpaceTaxonomy).toHaveBeenCalledTimes(1);
     expect(onSave.mock.calls[0][0].category_id).toEqual(expect.any(String));
+  });
+
+  it("creates a category and its optional first subcategory together", async () => {
+    const onSaveSpaceTaxonomy = vi.fn(
+      async (payload: ExpenseSpaceUpdateInput) => ({
+        ...space,
+        payload: { ...space.payload, categories: payload.categories },
+      }),
+    );
+    const onSave = vi.fn<(input: ExpenseSpaceEntryInput) => Promise<void>>(
+      async () => {},
+    );
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={onSave}
+        onSaveSpaceTaxonomy={onSaveSpaceTaxonomy}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+    fillRequired();
+
+    fireEvent.click(screen.getByRole("button", { name: /new category/i }));
+    fireEvent.change(screen.getByLabelText(/^category name/i), {
+      target: { value: "Fixtures" },
+    });
+    fireEvent.change(screen.getByLabelText(/first subcategory/i), {
+      target: { value: "Lighting" },
+    });
+    fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    const savedCategories = onSaveSpaceTaxonomy.mock.calls[0][0].categories;
+    const createdCategory = savedCategories.find(
+      (category) => category.name === "Fixtures",
+    );
+    expect(createdCategory).toMatchObject({
+      id: expect.any(String),
+      name: "Fixtures",
+      is_active: true,
+      subcategories: [
+        {
+          id: expect.any(String),
+          name: "Lighting",
+          is_active: true,
+        },
+      ],
+    });
+    expect(onSave.mock.calls[0][0]).toMatchObject({
+      category_id: createdCategory?.id,
+      subcategory_id: createdCategory?.subcategories[0]?.id,
+    });
+  });
+
+  it("adds a new subcategory beneath the selected category", async () => {
+    const onSaveSpaceTaxonomy = vi.fn(
+      async (payload: ExpenseSpaceUpdateInput) => ({
+        ...space,
+        payload: { ...space.payload, categories: payload.categories },
+      }),
+    );
+    const onSave = vi.fn<(input: ExpenseSpaceEntryInput) => Promise<void>>(
+      async () => {},
+    );
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={onSave}
+        onSaveSpaceTaxonomy={onSaveSpaceTaxonomy}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /new subcategory/i }),
+    ).toBeNull();
+    expect(screen.getByText(/choose a category first/i)).toBeInTheDocument();
+    fillRequired();
+    fireEvent.click(screen.getByRole("button", { name: /new subcategory/i }));
+    fireEvent.change(screen.getByLabelText(/new subcategory name/i), {
+      target: { value: "Produce" },
+    });
+    fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    const savedCategories = onSaveSpaceTaxonomy.mock.calls[0][0].categories;
+    const savedFood = savedCategories.find(
+      (category) => category.id === foodId,
+    );
+    const createdSubcategory = savedFood?.subcategories.find(
+      (subcategory) => subcategory.name === "Produce",
+    );
+    expect(createdSubcategory).toMatchObject({
+      id: expect.any(String),
+      name: "Produce",
+      is_active: true,
+    });
+    expect(onSave.mock.calls[0][0]).toMatchObject({
+      category_id: foodId,
+      subcategory_id: createdSubcategory?.id,
+    });
+  });
+
+  it("restores existing selections when new category creation is canceled", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/^category/i), {
+      target: { value: foodId },
+    });
+    fireEvent.change(screen.getByLabelText(/^subcategory/i), {
+      target: { value: groceriesId },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /new category/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /choose existing category/i }),
+    );
+
+    expect(screen.getByLabelText(/^category/i)).toHaveValue(foodId);
+    expect(screen.getByLabelText(/^subcategory/i)).toHaveValue(groceriesId);
+  });
+
+  it("shows duplicate subcategory feedback beside the field and prevents saving", async () => {
+    const onSave = vi.fn();
+    const onSaveSpaceTaxonomy = vi.fn();
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={onSave}
+        onSaveSpaceTaxonomy={onSaveSpaceTaxonomy}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+    fillRequired();
+    fireEvent.click(screen.getByRole("button", { name: /new subcategory/i }));
+    const nameInput = screen.getByLabelText(/new subcategory name/i);
+    fireEvent.change(nameInput, { target: { value: " groceries " } });
+    fireEvent.blur(nameInput);
+
+    expect(
+      await screen.findByText(/subcategory already exists/i),
+    ).toBeVisible();
+    fireEvent.submit(screen.getByRole("form", { name: /expense details/i }));
+    expect(onSaveSpaceTaxonomy).not.toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
   });
 
   it("prevents duplicate submissions while retaining the draft after failure", async () => {
