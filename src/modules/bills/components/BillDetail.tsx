@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import {
@@ -17,6 +17,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate, formatBytes } from "../helpers";
 import AttachmentUpload from "./AttachmentUpload";
@@ -29,6 +30,7 @@ interface BillDetailProps {
   onEdit: (bill: Bill) => void;
   onDelete: () => void;
   onBillUpdated: (bill: Bill) => void;
+  getReturnFocusTarget?: () => HTMLElement | null;
 }
 
 export default function BillDetail({
@@ -38,6 +40,7 @@ export default function BillDetail({
   onEdit,
   onDelete,
   onBillUpdated,
+  getReturnFocusTarget,
 }: BillDetailProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,28 +50,23 @@ export default function BillDetail({
   const [previewAttachment, setPreviewAttachment] = useState<
     Bill["payload"]["attachments"][0] | null
   >(null);
-
-  useEffect(() => {
-    const orig = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = orig;
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (previewAttachment) {
-          setPreviewAttachment(null);
-        } else {
-          onClose();
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [previewAttachment, onClose]);
+  const closeDetailsRef = useRef<HTMLButtonElement>(null);
+  const closePreviewRef = useRef<HTMLButtonElement>(null);
+  const previewOpenerRef = useRef<HTMLButtonElement>(null);
+  const previewOpenerKeyRef = useRef<string | null>(null);
+  const previewTriggerRefs = useRef(new Map<string, HTMLButtonElement>());
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: closeDetailsRef,
+    getRestoreFocusTarget: getReturnFocusTarget,
+  });
+  const previewDialogRef = useDialogAccessibility({
+    isOpen: Boolean(previewAttachment),
+    onClose: () => setPreviewAttachment(null),
+    initialFocusRef: closePreviewRef,
+    getRestoreFocusTarget: () => previewOpenerRef.current,
+  });
 
   const handleDeleteBill = async () => {
     setDeleting(true);
@@ -108,12 +106,18 @@ export default function BillDetail({
     a.click();
   };
 
-  const handlePreview = (attachment: Bill["payload"]["attachments"][0]) => {
+  const handlePreview = (
+    attachment: Bill["payload"]["attachments"][0],
+    openerKey: string,
+  ) => {
     if (!attachment.data) return;
     if (
       attachment.content_type.startsWith("image/") ||
       attachment.content_type === "application/pdf"
     ) {
+      previewOpenerKeyRef.current = openerKey;
+      previewOpenerRef.current =
+        previewTriggerRefs.current.get(openerKey) ?? null;
       setPreviewAttachment(attachment);
     } else {
       const blob = new Blob(
@@ -122,6 +126,21 @@ export default function BillDetail({
       );
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
+    }
+  };
+
+  const setPreviewTriggerRef = (
+    openerKey: string,
+    button: HTMLButtonElement | null,
+  ) => {
+    if (button) {
+      previewTriggerRefs.current.set(openerKey, button);
+    } else {
+      previewTriggerRefs.current.delete(openerKey);
+    }
+
+    if (previewOpenerKeyRef.current === openerKey) {
+      previewOpenerRef.current = button;
     }
   };
 
@@ -134,9 +153,11 @@ export default function BillDetail({
           exit={{ opacity: 0 }}
           className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
           onClick={onClose}
+          aria-hidden="true"
         />
 
         <motion.div
+          ref={dialogRef}
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 60 }}
@@ -148,6 +169,12 @@ export default function BillDetail({
             "sm:w-full sm:max-w-xl sm:max-h-[88vh]",
             "sm:rounded-2xl sm:border sm:border-zinc-700/80",
           )}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${bill.payload.name} details`}
+          aria-hidden={previewAttachment ? "true" : undefined}
+          inert={Boolean(previewAttachment)}
+          tabIndex={-1}
         >
           {/* Header */}
           <div className="shrink-0 flex items-start gap-3 px-5 py-4 border-b border-zinc-800">
@@ -183,12 +210,14 @@ export default function BillDetail({
             <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() => onEdit(bill)}
+                aria-label="Edit bill"
                 title="Edit"
                 className="p-2 text-zinc-500 hover:text-accent rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 <Edit3 className="w-4 h-4" />
               </button>
               <button
+                ref={closeDetailsRef}
                 onClick={onClose}
                 aria-label="Close details"
                 className="p-2 text-zinc-500 hover:text-zinc-300 rounded-lg hover:bg-zinc-800 transition-colors"
@@ -240,7 +269,13 @@ export default function BillDetail({
                     .map((att) => (
                       <button
                         key={att.id}
-                        onClick={() => handlePreview(att)}
+                        ref={(button) =>
+                          setPreviewTriggerRef(`thumbnail-${att.id}`, button)
+                        }
+                        onClick={() =>
+                          handlePreview(att, `thumbnail-${att.id}`)
+                        }
+                        aria-label={`Preview ${att.filename}`}
                         className="relative aspect-square rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700 hover:border-zinc-500 transition-colors group"
                       >
                         <Image
@@ -290,7 +325,11 @@ export default function BillDetail({
                       </div>
                       <div className="flex items-center gap-0.5 sm:opacity-100 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          onClick={() => handlePreview(att)}
+                          ref={(button) =>
+                            setPreviewTriggerRef(`action-${att.id}`, button)
+                          }
+                          onClick={() => handlePreview(att, `action-${att.id}`)}
+                          aria-label={`Preview ${att.filename}`}
                           title="Preview"
                           className="p-1.5 text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-700 transition-colors"
                         >
@@ -298,6 +337,7 @@ export default function BillDetail({
                         </button>
                         <button
                           onClick={() => handleDownload(att)}
+                          aria-label={`Download ${att.filename}`}
                           title="Download"
                           className="p-1.5 text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-700 transition-colors"
                         >
@@ -306,7 +346,7 @@ export default function BillDetail({
                         <button
                           onClick={() => handleDeleteAttachment(att.id)}
                           disabled={deletingAttachmentId === att.id}
-                          aria-label="Delete attachment"
+                          aria-label={`Delete ${att.filename}`}
                           title="Delete"
                           className="p-1.5 text-zinc-500 hover:text-danger rounded-lg hover:bg-danger/10 transition-colors disabled:opacity-50"
                         >
@@ -366,11 +406,16 @@ export default function BillDetail({
           <AnimatePresence>
             {previewAttachment && (
               <motion.div
+                ref={previewDialogRef}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[100] bg-zinc-950/90 backdrop-blur-md"
                 onClick={() => setPreviewAttachment(null)}
+                role="dialog"
+                aria-modal="true"
+                aria-label={`Preview ${previewAttachment.filename}`}
+                tabIndex={-1}
               >
                 {/* Fixed top bar */}
                 <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
@@ -387,11 +432,13 @@ export default function BillDetail({
                         handleDownload(previewAttachment);
                       }}
                       className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 rounded-xl hover:bg-zinc-700 transition-colors"
+                      aria-label={`Download ${previewAttachment.filename}`}
                       title="Download"
                     >
                       <Download className="w-4 h-4" />
                     </button>
                     <button
+                      ref={closePreviewRef}
                       onClick={() => setPreviewAttachment(null)}
                       aria-label="Close preview"
                       className="p-2.5 bg-zinc-800/80 text-zinc-300 hover:text-zinc-50 rounded-xl hover:bg-zinc-700 transition-colors"

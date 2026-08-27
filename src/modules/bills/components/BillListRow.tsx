@@ -49,72 +49,83 @@ export default function BillListRow({
       animate={{ opacity: 1, x: 0 }}
       draggable
       onDragStart={onDragStart}
-      onClick={onClick}
-      className="group flex items-center justify-between px-4 py-3 bg-zinc-900/40 backdrop-blur-sm border border-zinc-800/50 rounded-xl cursor-pointer hover:border-accent/30 hover:bg-accent/5 transition-all gap-4"
+      className="group flex items-center justify-between gap-4 rounded-xl border border-zinc-800/50 bg-zinc-900/40 px-4 py-3 backdrop-blur-sm transition-all hover:border-accent/30 hover:bg-accent/5"
     >
-      <div className="flex items-center gap-4 min-w-0 flex-1">
-        <div className="relative shrink-0">
-          {hasImg ? (
-            <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-              <ImageIcon className="w-5 h-5 text-accent" />
-            </div>
-          ) : firstPDF ? (
-            <PdfThumbnail
-              base64Data={firstPDF.data!}
-              className="w-10 h-10 rounded-xl shrink-0 pointer-events-none overflow-hidden"
-              isListRow
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-zinc-700/30 flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-zinc-500" />
-            </div>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-bold text-zinc-100 truncate group-hover:text-accent transition-colors">
-              {bill.payload.name}
-            </h4>
-            {bill.payload.amount !== undefined && (
-              <span className="text-xs font-bold text-success-muted shrink-0">
-                {bill.payload.currency} {bill.payload.amount.toLocaleString()}
-              </span>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${bill.payload.name}`}
+        data-bill-trigger-id={bill._id}
+        onClick={onClick}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onClick();
+          }
+        }}
+        className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <div className="relative shrink-0">
+            {hasImg ? (
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
+                <ImageIcon className="h-5 w-5 text-accent" />
+              </div>
+            ) : firstPDF ? (
+              <PdfThumbnail
+                base64Data={firstPDF.data!}
+                className="pointer-events-none h-10 w-10 shrink-0 overflow-hidden rounded-xl"
+                isListRow
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/30 bg-zinc-800/50">
+                <Receipt className="h-5 w-5 text-zinc-500" />
+              </div>
             )}
           </div>
-          <div className="text-xs text-zinc-500 truncate flex items-center gap-3 mt-1 font-medium">
-            <span className="flex items-center gap-1.5 italic">
-              <Calendar className="w-3.5 h-3.5" />
-              {formatDate(bill.payload.bill_date)}
-            </span>
-            {folder && (
-              <span className="flex items-center gap-1.5 uppercase tracking-wider font-bold text-xs">
-                <Folder className="w-3 h-3 text-accent/50" />
-                {folder.payload.name}
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h4 className="truncate text-sm font-bold text-zinc-100 transition-colors group-hover:text-accent">
+                {bill.payload.name}
+              </h4>
+              {bill.payload.amount !== undefined && (
+                <span className="shrink-0 text-xs font-bold text-success-muted">
+                  {bill.payload.currency} {bill.payload.amount.toLocaleString()}
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center gap-3 truncate text-xs font-medium text-zinc-500">
+              <span className="flex items-center gap-1.5 italic">
+                <Calendar className="h-3.5 w-3.5" />
+                {formatDate(bill.payload.bill_date)}
               </span>
-            )}
+              {folder && (
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+                  <Folder className="h-3 w-3 text-accent/50" />
+                  {folder.payload.name}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-4 shrink-0">
         {attachCount > 0 && (
-          <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 bg-zinc-800/80 px-2 py-1 rounded-lg">
-            <Paperclip className="w-3.5 h-3.5" />
+          <span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-zinc-800/80 px-2 py-1 text-xs font-bold text-zinc-500">
+            <Paperclip className="h-3.5 w-3.5" />
             {attachCount}
           </span>
         )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(bill);
-          }}
-          title="Edit"
-          className="p-1.5 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-accent rounded-lg hover:bg-accent/10 transition-all"
-        >
-          <Edit3 className="w-4 h-4" />
-        </button>
       </div>
+
+      <button
+        onClick={() => onEdit(bill)}
+        aria-label={`Edit ${bill.payload.name}`}
+        title="Edit"
+        className="rounded-lg p-1.5 text-zinc-500 opacity-0 transition-all hover:bg-accent/10 hover:text-accent focus-visible:opacity-100"
+      >
+        <Edit3 className="h-4 w-4" />
+      </button>
     </motion.div>
   );
 }

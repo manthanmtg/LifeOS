@@ -30,6 +30,8 @@ export interface UseDialogAccessibilityOptions {
   isOpen: boolean;
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  /** Returns the current element to receive focus when this dialog closes. */
+  getRestoreFocusTarget?: () => HTMLElement | null;
 }
 
 /**
@@ -41,11 +43,14 @@ export function useDialogAccessibility({
   isOpen,
   onClose,
   initialFocusRef,
+  getRestoreFocusTarget,
 }: UseDialogAccessibilityOptions) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const instanceId = useRef(Symbol("dialog"));
   const onCloseRef = useRef(onClose);
+  const getRestoreFocusTargetRef = useRef(getRestoreFocusTarget);
   onCloseRef.current = onClose;
+  getRestoreFocusTargetRef.current = getRestoreFocusTarget;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -112,7 +117,8 @@ export function useDialogAccessibility({
         document.body.style.overflow = originalBodyOverflow;
       }
 
-      if (opener?.isConnected) opener.focus();
+      const restoreTarget = getRestoreFocusTargetRef.current?.() ?? opener;
+      if (restoreTarget?.isConnected) restoreTarget.focus();
     };
   }, [initialFocusRef, isOpen]);
 

@@ -46,6 +46,7 @@ export default function BillCard({
       role="button"
       tabIndex={0}
       aria-label={`View details for ${bill.payload.name}`}
+      data-bill-trigger-id={bill._id}
       className="group relative bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-2xl overflow-hidden cursor-pointer hover:border-accent/40 hover:shadow-2xl hover:shadow-accent/5 transition-all flex flex-col h-full"
       onClick={onClick}
       onKeyDown={(e) => {

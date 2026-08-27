@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
@@ -60,6 +60,7 @@ export default function BillsAdminView() {
     bill: Bill | null;
   }>({ open: false, bill: null });
   const [detailBill, setDetailBill] = useState<Bill | null>(null);
+  const detailOpenerIdRef = useRef<string | null>(null);
   const [moveModal, setMoveModal] = useState<{
     open: boolean;
     type: "bill" | "folder";
@@ -115,10 +116,24 @@ export default function BillsAdminView() {
   const handleOpenBill = useCallback(
     async (bill: Bill) => {
       const fullBill = await fetchFullBill(bill);
-      if (fullBill) setDetailBill(fullBill);
+      if (fullBill) {
+        detailOpenerIdRef.current = bill._id;
+        setDetailBill(fullBill);
+      }
     },
     [fetchFullBill],
   );
+
+  const getDetailOpener = useCallback(() => {
+    const openerId = detailOpenerIdRef.current;
+    if (!openerId) return null;
+
+    return (
+      Array.from(
+        document.querySelectorAll<HTMLElement>("[data-bill-trigger-id]"),
+      ).find((element) => element.dataset.billTriggerId === openerId) ?? null
+    );
+  }, []);
 
   const handleEditBill = useCallback(
     async (bill: Bill) => {
@@ -518,6 +533,7 @@ export default function BillsAdminView() {
             }}
             onDelete={() => handleDeleteBill(detailBill._id)}
             onBillUpdated={handleBillSaved}
+            getReturnFocusTarget={getDetailOpener}
           />
         )}
         {moveModal && (
