@@ -41,6 +41,32 @@ function savedSettings(onSave: SaveMock) {
 }
 
 describe("PeopleNotificationSettingsDialog", () => {
+  it("exposes labelled modal semantics", () => {
+    const { container } = render(
+      <PeopleNotificationSettingsDialog
+        settings={DEFAULT_PEOPLE_SETTINGS}
+        onClose={vi.fn()}
+        onSave={vi.fn<SaveHandler>(async () => true)}
+      />,
+    );
+
+    expect(container.querySelector('[role="dialog"]')).toHaveAccessibleName(
+      "People reminders",
+    );
+    expect(container.querySelector('[role="dialog"]')).toHaveAttribute(
+      "aria-modal",
+      "true",
+    );
+  });
+
+  it("closes from the Escape key", () => {
+    const { onClose } = renderDialog();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
   it("saves one complete settings object and closes after success", async () => {
     const { onSave, onClose } = renderDialog();
 
