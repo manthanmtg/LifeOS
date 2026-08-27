@@ -253,7 +253,11 @@ export function SlideViewer({ decks, startIndex, onClose }: ViewerProps) {
                     className="max-w-full max-h-full w-full h-full border-none overflow-hidden"
                     title={current.payload.title}
                     allow="fullscreen autoplay"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    sandbox={
+                      src.type === "srcDoc"
+                        ? "allow-scripts"
+                        : "allow-scripts allow-same-origin allow-forms allow-popups"
+                    }
                     loading="lazy"
                   />
                 </div>

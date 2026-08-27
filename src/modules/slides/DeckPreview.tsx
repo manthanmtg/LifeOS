@@ -45,6 +45,7 @@ export function DeckPreview({ deck, className }: DeckPreviewProps) {
             srcDoc={src.type === "srcDoc" ? src.value : undefined}
             className="w-full h-full border-none pointer-events-none"
             scrolling="no"
+            sandbox={src.type === "srcDoc" ? "" : undefined}
             title={`Preview for ${deck.payload.title}`}
           />
         </div>
