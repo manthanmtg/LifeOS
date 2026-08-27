@@ -64,6 +64,61 @@ describe("HealthAdminView", () => {
     );
   });
 
+  it("keeps vaccination editors accessible to keyboard users", async () => {
+    const profile = {
+      _id: "profile-1",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+      payload: {
+        name: "Milo",
+        type: "pet",
+        blood_group: "unknown",
+        allergies: [],
+        conditions: [],
+        medications: [],
+        vaccinations: [],
+        visits: [],
+        lab_results: [],
+        measurements: [],
+        documents: [],
+        tags: [],
+      },
+    };
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ data: [profile] }),
+      }),
+    );
+
+    render(<HealthAdminView />);
+    fireEvent.click(await screen.findByText("Milo"));
+    fireEvent.click(await screen.findByRole("button", { name: "Vaccines" }));
+
+    const opener = screen.getByRole("button", { name: /Add vaccine/i });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Add Vaccination",
+    });
+    const closeButton = screen.getByRole("button", {
+      name: "Close Add Vaccination",
+    });
+    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(cancelButton).toHaveFocus();
+
+    saveButton.focus();
+    fireEvent.keyDown(window, { key: "Tab" });
+    expect(closeButton).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   it("shows a saving state and prevents a second vaccination save", async () => {
     const profile = {
       _id: "profile-1",
