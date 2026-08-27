@@ -79,12 +79,13 @@ export function useDialogAccessibility({
         return;
       }
 
-      if (event.key !== "Tab" || !dialog) return;
+      const currentDialog = dialogRef.current;
+      if (event.key !== "Tab" || !currentDialog) return;
 
-      const focusable = getFocusableElements(dialog);
+      const focusable = getFocusableElements(currentDialog);
       if (focusable.length === 0) {
         event.preventDefault();
-        dialog.focus();
+        currentDialog.focus();
         return;
       }
 

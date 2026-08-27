@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   Check,
@@ -23,6 +23,7 @@ import {
 } from "./types";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 
 interface ExpenseFormProps {
   expenses: Expense[];
@@ -54,6 +55,12 @@ export default function ExpenseForm({
   const [isRecurring, setIsRecurring] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: amountInputRef,
+  });
 
   const [suggestions, setSuggestions] = useState<
     (Prediction & { type: "income" | "expense" })[]
@@ -80,7 +87,7 @@ export default function ExpenseForm({
 
   useEffect(() => {
     if (description.length < 2) {
-      setSuggestions([]);
+      setSuggestions((current) => (current.length > 0 ? [] : current));
       return;
     }
 
@@ -213,18 +220,30 @@ export default function ExpenseForm({
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-xl"
     >
       <motion.div
+        ref={dialogRef}
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="expense-form-title"
+        aria-describedby="expense-form-description"
+        tabIndex={-1}
         className="bg-zinc-900 border border-zinc-800 w-full max-w-xl rounded-[2.5rem] shadow-2xl overflow-hidden"
       >
         <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-gradient-to-r from-accent/5 to-transparent">
           <div>
-            <h2 className="text-2xl font-black text-zinc-50 tracking-tight">
+            <h2
+              id="expense-form-title"
+              className="text-2xl font-black text-zinc-50 tracking-tight"
+            >
               {editingId
                 ? `Refine ${type === "income" ? "Income" : "Expense"}`
                 : "Master Entry"}
             </h2>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">
+            <p
+              id="expense-form-description"
+              className="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1"
+            >
               Intelligent Autopilot Active
             </p>
           </div>
@@ -340,11 +359,11 @@ export default function ExpenseForm({
                   {CURR_SYM[settings.defaultCurrency]}
                 </span>
                 <input
+                  ref={amountInputRef}
                   id="expense-amount"
                   type="number"
                   step="0.01"
                   min="0.01"
-                  autoFocus
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
