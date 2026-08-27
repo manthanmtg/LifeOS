@@ -120,6 +120,40 @@ describe("CommandPalette", () => {
 
     expect(orderingSpy).toHaveBeenCalledTimes(callsAfterLoad);
   });
+
+  it("traps focus within the palette and restores the keyboard opener", async () => {
+    vi.mocked(global.fetch).mockReturnValueOnce(new Promise(() => {}));
+
+    render(
+      <>
+        <button type="button">Open palette</button>
+        <CommandPalette />
+      </>,
+    );
+
+    const opener = screen.getByRole("button", { name: "Open palette" });
+    opener.focus();
+    openPalette();
+
+    const input = await screen.findByPlaceholderText(/Type a command/i);
+    const commands = screen.getAllByRole("option");
+    const lastCommand = commands.at(-1)!;
+
+    input.focus();
+    expect(input).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Tab", shiftKey: true });
+    expect(lastCommand).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(input).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(
+      screen.queryByRole("dialog", { name: "Command palette" }),
+    ).toBeNull();
+    expect(opener).toHaveFocus();
+  });
 });
 
 function openPalette() {
