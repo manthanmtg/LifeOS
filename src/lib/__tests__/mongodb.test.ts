@@ -91,7 +91,9 @@ describe("mongodb.ts", () => {
       connect: vi.fn().mockRejectedValue(new Error("connection failed")),
       db: vi.fn(),
     };
-    (MongoClient as unknown as Mock).mockImplementationOnce(function (this: unknown) {
+    (MongoClient as unknown as Mock).mockImplementationOnce(function (
+      this: unknown,
+    ) {
       return mClient;
     });
 
@@ -103,5 +105,73 @@ describe("mongodb.ts", () => {
     );
 
     consoleSpy.mockRestore();
+  });
+
+  it("retries a production connection after a transient initial failure", async () => {
+    process.env.MONGODB_URI = "mongodb://localhost:27017";
+    Object.assign(process.env, { NODE_ENV: "production" });
+
+    const failedClient = {
+      connect: vi.fn().mockRejectedValue(new Error("connection failed")),
+      db: vi.fn(),
+    };
+    const recoveredClient = {
+      connect: vi.fn(),
+      db: vi.fn().mockReturnValue("recovered_db"),
+    };
+    recoveredClient.connect.mockResolvedValue(recoveredClient);
+    (MongoClient as unknown as Mock)
+      .mockImplementationOnce(function (this: unknown) {
+        return failedClient;
+      })
+      .mockImplementationOnce(function (this: unknown) {
+        return recoveredClient;
+      });
+
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { getDb } = await import("../mongodb");
+
+    await expect(getDb()).rejects.toThrow(
+      "Database service is currently unavailable.",
+    );
+    await expect(getDb()).resolves.toBe("recovered_db");
+
+    expect(MongoClient).toHaveBeenCalledTimes(2);
+    consoleSpy.mockRestore();
+  });
+
+  it("retries a development connection after a transient initial failure", async () => {
+    process.env.MONGODB_URI = "mongodb://localhost:27017";
+    Object.assign(process.env, { NODE_ENV: "development" });
+    delete (global as Record<string, unknown>)._mongoClientPromise;
+
+    const failedClient = {
+      connect: vi.fn().mockRejectedValue(new Error("connection failed")),
+      db: vi.fn(),
+    };
+    const recoveredClient = {
+      connect: vi.fn(),
+      db: vi.fn().mockReturnValue("recovered_development_db"),
+    };
+    recoveredClient.connect.mockResolvedValue(recoveredClient);
+    (MongoClient as unknown as Mock)
+      .mockImplementationOnce(function (this: unknown) {
+        return failedClient;
+      })
+      .mockImplementationOnce(function (this: unknown) {
+        return recoveredClient;
+      });
+
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { getDb } = await import("../mongodb");
+
+    await expect(getDb()).rejects.toThrow(
+      "Database service is currently unavailable.",
+    );
+    await expect(getDb()).resolves.toBe("recovered_development_db");
+
+    expect(MongoClient).toHaveBeenCalledTimes(2);
+    consoleSpy.mockRestore();
+    delete (global as Record<string, unknown>)._mongoClientPromise;
   });
 });

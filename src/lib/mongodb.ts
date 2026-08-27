@@ -35,10 +35,14 @@ function getClientPromise() {
 
     if (!globalWithMongo._mongoClientPromise) {
       client = new MongoClient(uri, options);
-      globalWithMongo._mongoClientPromise = client.connect().catch((err) => {
+      const connectionPromise = client.connect().catch((err) => {
+        if (globalWithMongo._mongoClientPromise === connectionPromise) {
+          delete globalWithMongo._mongoClientPromise;
+        }
         console.error("Failed to connect to MongoDB in development:", err);
         throw err;
       });
+      globalWithMongo._mongoClientPromise = connectionPromise;
     }
     return globalWithMongo._mongoClientPromise;
   }
@@ -46,10 +50,14 @@ function getClientPromise() {
   // In production mode, it's best to not use a global variable.
   if (!cachedClientPromise) {
     client = new MongoClient(uri, options);
-    cachedClientPromise = client.connect().catch((err) => {
+    const connectionPromise = client.connect().catch((err) => {
+      if (cachedClientPromise === connectionPromise) {
+        cachedClientPromise = undefined;
+      }
       console.error("Failed to connect to MongoDB in production:", err);
       throw err;
     });
+    cachedClientPromise = connectionPromise;
   }
   return cachedClientPromise;
 }
