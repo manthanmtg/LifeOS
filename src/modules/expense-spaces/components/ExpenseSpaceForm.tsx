@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import { EXPENSE_SPACE_CURRENCIES } from "../constants";
 import type { ExpenseSpaceCreateInput, ExpenseSpaceDocument } from "../types";
 
@@ -31,6 +32,12 @@ export default function ExpenseSpaceForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: open,
+    onClose,
+    initialFocusRef: nameInputRef,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -84,6 +91,7 @@ export default function ExpenseSpaceForm({
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-zinc-950/70 p-0 backdrop-blur-sm sm:items-center sm:p-6">
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="expense-space-form-title"
@@ -126,12 +134,12 @@ export default function ExpenseSpaceForm({
               Name <span aria-hidden="true">*</span>
             </label>
             <input
+              ref={nameInputRef}
               id="space-name"
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={100}
               required
-              autoFocus
               className="mt-2 h-11 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-base text-zinc-50 outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
               placeholder="House Renovation"
             />
