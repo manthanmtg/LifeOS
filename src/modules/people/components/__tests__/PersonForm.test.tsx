@@ -5,6 +5,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -226,5 +227,74 @@ describe("PersonForm", () => {
     const payload = await submitAndWait(onSave);
     expect(payload.birthday).toBeUndefined();
     expect(payload).not.toHaveProperty("notifications");
+  });
+
+  it("keeps keyboard focus in the editor and restores its launcher on close", async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Add person
+          </button>
+          {open ? (
+            <PersonForm
+              peopleSettings={DEFAULT_PEOPLE_SETTINGS}
+              onClose={() => setOpen(false)}
+              onSave={async () => {}}
+            />
+          ) : null}
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    const opener = screen.getByRole("button", { name: "Add person" });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const dialog = screen.getByRole("dialog", { name: "Add Someone" });
+    const name = screen.getByLabelText(/^Name/);
+    await waitFor(() => expect(name).toHaveFocus());
+    expect(document.body.style.overflow).toBe("hidden");
+
+    const submit = screen.getByRole("button", { name: "Add Person" });
+    submit.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(
+      screen.getByRole("button", { name: "Close person form" }),
+    ).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(dialog).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+  });
+
+  it("associates each person detail control with its visible label", () => {
+    render(
+      <PersonForm
+        peopleSettings={DEFAULT_PEOPLE_SETTINGS}
+        person={makePerson()}
+        onClose={() => {}}
+        onSave={async () => {}}
+      />,
+    );
+
+    for (const label of [
+      /^Name/,
+      "Relationship",
+      "Phone",
+      "Email",
+      "Company",
+      "Role",
+      "Birthday",
+      "Interests",
+      "Tags",
+      "Notes",
+    ]) {
+      expect(screen.getByLabelText(label)).toBeVisible();
+    }
   });
 });

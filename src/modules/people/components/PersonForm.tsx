@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
@@ -23,6 +23,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import ImageCropper from "@/components/ui/ImageCropper";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import { RelativeDateNotificationFields } from "@/components/notifications/RelativeDateNotificationFields";
 import { normalizeNotificationOffsetsDays } from "@/lib/notifications/preferences";
 import {
@@ -104,6 +105,14 @@ export default function PersonForm({
     person?.payload.is_favorite || false,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: nameInputRef,
+  });
 
   const explicitRule = useMemo(() => {
     if (!person?.payload.notifications) return undefined;
@@ -493,9 +502,15 @@ export default function PersonForm({
       />
 
       <motion.div
+        ref={dialogRef}
         initial={{ opacity: 0, y: 60, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 60, scale: 0.97 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
         className="relative w-full md:max-w-lg bg-zinc-950 border border-zinc-800 rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
         <div className="flex justify-center pt-3 pb-0 md:hidden">
@@ -508,13 +523,16 @@ export default function PersonForm({
               <User className="w-4 h-4 text-accent" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-zinc-100">
+              <h2 id={titleId} className="text-base font-bold text-zinc-100">
                 {person ? "Edit Person" : "Add Someone"}
               </h2>
-              <p className="text-xs text-zinc-500">Someone worth remembering</p>
+              <p id={descriptionId} className="text-xs text-zinc-500">
+                Someone worth remembering
+              </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close person form"
             className="p-2 text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-lg transition-all"
@@ -543,11 +561,15 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                <label
+                  htmlFor="person-name"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider"
+                >
                   Name *
                 </label>
                 <input
-                  autoFocus
+                  ref={nameInputRef}
+                  id="person-name"
                   type="text"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
@@ -558,10 +580,14 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                <label
+                  htmlFor="person-relationship"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider"
+                >
                   Relationship
                 </label>
                 <select
+                  id="person-relationship"
                   value={relationship}
                   onChange={(event) =>
                     handleRelationshipChange(event.target.value as Relationship)
@@ -602,10 +628,14 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  htmlFor="person-email"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <Mail className="w-3 h-3" /> Email
                 </label>
                 <input
+                  id="person-email"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -615,10 +645,14 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  htmlFor="person-phone"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <Phone className="w-3 h-3" /> Phone
                 </label>
                 <input
+                  id="person-phone"
                   type="tel"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
@@ -631,10 +665,14 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                <label
+                  htmlFor="person-company"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider"
+                >
                   Company
                 </label>
                 <input
+                  id="person-company"
                   type="text"
                   value={company}
                   onChange={(event) => setCompany(event.target.value)}
@@ -643,10 +681,14 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                <label
+                  htmlFor="person-role"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider"
+                >
                   Role
                 </label>
                 <input
+                  id="person-role"
                   type="text"
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
@@ -664,10 +706,14 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  htmlFor="person-birthday"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <Cake className="w-3 h-3" /> Birthday
                 </label>
                 <input
+                  id="person-birthday"
                   type="date"
                   value={birthday}
                   onChange={(event) => setBirthday(event.target.value)}
@@ -916,10 +962,14 @@ export default function PersonForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  htmlFor="person-interests"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <TagIcon className="w-3 h-3" /> Interests
                 </label>
                 <input
+                  id="person-interests"
                   type="text"
                   value={interests}
                   onChange={(event) => setInterests(event.target.value)}
@@ -928,10 +978,14 @@ export default function PersonForm({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+                <label
+                  htmlFor="person-tags"
+                  className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+                >
                   <TagIcon className="w-3 h-3" /> Tags
                 </label>
                 <input
+                  id="person-tags"
                   type="text"
                   value={tags}
                   onChange={(event) => setTags(event.target.value)}
@@ -942,10 +996,14 @@ export default function PersonForm({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
+              <label
+                htmlFor="person-notes"
+                className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5"
+              >
                 <AlignLeft className="w-3 h-3" /> Notes
               </label>
               <textarea
+                id="person-notes"
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 placeholder="Anything worth remembering..."
