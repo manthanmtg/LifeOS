@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import { CompassTask } from "../types";
 
 type Subtask = NonNullable<CompassTask["payload"]["checklist"]>[number];
@@ -34,6 +35,12 @@ export default function CompassSubtaskModal({
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addCommentRef = useRef<HTMLTextAreaElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   useEffect(() => {
     if (isEditingDescription && descriptionRef.current) {
@@ -49,7 +56,14 @@ export default function CompassSubtaskModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-3xl h-[80vh] overflow-hidden flex flex-col">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${subtask.text} details`}
+        tabIndex={-1}
+        className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-3xl h-[80vh] overflow-hidden flex flex-col"
+      >
         {/* Subtask Header */}
         <div className="px-6 py-4 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 overflow-hidden">
@@ -64,7 +78,10 @@ export default function CompassSubtaskModal({
             </span>
           </div>
           <button
+            ref={closeButtonRef}
+            type="button"
             onClick={onClose}
+            aria-label="Close subtask details"
             className="p-2 text-zinc-500 hover:text-zinc-50 hover:bg-zinc-900 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
@@ -103,10 +120,7 @@ export default function CompassSubtaskModal({
                 className="w-full min-h-[150px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono transition-all"
               />
             ) : (
-              <div
-                onClick={() => setIsEditingDescription(true)}
-                className="group relative w-full min-h-[80px] bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 cursor-text transition-all"
-              >
+              <div className="group relative w-full min-h-[80px] bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-5 transition-all">
                 <MarkdownRenderer
                   content={
                     subtask.description ||
@@ -114,9 +128,14 @@ export default function CompassSubtaskModal({
                   }
                   className="prose-sm"
                 />
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingDescription(true)}
+                  aria-label="Edit subtask description"
+                  className="absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-lg text-zinc-500 transition-opacity hover:bg-zinc-800 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                >
                   <Edit2 className="w-3.5 h-3.5 text-zinc-500" />
-                </div>
+                </button>
               </div>
             )}
           </div>
@@ -175,13 +194,15 @@ export default function CompassSubtaskModal({
                   </div>
                 </div>
               ) : (
-                <div
+                <button
+                  type="button"
                   onClick={() => setIsAddingComment(true)}
-                  className="group w-full py-3 px-4 bg-zinc-900/40 border border-dashed border-zinc-800 hover:border-zinc-700 rounded-xl cursor-text flex items-center gap-3 transition-all text-zinc-500 hover:text-zinc-400"
+                  aria-label="Add a comment"
+                  className="group flex min-h-11 w-full items-center gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 px-4 py-3 text-left text-zinc-500 transition-all hover:border-zinc-700 hover:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-accent/50"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="text-sm font-medium">Add a comment...</span>
-                </div>
+                </button>
               )}
             </div>
 

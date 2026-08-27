@@ -24,6 +24,7 @@ import { CompassTask } from "./types";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import CompassSubtaskModal from "./components/CompassSubtaskModal";
 import { trackEvent } from "@/lib/analytics";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 
 interface Props {
   task: CompassTask;
@@ -34,6 +35,12 @@ interface Props {
 export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
   const [payload, setPayload] = useState(task.payload);
   const [saving, setSaving] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: true,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   // Auto-save logic
   const initialRender = useRef(true);
@@ -96,6 +103,12 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
   const [selectedSubtaskIndex, setSelectedSubtaskIndex] = useState<
     number | null
   >(null);
+  const importTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const importDialogRef = useDialogAccessibility({
+    isOpen: isImporting,
+    onClose: () => setIsImporting(false),
+    initialFocusRef: importTextAreaRef,
+  });
 
   // Editing states
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -255,10 +268,20 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
       payload.links.filter((_, i) => i !== index),
     );
   };
+  const hasNestedDialog = isImporting || selectedSubtaskIndex !== null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm animate-fade-in-up">
-      <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${payload.title} workspace`}
+        aria-hidden={hasNestedDialog ? "true" : undefined}
+        inert={hasNestedDialog}
+        tabIndex={-1}
+        className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden"
+      >
         {/* Header Actions */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 shrink-0">
           <div className="flex items-center gap-4">
@@ -294,6 +317,8 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
             </span>
           </div>
           <button
+            ref={closeButtonRef}
+            type="button"
             onClick={onClose}
             aria-label="Close task workspace"
             className="p-2 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 rounded-lg transition-colors"
@@ -335,10 +360,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                     className="w-full min-h-[200px] bg-zinc-900 border border-accent/30 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-accent/50 resize-y font-mono transition-all"
                   />
                 ) : (
-                  <div
-                    onClick={() => setIsEditingDescription(true)}
-                    className="group relative w-full min-h-[100px] bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 cursor-text transition-all"
-                  >
+                  <div className="group relative w-full min-h-[100px] bg-zinc-900/30 border border-zinc-800/50 rounded-xl p-5 transition-all">
                     <MarkdownRenderer
                       content={
                         payload.description ||
@@ -346,9 +368,14 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       }
                       className="prose-sm"
                     />
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingDescription(true)}
+                      aria-label="Edit task description"
+                      className="absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-lg text-zinc-500 transition-opacity hover:bg-zinc-800 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-accent/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+                    >
                       <Edit2 className="w-3.5 h-3.5 text-zinc-500" />
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -393,10 +420,12 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       >
                         {item.completed && <Check className="w-3 h-3" />}
                       </button>
-                      <div
+                      <button
+                        type="button"
                         onClick={() => setSelectedSubtaskIndex(i)}
+                        aria-label={`Open details for checklist item ${item.text}`}
                         className={cn(
-                          "flex-1 text-sm cursor-pointer transition-all",
+                          "flex-1 cursor-pointer text-left text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                           item.completed
                             ? "text-zinc-500 line-through"
                             : "text-zinc-300",
@@ -416,7 +445,7 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                             )}
                           </div>
                         )}
-                      </div>
+                      </button>
                       <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 shrink-0">
                         <button
                           onClick={(e) => {
@@ -519,15 +548,17 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
                       </div>
                     </div>
                   ) : (
-                    <div
+                    <button
+                      type="button"
                       onClick={() => setIsAddingComment(true)}
-                      className="group w-full py-4 px-5 bg-zinc-900/40 border border-dashed border-zinc-800 hover:border-zinc-700 rounded-xl cursor-text flex items-center gap-3 transition-all text-zinc-500 hover:text-zinc-400"
+                      aria-label="Add a note or comment"
+                      className="group flex min-h-11 w-full items-center gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/40 px-5 py-4 text-left text-zinc-500 transition-all hover:border-zinc-700 hover:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-accent/50"
                     >
                       <Plus className="w-4 h-4" />
                       <span className="text-sm font-medium">
                         Add a note or comment...
                       </span>
-                    </div>
+                    </button>
                   )}
                 </div>
 
@@ -776,13 +807,25 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
       {/* Import Modal */}
       {isImporting && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-lg overflow-hidden flex flex-col">
+          <div
+            ref={importDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="compass-bulk-import-title"
+            aria-describedby="compass-bulk-import-description"
+            tabIndex={-1}
+            className="bg-zinc-950 border border-zinc-800 shadow-2xl rounded-3xl w-full max-w-lg overflow-hidden flex flex-col"
+          >
             <div className="px-6 py-4 border-b border-zinc-900 bg-zinc-900/30 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-zinc-50 flex items-center gap-2">
+              <h3
+                id="compass-bulk-import-title"
+                className="text-sm font-bold text-zinc-50 flex items-center gap-2"
+              >
                 <ListCheck className="w-4 h-4 text-accent" /> Bulk Import
                 Checklist
               </h3>
               <button
+                type="button"
                 onClick={() => setIsImporting(false)}
                 aria-label="Close bulk import modal"
                 className="text-zinc-500 hover:text-zinc-50"
@@ -791,12 +834,15 @@ export default function WorkspaceModal({ task, onClose, onUpdate }: Props) {
               </button>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-xs text-zinc-500">
+              <p
+                id="compass-bulk-import-description"
+                className="text-xs text-zinc-500"
+              >
                 Paste your checklist items below. Each new line will become a
                 separate item.
               </p>
               <textarea
-                autoFocus
+                ref={importTextAreaRef}
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
                 placeholder="Task 1&#10;Task 2&#10;Task 3..."
