@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FolderPlus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import type {
   ExpenseSpaceDocument,
   ExpenseSpaceEntryDocument,
@@ -81,6 +82,12 @@ export default function ExpenseEntryForm({
     useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: open,
+    onClose,
+    initialFocusRef: amountInputRef,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -287,6 +294,7 @@ export default function ExpenseEntryForm({
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center bg-zinc-950/70 backdrop-blur-sm sm:items-center sm:p-6">
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="expense-entry-title"
@@ -329,6 +337,7 @@ export default function ExpenseEntryForm({
             <label className="text-sm font-medium text-zinc-200">
               Amount *
               <input
+                ref={amountInputRef}
                 aria-label="Amount"
                 type="number"
                 inputMode="decimal"

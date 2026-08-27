@@ -62,6 +62,38 @@ function fillRequired() {
 }
 
 describe("ExpenseEntryForm", () => {
+  it("keeps keyboard focus in the expense editor and closes with Escape", () => {
+    const onClose = vi.fn();
+
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={onClose}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    const amount = screen.getByLabelText(/^amount/i);
+    const addExpense = screen.getByRole("button", { name: /add expense/i });
+
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(amount).toHaveFocus();
+
+    addExpense.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(
+      screen.getByRole("button", { name: /close expense form/i }),
+    ).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it("reports missing required details without calling save", async () => {
     const onSave = vi.fn();
     render(
