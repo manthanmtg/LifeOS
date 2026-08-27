@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Archive,
   ChevronDown,
@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
 import { ExpenseSpacesApiError } from "../api";
 import { EXPENSE_SPACE_CURRENCIES } from "../constants";
 import type {
@@ -68,6 +69,7 @@ export default function ExpenseSpaceSettings({
   const [status, setStatus] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const deleteConfirmationRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setName(space.payload.name);
@@ -566,68 +568,69 @@ export default function ExpenseSpaceSettings({
         </div>
       </section>
 
-      {confirmingDelete && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-zinc-950/75 p-0 backdrop-blur-sm sm:items-center sm:p-6">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-space-title"
-            className="w-full rounded-t-3xl border border-danger/30 bg-zinc-950 p-5 sm:max-w-lg sm:rounded-3xl sm:p-6"
+      <Dialog
+        isOpen={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
+        role="alertdialog"
+        aria-labelledby="delete-space-title"
+        initialFocusRef={deleteConfirmationRef}
+        closeOnBackdrop={false}
+        containerClassName="z-[120] items-end p-0 sm:items-center sm:p-6"
+        className="max-w-none rounded-t-3xl border-danger/30 p-5 sm:max-w-lg sm:rounded-3xl sm:p-6"
+      >
+        <h3
+          id="delete-space-title"
+          className="text-xl font-semibold text-zinc-50"
+        >
+          Permanently delete {space.payload.name}?
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-zinc-400">
+          This permanently deletes the space and every expense inside it.
+        </p>
+        <label className="mt-4 block text-sm font-medium text-zinc-200">
+          Type {space.payload.name} to confirm
+          <input
+            ref={deleteConfirmationRef}
+            aria-label={`Type ${space.payload.name} to confirm`}
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+            className={inputClass}
+          />
+        </label>
+        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setConfirmingDelete(false)}
+            className="h-11"
           >
-            <h3
-              id="delete-space-title"
-              className="text-xl font-semibold text-zinc-50"
-            >
-              Permanently delete {space.payload.name}?
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">
-              This permanently deletes the space and every expense inside it.
-            </p>
-            <label className="mt-4 block text-sm font-medium text-zinc-200">
-              Type {space.payload.name} to confirm
-              <input
-                aria-label={`Type ${space.payload.name} to confirm`}
-                value={confirmation}
-                onChange={(event) => setConfirmation(event.target.value)}
-                className={inputClass}
-              />
-            </label>
-            <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setConfirmingDelete(false)}
-                className="h-11"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={confirmation !== space.payload.name || saving}
-                aria-label={`Delete ${space.payload.name} forever`}
-                onClick={async () => {
-                  if (saving) return;
-                  setSaving(true);
-                  setError(null);
-                  try {
-                    await onDelete(confirmation);
-                  } catch (cause) {
-                    setError(
-                      cause instanceof Error ? cause.message : "Delete failed",
-                    );
-                  } finally {
-                    setSaving(false);
-                  }
-                }}
-                className="h-11"
-              >
-                Delete forever
-              </Button>
-            </div>
-          </div>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={confirmation !== space.payload.name || saving}
+            aria-label={`Delete ${space.payload.name} forever`}
+            onClick={async () => {
+              if (saving) return;
+              setSaving(true);
+              setError(null);
+              try {
+                await onDelete(confirmation);
+              } catch (cause) {
+                setError(
+                  cause instanceof Error ? cause.message : "Delete failed",
+                );
+              } finally {
+                setSaving(false);
+              }
+            }}
+            className="h-11"
+          >
+            Delete forever
+          </Button>
         </div>
-      )}
+      </Dialog>
     </div>
   );
 }

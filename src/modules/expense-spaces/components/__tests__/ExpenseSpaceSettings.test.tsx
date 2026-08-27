@@ -146,13 +146,48 @@ describe("ExpenseSpaceSettings", () => {
       screen.getByRole("button", { name: /delete house renovation forever/i }),
     ).toBeDisabled();
 
-    fireEvent.change(confirm, { target: { value: "House Renovation" } });
-    fireEvent.click(
-      screen.getByRole("button", { name: /delete house renovation forever/i }),
+    fireEvent.change(
+      screen.getByLabelText(/type house renovation to confirm/i),
+      { target: { value: "House Renovation" } },
     );
+    const confirmDeleteButton = screen.getByRole("button", {
+      name: /delete house renovation forever/i,
+    });
+    await waitFor(() => expect(confirmDeleteButton).toBeEnabled());
+    fireEvent.click(confirmDeleteButton);
 
     await waitFor(() =>
       expect(onDelete).toHaveBeenCalledWith("House Renovation"),
     );
+  });
+
+  it("keeps keyboard focus in the permanent-delete dialog and restores its trigger", () => {
+    renderSettings();
+
+    const deleteTrigger = screen.getByRole("button", {
+      name: /permanently delete space/i,
+    });
+    deleteTrigger.focus();
+    fireEvent.click(deleteTrigger);
+
+    const dialog = screen.getByRole("alertdialog", {
+      name: /permanently delete house renovation/i,
+    });
+    const confirmationInput = screen.getByLabelText(
+      /type house renovation to confirm/i,
+    );
+    const cancelButton = screen.getByRole("button", { name: /cancel/i });
+
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(confirmationInput).toHaveFocus();
+
+    cancelButton.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(confirmationInput).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(dialog).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
+    expect(deleteTrigger).toHaveFocus();
   });
 });
