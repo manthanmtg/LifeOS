@@ -57,7 +57,6 @@ export default function ProfileFormModal({
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            ref={dialogRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -65,6 +64,7 @@ export default function ProfileFormModal({
             className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
           />
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
