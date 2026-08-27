@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import {
   Search,
   Sparkles,
@@ -21,6 +21,7 @@ import {
 } from "./catalog";
 import { CalculatorsModuleSettings } from "./types";
 import { cn } from "@/lib/utils";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 import CalculatorCard from "./CalculatorCard";
 
 const DEFAULT_SETTINGS: CalculatorsModuleSettings =
@@ -143,32 +144,12 @@ export default function CalculatorsPublicView({
       ) || null
     );
   }, [activeCalculator]);
-
-  useEffect(() => {
-    if (!activeCalculatorId) {
-      document.body.style.overflow = "";
-      return;
-    }
-
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [activeCalculatorId]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setActiveCalculatorId(null);
-      }
-    };
-
-    if (activeCalculatorId) {
-      document.addEventListener("keydown", onKeyDown);
-    }
-
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [activeCalculatorId]);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useDialogAccessibility({
+    isOpen: Boolean(activeCalculator),
+    onClose: () => setActiveCalculatorId(null),
+    initialFocusRef: closeButtonRef,
+  });
 
   return (
     <section className="space-y-6">
@@ -338,10 +319,12 @@ export default function CalculatorsPublicView({
 
           <div className="relative max-w-5xl mx-auto max-h-full overflow-y-auto">
             <div
+              ref={dialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby={modalTitleId}
               aria-describedby={modalDescriptionId}
+              tabIndex={-1}
               className="rounded-2xl border border-zinc-700 bg-zinc-950/95 p-4 sm:p-5"
             >
               <div className="flex items-start justify-between gap-3 mb-4">
@@ -363,6 +346,7 @@ export default function CalculatorsPublicView({
                   </p>
                 </div>
                 <button
+                  ref={closeButtonRef}
                   type="button"
                   onClick={() => setActiveCalculatorId(null)}
                   className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-zinc-50 hover:border-zinc-600 transition-colors"

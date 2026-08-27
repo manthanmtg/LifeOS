@@ -42,4 +42,35 @@ describe("CalculatorsPublicView", () => {
       screen.getByRole("button", { name: /open sip calculator/i }),
     ).toBeInTheDocument();
   });
+
+  it("keeps keyboard focus in an open calculator and restores its launcher", () => {
+    render(<CalculatorsPublicView items={[]} />);
+
+    const opener = screen.getByRole("button", {
+      name: /open sip calculator/i,
+    });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const dialog = screen.getByRole("dialog", { name: /sip calculator/i });
+    const closeButton = screen.getByRole("button", {
+      name: /close calculator/i,
+    });
+    const lastFocusable = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
+      ),
+    ).at(-1);
+
+    expect(closeButton).toHaveFocus();
+    expect(lastFocusable).toBeDefined();
+
+    lastFocusable?.focus();
+    fireEvent.keyDown(window, { key: "Tab" });
+    expect(closeButton).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+  });
 });
