@@ -29,6 +29,37 @@ describe("VehicleAdminView", () => {
     ).toBeGreaterThan(3);
   });
 
+  it("keeps the vehicle form modal keyboard accessible", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [] }),
+    });
+
+    render(<VehicleAdminView />);
+
+    const opener = await screen.findByRole("button", {
+      name: "Add Vehicle",
+    });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const dialog = screen.getByRole("dialog", { name: "Add Vehicle" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(document.body.style.overflow).toBe("hidden");
+
+    const vehicleName = screen.getByPlaceholderText(
+      "e.g., My Creta, Dad's Activa",
+    );
+    await waitFor(() => expect(vehicleName).toHaveFocus());
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    expect(opener).toHaveFocus();
+  });
+
   it("renders and interacts with vehicle tabs", async () => {
     global.fetch = vi.fn().mockImplementation((url) => {
       if (url === "/api/system") {

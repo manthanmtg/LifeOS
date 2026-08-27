@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
@@ -43,6 +44,7 @@ import { cn } from "@/lib/utils";
 import Toast, { type ToastType } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { useDialogAccessibility } from "@/components/ui/Dialog";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -403,6 +405,33 @@ export default function VehicleAdminView() {
   const [editingFuel, setEditingFuel] = useState<FuelLog | null>(null);
   const [showDocForm, setShowDocForm] = useState(false);
   const [editingDoc, setEditingDoc] = useState<VehicleDocument | null>(null);
+  const vehicleNameRef = useRef<HTMLInputElement>(null);
+  const serviceDateRef = useRef<HTMLInputElement>(null);
+  const fuelDateRef = useRef<HTMLInputElement>(null);
+  const documentTypeRef = useRef<HTMLSelectElement>(null);
+  const vehicleDialogRef = useDialogAccessibility({
+    isOpen: showVehicleForm,
+    onClose: () => {
+      setShowVehicleForm(false);
+      setEditingVehicle(null);
+    },
+    initialFocusRef: vehicleNameRef,
+  });
+  const serviceDialogRef = useDialogAccessibility({
+    isOpen: showServiceForm,
+    onClose: () => setShowServiceForm(false),
+    initialFocusRef: serviceDateRef,
+  });
+  const fuelDialogRef = useDialogAccessibility({
+    isOpen: showFuelForm,
+    onClose: () => setShowFuelForm(false),
+    initialFocusRef: fuelDateRef,
+  });
+  const documentDialogRef = useDialogAccessibility({
+    isOpen: showDocForm,
+    onClose: () => setShowDocForm(false),
+    initialFocusRef: documentTypeRef,
+  });
 
   // Service form data
   const [serviceForm, setServiceForm] = useState<Partial<ServiceRecord>>({});
@@ -1273,18 +1302,28 @@ export default function VehicleAdminView() {
                       className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
+                      ref={serviceDialogRef}
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="vehicle-service-form-title"
+                      tabIndex={-1}
                       className="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col"
                     >
                       <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                        <h3 className="text-lg font-bold text-zinc-50">
+                        <h3
+                          id="vehicle-service-form-title"
+                          className="text-lg font-bold text-zinc-50"
+                        >
                           {editingService ? "Edit" : "Add"} Service Record
                         </h3>
                         <button
+                          type="button"
                           onClick={() => setShowServiceForm(false)}
-                          className="p-1 rounded-lg hover:bg-zinc-800"
+                          aria-label="Close service record form"
+                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
                           <X className="w-5 h-5 text-zinc-400" />
                         </button>
@@ -1296,6 +1335,7 @@ export default function VehicleAdminView() {
                               Date
                             </label>
                             <input
+                              ref={serviceDateRef}
                               type="date"
                               value={serviceForm.date || ""}
                               onChange={(e) =>
@@ -1578,18 +1618,28 @@ export default function VehicleAdminView() {
                       className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
+                      ref={fuelDialogRef}
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="vehicle-fuel-form-title"
+                      tabIndex={-1}
                       className="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col"
                     >
                       <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                        <h3 className="text-lg font-bold text-zinc-50">
+                        <h3
+                          id="vehicle-fuel-form-title"
+                          className="text-lg font-bold text-zinc-50"
+                        >
                           {editingFuel ? "Edit" : "Log"} Fuel Fill
                         </h3>
                         <button
+                          type="button"
                           onClick={() => setShowFuelForm(false)}
-                          className="p-1 rounded-lg hover:bg-zinc-800"
+                          aria-label="Close fuel fill form"
+                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
                           <X className="w-5 h-5 text-zinc-400" />
                         </button>
@@ -1601,6 +1651,7 @@ export default function VehicleAdminView() {
                               Date
                             </label>
                             <input
+                              ref={fuelDateRef}
                               type="date"
                               value={fuelForm.date || ""}
                               onChange={(e) =>
@@ -1895,18 +1946,28 @@ export default function VehicleAdminView() {
                       className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
                     />
                     <motion.div
+                      ref={documentDialogRef}
                       initial={{ opacity: 0, scale: 0.95, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="vehicle-document-form-title"
+                      tabIndex={-1}
                       className="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col"
                     >
                       <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                        <h3 className="text-lg font-bold text-zinc-50">
+                        <h3
+                          id="vehicle-document-form-title"
+                          className="text-lg font-bold text-zinc-50"
+                        >
                           {editingDoc ? "Edit" : "Add"} Document
                         </h3>
                         <button
+                          type="button"
                           onClick={() => setShowDocForm(false)}
-                          className="p-1 rounded-lg hover:bg-zinc-800"
+                          aria-label="Close document form"
+                          className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
                           <X className="w-5 h-5 text-zinc-400" />
                         </button>
@@ -1918,6 +1979,7 @@ export default function VehicleAdminView() {
                               Type
                             </label>
                             <select
+                              ref={documentTypeRef}
                               value={docForm.type || "other"}
                               onChange={(e) =>
                                 setDocForm((f) => ({
@@ -2248,21 +2310,31 @@ export default function VehicleAdminView() {
                 className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
               />
               <motion.div
+                ref={vehicleDialogRef}
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="vehicle-form-title"
+                tabIndex={-1}
                 className="relative w-full max-w-2xl max-h-[80vh] flex flex-col bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl"
               >
                 <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
-                  <h3 className="text-lg font-bold text-zinc-50">
+                  <h3
+                    id="vehicle-form-title"
+                    className="text-lg font-bold text-zinc-50"
+                  >
                     {editingVehicle ? "Edit" : "Add"} Vehicle
                   </h3>
                   <button
+                    type="button"
                     onClick={() => {
                       setShowVehicleForm(false);
                       setEditingVehicle(null);
                     }}
-                    className="p-1 rounded-lg hover:bg-zinc-800"
+                    aria-label="Close vehicle form"
+                    className="min-h-11 min-w-11 rounded-lg p-2 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <X className="w-5 h-5 text-zinc-400" />
                   </button>
@@ -2274,6 +2346,7 @@ export default function VehicleAdminView() {
                       Vehicle Name *
                     </label>
                     <input
+                      ref={vehicleNameRef}
                       type="text"
                       value={formData.name}
                       onChange={(e) =>
