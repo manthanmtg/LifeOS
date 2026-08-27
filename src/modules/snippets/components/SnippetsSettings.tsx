@@ -30,6 +30,18 @@ export default function SnippetsSettings({
     }
   };
 
+  const removeLanguage = (language: string) => {
+    const languages = configuredLanguages.filter((item) => item !== language);
+    if (languages.length === 0) return;
+
+    onUpdate({
+      languages,
+      ...(settings.defaultLanguage === language
+        ? { defaultLanguage: languages[0] }
+        : {}),
+    });
+  };
+
   return (
     <AnimatePresence>
       {visible && (
@@ -107,14 +119,14 @@ export default function SnippetsSettings({
                     {lang}
                     <button
                       aria-label={`Remove ${lang} language`}
-                      onClick={() =>
-                        onUpdate({
-                          languages: configuredLanguages.filter(
-                            (item) => item !== lang,
-                          ),
-                        })
+                      onClick={() => removeLanguage(lang)}
+                      disabled={configuredLanguages.length <= 1}
+                      title={
+                        configuredLanguages.length <= 1
+                          ? "At least one language is required"
+                          : undefined
                       }
-                      className="text-zinc-500 hover:text-danger ml-0.5"
+                      className="ml-0.5 text-zinc-500 hover:text-danger disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <X className="w-3 h-3" />
                     </button>

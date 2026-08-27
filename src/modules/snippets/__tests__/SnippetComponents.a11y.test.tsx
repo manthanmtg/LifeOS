@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import SnippetForm from "../components/SnippetForm";
 import SnippetsSettings from "../components/SnippetsSettings";
@@ -27,6 +27,45 @@ describe("snippets component accessibility", () => {
     expect(
       screen.getByRole("button", { name: "Remove typescript language" }),
     ).toBeInTheDocument();
+  });
+
+  it("keeps the default language available when it is removed", () => {
+    const onUpdate = vi.fn();
+
+    render(
+      <SnippetsSettings
+        visible
+        settings={settings}
+        saving={false}
+        configuredLanguages={settings.languages}
+        onUpdate={onUpdate}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Remove javascript language" }),
+    );
+
+    expect(onUpdate).toHaveBeenCalledWith({
+      defaultLanguage: "typescript",
+      languages: ["typescript"],
+    });
+  });
+
+  it("does not allow the final configured language to be removed", () => {
+    render(
+      <SnippetsSettings
+        visible
+        settings={{ ...settings, languages: ["javascript"] }}
+        saving={false}
+        configuredLanguages={["javascript"]}
+        onUpdate={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Remove javascript language" }),
+    ).toBeDisabled();
   });
 
   it("names form icon buttons for assistive technology", () => {
