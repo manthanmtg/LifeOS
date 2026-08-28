@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import {
@@ -47,6 +48,7 @@ export default function BillsAdminView() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [folders, setFolders] = useState<BillFolder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -76,23 +78,32 @@ export default function BillsAdminView() {
 
   // ─── Load data ─────────────────────────────────────────────────────────
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
+      const [billsResponse, foldersResponse] = await Promise.all([
+        fetch("/api/bills?compact=true"),
+        fetch("/api/bills/folders"),
+      ]);
+      if (!billsResponse.ok || !foldersResponse.ok) throw new Error();
+
       const [billsRes, foldersRes] = await Promise.all([
-        fetch("/api/bills?compact=true").then((r) => r.json()),
-        fetch("/api/bills/folders").then((r) => r.json()),
+        billsResponse.json(),
+        foldersResponse.json(),
       ]);
       setBills(billsRes.data || []);
       setFolders(foldersRes.data || []);
     } catch {
-      showToast("Failed to load data", "error");
+      setLoadError("Couldn't load your bills. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, []);
 
   useEffect(() => {
-    loadData();
+    void loadData(true);
   }, [loadData]);
 
   const fetchFullBill = useCallback(
@@ -387,16 +398,37 @@ export default function BillsAdminView() {
         onAddFolder={() => setShowNewFolder(true)}
       />
 
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="bills-load-error-message"
+          className="mb-8 flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="bills-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void loadData(true)}
+            aria-label="Retry loading bills"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       {bills.length > 0 && !currentFolderId && !searchQuery && (
         <BillsMetrics bills={bills} />
       )}
 
       {!hasContent ? (
-        <EmptyState
-          isFolder={!!currentFolderId}
-          onAddBill={() => setBillModal({ open: true, bill: null })}
-          onAddFolder={() => setShowNewFolder(true)}
-        />
+        loadError ? null : (
+          <EmptyState
+            isFolder={!!currentFolderId}
+            onAddBill={() => setBillModal({ open: true, bill: null })}
+            onAddFolder={() => setShowNewFolder(true)}
+          />
+        )
       ) : (
         <div className="space-y-10">
           {/* Folders Section */}

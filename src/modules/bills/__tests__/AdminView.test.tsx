@@ -213,6 +213,54 @@ describe("BillsAdminView", () => {
     });
   });
 
+  it("shows a retryable error when folders fail to load and recovers on retry", async () => {
+    let billLoadAttempts = 0;
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === "/api/bills?compact=true") {
+        billLoadAttempts += 1;
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: mockCompactBills }),
+        });
+      }
+      if (url === "/api/bills/folders") {
+        const isRetry = billLoadAttempts > 1;
+        return Promise.resolve({
+          ok: isRetry,
+          json: () =>
+            Promise.resolve(
+              isRetry
+                ? { data: mockFolders }
+                : { error: "Service unavailable" },
+            ),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    render(<BillsAdminView />);
+
+    expect(
+      await screen.findByRole("alert", {
+        name: /couldn't load your bills/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No Bills Yet")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /new folder/i }));
+    expect(
+      await screen.findByPlaceholderText(/folder name/i),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /retry loading bills/i }),
+    );
+
+    expect(
+      await screen.findByText("Electricity Bill January"),
+    ).toBeInTheDocument();
+  });
+
   it("filters bills by search query", async () => {
     render(<BillsAdminView />);
     await waitFor(() => {
