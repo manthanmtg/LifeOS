@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Settings, Library } from "lucide-react";
+import { Plus, RefreshCw, Settings, Library } from "lucide-react";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -28,6 +28,7 @@ export default function BookshelfAdminView() {
 
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -38,7 +39,10 @@ export default function BookshelfAdminView() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
 
-  const fetchBooks = useCallback(async () => {
+  const fetchBooks = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const res = await fetch("/api/content?module_type=book");
       const data = await res.json();
@@ -46,13 +50,14 @@ export default function BookshelfAdminView() {
       setBooks(data.data || []);
     } catch (err: unknown) {
       console.error("fetchBooks failed:", err);
+      setLoadError("Couldn't load your library. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchBooks();
+    void fetchBooks(true);
   }, [fetchBooks]);
 
   // Compute stats with monthly completions for sparklines
@@ -280,6 +285,25 @@ export default function BookshelfAdminView() {
         totalBooks={books.length}
       />
 
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="bookshelf-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="bookshelf-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchBooks(true)}
+            aria-label="Retry loading library"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       {/* Book Grid */}
       <div className="relative">
         {loading && books.length > 0 && (
@@ -293,7 +317,7 @@ export default function BookshelfAdminView() {
 
         {loading && books.length === 0 ? (
           <BookSkeleton />
-        ) : filtered.length === 0 ? (
+        ) : loadError ? null : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
