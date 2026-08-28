@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { TodoDocument, TodoPayload, TodoPriority } from "./types";
 import { AnimatePresence, motion } from "framer-motion";
+import { RefreshCw } from "lucide-react";
 
 // Components
 import TodoModal from "./TodoModal";
@@ -33,6 +34,7 @@ const getDateTime = (value?: string | null): number | null => {
 export default function TodoAdminView() {
   const [todos, setTodos] = useState<TodoDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<TodoFilterType>("todo");
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,21 +79,25 @@ export default function TodoAdminView() {
     [],
   );
 
-  const fetchTodos = useCallback(async () => {
+  const fetchTodos = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const res = await fetch("/api/content?module_type=todo");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch todos");
       setTodos(data.data || []);
-    } catch {
-      showToast("Failed to fetch tasks", "error");
+    } catch (err: unknown) {
+      console.error("fetchTodos failed:", err);
+      setLoadError("Couldn't load your objectives. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, []);
 
   useEffect(() => {
-    fetchTodos();
+    void fetchTodos(true);
   }, [fetchTodos]);
 
   useEffect(() => {
@@ -382,6 +388,25 @@ export default function TodoAdminView() {
           counts={counts}
         />
 
+        {loadError ? (
+          <div
+            role="alert"
+            aria-labelledby="todo-load-error-message"
+            className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span id="todo-load-error-message">{loadError}</span>
+            <button
+              type="button"
+              onClick={() => void fetchTodos(true)}
+              aria-label="Retry loading objectives"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+            >
+              <RefreshCw aria-hidden="true" className="h-4 w-4" />
+              Retry
+            </button>
+          </div>
+        ) : null}
+
         <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-900/20 bg-zinc-950/5 px-3 py-2 sm:px-4 sm:py-2.5">
           <span
             className="text-xs font-black text-zinc-600 uppercase tracking-[0.2em]"
@@ -402,7 +427,8 @@ export default function TodoAdminView() {
 
         {loading ? (
           <TodoLoading />
-        ) : filteredTodos.length > 0 ? (
+        ) : loadError && todos.length === 0 ? null : filteredTodos.length >
+          0 ? (
           <motion.div
             layout
             className={cn(
