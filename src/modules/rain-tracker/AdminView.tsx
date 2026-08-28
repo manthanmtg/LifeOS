@@ -51,6 +51,33 @@ async function readResponseJson(response: Response) {
   return body ?? {};
 }
 
+function RainTrackerLoadError({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      aria-labelledby="rain-tracker-load-error-message"
+      className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+    >
+      <span id="rain-tracker-load-error-message">{message}</span>
+      <button
+        type="button"
+        onClick={onRetry}
+        aria-label="Retry loading rain tracker"
+        className="inline-flex items-center gap-2 self-start rounded-lg border border-danger/20 px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-danger/10 sm:self-auto"
+      >
+        <RefreshCcw className="h-3 w-3" />
+        Retry
+      </button>
+    </div>
+  );
+}
+
 export default function RainTrackerAdminView() {
   const { settings, updateSettings } = useModuleSettings<RainSettings>(
     "rainTrackerSettings",
@@ -146,6 +173,11 @@ export default function RainTrackerAdminView() {
   }, []);
 
   useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
+
+  const retryFetchData = useCallback(() => {
+    setLoading(true);
     void fetchData();
   }, [fetchData]);
 
@@ -505,20 +537,10 @@ export default function RainTrackerAdminView() {
           </div>
 
           {loadError ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-              <span>{loadError}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoading(true);
-                  void fetchData();
-                }}
-                className="inline-flex items-center gap-2 rounded-lg border border-danger/20 px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-danger/10"
-              >
-                <RefreshCcw className="h-3 w-3" />
-                Retry
-              </button>
-            </div>
+            <RainTrackerLoadError
+              message={loadError}
+              onRetry={retryFetchData}
+            />
           ) : null}
 
           <RainTrackerPreferences
@@ -588,6 +610,19 @@ export default function RainTrackerAdminView() {
               onEntryNotesChange={setEntryNotes}
               onEditEntry={openEditEntry}
               onDeleteEntry={handleDeleteEntry}
+            />
+          </div>
+        </motion.div>
+      ) : loadError ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/30 p-4"
+        >
+          <div className="w-full max-w-md">
+            <RainTrackerLoadError
+              message={loadError}
+              onRetry={retryFetchData}
             />
           </div>
         </motion.div>

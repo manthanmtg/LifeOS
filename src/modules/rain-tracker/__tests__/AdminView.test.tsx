@@ -197,21 +197,26 @@ describe("RainTrackerAdminView", () => {
     expect(screen.getAllByText("Heavy downpour").length).toBeGreaterThan(0);
   });
 
-  it("handles fetch failure gracefully by showing empty state", async () => {
+  it("shows a retryable error instead of an empty state when the initial load fails", async () => {
     vi.spyOn(global, "fetch").mockImplementation(() =>
       Promise.resolve({
         ok: false,
-        json: () => Promise.resolve({ error: { message: "Database connection failed" } }),
+        json: () =>
+          Promise.resolve({ error: { message: "Database connection failed" } }),
       } as Response),
     );
 
     render(<RainTrackerAdminView />);
 
     await waitFor(() => {
-      // Due to how selectedArea is checked, loadError is not rendered on initial fetch failure.
-      // It falls back to the empty state instead.
-      expect(screen.getByText(/No Area Selected/i)).toBeDefined();
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Database connection failed",
+      );
     });
+    expect(
+      screen.getByRole("button", { name: "Retry loading rain tracker" }),
+    ).toBeVisible();
+    expect(screen.queryByText(/No Area Selected/i)).not.toBeInTheDocument();
   });
 
   it("shows the 'New Area' form when the plus button is clicked in the sidebar", async () => {
@@ -227,7 +232,7 @@ describe("RainTrackerAdminView", () => {
     await waitFor(() => {
       expect(screen.getByText(/No Area Selected/i)).toBeDefined();
     });
-    
+
     // Test form opening logic isn't easily doable just by the button role if not perfectly accessible,
     // but we can look for the Add Area button in the sidebar (which is tested by components integration).
     // The Sidebar has an "Add area" or similar aria-label.
