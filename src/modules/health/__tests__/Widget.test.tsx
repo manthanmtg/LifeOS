@@ -8,8 +8,60 @@ describe("HealthWidget", () => {
     vi.resetAllMocks();
   });
 
+  it("shows a recovery state when the health summary request fails", async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false });
+
+    render(React.createElement(HealthWidget));
+
+    expect(
+      await screen.findByText("Unable to load health summary"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Refresh to try again")).toBeInTheDocument();
+    expect(screen.getByText("health summary unavailable")).toBeInTheDocument();
+    expect(screen.queryByText("No health data")).not.toBeInTheDocument();
+  });
+
+  it("shows a recovery state when the health summary cannot be reached", async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error("Network unavailable"));
+
+    render(React.createElement(HealthWidget));
+
+    expect(
+      await screen.findByText("Unable to load health summary"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No health data")).not.toBeInTheDocument();
+  });
+
+  it("keeps a zero-profile summary distinct from the recovery state", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          data: {
+            total: 0,
+            alertCount: 0,
+            activeMedCount: 0,
+            activeConditionCount: 0,
+            upcomingVacCount: 0,
+            latestVisit: null,
+            profiles: [],
+          },
+        }),
+    });
+
+    render(React.createElement(HealthWidget));
+
+    expect(await screen.findByText("all clear")).toBeInTheDocument();
+    expect(screen.getByText("0 meds · 0 conditions")).toBeInTheDocument();
+    expect(screen.getByText("0 profiles tracked")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Unable to load health summary"),
+    ).not.toBeInTheDocument();
+  });
+
   it("surfaces the profile that needs attention when health alerts exist", async () => {
     global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () =>
         Promise.resolve({
           data: {

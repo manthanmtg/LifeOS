@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, memo, useMemo } from "react";
-import { HeartPulse, Pill, Calendar, Syringe } from "lucide-react";
+import {
+  HeartPulse,
+  Pill,
+  Calendar,
+  Syringe,
+  AlertTriangle,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -22,16 +28,36 @@ interface HealthSummary {
 export default memo(function HealthWidget() {
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const ac = new AbortController();
     fetch("/api/widgets/summary?module_type=health_profile", {
       signal: ac.signal,
     })
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Summary request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (ac.signal.aborted) return;
+        setSummary(data.data ?? null);
+        setHasError(false);
+      })
+      .catch((error: unknown) => {
+        if (
+          ac.signal.aborted ||
+          (error instanceof Error && error.name === "AbortError")
+        ) {
+          return;
+        }
+        setHasError(true);
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
   }, []);
 
@@ -87,7 +113,22 @@ export default memo(function HealthWidget() {
         )
       }
     >
-      {summary ? (
+      {hasError ? (
+        <motion.div
+          className="space-y-3"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          <WidgetStat value="—" label="health summary unavailable" />
+          <WidgetHighlight
+            icon={AlertTriangle}
+            text="Unable to load health summary"
+            subtext="Refresh to try again"
+            variant="warning"
+          />
+        </motion.div>
+      ) : summary ? (
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
