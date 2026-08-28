@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Settings, Target } from "lucide-react";
+import { Plus, RefreshCw, Settings, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -29,6 +29,7 @@ export default function HabitsAdminView() {
 
   const [habits, setHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
@@ -36,7 +37,10 @@ export default function HabitsAdminView() {
   const [isLoggingId, setIsLoggingId] = useState<string | null>(null);
   const today = useMemo(() => new Date(), []);
 
-  const fetchHabits = useCallback(async () => {
+  const fetchHabits = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const r = await fetch("/api/content?module_type=habit");
       const d = await r.json();
@@ -44,13 +48,14 @@ export default function HabitsAdminView() {
       setHabits(d.data || []);
     } catch (err: unknown) {
       console.error("fetchHabits failed:", err);
+      setLoadError("Couldn't load your habits. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchHabits();
+    void fetchHabits(true);
   }, [fetchHabits]);
 
   const days = useMemo(
@@ -220,6 +225,25 @@ export default function HabitsAdminView() {
         </div>
       </motion.div>
 
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="habits-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="habits-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchHabits(true)}
+            aria-label="Retry loading habits"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       {/* Metrics */}
       {!loading && habits.length > 0 && <HabitsMetrics metrics={metrics} />}
 
@@ -247,9 +271,9 @@ export default function HabitsAdminView() {
       </AnimatePresence>
 
       {/* Habit list */}
-      {loading ? (
+      {loading && habits.length === 0 ? (
         <AdminModuleSkeleton />
-      ) : habits.length === 0 ? (
+      ) : loadError && habits.length === 0 ? null : habits.length === 0 ? (
         <motion.div
           className="text-center text-zinc-500 py-16"
           initial={{ opacity: 0 }}

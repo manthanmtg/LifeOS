@@ -282,6 +282,65 @@ describe("HabitsAdminView", () => {
       expect(screen.getByLabelText(/habit-name|Name/i)).toBeDefined(),
     );
   });
+
+  it("shows a retryable error instead of an empty state when loading habits fails", async () => {
+    let habitLoadAttempts = 0;
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url === "/api/system") {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: {} }),
+        });
+      }
+
+      if (url === "/api/content?module_type=habit") {
+        habitLoadAttempts += 1;
+
+        if (habitLoadAttempts === 1) {
+          return Promise.resolve({
+            ok: false,
+            json: () => Promise.resolve({ error: "Service unavailable" }),
+          });
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: [
+                {
+                  _id: "habit-1",
+                  payload: {
+                    name: "Read daily",
+                    frequency: "daily",
+                    target_count: 1,
+                    color: "#10b981",
+                    completions: [],
+                  },
+                },
+              ],
+            }),
+        });
+      }
+
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    render(<HabitsAdminView />);
+
+    expect(
+      await screen.findByRole("alert", {
+        name: /couldn't load your habits/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("No habits yet")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /retry loading habits/i }),
+    );
+
+    expect(await screen.findByText("Read daily")).toBeInTheDocument();
+  });
 });
 
 describe("HabitsWidget", () => {
