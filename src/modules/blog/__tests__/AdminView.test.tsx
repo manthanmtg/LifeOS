@@ -9,7 +9,7 @@ describe("BlogAdminView", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    
+
     // Default fetch mock returning empty data
     global.fetch = vi.fn().mockImplementation((input: RequestInfo | URL | string) => {
       const url = input.toString();
@@ -41,7 +41,7 @@ describe("BlogAdminView", () => {
     Object.defineProperty(window, "localStorage", {
       value: localStorageMock,
     });
-    
+
     // Mock window.confirm
     vi.spyOn(window, "confirm").mockImplementation(() => true);
     // Mock window.alert
@@ -100,23 +100,66 @@ describe("BlogAdminView", () => {
     });
 
     render(<BlogAdminView />);
-    
+
     await waitFor(() => {
       expect(screen.getByText("First Post")).toBeInTheDocument();
       expect(screen.getByText("Draft Post")).toBeInTheDocument();
     });
   });
 
-  it("shows error if fetch fails", async () => {
-    // Spy on console.error to keep test output clean
+  it("shows a retryable error instead of an empty state when loading posts fails", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.mocked(global.fetch).mockImplementation(() => Promise.reject(new Error("Network Error")));
+    let postLoadAttempts = 0;
+
+    vi.mocked(global.fetch).mockImplementation(
+      (input: RequestInfo | URL | string) => {
+        if (input.toString().includes("/api/content?module_type=blog_post")) {
+          postLoadAttempts += 1;
+          if (postLoadAttempts === 1) {
+            return Promise.resolve({
+              ok: false,
+              json: () => Promise.resolve({ error: "Service unavailable" }),
+            } as unknown as Response);
+          }
+
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: [] }),
+          } as unknown as Response);
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({}),
+        } as unknown as Response);
+      },
+    );
 
     render(<BlogAdminView />);
-    
+
+    expect(
+      await screen.findByRole("alert", {
+        name: /couldn't load your posts/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Start with a draft and build your first post here/i),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /retry loading posts/i }),
+    );
+
     await waitFor(() => {
-      // It should still render the page but the grid will be empty
-      expect(screen.getByText(/Start with a draft/i)).toBeInTheDocument();
+      expect(postLoadAttempts).toBe(2);
+      expect(
+        screen.queryByRole("alert", {
+          name: /couldn't load your posts/i,
+        }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Start with a draft and build your first post here/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -211,7 +254,7 @@ describe("BlogAdminView", () => {
 
     const titleInput = screen.getByPlaceholderText(/A clear, specific title/i);
     fireEvent.change(titleInput, { target: { value: "My New Post" } });
-    
+
     // Content is needed for strict validation
     const contentTextarea = screen.getByPlaceholderText(/Write your post in Markdown/i);
     fireEvent.change(contentTextarea, { target: { value: "Some content" } });
@@ -252,12 +295,12 @@ describe("BlogAdminView", () => {
     });
 
     render(<BlogAdminView />);
-    
+
     await waitFor(() => {
       expect(screen.getByText("First Post")).toBeInTheDocument();
     });
 
-    // The BlogPostGrid component renders a delete button (trash icon). 
+    // The BlogPostGrid component renders a delete button (trash icon).
     // We can find it by aria-label or title if provided, or by closest match
     // Let's assume there's a button with an aria-label "Delete" or similar
     // Since we don't have BlogPostGrid code, let's search for buttons inside the card
@@ -287,7 +330,7 @@ describe("BlogAdminView", () => {
     });
 
     render(<BlogAdminView />);
-    
+
     await waitFor(() => {
       expect(screen.getByText("First Post")).toBeInTheDocument();
     });

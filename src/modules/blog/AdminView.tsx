@@ -11,6 +11,7 @@ import {
   List,
   ListOrdered,
   Quote,
+  RefreshCw,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,7 @@ function isValidHttpUrl(value: string): boolean {
 export default function BlogAdminView() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
@@ -87,7 +89,9 @@ export default function BlogAdminView() {
     JSON.stringify(EMPTY_EDITOR_DRAFT),
   );
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+
     try {
       const response = await fetch("/api/content?module_type=blog_post");
       const payload = await response.json();
@@ -95,16 +99,17 @@ export default function BlogAdminView() {
         throw new Error(payload.error || "Failed to fetch posts");
       }
       setPosts(sortPostsByNewest(payload.data || []));
+      setLoadError(null);
     } catch (error) {
       console.error("fetchPosts failed:", error);
-      setFormError("Failed to load posts.");
+      setLoadError("Couldn't load your posts. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPosts();
+    void fetchPosts(true);
   }, [fetchPosts]);
 
   useEffect(() => {
@@ -635,7 +640,7 @@ export default function BlogAdminView() {
     [applyInline, insertSnippet],
   );
 
-  if (loading) {
+  if (loading && !loadError) {
     return <AdminModuleSkeleton />;
   }
 
@@ -648,6 +653,29 @@ export default function BlogAdminView() {
           archived: stats.archived,
         }}
       />
+
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="blog-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="blog-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchPosts(true)}
+            disabled={loading}
+            aria-label={loading ? "Retrying posts" : "Retry loading posts"}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCw
+              aria-hidden="true"
+              className={cn("h-4 w-4", loading && "animate-spin")}
+            />
+            {loading ? "Retrying…" : "Retry"}
+          </button>
+        </div>
+      ) : null}
 
       <BlogAdminToolbar
         hasLocalDraft={hasLocalDraft}
@@ -680,42 +708,46 @@ export default function BlogAdminView() {
         onSetViewMode={setViewMode}
       />
 
-      <div
-        className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-2"
-        role="group"
-        aria-label="Filter blog posts by status"
-      >
-        {(["all", "draft", "published", "archived"] as StatusFilter[]).map(
-          (item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={statusFilter === item}
-              onClick={() => setStatusFilter(item)}
-              className={cn(
-                "rounded-xl border px-4 py-2.5 sm:px-3 sm:py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
-                statusFilter === item
-                  ? "border-accent/40 bg-accent/15 text-accent"
-                  : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
-                "active:translate-y-px",
-              )}
-            >
-              {item}
-            </button>
-          ),
-        )}
-      </div>
+      {loadError && posts.length === 0 ? null : (
+        <>
+          <div
+            className="flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-2"
+            role="group"
+            aria-label="Filter blog posts by status"
+          >
+            {(["all", "draft", "published", "archived"] as StatusFilter[]).map(
+              (item) => (
+                <button
+                  key={item}
+                  type="button"
+                  aria-pressed={statusFilter === item}
+                  onClick={() => setStatusFilter(item)}
+                  className={cn(
+                    "rounded-xl border px-4 py-2.5 sm:px-3 sm:py-1.5 text-xs font-medium capitalize transition-[color,background,border,transform]",
+                    statusFilter === item
+                      ? "border-accent/40 bg-accent/15 text-accent"
+                      : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+                    "active:translate-y-px",
+                  )}
+                >
+                  {item}
+                </button>
+              ),
+            )}
+          </div>
 
-      <BlogPostGrid
-        posts={filteredPosts}
-        loading={loading}
-        isDeletingId={isDeletingId}
-        isTogglingStatusId={isTogglingStatusId}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-        onToggleStatus={handleStatusToggle}
-      />
+          <BlogPostGrid
+            posts={filteredPosts}
+            loading={loading}
+            isDeletingId={isDeletingId}
+            isTogglingStatusId={isTogglingStatusId}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            onToggleStatus={handleStatusToggle}
+          />
+        </>
+      )}
 
       {!showEditor && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 text-sm text-zinc-400">
@@ -727,7 +759,7 @@ export default function BlogAdminView() {
         </div>
       )}
 
-      {!showEditor && posts.length === 0 && (
+      {!showEditor && !loadError && posts.length === 0 && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center text-zinc-500">
           <FileText className="mx-auto mb-3 h-10 w-10 opacity-30" />
           <p>Start with a draft and build your first post here.</p>
