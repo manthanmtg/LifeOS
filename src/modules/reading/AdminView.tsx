@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, BookOpen, Settings, Sparkles } from "lucide-react";
+import { Plus, BookOpen, Settings, Sparkles, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import {
@@ -29,6 +29,7 @@ export default function ReadingAdminView() {
   const [showSettings, setShowSettings] = useState(false);
   const [items, setItems] = useState<ReadingItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<string>("unread");
@@ -55,7 +56,10 @@ export default function ReadingAdminView() {
     return Array.from(tags).sort();
   }, [items]);
 
-  const fetchItems = useCallback(async () => {
+  const fetchItems = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const response = await fetch("/api/content?module_type=reading_item");
       const data = await response.json();
@@ -63,13 +67,14 @@ export default function ReadingAdminView() {
       setItems(data.data || []);
     } catch (err: unknown) {
       console.error("fetchItems failed:", err);
+      setLoadError("Couldn't load your reading queue. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchItems();
+    void fetchItems(true);
   }, [fetchItems]);
 
   const handleFormSubmit = async (payload: ReadingPayload, id?: string) => {
@@ -250,7 +255,36 @@ export default function ReadingAdminView() {
             </div>
           </div>
 
-          <ReadingMetrics items={items} loading={loading} />
+          {loadError ? (
+            <div
+              role="alert"
+              aria-labelledby="reading-load-error-message"
+              className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span id="reading-load-error-message">{loadError}</span>
+              <button
+                type="button"
+                onClick={() => void fetchItems(true)}
+                disabled={loading}
+                aria-label={
+                  loading
+                    ? "Retrying reading queue"
+                    : "Retry loading reading queue"
+                }
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RefreshCw
+                  aria-hidden="true"
+                  className={cn("h-4 w-4", loading && "animate-spin")}
+                />
+                {loading ? "Retrying…" : "Retry"}
+              </button>
+            </div>
+          ) : null}
+
+          {loadError && items.length === 0 ? null : (
+            <ReadingMetrics items={items} loading={loading} />
+          )}
         </div>
       </div>
 
@@ -298,18 +332,20 @@ export default function ReadingAdminView() {
         )}
       </AnimatePresence>
 
-      <ReadingFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
-        tagFilter={tagFilter}
-        setTagFilter={setTagFilter}
-        allTypes={allTypes}
-        allUniqueTags={allUniqueTags}
-      />
+      {loadError && items.length === 0 ? null : (
+        <ReadingFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          tagFilter={tagFilter}
+          setTagFilter={setTagFilter}
+          allTypes={allTypes}
+          allUniqueTags={allUniqueTags}
+        />
+      )}
 
       <div className="relative">
         {loading && items.length > 0 && (
@@ -323,7 +359,7 @@ export default function ReadingAdminView() {
 
         {loading && items.length === 0 ? (
           <ContentListSkeleton length={4} />
-        ) : filtered.length === 0 ? (
+        ) : loadError && items.length === 0 ? null : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
