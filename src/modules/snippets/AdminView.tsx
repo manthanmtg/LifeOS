@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Settings, Code, Search, Sparkles, RefreshCw } from "lucide-react";
+import {
+  Plus,
+  Settings,
+  Code,
+  Search,
+  Sparkles,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
@@ -29,6 +36,7 @@ export default function SnippetsAdminView() {
   const [showSettings, setShowSettings] = useState(false);
   const [snippets, setSnippets] = useState<Snippet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const [langFilter, setLangFilter] = useState<string>("all");
@@ -47,22 +55,26 @@ export default function SnippetsAdminView() {
       : LANGUAGES;
   }, [settings.languages]);
 
-  const fetchSnippets = useCallback(async () => {
+  const fetchSnippets = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+
     try {
       const response = await fetch("/api/content?module_type=snippet");
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.error || "Failed to fetch snippets");
       setSnippets(data.data || []);
+      setLoadError(null);
     } catch (err: unknown) {
       console.error("fetchSnippets failed:", err);
+      setLoadError("Couldn't load your snippet library. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchSnippets();
+    void fetchSnippets(true);
   }, [fetchSnippets]);
 
   const handleFormClose = useCallback(() => {
@@ -174,7 +186,7 @@ export default function SnippetsAdminView() {
     );
   }, [snippets, loading]);
 
-  if (loading && snippets.length === 0) {
+  if (loading && snippets.length === 0 && !loadError) {
     return <AdminModuleSkeleton />;
   }
 
@@ -226,12 +238,39 @@ export default function SnippetsAdminView() {
             </div>
           </div>
 
-          <SnippetsMetrics
-            snippets={snippets}
-            stats={stats}
-            referenceTime={statsReferenceTime}
-            loading={loading}
-          />
+          {loadError ? (
+            <div
+              role="alert"
+              aria-labelledby="snippet-load-error-message"
+              className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span id="snippet-load-error-message">{loadError}</span>
+              <button
+                type="button"
+                onClick={() => void fetchSnippets(true)}
+                disabled={loading}
+                aria-label={
+                  loading ? "Retrying snippets" : "Retry loading snippets"
+                }
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RefreshCw
+                  aria-hidden="true"
+                  className={cn("h-4 w-4", loading && "animate-spin")}
+                />
+                {loading ? "Retrying…" : "Retry"}
+              </button>
+            </div>
+          ) : null}
+
+          {loadError && snippets.length === 0 ? null : (
+            <SnippetsMetrics
+              snippets={snippets}
+              stats={stats}
+              referenceTime={statsReferenceTime}
+              loading={loading}
+            />
+          )}
         </div>
       </div>
 
@@ -271,26 +310,31 @@ export default function SnippetsAdminView() {
           <div className="absolute inset-0 bg-zinc-950/20 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-[2.5rem]">
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
               <RefreshCw className="w-5 h-5 text-accent animate-spin" />
-              <span className="text-xs font-bold text-zinc-200 uppercase tracking-widest">Syncing Library</span>
+              <span className="text-xs font-bold text-zinc-200 uppercase tracking-widest">
+                Syncing Library
+              </span>
             </div>
           </div>
         )}
 
-        <SnippetsFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          langFilter={langFilter}
-          onLangFilterChange={setLangFilter}
-          favoritesOnly={favoritesOnly}
-          onFavoritesToggle={() => setFavoritesOnly((prev) => !prev)}
-          languageChips={languageChips}
-          filteredCount={filtered.length}
-          totalCount={snippets.length}
-        />
+        {loadError && snippets.length === 0 ? null : (
+          <SnippetsFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            langFilter={langFilter}
+            onLangFilterChange={setLangFilter}
+            favoritesOnly={favoritesOnly}
+            onFavoritesToggle={() => setFavoritesOnly((prev) => !prev)}
+            languageChips={languageChips}
+            filteredCount={filtered.length}
+            totalCount={snippets.length}
+          />
+        )}
 
         {loading && snippets.length === 0 ? (
           <SnippetSkeleton />
-        ) : filtered.length === 0 ? (
+        ) : loadError && snippets.length === 0 ? null : filtered.length ===
+          0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
