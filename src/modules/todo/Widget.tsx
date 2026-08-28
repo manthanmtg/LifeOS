@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckSquare, ListTodo } from "lucide-react";
+import { AlertTriangle, CheckSquare, ListTodo } from "lucide-react";
 import { motion } from "framer-motion";
 import WidgetCard from "@/components/dashboard/WidgetCard";
 import {
@@ -19,13 +19,36 @@ interface TodoSummary {
 export default function TodoWidget() {
   const [summary, setSummary] = useState<TodoSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=todo")
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const ac = new AbortController();
+    fetch("/api/widgets/summary?module_type=todo", { signal: ac.signal })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Summary request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (ac.signal.aborted) return;
+        setSummary(data.data ?? null);
+        setHasError(false);
+      })
+      .catch((error: unknown) => {
+        if (
+          ac.signal.aborted ||
+          (error instanceof Error && error.name === "AbortError")
+        ) {
+          return;
+        }
+        setHasError(true);
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
+
+    return () => ac.abort();
   }, []);
 
   return (
@@ -41,7 +64,17 @@ export default function TodoWidget() {
         transition={{ duration: 0.25, ease: "easeOut" }}
         className="space-y-3"
       >
-        {summary ? (
+        {hasError ? (
+          <>
+            <WidgetStat value="—" label="task summary unavailable" />
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text="Unable to load task summary"
+              subtext="Open Tasks to retry"
+              variant="warning"
+            />
+          </>
+        ) : summary ? (
           <>
             <WidgetStat
               value={summary.activeCount}
