@@ -462,11 +462,13 @@ export default function RecurringExpensesAdminView() {
   const [newCat, setNewCat] = useState("");
   const [subs, setSubs] = useState<RecurringExpense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingId, setIsProcessingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const latestLoadRequestRef = useRef(0);
   const sym = getRecurringCurrencySymbol(settings.defaultCurrency);
 
   const sensors = useSensors(
@@ -507,7 +509,11 @@ export default function RecurringExpensesAdminView() {
     "all" | "overdue" | "warning" | "inactive"
   >("all");
 
-  const fetchSubs = useCallback(async () => {
+  const fetchSubs = useCallback(async (showLoading = false) => {
+    const requestId = ++latestLoadRequestRef.current;
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const res = await fetch("/api/content?module_type=recurring_expense");
       const data = await res.json();
@@ -587,6 +593,8 @@ export default function RecurringExpensesAdminView() {
           break;
       }
 
+      if (requestId !== latestLoadRequestRef.current) return;
+
       // Save new order to database if not custom sort
       if (sortBy !== "custom" && sorted.length > 0) {
         try {
@@ -608,16 +616,19 @@ export default function RecurringExpensesAdminView() {
         }
       }
 
+      if (requestId !== latestLoadRequestRef.current) return;
       setSubs(sorted);
     } catch (err: unknown) {
+      if (requestId !== latestLoadRequestRef.current) return;
       console.error("fetchSubs failed:", err);
+      setLoadError("Couldn't load your recurring expenses. Please try again.");
     } finally {
-      setLoading(false);
+      if (requestId === latestLoadRequestRef.current) setLoading(false);
     }
   }, [sortBy]);
 
   useEffect(() => {
-    fetchSubs();
+    void fetchSubs(true);
   }, [fetchSubs]);
 
   const initializedSort = useRef(false);
@@ -983,7 +994,7 @@ export default function RecurringExpensesAdminView() {
     [visibleSubs, now],
   );
 
-  if (loading) return <AdminModuleSkeleton />;
+  if (loading && subs.length === 0) return <AdminModuleSkeleton />;
 
   return (
     <div className="animate-fade-in-up space-y-6">
@@ -1047,7 +1058,12 @@ export default function RecurringExpensesAdminView() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <div
+          className={cn(
+            "grid grid-cols-2 md:grid-cols-3 gap-3 mb-4",
+            loadError && subs.length === 0 && "hidden",
+          )}
+        >
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2.5">
             <p className="text-xs text-zinc-500">Monthly Burn</p>
             <p className="text-lg font-semibold text-zinc-50">
@@ -1088,6 +1104,25 @@ export default function RecurringExpensesAdminView() {
           </div>
         )}
       </div>
+
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="recurring-expenses-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="recurring-expenses-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchSubs(true)}
+            aria-label="Retry loading recurring expenses"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
 
       {showSettings && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 animate-fade-in-up space-y-5">
@@ -1537,7 +1572,7 @@ export default function RecurringExpensesAdminView() {
         </div>
       )}
 
-      {subs.length === 0 ? (
+      {loadError && subs.length === 0 ? null : subs.length === 0 ? (
         <div className="text-center text-zinc-500 py-12">
           <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>No recurring expenses tracked yet</p>

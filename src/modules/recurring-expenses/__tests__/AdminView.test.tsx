@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { _resetSystemCache } from "@/hooks/useModuleSettings";
 import RecurringExpensesAdminView from "../AdminView";
@@ -65,6 +65,128 @@ describe("RecurringExpensesAdminView", () => {
     );
 
     expect(screen.getByRole("heading", { name: /Recurring/i })).toBeDefined();
+  });
+
+  it("shows a retryable error instead of an empty state when expenses fail to load", async () => {
+    let expenseLoadAttempts = 0;
+    global.fetch = vi.fn().mockImplementation((url) => {
+      const requestUrl = String(url);
+      if (requestUrl === "/api/system") {
+        return mockResponse({ data: {} });
+      }
+
+      if (requestUrl === "/api/content?module_type=recurring_expense") {
+        expenseLoadAttempts += 1;
+
+        if (expenseLoadAttempts === 1) {
+          return Promise.resolve({
+            ok: false,
+            json: () => Promise.resolve({ error: "Service unavailable" }),
+          });
+        }
+
+        return mockResponse({
+          data: [
+            {
+              _id: "expense-1",
+              payload: {
+                name: "Netflix",
+                cost: 500,
+                currency: "INR",
+                billing_cycle: "monthly",
+                next_renewal_date: new Date().toISOString(),
+                category: "Streaming",
+                is_active: true,
+                enable_reminders: true,
+              },
+            },
+          ],
+        });
+      }
+
+      return mockResponse({});
+    });
+
+    render(<RecurringExpensesAdminView />);
+
+    expect(
+      await screen.findByRole("alert", {
+        name: /couldn't load your recurring expenses/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("No recurring expenses tracked yet"),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /retry loading recurring expenses/i,
+      }),
+    );
+
+    expect(await screen.findByText("Netflix")).toBeInTheDocument();
+  });
+
+  it("ignores a stale load failure after a newer sorted load succeeds", async () => {
+    let resolveInitialLoad!: (response: Response) => void;
+    const initialLoad = new Promise<Response>((resolve) => {
+      resolveInitialLoad = resolve;
+    });
+    let expenseLoadAttempts = 0;
+
+    global.fetch = vi.fn().mockImplementation((url) => {
+      const requestUrl = String(url);
+      if (requestUrl === "/api/system") {
+        return mockResponse({
+          data: {
+            recurringExpenseSettings: { defaultSort: "name-asc" },
+          },
+        });
+      }
+
+      if (requestUrl === "/api/content?module_type=recurring_expense") {
+        expenseLoadAttempts += 1;
+        if (expenseLoadAttempts === 1) return initialLoad;
+
+        return mockResponse({
+          data: [
+            {
+              _id: "expense-1",
+              payload: {
+                name: "Netflix",
+                cost: 500,
+                currency: "INR",
+                billing_cycle: "monthly",
+                next_renewal_date: new Date().toISOString(),
+                category: "Streaming",
+                is_active: true,
+                enable_reminders: true,
+              },
+            },
+          ],
+        });
+      }
+
+      return mockResponse({});
+    });
+
+    render(<RecurringExpensesAdminView />);
+
+    expect(await screen.findByText("Netflix")).toBeInTheDocument();
+
+    await act(async () => {
+      resolveInitialLoad({
+        ok: false,
+        json: () => Promise.resolve({ error: "Service unavailable" }),
+      } as Response);
+      await initialLoad;
+    });
+
+    expect(
+      screen.queryByRole("alert", {
+        name: /couldn't load your recurring expenses/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("places the analytics icon immediately before settings", async () => {
