@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, memo } from "react";
-import { Banknote, Tag, Target } from "lucide-react";
+import { AlertTriangle, Banknote, Tag, Target } from "lucide-react";
 import { motion } from "framer-motion";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import WidgetCard from "@/components/dashboard/WidgetCard";
@@ -33,16 +33,36 @@ export default memo(function ExpensesWidget() {
   });
   const [summary, setSummary] = useState<ExpenseSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const sym = CURR_SYM[settings.defaultCurrency] || settings.defaultCurrency;
   const format = settings.numberFormat || "western";
 
   useEffect(() => {
     const ac = new AbortController();
     fetch("/api/widgets/summary?module_type=expense", { signal: ac.signal })
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Summary request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (ac.signal.aborted) return;
+        setSummary(data.data ?? null);
+        setHasError(false);
+      })
+      .catch((error: unknown) => {
+        if (
+          ac.signal.aborted ||
+          (error instanceof Error && error.name === "AbortError")
+        ) {
+          return;
+        }
+        setHasError(true);
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
     return () => ac.abort();
   }, []);
 
@@ -83,38 +103,52 @@ export default memo(function ExpensesWidget() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <WidgetStat
-          value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
-          label="spent this month"
-        />
-
-        {budget > 0 ? (
-          <WidgetHighlight
-            icon={Target}
-            text={`${budgetPercent.toFixed(0)}% of budget spent`}
-            subtext={trendSubtext}
-            variant={
-              budgetPercent > 90
-                ? "danger"
-                : budgetPercent > 70
-                  ? "warning"
-                  : "success"
-            }
-          />
-        ) : topCategory ? (
-          <WidgetHighlight
-            icon={Tag}
-            text={topCategory[0]}
-            subtext={trendSubtext}
-            variant="accent"
-          />
+        {hasError ? (
+          <>
+            <WidgetStat value="—" label="expense summary unavailable" />
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text="Unable to load expense summary"
+              subtext="Open Expenses to retry"
+              variant="warning"
+            />
+          </>
         ) : (
-          <WidgetHighlight
-            icon={Banknote}
-            text="No expenses yet"
-            subtext={trendSubtext}
-            variant="default"
-          />
+          <>
+            <WidgetStat
+              value={`${sym}${formatCurrency(totalThisMonth, "", format)}`}
+              label="spent this month"
+            />
+
+            {budget > 0 ? (
+              <WidgetHighlight
+                icon={Target}
+                text={`${budgetPercent.toFixed(0)}% of budget spent`}
+                subtext={trendSubtext}
+                variant={
+                  budgetPercent > 90
+                    ? "danger"
+                    : budgetPercent > 70
+                      ? "warning"
+                      : "success"
+                }
+              />
+            ) : topCategory ? (
+              <WidgetHighlight
+                icon={Tag}
+                text={topCategory[0]}
+                subtext={trendSubtext}
+                variant="accent"
+              />
+            ) : (
+              <WidgetHighlight
+                icon={Banknote}
+                text="No expenses yet"
+                subtext={trendSubtext}
+                variant="default"
+              />
+            )}
+          </>
         )}
       </motion.div>
     </WidgetCard>
