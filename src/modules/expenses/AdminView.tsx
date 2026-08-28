@@ -6,6 +6,7 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   LayoutDashboard,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -55,6 +56,7 @@ export default function ExpensesAdminView() {
   >("dashboard");
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const {
     settings,
@@ -69,8 +71,10 @@ export default function ExpensesAdminView() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch expenses");
       setExpenses(data.data || []);
+      setLoadError(null);
     } catch (err: unknown) {
       console.error("Failed to fetch expenses:", err);
+      setLoadError("Couldn't load your expenses. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -148,44 +152,71 @@ export default function ExpensesAdminView() {
       </div>
 
       {/* Content Area */}
-      <div className="relative min-h-[600px]">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            id={`${activeTab}-panel`}
-            role="tabpanel"
-            aria-labelledby={`${activeTab}-tab`}
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="w-full"
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="expenses-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="expenses-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchExpenses()}
+            disabled={loading}
+            aria-label={
+              loading ? "Retrying expenses" : "Retry loading expenses"
+            }
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {activeTab === "dashboard" && (
-              <DashboardTab
-                expenses={expenses}
-                loading={loading}
-                settings={settings}
-                onRefresh={fetchExpenses}
-                onUpdateSettings={updateSettings}
-              />
-            )}
-            {activeTab === "analytics" && (
-              <AnalyticsTab
-                expenses={expenses}
-                loading={loading}
-                settings={settings}
-              />
-            )}
-            {activeTab === "settings" && (
-              <SettingsTab
-                settings={settings}
-                onUpdateSettings={updateSettings}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+            <RefreshCw
+              aria-hidden="true"
+              className={cn("h-4 w-4", loading && "animate-spin")}
+            />
+            {loading ? "Retrying…" : "Retry"}
+          </button>
+        </div>
+      ) : null}
+
+      {loadError && expenses.length === 0 && activeTab !== "settings" ? null : (
+        <div className="relative min-h-[600px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              id={`${activeTab}-panel`}
+              role="tabpanel"
+              aria-labelledby={`${activeTab}-tab`}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="w-full"
+            >
+              {activeTab === "dashboard" && (
+                <DashboardTab
+                  expenses={expenses}
+                  loading={loading}
+                  settings={settings}
+                  onRefresh={fetchExpenses}
+                  onUpdateSettings={updateSettings}
+                />
+              )}
+              {activeTab === "analytics" && (
+                <AnalyticsTab
+                  expenses={expenses}
+                  loading={loading}
+                  settings={settings}
+                />
+              )}
+              {activeTab === "settings" && (
+                <SettingsTab
+                  settings={settings}
+                  onUpdateSettings={updateSettings}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }
