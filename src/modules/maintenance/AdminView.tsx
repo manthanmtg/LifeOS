@@ -22,6 +22,7 @@ import {
   Repeat,
   User,
   StickyNote,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -65,6 +66,7 @@ export default function MaintenanceAdminView() {
   const [now, setNow] = useState(() => new Date());
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Modals
@@ -100,19 +102,26 @@ export default function MaintenanceAdminView() {
 
   // ── Fetch ─────────────────────────────────────────────────────────────
 
-  const fetchTasks = useCallback(async () => {
+  const fetchTasks = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const r = await fetch("/api/content?module_type=maintenance_task");
       const d = await r.json();
+      if (!r.ok)
+        throw new Error(d.error || "Failed to fetch maintenance tasks");
       setTasks(d.data || []);
-    } catch {
+    } catch (error) {
+      console.error("fetchTasks failed:", error);
+      setLoadError("Couldn't load your maintenance tasks. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchTasks();
+    void fetchTasks(true);
   }, [fetchTasks]);
 
   useEffect(() => {
@@ -380,7 +389,7 @@ export default function MaintenanceAdminView() {
 
   // ── Main Render ───────────────────────────────────────────────────────
 
-  if (loading) return <AdminModuleSkeleton />;
+  if (loading && tasks.length === 0) return <AdminModuleSkeleton />;
 
   return (
     <div className="animate-fade-in-up space-y-6">
@@ -402,6 +411,25 @@ export default function MaintenanceAdminView() {
           <Plus className="w-4 h-4" /> Add Task
         </button>
       </header>
+
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="maintenance-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="maintenance-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchTasks(true)}
+            aria-label="Retry loading maintenance tasks"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -519,7 +547,7 @@ export default function MaintenanceAdminView() {
       </AnimatePresence>
 
       {/* ── Task Grid ──────────────────────────────────────────────── */}
-      {filtered.length === 0 ? (
+      {loadError && tasks.length === 0 ? null : filtered.length === 0 ? (
         <EmptyState
           hasAnyTasks={tasks.length > 0}
           onAdd={openNew}

@@ -83,4 +83,45 @@ describe("MaintenanceAdminView", () => {
     expect(screen.getByText("Replace AC filter")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search tasks...")).toHaveValue("");
   });
+
+  it("shows a retryable error instead of an empty state when loading fails", async () => {
+    let attempts = 0;
+    vi.mocked(global.fetch).mockImplementation((url) => {
+      if (String(url).includes("/api/content")) {
+        attempts += 1;
+        if (attempts === 1) {
+          return Promise.resolve({
+            ok: false,
+            json: () =>
+              Promise.resolve({ error: "Service temporarily unavailable" }),
+          } as Response);
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [sampleTask] }),
+        } as Response);
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ data: {} }),
+      } as Response);
+    });
+
+    render(React.createElement(MaintenanceAdminView));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /couldn't load your maintenance tasks/i,
+    );
+    expect(
+      screen.queryByText("No maintenance tasks yet"),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /retry loading maintenance tasks/i }),
+    );
+
+    expect(await screen.findByText("Replace AC filter")).toBeInTheDocument();
+  });
 });
