@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Plus, Tv } from "lucide-react";
+import { Plus, RefreshCw, Tv } from "lucide-react";
 import type { BingeItem } from "./types";
 import { SkeletonBlock } from "@/components/ui/Skeletons";
 import BingeMetrics from "./components/BingeMetrics";
@@ -13,6 +13,7 @@ import BingeForm from "./components/BingeForm";
 export default function BingeAdminView() {
   const [items, setItems] = useState<BingeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<BingeItem | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
@@ -24,7 +25,10 @@ export default function BingeAdminView() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchItems = useCallback(async () => {
+  const fetchItems = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setLoadError(null);
+
     try {
       const res = await fetch("/api/content?module_type=binge_item");
       const data = await res.json();
@@ -32,13 +36,14 @@ export default function BingeAdminView() {
       setItems(data.data || []);
     } catch (err: unknown) {
       console.error("fetchItems failed:", err);
+      setLoadError("Couldn't load your watchlist. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchItems();
+    void fetchItems(true);
   }, [fetchItems]);
 
   useEffect(() => {
@@ -167,6 +172,25 @@ export default function BingeAdminView() {
         totalItems={items.length}
       />
 
+      {loadError ? (
+        <div
+          role="alert"
+          aria-labelledby="binge-load-error-message"
+          className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span id="binge-load-error-message">{loadError}</span>
+          <button
+            type="button"
+            onClick={() => void fetchItems(true)}
+            aria-label="Retry loading watchlist"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger/30 px-3 py-2 text-xs font-semibold transition-colors hover:bg-danger/10"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      ) : null}
+
       {/* Item Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -191,7 +215,7 @@ export default function BingeAdminView() {
             </div>
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : loadError ? null : filtered.length === 0 ? (
         <div className="text-center text-zinc-500 py-14 border border-zinc-800 rounded-2xl bg-zinc-900/40">
           <Tv className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>No items found for current filters.</p>

@@ -85,6 +85,32 @@ describe("BingeAdminView", () => {
     expect(await screen.findByText("Stranger Things")).toBeDefined();
     expect(screen.getByText("Inception")).toBeDefined();
   });
+
+  it("shows a recoverable error instead of an empty collection when loading fails", async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: "Service unavailable" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ data: mockItems }),
+      });
+
+    render(<BingeAdminView />);
+
+    expect(
+      await screen.findByRole("alert", { name: /couldn't load your watchlist/i }),
+    ).toBeDefined();
+    expect(
+      screen.queryByText("No items found for current filters."),
+    ).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /retry loading watchlist/i }));
+
+    expect(await screen.findByText("Stranger Things")).toBeDefined();
+  });
   
   it("opens and closes the Add Item form", async () => {
     render(<BingeAdminView />);
