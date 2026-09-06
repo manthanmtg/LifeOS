@@ -6,6 +6,7 @@ import type {
   ExpenseSpaceDetail,
   ExpenseSpaceDocument,
   ExpenseSpaceDocumentPage,
+  ExpenseSpaceStoredDocument,
   ExpenseSpaceEntryDocument,
   ExpenseSpaceEntryInput,
   ExpenseSpaceSummary,
@@ -139,6 +140,12 @@ export const expenseSpacesApi = {
     return apiRequest<{ success: true }>(
       `/api/expense-spaces/${spaceId}/docs/${documentId}`,
       { method: "DELETE" },
+    );
+  },
+  renameDocument(spaceId: string, documentId: string, filename: string) {
+    return apiRequest<ExpenseSpaceStoredDocument>(
+      `/api/expense-spaces/${spaceId}/docs/${documentId}`,
+      jsonRequest("PATCH", { filename }),
     );
   },
   analytics(params: {

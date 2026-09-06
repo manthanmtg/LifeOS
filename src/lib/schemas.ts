@@ -425,6 +425,20 @@ export const ExpenseSpaceDocumentSchema = z.object({
     .max(5 * 1024 * 1024),
 });
 
+export const ExpenseSpaceDocumentRenameSchema = z
+  .object({
+    filename: z
+      .string()
+      .trim()
+      .min(1, "Filename is required")
+      .max(255)
+      .refine(
+        (filename) => !/[\\/\u0000-\u001F\u007F]/.test(filename),
+        "Filename cannot contain path separators or control characters",
+      ),
+  })
+  .strict();
+
 // --- 3. BLOG POSTS ---
 const BlogPostSchema = z.object({
   title: z.string().trim().min(3, "Post title is required").max(200),

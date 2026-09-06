@@ -1,12 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Download, Eye, FileText, Search, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Check,
+  Download,
+  Eye,
+  FileText,
+  Pencil,
+  Search,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import DocPreview from "@/components/ui/DocPreview";
 import DocumentUpload from "@/components/ui/DocumentUpload";
 import { expenseSpacesApi } from "../api";
 import type { ExpenseSpaceDetail, ExpenseSpaceStoredDocument } from "../types";
+import {
+  splitDocumentFilename,
+  validateDocumentFilename,
+} from "@/lib/expense-spaces/document-filename";
 
 const formatBytes = (bytes: number) =>
   bytes < 1024 * 1024
@@ -23,6 +37,7 @@ export default function ExpenseSpaceDocuments({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<ExpenseSpaceStoredDocument | null>(
     null,
@@ -31,6 +46,12 @@ export default function ExpenseSpaceDocuments({
     document: ExpenseSpaceStoredDocument;
     src: string;
   } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftName, setDraftName] = useState("");
+  const [renameError, setRenameError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -42,6 +63,7 @@ export default function ExpenseSpaceDocuments({
       );
       setDocuments(result.documents);
       setTotalPages(result.totalPages);
+      setTotal(result.total);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Failed to load documents",
@@ -70,6 +92,45 @@ export default function ExpenseSpaceDocuments({
     if (preview) URL.revokeObjectURL(preview.src);
     setPreview(null);
   };
+  const beginRename = (document: ExpenseSpaceStoredDocument) => {
+    setEditingId(document._id);
+    setDraftName(splitDocumentFilename(document.payload.filename).basename);
+    setRenameError("");
+  };
+  const cancelRename = () => {
+    setEditingId(null);
+    setDraftName("");
+    setRenameError("");
+  };
+  const saveRename = async (document: ExpenseSpaceStoredDocument) => {
+    const { extension } = splitDocumentFilename(document.payload.filename);
+    const filename = `${draftName.trim()}${extension}`;
+    const validationError = validateDocumentFilename(filename);
+    if (validationError) return setRenameError(validationError);
+    if (filename === document.payload.filename) return cancelRename();
+    setSaving(true);
+    setRenameError("");
+    try {
+      const renamed = await expenseSpacesApi.renameDocument(
+        space._id,
+        document._id,
+        filename,
+      );
+      setDocuments((current) =>
+        current.map((item) => (item._id === renamed._id ? renamed : item)),
+      );
+      if (preview?.document._id === renamed._id) {
+        setPreview({ ...preview, document: renamed });
+      }
+      cancelRename();
+    } catch (cause) {
+      setRenameError(
+        cause instanceof Error ? cause.message : "Failed to rename document",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <section className="space-y-5">
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 sm:p-6">
@@ -77,38 +138,42 @@ export default function ExpenseSpaceDocuments({
         <p className="mt-1 text-sm text-zinc-400">
           Store files for {space.payload.name}. Files are private to this space.
         </p>
-        {space.payload.status === "active" ? (
-          <div className="mt-5">
-            <DocumentUpload
-              onUpload={async (file) => {
-                await expenseSpacesApi.uploadDocument(space._id, file);
-                await load();
-              }}
-            />
-          </div>
-        ) : (
+        {space.payload.status !== "active" && (
           <p className="mt-5 rounded-xl border border-warning/30 bg-warning-muted/15 p-3 text-sm text-warning">
-            Restore this space in Settings before uploading or deleting
-            documents.
+            Restore this space in Settings before uploading, renaming, or
+            deleting documents.
           </p>
         )}
       </div>
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 sm:p-6">
-        <label className="relative block">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-zinc-500"
-          />
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Search documents"
-            className="h-11 w-full rounded-xl border border-zinc-700 bg-zinc-950/50 pl-10 pr-3 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent"
-          />
-        </label>
+        <div className="flex gap-3">
+          <label className="relative block min-w-0 flex-1">
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-zinc-500"
+            />
+            <input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search documents"
+              className="h-11 w-full rounded-xl border border-zinc-700 bg-zinc-950/50 pl-10 pr-3 text-sm text-zinc-50 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-accent"
+              disabled={Boolean(editingId)}
+            />
+          </label>
+          {space.payload.status === "active" && (
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading || Boolean(editingId)}
+              className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-zinc-50 disabled:opacity-50"
+            >
+              <Upload aria-hidden="true" className="h-4 w-4" /> Upload
+            </button>
+          )}
+        </div>
         {error && (
           <p role="alert" className="mt-4 text-sm text-danger">
             {error}
@@ -129,10 +194,23 @@ export default function ExpenseSpaceDocuments({
               aria-hidden="true"
               className="mx-auto h-9 w-9 text-zinc-600"
             />
-            <p className="mt-3 font-semibold text-zinc-300">No documents yet</p>
-            <p className="mt-1 text-sm text-zinc-500">
-              Upload a PDF, image, spreadsheet, or any other file.
+            <p className="mt-3 font-semibold text-zinc-300">
+              {search ? "No documents match your search" : "No documents yet"}
             </p>
+            <p className="mt-1 text-sm text-zinc-500">
+              {search
+                ? "Try a different filename or clear your search."
+                : "Upload a PDF, image, spreadsheet, or any other file."}
+            </p>
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="mt-3 text-sm font-semibold text-accent"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         ) : (
           <ul className="mt-4 divide-y divide-zinc-800">
@@ -143,9 +221,72 @@ export default function ExpenseSpaceDocuments({
                   className="h-5 w-5 shrink-0 text-accent"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-zinc-100">
-                    {document.payload.filename}
-                  </p>
+                  {editingId === document._id ? (
+                    <div className="flex flex-wrap items-center gap-1">
+                      <input
+                        autoFocus
+                        value={draftName}
+                        disabled={saving}
+                        onChange={(event) => setDraftName(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Escape") cancelRename();
+                          if (
+                            event.key === "Enter" &&
+                            !event.nativeEvent.isComposing
+                          )
+                            void saveRename(document);
+                        }}
+                        aria-label={`Rename ${document.payload.filename}`}
+                        className="h-9 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-2 text-sm font-semibold text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                      <span className="text-sm text-zinc-500">
+                        {
+                          splitDocumentFilename(document.payload.filename)
+                            .extension
+                        }
+                      </span>
+                      <button
+                        type="button"
+                        disabled={saving}
+                        onClick={() => void saveRename(document)}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-success hover:bg-success-muted/20"
+                        aria-label={`Save name for ${document.payload.filename}`}
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={saving}
+                        onClick={cancelRename}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-danger hover:bg-danger-muted/20"
+                        aria-label="Discard document name"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={Boolean(editingId)}
+                      onClick={() => beginRename(document)}
+                      title={document.payload.filename}
+                      className="flex max-w-full items-center gap-1 truncate text-left text-sm font-semibold text-zinc-100 hover:text-accent disabled:opacity-50"
+                      aria-label={`Rename ${document.payload.filename}`}
+                    >
+                      <span className="truncate">
+                        {document.payload.filename}
+                      </span>
+                      <Pencil
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 shrink-0"
+                      />
+                    </button>
+                  )}
+                  {editingId === document._id && renameError && (
+                    <p role="alert" className="mt-1 text-xs text-danger">
+                      {renameError}
+                    </p>
+                  )}
                   <p className="mt-0.5 text-xs text-zinc-500">
                     {formatBytes(document.payload.size)} ·{" "}
                     {new Date(document.created_at).toLocaleDateString()}
@@ -156,6 +297,7 @@ export default function ExpenseSpaceDocuments({
                     type="button"
                     onClick={() => void previewDocument(document)}
                     className="flex h-11 w-11 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-50"
+                    disabled={Boolean(editingId)}
                     aria-label={`Preview ${document.payload.filename}`}
                   >
                     <Eye aria-hidden="true" className="h-4 w-4" />
@@ -170,6 +312,7 @@ export default function ExpenseSpaceDocuments({
                   {space.payload.status === "active" && (
                     <button
                       type="button"
+                      disabled={Boolean(editingId) || saving}
                       onClick={() => setDeleting(document)}
                       className="flex h-11 w-11 items-center justify-center rounded-lg text-danger hover:bg-danger-muted/20"
                       aria-label={`Delete ${document.payload.filename}`}
@@ -200,6 +343,26 @@ export default function ExpenseSpaceDocuments({
             >
               Next
             </button>
+          </div>
+        )}
+        {!loading && total > 0 && (
+          <p className="mt-4 text-xs text-zinc-500">
+            {total} {search ? "results" : "documents"}
+          </p>
+        )}
+        {space.payload.status === "active" && (
+          <div className="mt-5">
+            <DocumentUpload
+              fileInputRef={inputRef}
+              variant={
+                documents.length === 0 && !search ? "default" : "compact"
+              }
+              onUploadingChange={setUploading}
+              onUpload={async (file) => {
+                await expenseSpacesApi.uploadDocument(space._id, file);
+                await load();
+              }}
+            />
           </div>
         )}
       </div>
