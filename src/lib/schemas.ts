@@ -401,6 +401,18 @@ export const ExpenseSpaceEntrySchema = z.object({
   ...ExpenseSpaceEntryInputFields,
 });
 
+export const ExpenseSpaceDocumentSchema = z.object({
+  space_key: z.string().uuid(),
+  filename: z.string().trim().min(1, "Filename is required").max(255),
+  content_type: z.string().trim().min(1).max(255),
+  data: z.string().trim().min(1, "Document data is required").max(7_000_000),
+  size: z
+    .number()
+    .int()
+    .min(0)
+    .max(5 * 1024 * 1024),
+});
+
 // --- 3. BLOG POSTS ---
 const BlogPostSchema = z.object({
   title: z.string().trim().min(3, "Post title is required").max(200),
@@ -1403,6 +1415,7 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   expense: ExpenseSchema,
   expense_space: ExpenseSpaceSchema,
   expense_space_entry: ExpenseSpaceEntrySchema,
+  expense_space_document: ExpenseSpaceDocumentSchema,
   blog_post: BlogPostSchema,
   portfolio_profile: PortfolioProfileSchema,
   recurring_expense: RecurringExpenseSchema,

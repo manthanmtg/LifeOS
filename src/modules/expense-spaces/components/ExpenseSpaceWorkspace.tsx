@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Archive,
   BarChart3,
+  Files,
   ListChecks,
   Settings2,
   WalletCards,
@@ -21,6 +22,7 @@ import type {
 import ExpenseEntryList from "./ExpenseEntryList";
 import ExpenseSpaceAnalytics from "./ExpenseSpaceAnalytics";
 import ExpenseSpaceSettings from "./ExpenseSpaceSettings";
+import ExpenseSpaceDocuments from "./ExpenseSpaceDocuments";
 import ExpenseSpaceTabLoadingSkeleton from "./ExpenseSpaceTabLoadingSkeleton";
 import { formatExpenseMoney } from "./ExpenseSpacesOverview";
 
@@ -39,6 +41,7 @@ interface Props {
 
 const TABS = [
   { id: "expenses" as const, label: "Expenses", icon: ListChecks },
+  { id: "docs" as const, label: "Docs", icon: Files },
   { id: "analytics" as const, label: "Analytics", icon: BarChart3 },
   { id: "settings" as const, label: "Settings", icon: Settings2 },
 ];
@@ -62,7 +65,11 @@ export default function ExpenseSpaceWorkspace({
   const pendingTab =
     pendingTransition?.from === tab ? pendingTransition.to : null;
   const tabPendingForSkeleton =
-    pendingTab === "analytics" || pendingTab === "settings" ? pendingTab : null;
+    pendingTab === "analytics" ||
+    pendingTab === "settings" ||
+    pendingTab === "docs"
+      ? pendingTab
+      : null;
   const isTabPending = tabPendingForSkeleton !== null;
   const activeTab: ExpenseSpaceTab = pendingTab ?? tab;
 
@@ -204,6 +211,8 @@ export default function ExpenseSpaceWorkspace({
           />
         ) : tab === "analytics" ? (
           <ExpenseSpaceAnalytics scope="space" space={space} spaces={spaces} />
+        ) : tab === "docs" ? (
+          <ExpenseSpaceDocuments space={space} />
         ) : (
           <ExpenseSpaceSettings
             space={space}

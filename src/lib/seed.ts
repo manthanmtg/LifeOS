@@ -70,6 +70,11 @@ export async function ensureSystemConfig() {
       "payload.space_key": 1,
       "payload.date": -1,
     });
+    await contentColl.createIndex({
+      module_type: 1,
+      "payload.space_key": 1,
+      created_at: -1,
+    });
 
     const metricsColl = db.collection("metrics");
     await metricsColl.createIndex({ timestamp: -1 });

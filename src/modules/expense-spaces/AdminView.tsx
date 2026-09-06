@@ -19,6 +19,7 @@ import ExpenseSpaceAnalytics from "./components/ExpenseSpaceAnalytics";
 
 const VALID_TABS = new Set<ExpenseSpaceTab>([
   "expenses",
+  "docs",
   "analytics",
   "settings",
 ]);

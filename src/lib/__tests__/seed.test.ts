@@ -153,7 +153,7 @@ describe("ensureSystemConfig", () => {
 
     await ensureSystemConfig();
 
-    expect(mocks.contentCreateIndex).toHaveBeenCalledTimes(4);
+    expect(mocks.contentCreateIndex).toHaveBeenCalledTimes(5);
     expect(mocks.contentCreateIndex).toHaveBeenNthCalledWith(1, {
       module_type: 1,
     });
@@ -168,6 +168,11 @@ describe("ensureSystemConfig", () => {
       module_type: 1,
       "payload.space_key": 1,
       "payload.date": -1,
+    });
+    expect(mocks.contentCreateIndex).toHaveBeenNthCalledWith(5, {
+      module_type: 1,
+      "payload.space_key": 1,
+      created_at: -1,
     });
     expect(mocks.metricsCreateIndex).toHaveBeenCalledTimes(2);
     expect(mocks.metricsCreateIndex).toHaveBeenNthCalledWith(1, {

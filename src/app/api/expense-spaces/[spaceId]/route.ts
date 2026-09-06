@@ -239,6 +239,10 @@ export async function DELETE(request: Request, { params }: Params) {
       module_type: "expense_space_entry",
       "payload.space_key": payload.space_key,
     });
+    const documents = await content.deleteMany({
+      module_type: "expense_space_document",
+      "payload.space_key": payload.space_key,
+    });
     const parent = await content.deleteOne({
       _id: objectId,
       module_type: "expense_space",
@@ -250,6 +254,7 @@ export async function DELETE(request: Request, { params }: Params) {
     return ApiSuccess({
       spaces_deleted: parent.deletedCount,
       entries_deleted: children.deletedCount,
+      documents_deleted: documents.deletedCount,
     });
   } catch (error) {
     logExpenseSpacesRouteError(

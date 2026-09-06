@@ -228,6 +228,40 @@ describe("Expense Spaces AdminView", () => {
     );
   });
 
+  it("places Docs before Analytics in the expense space navigation", async () => {
+    navigationState.searchParams = new URLSearchParams(
+      `space=${spaceId}&tab=expenses`,
+    );
+    global.fetch = vi.fn((url) =>
+      String(url).endsWith(`/${spaceId}`)
+        ? response({ data: { ...space, entry_count: 3 } })
+        : String(url).includes("/entries")
+          ? response({
+              data: {
+                entries: [],
+                page: 1,
+                pageSize: 50,
+                total: 0,
+                totalPages: 0,
+                facets: {
+                  paid_to: [],
+                  descriptions: [],
+                  tags: [],
+                  payment_methods: [],
+                },
+              },
+            })
+          : response({ data: [space] }),
+    );
+    render(<AdminView />);
+    const tabs = await screen.findAllByRole("tab");
+    const labels = tabs.map((tab) => tab.textContent?.trim());
+    expect(labels).toEqual(
+      expect.arrayContaining(["Expenses", "Docs", "Analytics", "Settings"]),
+    );
+    expect(labels.indexOf("Docs")).toBeLessThan(labels.indexOf("Analytics"));
+  });
+
   it("shows an accessible settings skeleton while the tab navigation is pending", async () => {
     navigationState.searchParams = new URLSearchParams(
       `space=${spaceId}&tab=expenses`,

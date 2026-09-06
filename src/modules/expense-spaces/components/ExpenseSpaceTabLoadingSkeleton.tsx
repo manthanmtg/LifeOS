@@ -2,7 +2,7 @@
 
 import { SkeletonBlock } from "@/components/ui/Skeletons";
 
-type LoadingTab = "analytics" | "settings";
+type LoadingTab = "analytics" | "settings" | "docs";
 
 export default function ExpenseSpaceTabLoadingSkeleton({
   tab,
@@ -17,8 +17,30 @@ export default function ExpenseSpaceTabLoadingSkeleton({
       className="space-y-5"
     >
       <span className="sr-only">Loading {tab}</span>
-      {tab === "analytics" ? <AnalyticsSkeleton /> : <SettingsSkeleton />}
+      {tab === "analytics" ? (
+        <AnalyticsSkeleton />
+      ) : tab === "docs" ? (
+        <DocsSkeleton />
+      ) : (
+        <SettingsSkeleton />
+      )}
     </div>
+  );
+}
+
+function DocsSkeleton() {
+  return (
+    <>
+      <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+        <SkeletonBlock className="h-6 w-44" />
+        <SkeletonBlock className="mt-3 h-4 w-2/3" />
+        <SkeletonBlock className="mt-6 h-32 w-full" />
+      </section>
+      <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+        <SkeletonBlock className="h-11 w-full" />
+        <SkeletonBlock className="mt-5 h-16 w-full" />
+      </section>
+    </>
   );
 }
 

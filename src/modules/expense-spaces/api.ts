@@ -5,6 +5,7 @@ import type {
   ExpenseSpaceCreateInput,
   ExpenseSpaceDetail,
   ExpenseSpaceDocument,
+  ExpenseSpaceDocumentPage,
   ExpenseSpaceEntryDocument,
   ExpenseSpaceEntryInput,
   ExpenseSpaceSummary,
@@ -70,7 +71,11 @@ export const expenseSpacesApi = {
     );
   },
   delete(spaceId: string, confirmation: string) {
-    return apiRequest<{ spaces_deleted: number; entries_deleted: number }>(
+    return apiRequest<{
+      spaces_deleted: number;
+      entries_deleted: number;
+      documents_deleted: number;
+    }>(
       `/api/expense-spaces/${spaceId}`,
       jsonRequest("DELETE", { confirmation }),
     );
@@ -111,6 +116,28 @@ export const expenseSpacesApi = {
   deleteEntry(spaceId: string, entryId: string) {
     return apiRequest<{ success: true }>(
       `/api/expense-spaces/${spaceId}/entries/${entryId}`,
+      { method: "DELETE" },
+    );
+  },
+  listDocuments(spaceId: string, page = 1, search = "") {
+    const params = new URLSearchParams({ page: String(page), page_size: "25" });
+    if (search) params.set("search", search);
+    return apiRequest<ExpenseSpaceDocumentPage>(
+      `/api/expense-spaces/${spaceId}/docs?${params}`,
+    );
+  },
+  uploadDocument(
+    spaceId: string,
+    input: { filename: string; content_type: string; data: string },
+  ) {
+    return apiRequest<unknown>(
+      `/api/expense-spaces/${spaceId}/docs`,
+      jsonRequest("POST", input),
+    );
+  },
+  deleteDocument(spaceId: string, documentId: string) {
+    return apiRequest<{ success: true }>(
+      `/api/expense-spaces/${spaceId}/docs/${documentId}`,
       { method: "DELETE" },
     );
   },

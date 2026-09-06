@@ -219,6 +219,10 @@ describe("/api/expense-spaces/[spaceId]", () => {
     const body = await accepted.json();
     expect(accepted.status).toBe(200);
     expect(collection.deleteMany).toHaveBeenCalledBefore(collection.deleteOne);
-    expect(body.data).toEqual({ spaces_deleted: 1, entries_deleted: 4 });
+    expect(body.data).toEqual({
+      spaces_deleted: 1,
+      entries_deleted: 4,
+      documents_deleted: 4,
+    });
   });
 });

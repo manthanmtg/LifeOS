@@ -11,7 +11,11 @@ import {
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-const DOMAIN_MANAGED_TYPES = new Set(["expense_space", "expense_space_entry"]);
+const DOMAIN_MANAGED_TYPES = new Set([
+  "expense_space",
+  "expense_space_entry",
+  "expense_space_document",
+]);
 
 const domainManagedError = () =>
   ApiError("Use the dedicated expense-spaces API for this content", 400);

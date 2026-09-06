@@ -74,6 +74,31 @@ export interface ExpenseSpaceEntryDocument {
   payload: ExpenseSpaceEntryPayload;
 }
 
+export interface ExpenseSpaceDocumentPayload {
+  space_key: string;
+  filename: string;
+  content_type: string;
+  data?: string;
+  size: number;
+}
+
+export interface ExpenseSpaceStoredDocument {
+  _id: string;
+  module_type: "expense_space_document";
+  is_public: false;
+  created_at: string;
+  updated_at: string;
+  payload: ExpenseSpaceDocumentPayload;
+}
+
+export interface ExpenseSpaceDocumentPage {
+  documents: ExpenseSpaceStoredDocument[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface ExpenseSpaceSummary extends ExpenseSpaceDocument {
   summary: {
     entry_count: number;
@@ -188,7 +213,7 @@ export interface ExpenseSpaceAnalyticsResponse extends ExpenseSpaceAnalytics {
 }
 
 export type ExpenseSpacesView = "overview" | "analytics";
-export type ExpenseSpaceTab = "expenses" | "analytics" | "settings";
+export type ExpenseSpaceTab = "expenses" | "docs" | "analytics" | "settings";
 
 export interface ExpenseSpacesWidgetSummary {
   active_spaces: number;

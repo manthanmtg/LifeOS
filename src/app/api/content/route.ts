@@ -5,7 +5,11 @@ import { ApiSuccess, ApiError, ApiValidationError } from "@/lib/api-response";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-const DOMAIN_MANAGED_TYPES = new Set(["expense_space", "expense_space_entry"]);
+const DOMAIN_MANAGED_TYPES = new Set([
+  "expense_space",
+  "expense_space_entry",
+  "expense_space_document",
+]);
 
 export async function GET(request: Request) {
   try {
