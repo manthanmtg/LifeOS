@@ -54,6 +54,14 @@ export interface ExpenseSpaceEntryPayload {
   notes?: string;
   tags: string[];
   receipt_url?: string;
+  receipt?: ExpenseReceiptAttachment;
+}
+
+export interface ExpenseReceiptAttachment {
+  filename: string;
+  content_type: string;
+  data: string;
+  size: number;
 }
 
 export interface ExpenseSpaceDocument {

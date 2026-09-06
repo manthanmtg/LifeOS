@@ -367,6 +367,17 @@ const ExpenseSpaceTagsSchema = z
     });
   });
 
+const ExpenseSpaceReceiptAttachmentSchema = z.object({
+  filename: z.string().trim().min(1).max(255),
+  content_type: z.string().trim().min(1).max(255),
+  data: z.string().trim().min(1).max(7_000_000),
+  size: z
+    .number()
+    .int()
+    .min(0)
+    .max(5 * 1024 * 1024),
+});
+
 const ExpenseSpaceEntryInputFields = {
   amount: z.number().positive("Amount must be greater than 0"),
   description: z.string().trim().min(2).max(200),
@@ -389,6 +400,7 @@ const ExpenseSpaceEntryInputFields = {
   notes: z.string().trim().min(1).max(2000).optional(),
   tags: ExpenseSpaceTagsSchema,
   receipt_url: z.string().trim().url().max(2048).optional(),
+  receipt: ExpenseSpaceReceiptAttachmentSchema.optional(),
 };
 
 export const ExpenseSpaceEntryInputSchema = z.object(

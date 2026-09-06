@@ -15,6 +15,7 @@ interface DocumentUploadProps {
   accept?: string;
   validateFile?: (file: File) => string | null;
   helpText?: string;
+  inputLabel?: string;
 }
 
 function readAsBase64(file: File) {
@@ -31,6 +32,7 @@ export default function DocumentUpload({
   accept,
   validateFile,
   helpText = "Any file type — max 5 MB each — multiple files supported",
+  inputLabel = "Upload document",
 }: DocumentUploadProps) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -120,6 +122,7 @@ export default function DocumentUpload({
         <input
           ref={inputRef}
           type="file"
+          aria-label={inputLabel}
           accept={accept}
           multiple
           className="hidden"

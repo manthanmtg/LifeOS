@@ -62,6 +62,24 @@ function fillRequired() {
 }
 
 describe("ExpenseEntryForm", () => {
+  it("replaces the receipt URL field with a receipt upload control", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    expect(screen.queryByLabelText(/receipt url/i)).toBeNull();
+    expect(screen.getByLabelText(/upload receipt/i)).toBeInTheDocument();
+  });
+
   it("keeps keyboard focus in the expense editor and closes with Escape", () => {
     const onClose = vi.fn();
 
