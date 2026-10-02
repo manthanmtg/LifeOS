@@ -7,13 +7,8 @@ import type { ExpenseSpaceReport } from "./report";
 const MARGIN = 14;
 const AMOUNT_COLUMN_WIDTH = 33;
 
-function drawRupeeSymbol(doc: jsPDF, x: number, y: number) {
-  doc.setDrawColor(82, 82, 91);
-  doc.setLineWidth(0.35);
-  doc.line(x, y, x + 5, y);
-  doc.line(x, y + 1.8, x + 5, y + 1.8);
-  doc.line(x + 1.1, y + 1.8, x + 5, y + 7);
-  doc.line(x, y + 7, x + 5, y + 7);
+function pdfAmount(value: string, currency: string) {
+  return currency === "INR" ? `INR ${value.replace(/^₹/, "")}` : value;
 }
 
 function section(doc: jsPDF, title: string, y: number) {
@@ -28,16 +23,17 @@ function breakdownTable(
   title: string,
   rows: Array<{ name: string; formattedAmount: string; count: number }>,
   startY: number,
+  currency: string,
 ) {
   section(doc, title, startY);
   autoTable(doc, {
     startY: startY + 4,
     head: [["Name", "Transactions", "Amount"]],
-    body: rows.map((row) => [row.name, String(row.count), row.formattedAmount]),
+    body: rows.map((row) => [row.name, String(row.count), pdfAmount(row.formattedAmount, currency)]),
     theme: "grid",
-    styles: { fontSize: 8, cellPadding: 2 },
+    styles: { font: "helvetica", fontStyle: "normal", fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [39, 39, 42] },
-    columnStyles: { 1: { halign: "right" }, 2: { halign: "right" } },
+    columnStyles: { 1: { cellWidth: 30, halign: "right" }, 2: { cellWidth: 38, halign: "right", fontSize: 8 } },
   });
   return (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? startY + 10;
 }
@@ -58,7 +54,7 @@ export function renderExpenseSpaceReportPdf(report: ExpenseSpaceReport): Uint8Ar
     startY: ledgerY,
     head: [["Date", "Description", "Paid to", "Category", "Subcategory", "Payment", "Amount"]],
     body: report.ledger.length
-      ? report.ledger.map((row) => [row.date, row.description, row.paidTo, row.category, row.subcategory, row.paymentMethod, row.formattedAmount.replace(/^₹/, "")])
+      ? report.ledger.map((row) => [row.date, row.description, row.paidTo, row.category, row.subcategory, row.paymentMethod, pdfAmount(row.formattedAmount, report.currency)])
       : [["", "No expenses recorded in this space.", "", "", "", "", ""]],
     theme: "grid",
     styles: { font: "helvetica", fontStyle: "normal", fontSize: 7, cellPadding: 1.8, overflow: "linebreak" },
@@ -72,24 +68,19 @@ export function renderExpenseSpaceReportPdf(report: ExpenseSpaceReport): Uint8Ar
       5: { cellWidth: 20 },
       6: { cellWidth: AMOUNT_COLUMN_WIDTH, halign: "right", overflow: "ellipsize", font: "helvetica", fontStyle: "normal", fontSize: 8 },
     },
-    didDrawCell: (data) => {
-      if (data.section === "body" && data.column.index === 6 && report.currency === "INR") {
-        drawRupeeSymbol(doc, data.cell.x + 1.8, data.cell.y + 4.2);
-      }
-    },
     margin: { left: MARGIN, right: MARGIN },
   });
   doc.addPage();
   let y = 20;
-  y = breakdownTable(doc, "Category breakdown", report.categoryBreakdown, y) + 12;
-  y = breakdownTable(doc, "Subcategory breakdown", report.subcategoryBreakdown, y) + 12;
+  y = breakdownTable(doc, "Category breakdown", report.categoryBreakdown, y, report.currency) + 12;
+  y = breakdownTable(doc, "Subcategory breakdown", report.subcategoryBreakdown, y, report.currency) + 12;
   if (y > 245) {
     doc.addPage();
     y = 20;
   }
-  y = breakdownTable(doc, "Top payees", report.payeeBreakdown.slice(0, 10), y) + 12;
-  y = breakdownTable(doc, "Payment methods", report.paymentMethodBreakdown, y) + 12;
-  breakdownTable(doc, "Monthly spend", report.monthlyBreakdown, y);
+  y = breakdownTable(doc, "Top payees", report.payeeBreakdown.slice(0, 10), y, report.currency) + 12;
+  y = breakdownTable(doc, "Payment methods", report.paymentMethodBreakdown, y, report.currency) + 12;
+  breakdownTable(doc, "Monthly spend", report.monthlyBreakdown, y, report.currency);
   const pages = doc.getNumberOfPages();
   for (let page = 1; page <= pages; page += 1) {
     doc.setPage(page);
