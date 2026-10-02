@@ -2,7 +2,7 @@ import "server-only";
 
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { ExpenseSpaceReport } from "./report";
+import { formatExpenseReportMoney, type ExpenseSpaceReport } from "./report";
 
 const MARGIN = 14;
 const AMOUNT_COLUMN_WIDTH = 33;
@@ -48,7 +48,18 @@ export function renderExpenseSpaceReportPdf(report: ExpenseSpaceReport): Uint8Ar
   doc.setFontSize(9);
   doc.setTextColor(82, 82, 91);
   doc.text(`Expense Space report · ${report.generatedAt.toISOString().slice(0, 10)}`, MARGIN, 29);
-  doc.text(`Total ${report.ledger[0]?.formattedAmount.replace(/[\d,.-]/g, "").trim() ?? report.currency}${report.metrics.total.toLocaleString("en-IN")}`, MARGIN, 36);
+  doc.text(
+    `Total ${pdfAmount(
+      formatExpenseReportMoney(
+        report.metrics.total,
+        report.currency,
+        report.numberFormat,
+      ),
+      report.currency,
+    )}`,
+    MARGIN,
+    36,
+  );
   const ledgerY = section(doc, "Expense ledger", 46);
   autoTable(doc, {
     startY: ledgerY,
