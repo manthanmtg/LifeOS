@@ -50,3 +50,6 @@ deno.lock
 
 # local agent artifacts
 .codex/
+
+# local git worktrees
+.worktrees/
