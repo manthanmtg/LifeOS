@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  Download,
   Filter,
   Pencil,
   Plus,
@@ -24,6 +25,7 @@ import type {
 import { EXPENSE_PAYMENT_METHODS, EXPENSE_SPACE_PAGE_SIZE } from "../constants";
 import { expenseSpacesApi } from "../api";
 import ExpenseEntryForm from "./ExpenseEntryForm";
+import ExpenseSpaceReportDialog from "./ExpenseSpaceReportDialog";
 import { formatExpenseMoney } from "./ExpenseSpacesOverview";
 
 interface Props {
@@ -46,6 +48,7 @@ export default function ExpenseEntryList({
   const [filters, setFilters] = useState<ExpenseEntryFilters>(DEFAULT_FILTERS);
   const [searchDraft, setSearchDraft] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [editing, setEditing] = useState<ExpenseSpaceEntryDocument | null>(
     null,
   );
@@ -125,17 +128,14 @@ export default function ExpenseEntryList({
               view
             </p>
           </div>
-          <Button
-            type="button"
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
-            disabled={space.payload.status === "archived"}
-            className="h-11"
-          >
-            <Plus aria-hidden="true" className="mr-2 h-4 w-4" /> Add expense
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={() => setReportOpen(true)} className="h-11">
+              <Download aria-hidden="true" className="mr-2 h-4 w-4" /> Download report
+            </Button>
+            <Button type="button" onClick={() => { setEditing(null); setFormOpen(true); }} disabled={space.payload.status === "archived"} className="h-11">
+              <Plus aria-hidden="true" className="mr-2 h-4 w-4" /> Add expense
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_repeat(3,minmax(150px,auto))]">
@@ -567,6 +567,7 @@ export default function ExpenseEntryList({
           return updated;
         }}
       />
+      <ExpenseSpaceReportDialog open={reportOpen} space={space} onClose={() => setReportOpen(false)} />
     </div>
   );
 }

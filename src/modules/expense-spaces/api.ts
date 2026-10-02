@@ -51,6 +51,19 @@ const jsonRequest = (method: string, body: unknown): RequestInit => ({
 });
 
 export const expenseSpacesApi = {
+  async downloadReport(spaceId: string) {
+    const response = await fetch(`/api/expense-spaces/${spaceId}/report`);
+    if (!response.ok) {
+      const body = (await response.json().catch(() => ({}))) as ApiEnvelope<never>;
+      throw new ExpenseSpacesApiError(
+        body.error ?? "Unable to create expense report",
+        response.status,
+      );
+    }
+    const disposition = response.headers.get("content-disposition") ?? "";
+    const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] ?? "expense-space-report.pdf";
+    return { blob: await response.blob(), filename };
+  },
   list(status: "active" | "archived" | "all" = "active") {
     return apiRequest<ExpenseSpaceSummary[]>(
       `/api/expense-spaces?status=${status}`,
