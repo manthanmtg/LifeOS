@@ -5,6 +5,16 @@ import autoTable from "jspdf-autotable";
 import type { ExpenseSpaceReport } from "./report";
 
 const MARGIN = 14;
+const AMOUNT_COLUMN_WIDTH = 33;
+
+function drawRupeeSymbol(doc: jsPDF, x: number, y: number) {
+  doc.setDrawColor(82, 82, 91);
+  doc.setLineWidth(0.35);
+  doc.line(x, y, x + 5, y);
+  doc.line(x, y + 1.8, x + 5, y + 1.8);
+  doc.line(x + 1.1, y + 1.8, x + 5, y + 7);
+  doc.line(x, y + 7, x + 5, y + 7);
+}
 
 function section(doc: jsPDF, title: string, y: number) {
   doc.setFontSize(13);
@@ -48,12 +58,25 @@ export function renderExpenseSpaceReportPdf(report: ExpenseSpaceReport): Uint8Ar
     startY: ledgerY,
     head: [["Date", "Description", "Paid to", "Category", "Subcategory", "Payment", "Amount"]],
     body: report.ledger.length
-      ? report.ledger.map((row) => [row.date, row.description, row.paidTo, row.category, row.subcategory, row.paymentMethod, row.formattedAmount])
+      ? report.ledger.map((row) => [row.date, row.description, row.paidTo, row.category, row.subcategory, row.paymentMethod, row.formattedAmount.replace(/^₹/, "")])
       : [["", "No expenses recorded in this space.", "", "", "", "", ""]],
     theme: "grid",
-    styles: { fontSize: 7, cellPadding: 1.8, overflow: "linebreak" },
+    styles: { font: "helvetica", fontStyle: "normal", fontSize: 7, cellPadding: 1.8, overflow: "linebreak" },
     headStyles: { fillColor: [39, 39, 42] },
-    columnStyles: { 6: { halign: "right" } },
+    columnStyles: {
+      0: { cellWidth: 18 },
+      1: { cellWidth: 34 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 25 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 20 },
+      6: { cellWidth: AMOUNT_COLUMN_WIDTH, halign: "right", overflow: "ellipsize", font: "helvetica", fontStyle: "normal", fontSize: 8 },
+    },
+    didDrawCell: (data) => {
+      if (data.section === "body" && data.column.index === 6 && report.currency === "INR") {
+        drawRupeeSymbol(doc, data.cell.x + 1.8, data.cell.y + 4.2);
+      }
+    },
     margin: { left: MARGIN, right: MARGIN },
   });
   doc.addPage();
