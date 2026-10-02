@@ -88,7 +88,7 @@ describe("expense space report model", () => {
       generatedAt: new Date("2026-10-02T00:00:00.000Z"),
     });
 
-    expect(report.ledger[0].formattedAmount).toBe("₹1,23,456.75");
+    expect(report.ledger[0].formattedAmount).toBe("₹1,23,457");
     expect(createExpenseSpaceReportFilename("House / Renovation", new Date("2026-10-02"))).toBe(
       "expense-space-house-renovation-2026-10-02.pdf",
     );

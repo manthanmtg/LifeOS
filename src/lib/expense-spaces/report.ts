@@ -76,8 +76,8 @@ export function formatExpenseReportMoney(
   return new Intl.NumberFormat(numberFormat === "indian" ? "en-IN" : "en-US", {
     style: "currency",
     currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 
