@@ -62,6 +62,27 @@ function fillRequired() {
 }
 
 describe("ExpenseEntryForm", () => {
+  it("shows a muted amount-in-words hint while entering a valid amount", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/^amount/i), {
+      target: { value: "200000" },
+    });
+
+    expect(screen.getByText("Two Lakh")).toHaveClass("text-zinc-500");
+  });
+
   it("replaces the receipt URL field with a receipt upload control", () => {
     render(
       <ExpenseEntryForm

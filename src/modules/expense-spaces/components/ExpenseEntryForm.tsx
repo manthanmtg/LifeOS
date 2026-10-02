@@ -13,6 +13,7 @@ import type {
   ExpenseSpaceUpdateInput,
 } from "../types";
 import { EXPENSE_PAYMENT_METHODS } from "../constants";
+import { amountInWords } from "../amount-in-words";
 import FuzzyFreeTextInput from "./FuzzyFreeTextInput";
 
 interface Props {
@@ -161,6 +162,7 @@ export default function ExpenseEntryForm({
         ? `This subcategory already exists under ${selectedCategory?.name ?? "this category"}.`
         : null
     : null;
+  const amountWords = amountInWords(amount, space.payload.number_format);
 
   if (!open) return null;
 
@@ -352,6 +354,11 @@ export default function ExpenseEntryForm({
                 onChange={(event) => setAmount(event.target.value)}
                 className={inputClass}
               />
+              {amountWords && (
+                <span className="mt-2 block text-xs font-normal text-zinc-500">
+                  {amountWords}
+                </span>
+              )}
             </label>
             <label className="text-sm font-medium text-zinc-200">
               Date *
