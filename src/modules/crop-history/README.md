@@ -82,6 +82,18 @@ Configured under `cropHistorySettings` with these structures:
 - Built-in formula engine for calculated fields and derived metrics
 - Revenue/trend summary surfaced in admin widget via `/api/widgets/summary?module_type=crop_history`
 - Notes support for period context (weather, pests, observations)
+- Download the selected crop's saved spreadsheet history as Excel, PDF, or a
+  standalone HTML report. Choose all periods or a subset and choose whether to
+  include notes. Downloads use the configured period order and current formula
+  setup; save edits before downloading.
+
+### Downloads
+
+- **Excel** preserves numeric cells for sorting and analysis, including computed
+  values. Percentages are stored as percentage points, so `25` displays as `25%`.
+- **PDF** is a printable landscape report. Its built-in font supports English and
+  common punctuation; use Excel or HTML for names/notes in other scripts.
+- **HTML** is a self-contained, offline report with a print-friendly table.
 
 ## Formula Engine (Smart Capabilities)
 

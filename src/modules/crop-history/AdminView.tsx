@@ -19,10 +19,21 @@ import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 
 import dynamic from "next/dynamic";
 
-const SpreadsheetTab = dynamic(() => import("./SpreadsheetTab").then((mod) => mod.SpreadsheetTab));
-const AnalyticsTab = dynamic(() => import("./AnalyticsTab").then((mod) => mod.AnalyticsTab));
-const SettingsTab = dynamic(() => import("./SettingsTab").then((mod) => mod.SettingsTab));
-const DocsTab = dynamic(() => import("./DocsTab").then((mod) => mod.DocsTab));
+const SpreadsheetTab = dynamic(
+  () => import("./SpreadsheetTab").then((mod) => mod.SpreadsheetTab),
+  { loading: () => <AdminModuleSkeleton /> },
+);
+const AnalyticsTab = dynamic(
+  () => import("./AnalyticsTab").then((mod) => mod.AnalyticsTab),
+  { loading: () => <AdminModuleSkeleton /> },
+);
+const SettingsTab = dynamic(
+  () => import("./SettingsTab").then((mod) => mod.SettingsTab),
+  { loading: () => <AdminModuleSkeleton /> },
+);
+const DocsTab = dynamic(() => import("./DocsTab").then((mod) => mod.DocsTab), {
+  loading: () => <AdminModuleSkeleton />,
+});
 
 // --- Types ---
 export interface FieldDef {
@@ -97,12 +108,17 @@ export default function CropHistoryAdminView() {
     updateSettings,
     saving: settingsSaving,
     loaded: settingsLoaded,
+    error: settingsError,
   } = useModuleSettings<ModuleSettings>(
     "cropHistorySettings",
     DEFAULT_SETTINGS,
   );
 
   const [records, setRecords] = useState<CropRecord[]>([]);
+  const [recordsStatus, setRecordsStatus] = useState<
+    "loading" | "ready" | "error"
+  >("loading");
+  const [recordsError, setRecordsError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<
     "spreadsheet" | "analytics" | "settings" | "docs"
@@ -121,24 +137,25 @@ export default function CropHistoryAdminView() {
     try {
       const res = await fetch("/api/content?module_type=crop_history");
       const data = await res.json();
-      if (res.ok) setRecords(data.data || []);
+      if (!res.ok || !Array.isArray(data.data))
+        throw new Error("Could not load crop history records.");
+      setRecords(data.data);
+      setRecordsStatus("ready");
+      setRecordsError(null);
+      return data.data as CropRecord[];
     } catch (e) {
+      setRecordsStatus("error");
+      setRecordsError(
+        e instanceof Error ? e.message : "Could not load crop history records.",
+      );
       console.error("Failed to fetch records", e);
+      throw e;
     }
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/content?module_type=crop_history")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setRecords(data.data || []);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void fetchRecords().catch(() => {});
+  }, [fetchRecords]);
 
   const activeCrop = useMemo(
     () => settings.crops.find((c) => c.id === resolvedCropId),
@@ -192,12 +209,20 @@ export default function CropHistoryAdminView() {
         updateSettings({ crops: updatedCrops });
       }
     },
-    [activeCrop, settings.crops, updateSettings]
+    [activeCrop, settings.crops, updateSettings],
   );
 
-  if (!settingsLoaded) {
+  if (!settingsLoaded || recordsStatus === "loading") {
     return <AdminModuleSkeleton />;
   }
+
+  const exportBlockedReason = settingsError
+    ? "Crop settings could not be confirmed. Save or reload settings before downloading."
+    : settingsSaving
+      ? "Wait for crop settings to finish saving before downloading."
+      : recordsStatus === "error"
+        ? "Crop records could not be loaded. Retry before downloading."
+        : null;
 
   return (
     <div className="animate-fade-in-up space-y-6">
@@ -287,6 +312,21 @@ export default function CropHistoryAdminView() {
         >
           {activeTab === "spreadsheet" && (
             <div id="crop-history-spreadsheet-panel" role="tabpanel">
+              {recordsError && (
+                <div
+                  role="alert"
+                  className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-muted/10 p-3 text-sm text-danger"
+                >
+                  <span>{recordsError}</span>
+                  <button
+                    type="button"
+                    onClick={() => void fetchRecords().catch(() => {})}
+                    className="rounded-lg border border-danger/30 px-3 py-1.5 font-medium"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
               <SpreadsheetTab
                 activeCrop={activeCrop}
                 crops={settings.crops}
@@ -296,6 +336,7 @@ export default function CropHistoryAdminView() {
                 setActiveCropId={setActiveCropId}
                 onReorderPeriods={handleReorderPeriods}
                 onRefresh={fetchRecords}
+                exportBlockedReason={exportBlockedReason}
               />
             </div>
           )}

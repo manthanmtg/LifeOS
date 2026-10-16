@@ -88,6 +88,30 @@ export function DocsTab() {
         </div>
       </Section>
 
+      <Section title="Downloading records" icon={Table}>
+        <p>
+          Use <strong className="text-zinc-300">Download</strong> in the
+          spreadsheet header to create an Excel workbook, printable PDF, or
+          standalone HTML report for the selected crop.
+        </p>
+        <ul className="list-disc list-inside space-y-1.5">
+          <li>
+            Choose all saved periods or select a subset in the current order.
+          </li>
+          <li>
+            Include notes when weather and field observations should travel with
+            the report.
+          </li>
+          <li>
+            Save edits before downloading so every format uses the same data.
+          </li>
+          <li>
+            Use Excel or HTML for names and notes written in scripts the PDF
+            font cannot display.
+          </li>
+        </ul>
+      </Section>
+
       {/* Areas */}
       <Section title="Areas" icon={MapPin}>
         <p>

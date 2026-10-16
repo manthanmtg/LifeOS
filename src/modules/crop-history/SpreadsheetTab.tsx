@@ -22,6 +22,9 @@ import { evaluateAllCalculatedFields } from "./FormulaEngine";
 import type { FormulaContext } from "./FormulaEngine";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { ToastType } from "@/components/ui/Toast";
+import { CropDownloadMenu } from "./components/CropDownloadMenu";
+import { CropDownloadDialog } from "./components/CropDownloadDialog";
+import type { CropExportFormat } from "./lib/export-data";
 
 // --- Types (from AdminView) ---
 interface FieldDef {
@@ -89,7 +92,8 @@ interface SpreadsheetTabProps {
   schedulePeriods: string[];
   setActiveCropId: (id: string) => void;
   onReorderPeriods: (newOrder: string[]) => void;
-  onRefresh: () => void;
+  onRefresh: () => Promise<CropRecord[]>;
+  exportBlockedReason?: string | null;
 }
 
 const formatINR = (val: number) =>
@@ -152,6 +156,7 @@ export function SpreadsheetTab({
   setActiveCropId,
   onReorderPeriods,
   onRefresh,
+  exportBlockedReason = null,
 }: SpreadsheetTabProps) {
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [localData, setLocalData] = useState<LocalData>({});
@@ -160,6 +165,10 @@ export function SpreadsheetTab({
   const [showAddPeriod, setShowAddPeriod] = useState(false);
   const [newPeriodValue, setNewPeriodValue] = useState("");
   const [localPeriods, setLocalPeriods] = useState<string[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [exportFormat, setExportFormat] = useState<CropExportFormat | null>(
+    null,
+  );
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -243,6 +252,7 @@ export function SpreadsheetTab({
     fieldId: string,
     value: string,
   ) => {
+    setHasUnsavedChanges(true);
     setLocalData((prev: LocalData) => {
       const periodData = prev[period] || {
         source_data: {},
@@ -271,6 +281,7 @@ export function SpreadsheetTab({
     fieldId: string,
     value: string,
   ) => {
+    setHasUnsavedChanges(true);
     setLocalData((prev: LocalData) => {
       const periodData = prev[period] || {
         source_data: {},
@@ -291,6 +302,7 @@ export function SpreadsheetTab({
   };
 
   const handleNotesChange = (period: string, notes: string) => {
+    setHasUnsavedChanges(true);
     setLocalData((prev: LocalData) => {
       const periodData = prev[period] || {
         source_data: {},
@@ -330,7 +342,8 @@ export function SpreadsheetTab({
         body: JSON.stringify(reqBody),
       });
       if (!res.ok) throw new Error("Failed to save");
-      onRefresh();
+      await onRefresh();
+      setHasUnsavedChanges(false);
       showToast(`Saved ${period} successfully`);
     } catch (e) {
       console.error("Save failed", e);
@@ -355,6 +368,7 @@ export function SpreadsheetTab({
   const handleAddPeriod = () => {
     const val = newPeriodValue.trim();
     if (val && !schedulePeriods.includes(val)) {
+      setHasUnsavedChanges(true);
       setLocalPeriods((prev) => [...prev, val].sort());
       setLocalData((prev: LocalData) => ({
         ...prev,
@@ -378,7 +392,8 @@ export function SpreadsheetTab({
               method: "DELETE",
             });
             if (!res.ok) throw new Error("Failed to delete");
-            onRefresh();
+            await onRefresh();
+            setHasUnsavedChanges(false);
             showToast(`Deleted period ${period}`);
           } catch (e) {
             console.error("Delete failed", e);
@@ -522,6 +537,25 @@ export function SpreadsheetTab({
                 <Pencil className="w-3.5 h-3.5" /> Edit
               </button>
             </div>
+            <CropDownloadMenu
+              disabled={Boolean(
+                exportBlockedReason ||
+                hasUnsavedChanges ||
+                isSaving ||
+                !externalPeriods.length,
+              )}
+              disabledReason={
+                exportBlockedReason ||
+                (hasUnsavedChanges
+                  ? "Save your changes before downloading."
+                  : isSaving
+                    ? "Wait for saving to finish before downloading."
+                    : !externalPeriods.length
+                      ? "There are no saved periods to download."
+                      : null)
+              }
+              onChoose={setExportFormat}
+            />
 
             {mode === "edit" && (
               <>
@@ -995,6 +1029,24 @@ export function SpreadsheetTab({
         type={toastState.type}
         isVisible={toastState.isVisible}
         onClose={() => setToastState({ ...toastState, isVisible: false })}
+      />
+      <CropDownloadDialog
+        open={exportFormat !== null}
+        format={exportFormat}
+        crop={activeCrop}
+        areas={areas}
+        records={records}
+        periods={externalPeriods}
+        blockedReason={
+          exportBlockedReason ||
+          (hasUnsavedChanges
+            ? "Save your changes before downloading."
+            : isSaving
+              ? "Wait for saving to finish before downloading."
+              : null)
+        }
+        onClose={() => setExportFormat(null)}
+        onDownloaded={() => showToast("Download started.")}
       />
     </div>
   );
