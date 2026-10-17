@@ -42,6 +42,18 @@ type WarrantyDocument = {
   _id: string;
   payload: { filename: string; size: number; kind: string };
 };
+type EditableWarrantyDetails = Pick<
+  WarrantyItem["payload"],
+  | "name"
+  | "category"
+  | "brand"
+  | "model"
+  | "location"
+  | "purchase_date"
+  | "currency"
+  | "ownership_status"
+  | "coverages"
+>;
 
 function makeId() {
   return crypto.randomUUID();
@@ -72,6 +84,10 @@ export default function WarrantyAdminView() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState<EditableWarrantyDetails | null>(
+    null,
+  );
   const [name, setName] = useState("");
   const [coverageLabel, setCoverageLabel] = useState("");
   const [coverageStart, setCoverageStart] = useState("");
@@ -157,7 +173,7 @@ export default function WarrantyAdminView() {
   const saveItem = async (
     item: WarrantyItem,
     patch: Partial<WarrantyItem["payload"]>,
-  ) => {
+  ): Promise<boolean> => {
     setSaving(true);
     try {
       const response = await fetch(`/api/warranty/${item._id}`, {
@@ -177,12 +193,64 @@ export default function WarrantyAdminView() {
         current.map((entry) => (entry._id === updated._id ? updated : entry)),
       );
       setError("");
+      return true;
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Failed to save warranty item",
       );
+      return false;
     } finally {
       setSaving(false);
+    }
+  };
+
+  const beginEditing = () => {
+    if (!selected) return;
+    const {
+      name: draftName,
+      category,
+      brand,
+      model,
+      location,
+      purchase_date,
+      currency,
+      ownership_status,
+      coverages,
+    } = selected.payload;
+    setEditDraft({
+      name: draftName,
+      category,
+      brand,
+      model,
+      location,
+      purchase_date,
+      currency,
+      ownership_status,
+      coverages: coverages.map((coverage) => ({ ...coverage })),
+    });
+    setEditing(true);
+  };
+
+  const submitEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!selected || !editDraft || !editDraft.name.trim()) return;
+
+    const saved = await saveItem(selected, {
+      ...editDraft,
+      name: editDraft.name.trim(),
+      purchase_date: editDraft.purchase_date || undefined,
+      coverages: editDraft.coverages
+        .filter((coverage) => coverage.label.trim())
+        .map((coverage) => ({
+          ...coverage,
+          label: coverage.label.trim(),
+          start_date: coverage.start_date || undefined,
+          end_date: coverage.end_date || undefined,
+        })),
+    });
+    if (saved) {
+      setEditing(false);
+      setEditDraft(null);
     }
   };
 
@@ -288,7 +356,11 @@ export default function WarrantyAdminView() {
                 <li key={item._id}>
                   <button
                     type="button"
-                    onClick={() => setSelected(item)}
+                    onClick={() => {
+                      setSelected(item);
+                      setEditing(false);
+                      setEditDraft(null);
+                    }}
                     className="w-full rounded-xl border border-zinc-800 p-4 text-left hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <p className="font-bold text-zinc-100">
@@ -309,36 +381,249 @@ export default function WarrantyAdminView() {
         {selected ? (
           <div className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
             <div>
-              <h2 className="text-xl font-black text-zinc-50">
-                {selected.payload.name}
-              </h2>
-              <p className="mt-1 text-sm text-zinc-400">
-                Coverage and documents for this item.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black text-zinc-50">
+                    {selected.payload.name}
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Coverage and documents for this item.
+                  </p>
+                </div>
+                {!editing && (
+                  <button
+                    type="button"
+                    onClick={beginEditing}
+                    className="min-h-11 rounded-lg border border-accent/50 px-3 text-sm font-bold text-accent"
+                  >
+                    Edit details
+                  </button>
+                )}
+              </div>
             </div>
-            <section>
-              <h3 className="text-sm font-bold text-zinc-200">Coverage</h3>
-              {selected.payload.coverages.length ? (
-                <ul className="mt-2 space-y-2">
-                  {selected.payload.coverages.map((coverage) => (
-                    <li
-                      key={coverage.id}
-                      className="rounded-lg border border-zinc-800 p-3 text-sm text-zinc-300"
+            {editing && editDraft ? (
+              <form
+                onSubmit={submitEdit}
+                className="space-y-4 rounded-xl border border-accent/30 bg-accent/5 p-4"
+              >
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm text-zinc-300">
+                    Item name
+                    <input
+                      required
+                      value={editDraft.name}
+                      onChange={(event) =>
+                        setEditDraft({ ...editDraft, name: event.target.value })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                    />
+                  </label>
+                  <label className="text-sm text-zinc-300">
+                    Category
+                    <select
+                      value={editDraft.category}
+                      onChange={(event) =>
+                        setEditDraft({
+                          ...editDraft,
+                          category: event.target.value,
+                        })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
                     >
-                      <strong>{coverage.label}</strong>
-                      <span className="ml-2 text-zinc-500">
-                        {coverage.start_date || "Unknown start"} —{" "}
-                        {coverage.end_date || "Unknown end"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-2 text-sm text-zinc-500">
-                  No coverage period recorded.
-                </p>
-              )}
-            </section>
+                      {[
+                        "appliance",
+                        "electronics",
+                        "computer",
+                        "mobile",
+                        "home",
+                        "other",
+                      ].map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm text-zinc-300">
+                    Brand
+                    <input
+                      value={editDraft.brand || ""}
+                      onChange={(event) =>
+                        setEditDraft({
+                          ...editDraft,
+                          brand: event.target.value,
+                        })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                    />
+                  </label>
+                  <label className="text-sm text-zinc-300">
+                    Model
+                    <input
+                      value={editDraft.model || ""}
+                      onChange={(event) =>
+                        setEditDraft({
+                          ...editDraft,
+                          model: event.target.value,
+                        })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                    />
+                  </label>
+                  <label className="text-sm text-zinc-300">
+                    Location
+                    <input
+                      value={editDraft.location || ""}
+                      onChange={(event) =>
+                        setEditDraft({
+                          ...editDraft,
+                          location: event.target.value,
+                        })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                    />
+                  </label>
+                  <label className="text-sm text-zinc-300">
+                    Purchase date
+                    <input
+                      type="date"
+                      value={editDraft.purchase_date || ""}
+                      onChange={(event) =>
+                        setEditDraft({
+                          ...editDraft,
+                          purchase_date: event.target.value,
+                        })
+                      }
+                      className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                    />
+                  </label>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-bold text-zinc-200">
+                      Coverage
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditDraft({
+                          ...editDraft,
+                          coverages: [
+                            ...editDraft.coverages,
+                            { id: makeId(), label: "" },
+                          ],
+                        })
+                      }
+                      className="min-h-11 rounded-lg border border-zinc-700 px-3 text-sm font-bold text-zinc-300"
+                    >
+                      Add coverage
+                    </button>
+                  </div>
+                  <div className="mt-2 space-y-3">
+                    {editDraft.coverages.map((coverage, index) => (
+                      <div
+                        key={coverage.id}
+                        className="grid gap-2 rounded-lg border border-zinc-800 p-3 sm:grid-cols-3"
+                      >
+                        <input
+                          aria-label={`Coverage ${index + 1} label`}
+                          value={coverage.label}
+                          placeholder="Coverage label"
+                          onChange={(event) =>
+                            setEditDraft({
+                              ...editDraft,
+                              coverages: editDraft.coverages.map((entry) =>
+                                entry.id === coverage.id
+                                  ? { ...entry, label: event.target.value }
+                                  : entry,
+                              ),
+                            })
+                          }
+                          className="min-h-11 rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                        />
+                        <input
+                          type="date"
+                          aria-label={`Coverage ${index + 1} start`}
+                          value={coverage.start_date || ""}
+                          onChange={(event) =>
+                            setEditDraft({
+                              ...editDraft,
+                              coverages: editDraft.coverages.map((entry) =>
+                                entry.id === coverage.id
+                                  ? {
+                                      ...entry,
+                                      start_date: event.target.value,
+                                    }
+                                  : entry,
+                              ),
+                            })
+                          }
+                          className="min-h-11 rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                        />
+                        <input
+                          type="date"
+                          aria-label={`Coverage ${index + 1} end`}
+                          value={coverage.end_date || ""}
+                          onChange={(event) =>
+                            setEditDraft({
+                              ...editDraft,
+                              coverages: editDraft.coverages.map((entry) =>
+                                entry.id === coverage.id
+                                  ? { ...entry, end_date: event.target.value }
+                                  : entry,
+                              ),
+                            })
+                          }
+                          className="min-h-11 rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    disabled={saving}
+                    className="min-h-11 rounded-lg bg-accent px-4 text-sm font-bold text-zinc-50 disabled:opacity-50"
+                  >
+                    Save changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditing(false);
+                      setEditDraft(null);
+                    }}
+                    className="min-h-11 rounded-lg border border-zinc-700 px-4 text-sm text-zinc-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <section>
+                <h3 className="text-sm font-bold text-zinc-200">Coverage</h3>
+                {selected.payload.coverages.length ? (
+                  <ul className="mt-2 space-y-2">
+                    {selected.payload.coverages.map((coverage) => (
+                      <li
+                        key={coverage.id}
+                        className="rounded-lg border border-zinc-800 p-3 text-sm text-zinc-300"
+                      >
+                        <strong>{coverage.label}</strong>
+                        <span className="ml-2 text-zinc-500">
+                          {coverage.start_date || "Unknown start"} —{" "}
+                          {coverage.end_date || "Unknown end"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-zinc-500">
+                    No coverage period recorded.
+                  </p>
+                )}
+              </section>
+            )}
             <section>
               <h3 className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <Wrench className="h-4 w-4" />
