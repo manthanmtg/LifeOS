@@ -1,10 +1,23 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { FileText, Plus, ShieldCheck, Wrench } from "lucide-react";
+import {
+  Check,
+  FileText,
+  Pencil,
+  Plus,
+  ShieldCheck,
+  Wrench,
+  X,
+} from "lucide-react";
 
+import DocPreview from "@/components/ui/DocPreview";
 import DocumentUpload from "@/components/ui/DocumentUpload";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
+import {
+  splitDocumentFilename,
+  validateDocumentFilename,
+} from "@/lib/expense-spaces/document-filename";
 
 type Coverage = {
   id: string;
@@ -41,7 +54,12 @@ type WarrantyItem = {
 };
 type WarrantyDocument = {
   _id: string;
-  payload: { filename: string; size: number; kind: string };
+  payload: {
+    filename: string;
+    content_type: string;
+    size: number;
+    kind: string;
+  };
 };
 type EditableWarrantyDetails = Pick<
   WarrantyItem["payload"],
@@ -83,6 +101,16 @@ export default function WarrantyAdminView() {
   const [items, setItems] = useState<WarrantyItem[]>([]);
   const [selected, setSelected] = useState<WarrantyItem | null>(null);
   const [documents, setDocuments] = useState<WarrantyDocument[]>([]);
+  const [preview, setPreview] = useState<{
+    document: WarrantyDocument;
+    src: string;
+  } | null>(null);
+  const [editingDocumentId, setEditingDocumentId] = useState<string | null>(
+    null,
+  );
+  const [draftDocumentName, setDraftDocumentName] = useState("");
+  const [renameError, setRenameError] = useState("");
+  const [renaming, setRenaming] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -123,6 +151,89 @@ export default function WarrantyAdminView() {
     const body = await response.json();
     if (response.ok) setDocuments(body.data.documents || []);
   }, []);
+
+  const previewDocument = async (
+    item: WarrantyItem,
+    document: WarrantyDocument,
+  ) => {
+    try {
+      const response = await fetch(
+        `/api/warranty/${item._id}/documents/${document._id}`,
+      );
+      if (!response.ok) throw new Error("Failed to open document");
+      setPreview({ document, src: URL.createObjectURL(await response.blob()) });
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Failed to open document",
+      );
+    }
+  };
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.src);
+    setPreview(null);
+  };
+
+  const beginRenameDocument = (document: WarrantyDocument) => {
+    setEditingDocumentId(document._id);
+    setDraftDocumentName(
+      splitDocumentFilename(document.payload.filename).basename,
+    );
+    setRenameError("");
+  };
+
+  const cancelRenameDocument = () => {
+    setEditingDocumentId(null);
+    setDraftDocumentName("");
+    setRenameError("");
+  };
+
+  const saveRenameDocument = async (
+    item: WarrantyItem,
+    document: WarrantyDocument,
+  ) => {
+    const { extension } = splitDocumentFilename(document.payload.filename);
+    const filename = `${draftDocumentName.trim()}${extension}`;
+    const validationError = validateDocumentFilename(filename);
+    if (validationError) {
+      setRenameError(validationError);
+      return;
+    }
+    if (filename === document.payload.filename) {
+      cancelRenameDocument();
+      return;
+    }
+
+    setRenaming(true);
+    setRenameError("");
+    try {
+      const response = await fetch(
+        `/api/warranty/${item._id}/documents/${document._id}`,
+        {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ name: draftDocumentName.trim() }),
+        },
+      );
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error || "Failed to rename document");
+      const renamed = body.data as WarrantyDocument;
+      setDocuments((current) =>
+        current.map((entry) => (entry._id === renamed._id ? renamed : entry)),
+      );
+      if (preview?.document._id === renamed._id) {
+        setPreview({ ...preview, document: renamed });
+      }
+      cancelRenameDocument();
+    } catch (cause) {
+      setRenameError(
+        cause instanceof Error ? cause.message : "Failed to rename document",
+      );
+    } finally {
+      setRenaming(false);
+    }
+  };
 
   useEffect(() => {
     void loadItems();
@@ -720,10 +831,88 @@ export default function WarrantyAdminView() {
                       key={document._id}
                       className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 p-3 text-sm"
                     >
-                      <span className="min-w-0 truncate text-zinc-300">
-                        {document.payload.filename}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        {editingDocumentId === document._id ? (
+                          <>
+                            <div className="flex min-w-0 items-center gap-1">
+                              <input
+                                autoFocus
+                                aria-label={`File name for ${document.payload.filename}`}
+                                value={draftDocumentName}
+                                onChange={(event) =>
+                                  setDraftDocumentName(event.target.value)
+                                }
+                                disabled={renaming}
+                                className="h-9 min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-2 text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-accent"
+                              />
+                              <span className="text-sm text-zinc-500">
+                                {
+                                  splitDocumentFilename(
+                                    document.payload.filename,
+                                  ).extension
+                                }
+                              </span>
+                              <button
+                                type="button"
+                                disabled={renaming}
+                                onClick={() =>
+                                  void saveRenameDocument(selected, document)
+                                }
+                                aria-label={`Save file name for ${document.payload.filename}`}
+                                className="flex h-9 w-9 items-center justify-center rounded-lg text-success hover:bg-success-muted/20 disabled:opacity-50"
+                              >
+                                <Check aria-hidden="true" className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={renaming}
+                                onClick={cancelRenameDocument}
+                                aria-label="Discard file name"
+                                className="flex h-9 w-9 items-center justify-center rounded-lg text-danger hover:bg-danger-muted/20 disabled:opacity-50"
+                              >
+                                <X aria-hidden="true" className="h-4 w-4" />
+                              </button>
+                            </div>
+                            {renameError && (
+                              <p
+                                role="alert"
+                                className="mt-1 text-xs text-danger"
+                              >
+                                {renameError}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={Boolean(editingDocumentId)}
+                            onClick={() => beginRenameDocument(document)}
+                            title={document.payload.filename}
+                            aria-label={`Rename ${document.payload.filename}`}
+                            className="flex max-w-full items-center gap-1 truncate text-left text-sm font-semibold text-zinc-300 hover:text-accent disabled:opacity-50"
+                          >
+                            <span className="truncate">
+                              {document.payload.filename}
+                            </span>
+                            <Pencil
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5 shrink-0"
+                            />
+                          </button>
+                        )}
+                      </div>
                       <div className="flex shrink-0 gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void previewDocument(selected, document)
+                          }
+                          disabled={Boolean(editingDocumentId)}
+                          className="text-accent disabled:opacity-50"
+                          aria-label={`View ${document.payload.filename}`}
+                        >
+                          View
+                        </button>
                         <a
                           href={`/api/warranty/${selected._id}/documents/${document._id}`}
                           className="text-accent"
@@ -732,7 +921,8 @@ export default function WarrantyAdminView() {
                         </a>
                         <button
                           type="button"
-                          className="text-danger"
+                          disabled={Boolean(editingDocumentId)}
+                          className="text-danger disabled:opacity-50"
                           onClick={() => {
                             if (
                               window.confirm(
@@ -776,6 +966,15 @@ export default function WarrantyAdminView() {
           </div>
         )}
       </div>
+      {preview && (
+        <DocPreview
+          src={preview.src}
+          contentType={preview.document.payload.content_type}
+          filename={preview.document.payload.filename}
+          size={preview.document.payload.size}
+          onClose={closePreview}
+        />
+      )}
     </section>
   );
 }

@@ -1587,6 +1587,20 @@ export const WarrantyDocumentSchema = z
     }
   });
 
+export const WarrantyDocumentRenameSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Filename is required")
+      .max(255)
+      .refine(
+        (name) => !/[\\/\u0000-\u001F\u007F]/.test(name),
+        "Filename cannot contain path separators or control characters",
+      ),
+  })
+  .strict();
+
 // --- 23. SYSTEM CONFIG ---
 export const SystemUpdateSchema = z
   .object({
