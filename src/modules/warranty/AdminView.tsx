@@ -23,6 +23,7 @@ type Service = {
 type WarrantyItem = {
   _id: string;
   payload: {
+    warranty_key: string;
     name: string;
     category: string;
     brand?: string;
@@ -65,11 +66,13 @@ function payloadForUpdate(
 ) {
   const next = { ...item.payload, ...patch };
   const {
+    warranty_key: _warrantyKey,
     revision: _revision,
     archived: _archived,
     linked_bills: _linkedBills,
     ...editable
   } = next;
+  void _warrantyKey;
   void _revision;
   void _archived;
   void _linkedBills;
