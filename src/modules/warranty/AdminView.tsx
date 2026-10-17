@@ -1,0 +1,493 @@
+"use client";
+
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FileText, Plus, ShieldCheck, Wrench } from "lucide-react";
+
+import DocumentUpload from "@/components/ui/DocumentUpload";
+import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
+
+type Coverage = {
+  id: string;
+  label: string;
+  start_date?: string;
+  end_date?: string;
+  archived?: boolean;
+};
+type Service = {
+  id: string;
+  date: string;
+  description: string;
+  type: string;
+  archived?: boolean;
+};
+type WarrantyItem = {
+  _id: string;
+  payload: {
+    name: string;
+    category: string;
+    brand?: string;
+    model?: string;
+    location?: string;
+    purchase_date?: string;
+    currency: string;
+    ownership_status: "owned" | "sold" | "retired";
+    archived: boolean;
+    revision: number;
+    coverages: Coverage[];
+    service_history: Service[];
+    linked_bills?: unknown[];
+  };
+};
+type WarrantyDocument = {
+  _id: string;
+  payload: { filename: string; size: number; kind: string };
+};
+
+function makeId() {
+  return crypto.randomUUID();
+}
+
+function payloadForUpdate(
+  item: WarrantyItem,
+  patch: Partial<WarrantyItem["payload"]>,
+) {
+  const next = { ...item.payload, ...patch };
+  const {
+    revision: _revision,
+    archived: _archived,
+    linked_bills: _linkedBills,
+    ...editable
+  } = next;
+  void _revision;
+  void _archived;
+  void _linkedBills;
+  return { ...editable, linked_bill_ids: [], removed_bill_link_ids: [] };
+}
+
+export default function WarrantyAdminView() {
+  const [items, setItems] = useState<WarrantyItem[]>([]);
+  const [selected, setSelected] = useState<WarrantyItem | null>(null);
+  const [documents, setDocuments] = useState<WarrantyDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
+  const [coverageLabel, setCoverageLabel] = useState("");
+  const [coverageStart, setCoverageStart] = useState("");
+  const [coverageEnd, setCoverageEnd] = useState("");
+  const [serviceDescription, setServiceDescription] = useState("");
+  const [serviceDate, setServiceDate] = useState("");
+
+  const loadItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/warranty");
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error || "Failed to load warranty items");
+      setItems(body.data.items || []);
+      setError("");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Failed to load warranty items",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadDocuments = useCallback(async (item: WarrantyItem) => {
+    const response = await fetch(`/api/warranty/${item._id}/documents`);
+    const body = await response.json();
+    if (response.ok) setDocuments(body.data.documents || []);
+  }, []);
+
+  useEffect(() => {
+    void loadItems();
+  }, [loadItems]);
+  useEffect(() => {
+    if (selected) void loadDocuments(selected);
+  }, [selected, loadDocuments]);
+
+  const createItem = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true);
+    try {
+      const coverages = coverageLabel.trim()
+        ? [
+            {
+              id: makeId(),
+              label: coverageLabel.trim(),
+              start_date: coverageStart || undefined,
+              end_date: coverageEnd || undefined,
+            },
+          ]
+        : [];
+      const response = await fetch("/api/warranty", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ payload: { name: name.trim(), coverages } }),
+      });
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error || "Failed to create warranty item");
+      setCreating(false);
+      setName("");
+      setCoverageLabel("");
+      setCoverageStart("");
+      setCoverageEnd("");
+      const created = body.data as WarrantyItem;
+      setSelected(created);
+      await loadItems();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Failed to create warranty item",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveItem = async (
+    item: WarrantyItem,
+    patch: Partial<WarrantyItem["payload"]>,
+  ) => {
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/warranty/${item._id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          revision: item.payload.revision,
+          payload: payloadForUpdate(item, patch),
+        }),
+      });
+      const body = await response.json();
+      if (!response.ok)
+        throw new Error(body.error || "Failed to save warranty item");
+      const updated = body.data as WarrantyItem;
+      setSelected(updated);
+      setItems((current) =>
+        current.map((entry) => (entry._id === updated._id ? updated : entry)),
+      );
+      setError("");
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Failed to save warranty item",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <AdminModuleSkeleton />;
+
+  return (
+    <section className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-accent">
+            <ShieldCheck className="h-5 w-5" />
+            <span className="text-sm font-bold uppercase tracking-widest">
+              Private records
+            </span>
+          </div>
+          <h1 className="mt-2 text-3xl font-black text-zinc-50">Warranty</h1>
+          <p className="mt-1 text-sm text-zinc-400">
+            Keep coverage, receipts, manuals, and service history together.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <Plus className="h-4 w-4" /> Add warranty item
+        </button>
+      </header>
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-danger/30 bg-danger-muted/15 p-3 text-sm text-danger"
+        >
+          {error}
+        </p>
+      )}
+      {creating && (
+        <form
+          onSubmit={createItem}
+          className="grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 sm:grid-cols-2"
+        >
+          <label className="text-sm text-zinc-300">
+            Item name
+            <input
+              autoFocus
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+            />
+          </label>
+          <label className="text-sm text-zinc-300">
+            Coverage label (optional)
+            <input
+              value={coverageLabel}
+              onChange={(event) => setCoverageLabel(event.target.value)}
+              placeholder="Manufacturer warranty"
+              className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+            />
+          </label>
+          <label className="text-sm text-zinc-300">
+            Coverage start
+            <input
+              type="date"
+              value={coverageStart}
+              onChange={(event) => setCoverageStart(event.target.value)}
+              className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+            />
+          </label>
+          <label className="text-sm text-zinc-300">
+            Coverage end
+            <input
+              type="date"
+              value={coverageEnd}
+              onChange={(event) => setCoverageEnd(event.target.value)}
+              className="mt-1 min-h-11 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+            />
+          </label>
+          <div className="flex gap-2 sm:col-span-2">
+            <button
+              disabled={saving}
+              className="min-h-11 rounded-lg bg-accent px-4 text-sm font-bold text-zinc-50 disabled:opacity-50"
+            >
+              Save item
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreating(false)}
+              className="min-h-11 rounded-lg border border-zinc-700 px-4 text-sm text-zinc-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3">
+          {items.length === 0 ? (
+            <p className="p-5 text-sm text-zinc-400">No warranty items yet</p>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((item) => (
+                <li key={item._id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(item)}
+                    className="w-full rounded-xl border border-zinc-800 p-4 text-left hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <p className="font-bold text-zinc-100">
+                      {item.payload.name}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {item.payload.coverages.length} coverage
+                      {item.payload.coverages.length === 1 ? "" : "s"} ·{" "}
+                      {item.payload.service_history.length} service record
+                      {item.payload.service_history.length === 1 ? "" : "s"}
+                    </p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {selected ? (
+          <div className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
+            <div>
+              <h2 className="text-xl font-black text-zinc-50">
+                {selected.payload.name}
+              </h2>
+              <p className="mt-1 text-sm text-zinc-400">
+                Coverage and documents for this item.
+              </p>
+            </div>
+            <section>
+              <h3 className="text-sm font-bold text-zinc-200">Coverage</h3>
+              {selected.payload.coverages.length ? (
+                <ul className="mt-2 space-y-2">
+                  {selected.payload.coverages.map((coverage) => (
+                    <li
+                      key={coverage.id}
+                      className="rounded-lg border border-zinc-800 p-3 text-sm text-zinc-300"
+                    >
+                      <strong>{coverage.label}</strong>
+                      <span className="ml-2 text-zinc-500">
+                        {coverage.start_date || "Unknown start"} —{" "}
+                        {coverage.end_date || "Unknown end"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-zinc-500">
+                  No coverage period recorded.
+                </p>
+              )}
+            </section>
+            <section>
+              <h3 className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                <Wrench className="h-4 w-4" />
+                Service history
+              </h3>
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (serviceDescription.trim() && serviceDate)
+                    void saveItem(selected, {
+                      service_history: [
+                        ...selected.payload.service_history,
+                        {
+                          id: makeId(),
+                          date: serviceDate,
+                          description: serviceDescription.trim(),
+                          type: "repair",
+                        },
+                      ],
+                    });
+                  setServiceDescription("");
+                  setServiceDate("");
+                }}
+                className="mt-2 flex flex-col gap-2 sm:flex-row"
+              >
+                <input
+                  type="date"
+                  aria-label="Service date"
+                  value={serviceDate}
+                  onChange={(event) => setServiceDate(event.target.value)}
+                  className="min-h-11 rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                />
+                <input
+                  aria-label="Service description"
+                  value={serviceDescription}
+                  onChange={(event) =>
+                    setServiceDescription(event.target.value)
+                  }
+                  placeholder="Service or repair"
+                  className="min-h-11 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 text-zinc-50"
+                />
+                <button
+                  disabled={saving}
+                  className="min-h-11 rounded-lg border border-accent/50 px-3 text-sm font-bold text-accent"
+                >
+                  Add service
+                </button>
+              </form>
+              {selected.payload.service_history.length > 0 && (
+                <ul className="mt-2 space-y-1 text-sm text-zinc-400">
+                  {selected.payload.service_history.map((service) => (
+                    <li key={service.id}>
+                      {service.date} · {service.description}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+            <section>
+              <h3 className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+                <FileText className="h-4 w-4" />
+                Documents
+              </h3>
+              <div className="mt-2">
+                <DocumentUpload
+                  variant="compact"
+                  inputLabel="Upload warranty document"
+                  validateFile={(file) =>
+                    file.size === 0 ? "Empty files cannot be uploaded" : null
+                  }
+                  onUpload={async (file) => {
+                    const response = await fetch(
+                      `/api/warranty/${selected._id}/documents`,
+                      {
+                        method: "POST",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify(file),
+                      },
+                    );
+                    const body = await response.json();
+                    if (!response.ok)
+                      throw new Error(body.error || "Upload failed");
+                    await loadDocuments(selected);
+                  }}
+                />
+              </div>
+              {documents.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {documents.map((document) => (
+                    <li
+                      key={document._id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 p-3 text-sm"
+                    >
+                      <span className="min-w-0 truncate text-zinc-300">
+                        {document.payload.filename}
+                      </span>
+                      <div className="flex shrink-0 gap-3">
+                        <a
+                          href={`/api/warranty/${selected._id}/documents/${document._id}`}
+                          className="text-accent"
+                        >
+                          Download
+                        </a>
+                        <button
+                          type="button"
+                          className="text-danger"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                `Delete ${document.payload.filename}? This can only be recovered from a backup.`,
+                              )
+                            )
+                              void fetch(
+                                `/api/warranty/${selected._id}/documents/${document._id}`,
+                                { method: "DELETE" },
+                              )
+                                .then(async (response) => {
+                                  if (!response.ok) {
+                                    const body = await response.json();
+                                    throw new Error(
+                                      body.error || "Delete failed",
+                                    );
+                                  }
+                                  await loadDocuments(selected);
+                                })
+                                .catch((cause) =>
+                                  setError(
+                                    cause instanceof Error
+                                      ? cause.message
+                                      : "Delete failed",
+                                  ),
+                                );
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-zinc-800 p-8 text-sm text-zinc-500">
+            Select an item to see coverage, files, and service history.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

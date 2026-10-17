@@ -10,6 +10,10 @@ const DOMAIN_MANAGED_TYPES = new Set([
   "expense_space_entry",
   "expense_space_document",
 ]);
+const WARRANTY_DOMAIN_MANAGED_TYPES = new Set([
+  "warranty_item",
+  "warranty_document",
+]);
 
 export async function GET(request: Request) {
   try {
@@ -21,6 +25,14 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const token = cookieStore.get("lifeos_token")?.value;
     const isAdmin = token ? !!(await verifyToken(token)) : false;
+
+    if (
+      !isAdmin &&
+      module_type &&
+      WARRANTY_DOMAIN_MANAGED_TYPES.has(module_type)
+    ) {
+      return ApiError("Unauthorized", 401);
+    }
 
     const query: Record<string, string | boolean> = {};
     if (module_type) query.module_type = module_type;
@@ -65,6 +77,12 @@ export async function POST(request: Request) {
     if (DOMAIN_MANAGED_TYPES.has(module_type)) {
       return ApiError(
         "Use the dedicated expense-spaces API for this module_type",
+        400,
+      );
+    }
+    if (WARRANTY_DOMAIN_MANAGED_TYPES.has(module_type)) {
+      return ApiError(
+        "Use the dedicated warranty API for this module_type",
         400,
       );
     }

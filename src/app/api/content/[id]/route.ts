@@ -16,9 +16,15 @@ const DOMAIN_MANAGED_TYPES = new Set([
   "expense_space_entry",
   "expense_space_document",
 ]);
+const WARRANTY_DOMAIN_MANAGED_TYPES = new Set([
+  "warranty_item",
+  "warranty_document",
+]);
 
 const domainManagedError = () =>
   ApiError("Use the dedicated expense-spaces API for this content", 400);
+const warrantyDomainManagedError = () =>
+  ApiError("Use the dedicated warranty API for this content", 400);
 
 export async function GET(
   _request: Request,
@@ -38,7 +44,10 @@ export async function GET(
     if (!result) return ApiNotFound();
 
     // Security check for private documents
-    if (!result.is_public) {
+    if (
+      !result.is_public ||
+      WARRANTY_DOMAIN_MANAGED_TYPES.has(result.module_type)
+    ) {
       const cookieStore = await cookies();
       const token = cookieStore.get("lifeos_token")?.value;
       const isAdmin = token ? !!(await verifyToken(token)) : false;
@@ -80,6 +89,9 @@ export async function PUT(
     if (!existing) return ApiNotFound();
     if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
       return domainManagedError();
+    }
+    if (WARRANTY_DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return warrantyDomainManagedError();
     }
 
     const schema = SchemaRegistry[existing.module_type];
@@ -145,6 +157,9 @@ export async function PATCH(
     if (!existing) return ApiNotFound();
     if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
       return domainManagedError();
+    }
+    if (WARRANTY_DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return warrantyDomainManagedError();
     }
 
     const updateFields: Record<string, unknown> = {
@@ -228,6 +243,9 @@ export async function DELETE(
     if (!existing) return ApiNotFound();
     if (DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
       return domainManagedError();
+    }
+    if (WARRANTY_DOMAIN_MANAGED_TYPES.has(existing.module_type)) {
+      return warrantyDomainManagedError();
     }
 
     const result = await contentColl.deleteOne({ _id: contentObjectId });

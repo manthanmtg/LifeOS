@@ -1349,6 +1349,244 @@ export const BillFolderSchema = z.object({
     .optional(),
 });
 
+// --- 23. WARRANTY ---
+export const WarrantyCoverageSchema = z
+  .object({
+    id: z.string().uuid(),
+    archived: z.boolean().default(false),
+    label: z.string().trim().min(1, "Coverage label is required").max(120),
+    type: z
+      .enum(["manufacturer", "component", "extended", "seller", "other"])
+      .default("manufacturer"),
+    provider: z.string().trim().max(200).optional(),
+    policy_number: z.string().trim().max(200).optional(),
+    start_date: CalendarDateSchema.optional(),
+    end_date: CalendarDateSchema.optional(),
+    coverage_notes: z.string().trim().max(3000).optional(),
+    exclusions: z.string().trim().max(3000).optional(),
+    reminder_enabled: z.boolean().default(true),
+    reminder_offsets_days: z
+      .array(z.number().int().min(0).max(365))
+      .min(1)
+      .max(10)
+      .default([7, 30])
+      .transform((offsets) => [...offsets].sort((left, right) => left - right)),
+  })
+  .superRefine((coverage, context) => {
+    if (
+      coverage.start_date &&
+      coverage.end_date &&
+      coverage.end_date < coverage.start_date
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["end_date"],
+        message: "Coverage end date cannot be before its start date",
+      });
+    }
+    if (
+      new Set(coverage.reminder_offsets_days).size !==
+      coverage.reminder_offsets_days.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["reminder_offsets_days"],
+        message: "Reminder offsets must be unique",
+      });
+    }
+  });
+
+export const WarrantyServiceSchema = z.object({
+  id: z.string().uuid(),
+  archived: z.boolean().default(false),
+  date: CalendarDateSchema,
+  type: z
+    .enum(["repair", "routine", "inspection", "replacement", "other"])
+    .default("repair"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Service description is required")
+    .max(1000),
+  provider: z.string().trim().max(200).optional(),
+  reference_number: z.string().trim().max(200).optional(),
+  cost: z.number().finite().nonnegative().optional(),
+  currency: CurrencyCodeSchema.default("INR"),
+  covered_by_warranty: z.boolean().default(false),
+  notes: z.string().trim().max(3000).optional(),
+});
+
+export const WarrantyBillLinkSchema = z.object({
+  id: z.string().uuid(),
+  bill_id: ObjectIdStringSchema.nullable(),
+  name_snapshot: z.string().trim().min(1).max(200),
+});
+
+const WarrantySupportSchema = z.object({
+  name: z.string().trim().max(200).optional(),
+  phone: z.string().trim().max(100).optional(),
+  email: z.string().trim().email().max(254).optional(),
+  url: z
+    .string()
+    .trim()
+    .url()
+    .max(2048)
+    .refine((url) => /^https?:\/\//i.test(url), "Must use HTTP or HTTPS")
+    .optional(),
+  instructions: z.string().trim().max(3000).optional(),
+});
+
+const WarrantyItemFields = {
+  name: z.string().trim().min(1, "Item name is required").max(200),
+  category: z
+    .enum(["appliance", "electronics", "computer", "mobile", "home", "other"])
+    .default("other"),
+  brand: z.string().trim().max(200).optional(),
+  model: z.string().trim().max(200).optional(),
+  serial_number: z.string().trim().max(200).optional(),
+  seller: z.string().trim().max(200).optional(),
+  location: z.string().trim().max(120).optional(),
+  purchase_date: CalendarDateSchema.optional(),
+  purchase_price: z.number().finite().nonnegative().optional(),
+  order_number: z.string().trim().max(200).optional(),
+  currency: CurrencyCodeSchema.default("INR"),
+  ownership_status: z.enum(["owned", "sold", "retired"]).default("owned"),
+  support: WarrantySupportSchema.optional(),
+  notes: z.string().trim().max(5000).optional(),
+  coverages: z.array(WarrantyCoverageSchema).max(30).default([]),
+  service_history: z.array(WarrantyServiceSchema).max(200).default([]),
+};
+
+function hasUniqueIds(records: Array<{ id: string }>) {
+  return new Set(records.map((record) => record.id)).size === records.length;
+}
+
+export const WarrantyItemSchema = z
+  .object({
+    warranty_key: z.string().uuid(),
+    revision: z.number().int().positive(),
+    archived: z.boolean().default(false),
+    ...WarrantyItemFields,
+    linked_bills: z.array(WarrantyBillLinkSchema).max(20).default([]),
+  })
+  .superRefine((item, context) => {
+    if (!hasUniqueIds(item.coverages)) {
+      context.addIssue({
+        code: "custom",
+        path: ["coverages"],
+        message: "Coverage IDs must be unique",
+      });
+    }
+    if (!hasUniqueIds(item.service_history)) {
+      context.addIssue({
+        code: "custom",
+        path: ["service_history"],
+        message: "Service IDs must be unique",
+      });
+    }
+    if (!hasUniqueIds(item.linked_bills)) {
+      context.addIssue({
+        code: "custom",
+        path: ["linked_bills"],
+        message: "Bill link IDs must be unique",
+      });
+    }
+    const billIds = item.linked_bills
+      .map((link) => link.bill_id)
+      .filter((billId): billId is string => Boolean(billId));
+    if (new Set(billIds).size !== billIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["linked_bills"],
+        message: "Bills can only be linked once",
+      });
+    }
+  });
+
+export const WarrantyItemInputSchema = z
+  .object({
+    ...WarrantyItemFields,
+    linked_bill_ids: z.array(ObjectIdStringSchema).max(20).default([]),
+    removed_bill_link_ids: z.array(z.string().uuid()).max(20).default([]),
+  })
+  .strict()
+  .superRefine((item, context) => {
+    if (!hasUniqueIds(item.coverages)) {
+      context.addIssue({
+        code: "custom",
+        path: ["coverages"],
+        message: "Coverage IDs must be unique",
+      });
+    }
+    if (!hasUniqueIds(item.service_history)) {
+      context.addIssue({
+        code: "custom",
+        path: ["service_history"],
+        message: "Service IDs must be unique",
+      });
+    }
+    if (new Set(item.linked_bill_ids).size !== item.linked_bill_ids.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["linked_bill_ids"],
+        message: "Bills can only be linked once",
+      });
+    }
+    if (
+      new Set(item.removed_bill_link_ids).size !==
+      item.removed_bill_link_ids.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["removed_bill_link_ids"],
+        message: "Bill links can only be removed once",
+      });
+    }
+  });
+
+export const WarrantyDocumentSchema = z
+  .object({
+    warranty_key: z.string().uuid(),
+    filename: z
+      .string()
+      .trim()
+      .min(1)
+      .max(255)
+      .refine(
+        (filename) => !/[\\/\u0000-\u001F\u007F]/.test(filename),
+        "Filename cannot contain path separators or control characters",
+      ),
+    content_type: MimeTypeSchema,
+    data: z.string().min(1).max(6_990_508),
+    size: z
+      .number()
+      .int()
+      .min(1)
+      .max(5 * 1024 * 1024),
+    kind: z
+      .enum([
+        "invoice",
+        "warranty",
+        "manual",
+        "service_receipt",
+        "photo",
+        "other",
+      ])
+      .default("other"),
+    coverage_id: z.string().uuid().optional(),
+    service_id: z.string().uuid().optional(),
+    notes: z.string().trim().max(1000).optional(),
+  })
+  .superRefine((document, context) => {
+    if (document.coverage_id && document.service_id) {
+      context.addIssue({
+        code: "custom",
+        path: ["service_id"],
+        message: "A document can be associated with either coverage or service",
+      });
+    }
+  });
+
 // --- 23. SYSTEM CONFIG ---
 export const SystemUpdateSchema = z
   .object({
@@ -1470,4 +1708,6 @@ export const SchemaRegistry: Record<string, z.ZodTypeAny> = {
   deck: DeckSchema,
   bill: BillSchema,
   bill_folder: BillFolderSchema,
+  warranty_item: WarrantyItemSchema,
+  warranty_document: WarrantyDocumentSchema,
 };

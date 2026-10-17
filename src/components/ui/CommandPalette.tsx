@@ -35,6 +35,7 @@ import {
   Tv,
   Presentation,
   WalletCards,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getOrderedAdminModules, type SystemConfig } from "@/lib/admin-modules";
@@ -78,6 +79,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Tv,
   Presentation,
   WalletCards,
+  ShieldCheck,
 };
 
 export default function CommandPalette() {

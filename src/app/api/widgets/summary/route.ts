@@ -25,6 +25,7 @@ import {
 } from "@/lib/schemas";
 import type { EmiLoan } from "@/modules/emi-tracker/types";
 import { calculateQuickStats } from "@/modules/emi-tracker/lib/emi-utils";
+import { buildWarrantySummary } from "@/lib/warranty/coverage";
 
 // --- Types for local use ---
 type VehiclePayload = z.infer<typeof VehicleSchema>;
@@ -121,6 +122,35 @@ export async function GET(request: Request) {
           activeSpaces.map((space) => space.payload.currency),
         ).size,
       });
+    }
+
+    if (module_type === "warranty_item") {
+      const warrantyItems = (await contentColl
+        .find(
+          { module_type: "warranty_item" },
+          {
+            projection: {
+              "payload.name": 1,
+              "payload.ownership_status": 1,
+              "payload.archived": 1,
+              "payload.coverages.id": 1,
+              "payload.coverages.label": 1,
+              "payload.coverages.start_date": 1,
+              "payload.coverages.end_date": 1,
+              "payload.coverages.archived": 1,
+            },
+          },
+        )
+        .toArray()) as ContentDocument<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+      return ApiSuccess(
+        buildWarrantySummary(
+          warrantyItems.map((item) => ({
+            _id: String(item._id),
+            payload: item.payload,
+          })),
+          new Date().toISOString().slice(0, 10),
+        ),
+      );
     }
 
     if (module_type === "snippet") {

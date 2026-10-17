@@ -8,6 +8,7 @@ describe("notification source registry", () => {
       "recurring_expense",
       "person",
       "health_profile",
+      "warranty_item",
     ]);
   });
 });

@@ -115,6 +115,10 @@ const widgetImports: Record<string, ComponentType> = {
     ssr: false,
     loading: () => <WidgetSkeleton />,
   }),
+  warranty: dynamic(() => import("@/modules/warranty/Widget"), {
+    ssr: false,
+    loading: () => <WidgetSkeleton />,
+  }),
 };
 
 interface ModuleVisibility {

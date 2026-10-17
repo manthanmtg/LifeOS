@@ -75,6 +75,18 @@ export async function ensureSystemConfig() {
       "payload.space_key": 1,
       created_at: -1,
     });
+    await contentColl.createIndex(
+      { "payload.warranty_key": 1 },
+      {
+        unique: true,
+        partialFilterExpression: { module_type: "warranty_item" },
+      },
+    );
+    await contentColl.createIndex({
+      module_type: 1,
+      "payload.warranty_key": 1,
+      created_at: -1,
+    });
 
     const metricsColl = db.collection("metrics");
     await metricsColl.createIndex({ timestamp: -1 });

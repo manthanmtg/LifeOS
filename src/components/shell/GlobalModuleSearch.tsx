@@ -35,6 +35,7 @@ import {
   Tv,
   Presentation,
   WalletCards,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -74,6 +75,7 @@ const IconMap: Record<string, LucideIcon> = {
   Tv,
   Presentation,
   WalletCards,
+  ShieldCheck,
 };
 
 const HighlightedText = memo(function HighlightedText({

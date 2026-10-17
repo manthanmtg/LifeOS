@@ -42,6 +42,7 @@ import {
   Presentation,
   Receipt,
   WalletCards,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -131,6 +132,7 @@ const IconMap: Record<string, LucideIcon> = {
   Presentation,
   Receipt,
   WalletCards,
+  ShieldCheck,
 };
 
 export const ADMIN_SIDEBAR_CACHE_KEY = "lifeos-admin-sidebar-order-v1";

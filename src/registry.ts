@@ -226,4 +226,13 @@ export const moduleRegistry: Record<string, ModuleConfig> = {
     description: "Store and organize bills with folders and file attachments.",
     tags: ["bills", "documents", "files", "finance"],
   },
+  warranty: {
+    name: "Warranty",
+    icon: "ShieldCheck",
+    defaultPublic: false,
+    contentType: "warranty_item",
+    description:
+      "Track product coverage, uploaded documents, and service history.",
+    tags: ["warranty", "devices", "appliances", "service", "documents"],
+  },
 };
