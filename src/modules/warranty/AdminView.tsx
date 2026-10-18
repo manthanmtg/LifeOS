@@ -26,6 +26,10 @@ type Coverage = {
   end_date?: string;
   archived?: boolean;
 };
+type CoverageStatus = {
+  label: string;
+  className: string;
+};
 type Service = {
   id: string;
   date: string;
@@ -76,6 +80,73 @@ type EditableWarrantyDetails = Pick<
 
 function makeId() {
   return crypto.randomUUID();
+}
+
+function calendarDay(value: Date) {
+  return Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+}
+
+function dateOnlyDay(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+
+  return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+function dayLabel(days: number) {
+  return `${days} day${days === 1 ? "" : "s"}`;
+}
+
+function getCoverageStatus(
+  coverage: Coverage,
+  now = new Date(),
+): CoverageStatus {
+  const today = calendarDay(now);
+  const startDay = coverage.start_date
+    ? dateOnlyDay(coverage.start_date)
+    : null;
+  const endDay = coverage.end_date ? dateOnlyDay(coverage.end_date) : null;
+
+  if (startDay !== null && startDay > today) {
+    return {
+      label: `Starts in ${dayLabel((startDay - today) / 86_400_000)}`,
+      className: "border border-accent/25 bg-accent/10 text-accent",
+    };
+  }
+
+  if (endDay === null) {
+    return {
+      label: "No expiry date",
+      className: "border border-zinc-700 bg-zinc-800/70 text-zinc-300",
+    };
+  }
+
+  const daysRemaining = (endDay - today) / 86_400_000;
+  if (daysRemaining < 0) {
+    return {
+      label: `Expired ${dayLabel(Math.abs(daysRemaining))} ago`,
+      className: "border border-danger/25 bg-danger/10 text-danger",
+    };
+  }
+
+  if (daysRemaining === 0) {
+    return {
+      label: "Expires today",
+      className: "border border-warning/25 bg-warning/10 text-warning",
+    };
+  }
+
+  if (daysRemaining <= 30) {
+    return {
+      label: `Expires in ${dayLabel(daysRemaining)}`,
+      className: "border border-warning/25 bg-warning/10 text-warning",
+    };
+  }
+
+  return {
+    label: `Expires in ${dayLabel(daysRemaining)}`,
+    className: "border border-success/25 bg-success/10 text-success",
+  };
 }
 
 function payloadForUpdate(
@@ -718,18 +789,29 @@ export default function WarrantyAdminView() {
                 <h3 className="text-sm font-bold text-zinc-200">Coverage</h3>
                 {selected.payload.coverages.length ? (
                   <ul className="mt-2 space-y-2">
-                    {selected.payload.coverages.map((coverage) => (
-                      <li
-                        key={coverage.id}
-                        className="rounded-lg border border-zinc-800 p-3 text-sm text-zinc-300"
-                      >
-                        <strong>{coverage.label}</strong>
-                        <span className="ml-2 text-zinc-500">
-                          {coverage.start_date || "Unknown start"} —{" "}
-                          {coverage.end_date || "Unknown end"}
-                        </span>
-                      </li>
-                    ))}
+                    {selected.payload.coverages.map((coverage) => {
+                      const status = getCoverageStatus(coverage);
+
+                      return (
+                        <li
+                          key={coverage.id}
+                          className="rounded-lg border border-zinc-800 p-3 text-sm text-zinc-300"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <strong>{coverage.label}</strong>
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-xs font-semibold ${status.className}`}
+                            >
+                              {status.label}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-zinc-500">
+                            {coverage.start_date || "Unknown start"} —{" "}
+                            {coverage.end_date || "Unknown end"}
+                          </p>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="mt-2 text-sm text-zinc-500">

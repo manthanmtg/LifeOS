@@ -118,4 +118,69 @@ describe("WarrantyAdminView", () => {
       },
     });
   });
+
+  it("shows a readable status for active, expiring, and expired coverage", async () => {
+    const dateFromToday = (days: number) => {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/documents")) {
+        return { ok: true, json: async () => ({ data: { documents: [] } }) };
+      }
+
+      return {
+        ok: true,
+        json: async () => ({
+          data: {
+            items: [
+              {
+                _id: "warranty-coverage-status",
+                payload: {
+                  name: "Dishwasher",
+                  category: "appliance",
+                  currency: "INR",
+                  ownership_status: "owned",
+                  archived: false,
+                  revision: 1,
+                  warranty_key: "dishwasher",
+                  coverages: [
+                    {
+                      id: "active",
+                      label: "Extended cover",
+                      end_date: dateFromToday(15),
+                    },
+                    {
+                      id: "expired",
+                      label: "Brand warranty",
+                      end_date: dateFromToday(-10),
+                    },
+                    {
+                      id: "unknown",
+                      label: "Parts cover",
+                    },
+                  ],
+                  service_history: [],
+                },
+              },
+            ],
+          },
+        }),
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<WarrantyAdminView />);
+    fireEvent.click((await screen.findByText("Dishwasher")).closest("button")!);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByText("Expires in 15 days")).toBeInTheDocument();
+    expect(screen.getByText("Expired 10 days ago")).toBeInTheDocument();
+    expect(screen.getByText("No expiry date")).toBeInTheDocument();
+  });
 });
