@@ -183,4 +183,57 @@ describe("WarrantyAdminView", () => {
     expect(screen.getByText("Expired 10 days ago")).toBeInTheDocument();
     expect(screen.getByText("No expiry date")).toBeInTheDocument();
   });
+
+  it("opens a loading preview immediately while the document is downloading", async () => {
+    const item = {
+      _id: "warranty-preview",
+      payload: {
+        name: "Dishwasher",
+        category: "appliance",
+        currency: "INR",
+        ownership_status: "owned",
+        archived: false,
+        revision: 1,
+        warranty_key: "dishwasher",
+        coverages: [],
+        service_history: [],
+      },
+    };
+    const document = {
+      _id: "document-preview",
+      payload: {
+        filename: "receipt.pdf",
+        content_type: "application/pdf",
+        size: 2048,
+        kind: "receipt",
+      },
+    };
+    const fetchMock = vi.fn((url: string) => {
+      if (url.endsWith("/documents")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ data: { documents: [document] } }),
+        });
+      }
+      if (url.endsWith(`/documents/${document._id}`)) {
+        return new Promise(() => undefined);
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ data: { items: [item] } }),
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<WarrantyAdminView />);
+    fireEvent.click((await screen.findByText("Dishwasher")).closest("button")!);
+    await screen.findByRole("button", { name: "View receipt.pdf" });
+
+    fireEvent.click(screen.getByRole("button", { name: "View receipt.pdf" }));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: "Loading receipt.pdf" }),
+    ).toBeInTheDocument();
+  });
 });

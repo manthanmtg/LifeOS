@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   Check,
   FileText,
@@ -174,8 +174,11 @@ export default function WarrantyAdminView() {
   const [documents, setDocuments] = useState<WarrantyDocument[]>([]);
   const [preview, setPreview] = useState<{
     document: WarrantyDocument;
-    src: string;
+    src: string | null;
+    loading: boolean;
+    error: string;
   } | null>(null);
+  const previewRequestRef = useRef(0);
   const [editingDocumentId, setEditingDocumentId] = useState<string | null>(
     null,
   );
@@ -223,25 +226,45 @@ export default function WarrantyAdminView() {
     if (response.ok) setDocuments(body.data.documents || []);
   }, []);
 
+  useEffect(() => {
+    const src = preview?.src;
+    return () => {
+      if (src) URL.revokeObjectURL(src);
+    };
+  }, [preview?.src]);
+
   const previewDocument = async (
     item: WarrantyItem,
     document: WarrantyDocument,
   ) => {
+    const requestId = ++previewRequestRef.current;
+    setPreview({ document, src: null, loading: true, error: "" });
     try {
       const response = await fetch(
         `/api/warranty/${item._id}/documents/${document._id}`,
       );
       if (!response.ok) throw new Error("Failed to open document");
-      setPreview({ document, src: URL.createObjectURL(await response.blob()) });
+      const src = URL.createObjectURL(await response.blob());
+      if (requestId !== previewRequestRef.current) {
+        URL.revokeObjectURL(src);
+        return;
+      }
+      setPreview({ document, src, loading: false, error: "" });
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Failed to open document",
-      );
+      if (requestId === previewRequestRef.current) {
+        setPreview({
+          document,
+          src: null,
+          loading: false,
+          error:
+            cause instanceof Error ? cause.message : "Failed to open document",
+        });
+      }
     }
   };
 
   const closePreview = () => {
-    if (preview) URL.revokeObjectURL(preview.src);
+    previewRequestRef.current += 1;
     setPreview(null);
   };
 
@@ -1054,6 +1077,11 @@ export default function WarrantyAdminView() {
           contentType={preview.document.payload.content_type}
           filename={preview.document.payload.filename}
           size={preview.document.payload.size}
+          loading={preview.loading}
+          error={preview.error}
+          onRetry={() =>
+            selected && void previewDocument(selected, preview.document)
+          }
           onClose={closePreview}
         />
       )}

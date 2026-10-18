@@ -8,10 +8,13 @@ import Image from "next/image";
 import { useDialogAccessibility } from "./Dialog";
 
 interface DocPreviewProps {
-  src: string;
+  src: string | null;
   contentType: string;
   filename: string;
   size?: number;
+  loading?: boolean;
+  error?: string;
+  onRetry?: () => void;
   onClose: () => void;
 }
 
@@ -20,6 +23,9 @@ export default function DocPreview({
   contentType,
   filename,
   size,
+  loading = false,
+  error,
+  onRetry,
   onClose,
 }: DocPreviewProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -76,15 +82,17 @@ export default function DocPreview({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <a
-            href={src}
-            download={filename}
-            className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
-            aria-label="Download document"
-            title="Download"
-          >
-            <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          </a>
+          {src && !loading && (
+            <a
+              href={src}
+              download={filename}
+              className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 transition-all active:scale-95 shadow-lg group"
+              aria-label="Download document"
+              title="Download"
+            >
+              <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </a>
+          )}
           <button
             ref={closeRef}
             type="button"
@@ -110,7 +118,39 @@ export default function DocPreview({
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {isImage ? (
+          {loading ? (
+            <div
+              role="status"
+              aria-label={`Loading ${filename}`}
+              className="flex h-full w-full flex-col items-center justify-center gap-4 text-zinc-300"
+            >
+              <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
+              <p className="text-sm">Loading document…</p>
+            </div>
+          ) : error ? (
+            <div
+              role="alert"
+              className="flex h-full w-full flex-col items-center justify-center gap-4 text-zinc-300"
+            >
+              <p className="text-sm">{error}</p>
+              {onRetry && (
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-zinc-50"
+                >
+                  Try again
+                </button>
+              )}
+            </div>
+          ) : !src ? (
+            <div
+              role="alert"
+              className="flex h-full w-full items-center justify-center text-sm text-danger"
+            >
+              Document preview is unavailable.
+            </div>
+          ) : isImage ? (
             <div className="relative w-full h-full">
               <Image
                 src={src}
