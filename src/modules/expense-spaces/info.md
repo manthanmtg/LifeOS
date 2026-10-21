@@ -17,7 +17,7 @@ Your regular **Expenses** module stays separate.
 
 Open a space and choose **Add expense**. Amount, date, description, paid to,
 and category are required. You can also record a subcategory, payment method,
-reference, notes, tags, and receipt URL.
+reference, notes, tags, and multiple receipt files.
 
 Need a category while entering an expense? Create it inline. LifeOS saves the
 category first, then the expense. If the expense save fails, your draft remains

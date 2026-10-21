@@ -378,6 +378,40 @@ const ExpenseSpaceReceiptAttachmentSchema = z.object({
     .max(5 * 1024 * 1024),
 });
 
+const EXPENSE_SPACE_MAX_RECEIPTS = 10;
+const EXPENSE_SPACE_MAX_RECEIPT_TOTAL_SIZE = 10 * 1024 * 1024;
+const EXPENSE_SPACE_MAX_RECEIPT_TOTAL_DATA_LENGTH = 14 * 1024 * 1024;
+
+const ExpenseSpaceReceiptsSchema = z
+  .array(ExpenseSpaceReceiptAttachmentSchema)
+  .max(
+    EXPENSE_SPACE_MAX_RECEIPTS,
+    `Attach at most ${EXPENSE_SPACE_MAX_RECEIPTS} receipts`,
+  )
+  .superRefine((receipts, context) => {
+    const totalSize = receipts.reduce(
+      (total, receipt) => total + receipt.size,
+      0,
+    );
+    if (totalSize > EXPENSE_SPACE_MAX_RECEIPT_TOTAL_SIZE) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Combined receipt size must not exceed 10 MB",
+      });
+    }
+
+    const totalDataLength = receipts.reduce(
+      (total, receipt) => total + receipt.data.length,
+      0,
+    );
+    if (totalDataLength > EXPENSE_SPACE_MAX_RECEIPT_TOTAL_DATA_LENGTH) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Combined receipt data is too large",
+      });
+    }
+  });
+
 const ExpenseSpaceEntryInputFields = {
   amount: z.number().positive("Amount must be greater than 0"),
   description: z.string().trim().min(2).max(200),
@@ -401,6 +435,7 @@ const ExpenseSpaceEntryInputFields = {
   tags: ExpenseSpaceTagsSchema,
   receipt_url: z.string().trim().url().max(2048).optional(),
   receipt: ExpenseSpaceReceiptAttachmentSchema.optional(),
+  receipts: ExpenseSpaceReceiptsSchema.optional(),
 };
 
 export const ExpenseSpaceEntryInputSchema = z.object(

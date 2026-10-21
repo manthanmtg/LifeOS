@@ -268,6 +268,38 @@ describe("schemas", () => {
       expect(parsed).not.toHaveProperty("currency");
     });
 
+    it("accepts multiple receipt attachments for an expense entry", () => {
+      const parsed = ExpenseSpaceEntryInputSchema.parse({
+        amount: 10,
+        description: "Vet visit",
+        paid_to: "Clinic",
+        category_id: categoryId,
+        date: "2026-08-19",
+        tags: [],
+        receipts: [
+          {
+            filename: "consultation.pdf",
+            content_type: "application/pdf",
+            data: "YQ==",
+            size: 1,
+          },
+          {
+            filename: "medication.pdf",
+            content_type: "application/pdf",
+            data: "Yg==",
+            size: 1,
+          },
+        ],
+      });
+
+      expect(parsed).toMatchObject({
+        receipts: [
+          { filename: "consultation.pdf" },
+          { filename: "medication.pdf" },
+        ],
+      });
+    });
+
     it("registers both private domain payload discriminators", () => {
       expect(SchemaRegistry.expense_space).toBe(ExpenseSpaceSchema);
       expect(SchemaRegistry.expense_space_entry).toBe(ExpenseSpaceEntrySchema);

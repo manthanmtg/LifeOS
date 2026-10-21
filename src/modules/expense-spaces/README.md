@@ -49,7 +49,9 @@ values by ID.
 Every entry requires a positive amount, strict `YYYY-MM-DD` calendar date,
 description, paid-to value, and active category. Subcategory is optional but,
 when supplied, must belong to the selected category. Payment method, reference,
-notes, tags, and receipt URL are optional.
+notes, tags, and receipts are optional. Each entry can include up to ten receipt
+files, with a 5 MB limit per file and a 10 MB combined limit. Historical receipt
+URLs and single-file receipts remain readable.
 
 The server derives `space_key` and the immutable currency snapshot from the
 parent. It verifies parent ownership on every entry read, update, and delete.

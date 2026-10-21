@@ -39,6 +39,11 @@ function localToday() {
   return `${year}-${month}-${day}`;
 }
 
+function base64ByteSize(value: string) {
+  const padding = value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0;
+  return Math.floor((value.length * 3) / 4) - padding;
+}
+
 const normalize = (value: string) =>
   value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en-US");
 
@@ -76,7 +81,7 @@ export default function ExpenseEntryForm({
   const [tags, setTags] = useState("");
   const [notes, setNotes] = useState("");
   const [receiptUrl, setReceiptUrl] = useState("");
-  const [receipt, setReceipt] = useState<ExpenseReceiptAttachment | null>(null);
+  const [receipts, setReceipts] = useState<ExpenseReceiptAttachment[]>([]);
   const [showInlineCategory, setShowInlineCategory] = useState(false);
   const [showInlineSubcategory, setShowInlineSubcategory] = useState(false);
   const [inlineCategory, setInlineCategory] = useState("");
@@ -106,7 +111,10 @@ export default function ExpenseEntryForm({
     setTags(entry?.payload.tags.join(", ") ?? "");
     setNotes(entry?.payload.notes ?? "");
     setReceiptUrl(entry?.payload.receipt_url ?? "");
-    setReceipt(entry?.payload.receipt ?? null);
+    setReceipts([
+      ...(entry?.payload.receipts ?? []),
+      ...(entry?.payload.receipt ? [entry.payload.receipt] : []),
+    ]);
     setShowInlineCategory(false);
     setShowInlineSubcategory(false);
     setInlineCategory("");
@@ -283,7 +291,7 @@ export default function ExpenseEntryForm({
           .map((tag) => tag.trim())
           .filter(Boolean),
         ...(receiptUrl.trim() ? { receipt_url: receiptUrl.trim() } : {}),
-        ...(receipt ? { receipt } : {}),
+        receipts,
       });
       onClose();
     } catch (cause) {
@@ -718,41 +726,57 @@ export default function ExpenseEntryForm({
             />
           </label>
           <div className="block text-sm font-medium text-zinc-200">
-            <p>Receipt</p>
-            {receipt ? (
-              <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-3">
-                <div className="flex min-w-0 items-center gap-2">
-                  <FileText
-                    aria-hidden="true"
-                    className="h-4 w-4 shrink-0 text-accent"
-                  />
-                  <span className="truncate text-sm text-zinc-200">
-                    {receipt.filename}
-                  </span>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setReceipt(null)}
-                  className="h-9 px-3 text-sm"
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <div className="mt-2">
-                <DocumentUpload
-                  inputLabel="Upload receipt"
-                  helpText="Images, PDFs, spreadsheets, and other files — max 5 MB"
-                  onUpload={async (file) => {
-                    setReceipt({
-                      ...file,
-                      size: Math.floor((file.data.length * 3) / 4),
-                    });
-                  }}
-                />
-              </div>
+            <p>Receipts</p>
+            {receipts.length > 0 && (
+              <ul className="mt-2 space-y-2" aria-label="Attached receipts">
+                {receipts.map((receipt, index) => (
+                  <li
+                    key={`${receipt.filename}-${index}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-3"
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <FileText
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-accent"
+                      />
+                      <span className="truncate text-sm text-zinc-200">
+                        {receipt.filename}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      aria-label={`Remove receipt ${index + 1}: ${receipt.filename}`}
+                      onClick={() =>
+                        setReceipts((current) =>
+                          current.filter(
+                            (_, candidateIndex) => candidateIndex !== index,
+                          ),
+                        )
+                      }
+                      className="h-9 px-3 text-sm"
+                    >
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+              </ul>
             )}
+            <div className="mt-2">
+              <DocumentUpload
+                inputLabel="Upload receipts"
+                helpText="Images, PDFs, spreadsheets, and other files — max 5 MB each, 10 MB combined"
+                onUpload={async (file) => {
+                  setReceipts((current) => [
+                    ...current,
+                    {
+                      ...file,
+                      size: base64ByteSize(file.data),
+                    },
+                  ]);
+                }}
+              />
+            </div>
             {receiptUrl && (
               <p className="mt-2 text-xs font-normal text-zinc-500">
                 Existing receipt link will be retained.

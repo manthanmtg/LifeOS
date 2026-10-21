@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import ExpenseEntryForm from "../ExpenseEntryForm";
 import type {
   ExpenseSpaceDocument,
+  ExpenseSpaceEntryDocument,
   ExpenseSpaceEntryInput,
   ExpenseSpaceUpdateInput,
 } from "../../types";
@@ -98,6 +99,58 @@ describe("ExpenseEntryForm", () => {
     );
 
     expect(screen.queryByLabelText(/receipt url/i)).toBeNull();
+    expect(screen.getByLabelText(/upload receipt/i)).toBeInTheDocument();
+  });
+
+  it("shows every existing receipt and keeps the upload control available", () => {
+    render(
+      <ExpenseEntryForm
+        open
+        space={space}
+        entry={
+          {
+            _id: "entry-1",
+            module_type: "expense_space_entry",
+            is_public: false,
+            created_at: "2026-08-19T00:00:00.000Z",
+            updated_at: "2026-08-19T00:00:00.000Z",
+            payload: {
+              space_key: space.payload.space_key,
+              amount: 125,
+              currency: "INR",
+              description: "Floor tiles",
+              paid_to: "Supplier",
+              category_id: foodId,
+              date: "2026-08-19",
+              tags: [],
+              receipts: [
+                {
+                  filename: "invoice.pdf",
+                  content_type: "application/pdf",
+                  data: "YQ==",
+                  size: 1,
+                },
+                {
+                  filename: "delivery-note.pdf",
+                  content_type: "application/pdf",
+                  data: "Yg==",
+                  size: 1,
+                },
+              ],
+            },
+          } as unknown as ExpenseSpaceEntryDocument
+        }
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onSaveSpaceTaxonomy={vi.fn()}
+        payeeSuggestions={[]}
+        descriptionSuggestions={[]}
+        tagSuggestions={[]}
+      />,
+    );
+
+    expect(screen.getByText("invoice.pdf")).toBeInTheDocument();
+    expect(screen.getByText("delivery-note.pdf")).toBeInTheDocument();
     expect(screen.getByLabelText(/upload receipt/i)).toBeInTheDocument();
   });
 

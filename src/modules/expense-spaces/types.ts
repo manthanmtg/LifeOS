@@ -54,7 +54,9 @@ export interface ExpenseSpaceEntryPayload {
   notes?: string;
   tags: string[];
   receipt_url?: string;
+  /** @deprecated Retained so historical entries remain readable. */
   receipt?: ExpenseReceiptAttachment;
+  receipts?: ExpenseReceiptAttachment[];
 }
 
 export interface ExpenseReceiptAttachment {
