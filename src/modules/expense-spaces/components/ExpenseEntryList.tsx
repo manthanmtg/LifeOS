@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Copy,
   Download,
+  Eye,
   Filter,
   Pencil,
   Plus,
@@ -14,12 +15,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import DocPreview from "@/components/ui/DocPreview";
 import { ContentListSkeleton } from "@/components/ui/Skeletons";
 import { useExpenseEntries } from "../hooks/useExpenseEntries";
 import type {
   ExpenseEntryFilters,
   ExpenseSpaceDocument,
   ExpenseSpaceEntryDocument,
+  ExpenseReceiptAttachment,
   ExpenseSpaceUpdateInput,
 } from "../types";
 import { EXPENSE_PAYMENT_METHODS, EXPENSE_SPACE_PAGE_SIZE } from "../constants";
@@ -40,6 +43,20 @@ const DEFAULT_FILTERS: ExpenseEntryFilters = {
   sort: "date-desc",
 };
 
+function getEntryReceipts(entry: ExpenseSpaceEntryDocument) {
+  const receipts = [
+    ...(entry.payload.receipts ?? []),
+    ...(entry.payload.receipt ? [entry.payload.receipt] : []),
+  ];
+  const seen = new Set<string>();
+  return receipts.filter((receipt) => {
+    const key = `${receipt.filename}:${receipt.data}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export default function ExpenseEntryList({
   space,
   onSpaceUpdated,
@@ -55,6 +72,10 @@ export default function ExpenseEntryList({
   const [duplicateSource, setDuplicateSource] =
     useState<ExpenseSpaceEntryDocument | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [receiptViewer, setReceiptViewer] = useState<{
+    receipts: ExpenseReceiptAttachment[];
+    index: number;
+  } | null>(null);
   const { data, loading, error, reload, create, update, remove } =
     useExpenseEntries(space._id, filters);
 
@@ -115,6 +136,12 @@ export default function ExpenseEntryList({
     setFormOpen(true);
   };
 
+  const openReceipts = (entry: ExpenseSpaceEntryDocument) => {
+    const receipts = getEntryReceipts(entry);
+    if (receipts.length > 0) setReceiptViewer({ receipts, index: 0 });
+  };
+  const viewedReceipt = receiptViewer?.receipts[receiptViewer.index];
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
@@ -129,10 +156,24 @@ export default function ExpenseEntryList({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => setReportOpen(true)} className="h-11">
-              <Download aria-hidden="true" className="mr-2 h-4 w-4" /> Download report
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReportOpen(true)}
+              className="h-11"
+            >
+              <Download aria-hidden="true" className="mr-2 h-4 w-4" /> Download
+              report
             </Button>
-            <Button type="button" onClick={() => { setEditing(null); setFormOpen(true); }} disabled={space.payload.status === "archived"} className="h-11">
+            <Button
+              type="button"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+              disabled={space.payload.status === "archived"}
+              className="h-11"
+            >
               <Plus aria-hidden="true" className="mr-2 h-4 w-4" /> Add expense
             </Button>
           </div>
@@ -400,6 +441,18 @@ export default function ExpenseEntryList({
                         >
                           <Copy aria-hidden="true" className="h-4 w-4" />
                         </Button>
+                        {getEntryReceipts(entry).length > 0 && (
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            aria-label={`View receipts for ${entry.payload.description}`}
+                            onClick={() => openReceipts(entry)}
+                            className="h-11 w-11"
+                          >
+                            <Eye aria-hidden="true" className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           type="button"
                           size="icon"
@@ -469,6 +522,17 @@ export default function ExpenseEntryList({
                   </div>
                 </dl>
                 <div className="mt-3 flex justify-end gap-2 border-t border-zinc-800 pt-3">
+                  {getEntryReceipts(entry).length > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => openReceipts(entry)}
+                      className="h-11"
+                    >
+                      <Eye aria-hidden="true" className="mr-2 h-4 w-4" />
+                      View receipts
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
@@ -567,7 +631,47 @@ export default function ExpenseEntryList({
           return updated;
         }}
       />
-      <ExpenseSpaceReportDialog open={reportOpen} space={space} onClose={() => setReportOpen(false)} />
+      <ExpenseSpaceReportDialog
+        open={reportOpen}
+        space={space}
+        onClose={() => setReportOpen(false)}
+      />
+      {receiptViewer && viewedReceipt && (
+        <DocPreview
+          src={`data:${viewedReceipt.content_type};base64,${viewedReceipt.data}`}
+          contentType={viewedReceipt.content_type}
+          filename={viewedReceipt.filename}
+          size={viewedReceipt.size}
+          navigation={
+            receiptViewer.receipts.length > 1
+              ? {
+                  current: receiptViewer.index + 1,
+                  total: receiptViewer.receipts.length,
+                  itemLabel: "receipt",
+                  onPrevious: () =>
+                    setReceiptViewer((current) =>
+                      current
+                        ? { ...current, index: Math.max(0, current.index - 1) }
+                        : null,
+                    ),
+                  onNext: () =>
+                    setReceiptViewer((current) =>
+                      current
+                        ? {
+                            ...current,
+                            index: Math.min(
+                              current.receipts.length - 1,
+                              current.index + 1,
+                            ),
+                          }
+                        : null,
+                    ),
+                }
+              : undefined
+          }
+          onClose={() => setReceiptViewer(null)}
+        />
+      )}
     </div>
   );
 }

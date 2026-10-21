@@ -1,7 +1,14 @@
 "use client";
 
 import { useRef } from "react";
-import { X, Download, FileText, ImageIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  FileText,
+  ImageIcon,
+  X,
+} from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -15,6 +22,13 @@ interface DocPreviewProps {
   loading?: boolean;
   error?: string;
   onRetry?: () => void;
+  navigation?: {
+    current: number;
+    total: number;
+    itemLabel: string;
+    onPrevious: () => void;
+    onNext: () => void;
+  };
   onClose: () => void;
 }
 
@@ -26,6 +40,7 @@ export default function DocPreview({
   loading = false,
   error,
   onRetry,
+  navigation,
   onClose,
 }: DocPreviewProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -58,7 +73,7 @@ export default function DocPreview({
       tabIndex={-1}
     >
       {/* Header */}
-      <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-10 bg-gradient-to-b from-zinc-950/80 to-transparent">
+      <div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-3 bg-gradient-to-b from-zinc-950/80 to-transparent p-4 sm:p-6">
         <div className="min-w-0 flex-1 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0 shadow-lg">
             {isImage ? (
@@ -81,7 +96,35 @@ export default function DocPreview({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          {navigation && (
+            <div className="flex items-center gap-1 rounded-xl border border-zinc-800 bg-zinc-900/95 p-1 shadow-lg">
+              <button
+                type="button"
+                onClick={navigation.onPrevious}
+                disabled={navigation.current === 1}
+                aria-label={`Previous ${navigation.itemLabel}`}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <ChevronLeft aria-hidden="true" className="h-5 w-5" />
+              </button>
+              <span
+                aria-live="polite"
+                className="min-w-12 text-center text-xs font-bold tabular-nums text-zinc-300"
+              >
+                {navigation.current} of {navigation.total}
+              </span>
+              <button
+                type="button"
+                onClick={navigation.onNext}
+                disabled={navigation.current === navigation.total}
+                aria-label={`Next ${navigation.itemLabel}`}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <ChevronRight aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </div>
+          )}
           {src && !loading && (
             <a
               href={src}

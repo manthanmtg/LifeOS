@@ -195,6 +195,81 @@ describe("Expense Spaces AdminView", () => {
     expect(screen.getByLabelText(/description/i)).toHaveValue("Halsina Mara");
   });
 
+  it("views multiple receipts from an expense action and navigates between them", async () => {
+    navigationState.searchParams = new URLSearchParams(
+      `space=${spaceId}&tab=expenses`,
+    );
+    global.fetch = vi.fn((url) =>
+      String(url).endsWith(`/${spaceId}`)
+        ? response({ data: { ...space, entry_count: 1 } })
+        : String(url).includes("/entries")
+          ? response({
+              data: {
+                entries: [
+                  {
+                    _id: "507f1f77bcf86cd799439012",
+                    module_type: "expense_space_entry",
+                    is_public: false,
+                    created_at: "2026-08-18T00:00:00.000Z",
+                    updated_at: "2026-08-18T00:00:00.000Z",
+                    payload: {
+                      space_key: space.payload.space_key,
+                      amount: 34000,
+                      currency: "INR",
+                      date: "2025-09-25",
+                      description: "Halsina Mara",
+                      paid_to: "Mill",
+                      category_id: categoryId,
+                      tags: [],
+                      receipts: [
+                        {
+                          filename: "invoice.pdf",
+                          content_type: "application/pdf",
+                          data: "YQ==",
+                          size: 1,
+                        },
+                        {
+                          filename: "delivery-note.pdf",
+                          content_type: "application/pdf",
+                          data: "Yg==",
+                          size: 1,
+                        },
+                      ],
+                    },
+                  },
+                ],
+                page: 1,
+                pageSize: 50,
+                total: 1,
+                totalPages: 1,
+                facets: {
+                  paid_to: ["Mill"],
+                  descriptions: ["Halsina Mara"],
+                  tags: [],
+                  payment_methods: [],
+                },
+              },
+            })
+          : response({ data: [space] }),
+    );
+
+    render(<AdminView />);
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /view receipts for halsina mara/i,
+      }),
+    );
+
+    expect(screen.getByRole("dialog")).toHaveTextContent("invoice.pdf");
+    expect(screen.getByText("1 of 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /next receipt/i }));
+
+    expect(screen.getByRole("dialog")).toHaveTextContent("delivery-note.pdf");
+    expect(screen.getByText("2 of 2")).toBeInTheDocument();
+  });
+
   it("writes tab navigation to the URL", async () => {
     navigationState.searchParams = new URLSearchParams(
       `space=${spaceId}&tab=expenses`,
