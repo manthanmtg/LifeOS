@@ -15,6 +15,7 @@ export default function MetricsTracker() {
 
   // Track page views
   useEffect(() => {
+    if (pathname.startsWith("/shared/expense-space/")) return;
     const recordPageView = async () => {
       // Determine active module from path
       // Pattern: /admin/module-name or /module-name
@@ -48,6 +49,7 @@ export default function MetricsTracker() {
   // Track session duration on page unload
   useEffect(() => {
     const handleUnload = () => {
+      if (window.location.pathname.startsWith("/shared/expense-space/")) return;
       const duration = Date.now() - sessionStart.current;
       // Use sendBeacon for reliable delivery during page unload
       const payload = JSON.stringify({

@@ -243,6 +243,9 @@ export async function DELETE(request: Request, { params }: Params) {
       module_type: "expense_space_document",
       "payload.space_key": payload.space_key,
     });
+    // Remove the share before deleting the parent so a later restore cannot
+    // accidentally reactivate a link that belonged to the deleted space.
+    await db.collection("expense_space_shares").deleteOne({ _id: objectId });
     const parent = await content.deleteOne({
       _id: objectId,
       module_type: "expense_space",

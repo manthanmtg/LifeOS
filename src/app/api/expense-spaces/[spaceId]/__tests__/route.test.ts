@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ObjectId } from "mongodb";
 import { DELETE, GET, PUT } from "../route";
 import { getDb } from "@/lib/mongodb";
 import { cookies } from "next/headers";
@@ -219,6 +220,10 @@ describe("/api/expense-spaces/[spaceId]", () => {
     const body = await accepted.json();
     expect(accepted.status).toBe(200);
     expect(collection.deleteMany).toHaveBeenCalledBefore(collection.deleteOne);
+    expect(getDb).toHaveBeenCalled();
+    expect(collection.deleteOne).toHaveBeenCalledWith({
+      _id: expect.any(ObjectId),
+    });
     expect(body.data).toEqual({
       spaces_deleted: 1,
       entries_deleted: 4,

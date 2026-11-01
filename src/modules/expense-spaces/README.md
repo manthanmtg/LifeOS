@@ -126,3 +126,22 @@ components. Run the full repository gate before merging:
 pnpm format
 pnpm check
 ```
+
+## Public sharing
+
+Sharing is opt-in per space. The admin-only `/api/expense-spaces/shares`
+endpoint manages one link per space; the Expense Spaces home page and each
+space provide controls. A random nonce and token hash are stored in the
+`expense_space_shares` collection. The bearer token is derived from the nonce
+and `JWT_SECRET` so the owner can copy it again without storing the token.
+Changing `JWT_SECRET` prevents reconstruction of existing links: delete and
+recreate them to copy new links. Existing holders retain access until the link
+is paused or deleted.
+
+The `/shared/expense-space/[token]` page and corresponding `/api/shared`
+GET routes expose only that space's current budget, ledger, receipts and
+associated documents. Each read checks the active share and parent, and each
+attachment is scoped to the parent. Unsafe document types download rather than
+execute in the browser. Links are bearer credentials and may be forwarded.
+They are not included in the content export; importing content under different
+IDs does not transfer share settings.

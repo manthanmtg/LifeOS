@@ -55,6 +55,13 @@ describe("MetricsTracker", () => {
     );
   });
 
+  it("does not record public share tokens", async () => {
+    navigationState.pathname = "/shared/expense-space/secret-token";
+    render(<MetricsTracker />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(trackEventMock).not.toHaveBeenCalled();
+  });
+
   it("maps core routes to the core module", async () => {
     navigationState.pathname = "/login";
 

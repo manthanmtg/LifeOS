@@ -48,3 +48,14 @@ Archive a finished space to make it read-only while keeping it discoverable and
 included in reporting. Restore it before adding or changing entries. Hard
 delete removes the space and all of its entries, requires typing the exact
 space name, and cannot be undone through LifeOS.
+
+## Share a space
+
+Open **Share this space** inside a space, or use **Public shares** on the
+Expense Spaces home page to generate a link. Anyone with the link can see the
+live budget, ledger, receipts, and documents, including future changes. They
+cannot edit the space, but they can forward the link or save its contents.
+
+Use the manager to copy or open a link, pause it temporarily, resume the same
+link, or delete it permanently. Creating a link after deletion gives it a new
+address. Deleting a space also disables its link. Sharing is off by default.

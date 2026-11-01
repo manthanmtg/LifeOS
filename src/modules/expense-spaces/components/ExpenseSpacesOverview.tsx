@@ -6,11 +6,15 @@ import {
   ArrowUpRight,
   BarChart3,
   CalendarDays,
+  Link2,
   Plus,
   Search,
   WalletCards,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
+import ExpenseSpaceShareManager from "./ExpenseSpaceShareManager";
 import { cn } from "@/lib/utils";
 import type { ExpenseSpaceSummary } from "../types";
 
@@ -44,6 +48,7 @@ export default function ExpenseSpacesOverview({
   onOpenAnalytics,
 }: Props) {
   const [search, setSearch] = useState("");
+  const [sharesOpen, setSharesOpen] = useState(false);
   const visible = useMemo(() => {
     const query = search.trim().toLocaleLowerCase("en-US");
     return spaces.filter((space) => {
@@ -59,8 +64,8 @@ export default function ExpenseSpacesOverview({
     <div className="space-y-7">
       <header className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/55 p-5 sm:p-7">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0 max-w-2xl xl:flex-1">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
               <WalletCards aria-hidden="true" className="h-6 w-6" />
             </div>
@@ -75,7 +80,16 @@ export default function ExpenseSpacesOverview({
               without mixing budgets or currencies.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:shrink-0 xl:flex-nowrap">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSharesOpen(true)}
+              className="h-11"
+            >
+              <Link2 aria-hidden="true" className="mr-2 h-4 w-4" /> Public
+              shares
+            </Button>
             <Button
               type="button"
               variant="outline"
@@ -93,6 +107,23 @@ export default function ExpenseSpacesOverview({
           </div>
         </div>
       </header>
+
+      <Dialog
+        isOpen={sharesOpen}
+        onClose={() => setSharesOpen(false)}
+        aria-label="Public shares"
+        className="max-h-[min(90dvh,48rem)] max-w-2xl overflow-y-auto"
+      >
+        <button
+          type="button"
+          onClick={() => setSharesOpen(false)}
+          aria-label="Close public shares"
+          className="absolute right-4 top-4 z-10 rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <X aria-hidden="true" className="h-5 w-5" />
+        </button>
+        {sharesOpen && <ExpenseSpaceShareManager spaces={spaces} />}
+      </Dialog>
 
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
         <label className="relative block">

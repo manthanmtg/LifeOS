@@ -5,6 +5,14 @@ import { verifyToken, signToken } from "@/lib/auth";
 export default async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
+  if (path.startsWith("/shared/expense-space/")) {
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  }
+
   const isDevBypass =
     process.env.NODE_ENV === "development" &&
     (process.env.DEV_BYPASS_AUTH === "true" ||
@@ -140,5 +148,11 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/admin/login", "/admin/:path*", "/api/:path*"],
+  matcher: [
+    "/",
+    "/admin/login",
+    "/admin/:path*",
+    "/api/:path*",
+    "/shared/expense-space/:path*",
+  ],
 };

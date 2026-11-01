@@ -23,6 +23,7 @@ import ExpenseEntryList from "./ExpenseEntryList";
 import ExpenseSpaceAnalytics from "./ExpenseSpaceAnalytics";
 import ExpenseSpaceSettings from "./ExpenseSpaceSettings";
 import ExpenseSpaceDocuments from "./ExpenseSpaceDocuments";
+import ExpenseSpaceShareManager from "./ExpenseSpaceShareManager";
 import ExpenseSpaceTabLoadingSkeleton from "./ExpenseSpaceTabLoadingSkeleton";
 import { formatExpenseMoney } from "./ExpenseSpacesOverview";
 
@@ -154,6 +155,15 @@ export default function ExpenseSpaceWorkspace({
           />
         </dl>
       </header>
+
+      <details className="group">
+        <summary className="cursor-pointer rounded-xl border border-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-100">
+          Share this space
+        </summary>
+        <div className="mt-3">
+          <ExpenseSpaceShareManager spaces={spaces} spaceId={space._id} />
+        </div>
+      </details>
 
       {space.payload.status === "archived" && (
         <div

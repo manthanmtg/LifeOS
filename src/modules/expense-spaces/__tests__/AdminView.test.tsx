@@ -78,6 +78,38 @@ describe("Expense Spaces AdminView", () => {
     );
   });
 
+  it("opens public shares in a dialog from the overview and closes with Escape", async () => {
+    global.fetch = vi.fn((url) =>
+      String(url).endsWith("/shares")
+        ? response({ data: [] })
+        : response({ data: [space] }),
+    );
+    render(<AdminView />);
+    const button = await screen.findByRole("button", {
+      name: /public shares/i,
+    });
+    expect(
+      screen.queryByRole("dialog", { name: /public shares/i }),
+    ).not.toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalledWith(
+      "/api/expense-spaces/shares",
+      expect.anything(),
+    );
+    button.focus();
+    fireEvent.click(button);
+    expect(
+      await screen.findByRole("dialog", { name: /public shares/i }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText(/no public links yet/i)).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: /public shares/i }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(button).toHaveFocus();
+  });
+
   it("recovers from an unknown selected space without a broken workspace", async () => {
     navigationState.searchParams = new URLSearchParams(
       "space=507f1f77bcf86cd799439099&tab=expenses",
@@ -381,6 +413,14 @@ describe("Expense Spaces AdminView", () => {
       "Database unavailable",
     );
     fireEvent.click(screen.getByRole("button", { name: /try again/i }));
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        vi
+          .mocked(global.fetch)
+          .mock.calls.filter(([url]) =>
+            String(url).startsWith("/api/expense-spaces?"),
+          ),
+      ).toHaveLength(2),
+    );
   });
 });
