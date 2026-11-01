@@ -41,6 +41,8 @@ describe("shared expense space", () => {
     expect(
       await screen.findByRole("heading", { name: "Holiday" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("Budget")).toBeInTheDocument();
+    expect(screen.getByText("Remaining")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /invoice.pdf/i })).toHaveAttribute(
       "href",
       expect.stringContaining("/attachment/document/doc"),
@@ -59,6 +61,25 @@ describe("shared expense space", () => {
       expect(fetcher.mock.calls.at(-1)?.[0]).toContain("category=food"),
     );
     expect(fetcher.mock.calls.at(-1)?.[0]).toContain("search=Lunch");
+  });
+  it("hides budget and remaining when the space has no budget", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          ...result,
+          space: { ...result.space, budget: undefined },
+        }),
+      }),
+    );
+    render(<SharedExpenseSpace token="abcdef" />);
+    expect(await screen.findByText("Total spent")).toBeInTheDocument();
+    expect(screen.queryByText("Budget")).not.toBeInTheDocument();
+    expect(screen.queryByText("Remaining")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("No budget has been set"),
+    ).not.toBeInTheDocument();
   });
   it("shows an unavailable message for a revoked link", async () => {
     vi.stubGlobal(

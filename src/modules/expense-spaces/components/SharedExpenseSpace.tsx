@@ -146,36 +146,32 @@ export default function SharedExpenseSpace({ token }: { token: string }) {
           </div>
         </header>
         <section
-          aria-label="Budget overview"
-          className="grid gap-3 sm:grid-cols-3"
+          aria-label="Spending overview"
+          className={space.budget ? "grid gap-3 sm:grid-cols-3" : "grid gap-3"}
         >
           <Metric
             label="Total spent"
             value={money(summary.total)}
             detail={`${summary.count} expenses`}
           />
-          <Metric
-            label={
-              space.budget?.cadence === "monthly" ? "Monthly budget" : "Budget"
-            }
-            value={space.budget ? money(space.budget.amount) : "Not set"}
-            detail={
-              space.budget
-                ? `${money(budgetSpend)} used${space.budget.cadence === "monthly" ? " this month" : ""}`
-                : "No budget has been set"
-            }
-          />
-          <Metric
-            label="Remaining"
-            value={
-              space.budget ? money(space.budget.amount - budgetSpend) : "—"
-            }
-            detail={
-              space.budget
-                ? `${space.budget.cadence === "monthly" ? "Monthly" : "Total"} budget`
-                : ""
-            }
-          />
+          {space.budget && (
+            <>
+              <Metric
+                label={
+                  space.budget.cadence === "monthly"
+                    ? "Monthly budget"
+                    : "Budget"
+                }
+                value={money(space.budget.amount)}
+                detail={`${money(budgetSpend)} used${space.budget.cadence === "monthly" ? " this month" : ""}`}
+              />
+              <Metric
+                label="Remaining"
+                value={money(space.budget.amount - budgetSpend)}
+                detail={`${space.budget.cadence === "monthly" ? "Monthly" : "Total"} budget`}
+              />
+            </>
+          )}
         </section>
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 sm:p-7">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
