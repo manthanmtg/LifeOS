@@ -5,9 +5,10 @@ import proxy from "@/proxy";
 
 vi.mock("@/lib/auth", () => ({
   verifyToken: vi.fn(),
+  signToken: vi.fn(),
 }));
 
-import { verifyToken } from "@/lib/auth";
+import { verifyToken, signToken } from "@/lib/auth";
 
 describe("proxy middleware", () => {
   beforeEach(() => {
@@ -203,5 +204,72 @@ describe("proxy middleware", () => {
 
     expect(response.status).toBe(403);
     expect(body).toEqual({ error: "Forbidden" });
+  });
+
+  describe("development auth bypass", () => {
+    beforeEach(() => {
+      vi.stubEnv("JWT_SECRET", "test-secret");
+      vi.mocked(signToken).mockResolvedValue("generated-dev-token");
+    });
+
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("auto-authenticates and sets cookie when accessing /admin without token in development", async () => {
+      vi.stubEnv("NODE_ENV", "development");
+      vi.stubEnv("DEV_BYPASS_AUTH", "true");
+
+      const request = new NextRequest("http://localhost/admin/settings");
+      const response = await proxy(request);
+
+      expect(response.status).toBe(200);
+      expect(response.cookies.get("lifeos_token")?.value).toBe(
+        "generated-dev-token",
+      );
+      expect(vi.mocked(signToken)).toHaveBeenCalledWith({ role: "admin" });
+    });
+
+    it("redirects /admin/login to /admin and sets cookie in development", async () => {
+      vi.stubEnv("NODE_ENV", "development");
+      vi.stubEnv("DEV_BYPASS_AUTH", "true");
+
+      const request = new NextRequest("http://localhost/admin/login");
+      const response = await proxy(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe("http://localhost/admin");
+      expect(response.cookies.get("lifeos_token")?.value).toBe(
+        "generated-dev-token",
+      );
+    });
+
+    it("redirects / to /admin and sets cookie when public=1 is not requested", async () => {
+      vi.stubEnv("NODE_ENV", "development");
+      vi.stubEnv("DEV_BYPASS_AUTH", "true");
+
+      const request = new NextRequest("http://localhost/");
+      const response = await proxy(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe("http://localhost/admin");
+      expect(response.cookies.get("lifeos_token")?.value).toBe(
+        "generated-dev-token",
+      );
+    });
+
+    it("does not bypass auth in production even if DEV_BYPASS_AUTH is true", async () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("DEV_BYPASS_AUTH", "true");
+
+      const request = new NextRequest("http://localhost/admin/settings");
+      const response = await proxy(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(
+        "http://localhost/admin/login",
+      );
+      expect(vi.mocked(signToken)).not.toHaveBeenCalled();
+    });
   });
 });

@@ -1,34 +1,62 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken, signToken } from "@/lib/auth";
 
 export default async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
+
+  const isDevBypass =
+    process.env.NODE_ENV === "development" &&
+    (process.env.DEV_BYPASS_AUTH === "true" ||
+      process.env.DEV_BYPASS_AUTH === "1");
+
+  let bypassToken: string | null = null;
+  const rawToken = request.cookies.get("lifeos_token")?.value;
+  let verified = rawToken ? await verifyToken(rawToken) : null;
+
+  if (!verified && isDevBypass && process.env.JWT_SECRET) {
+    try {
+      bypassToken = await signToken({ role: "admin" });
+      verified = { role: "admin", sub: "admin" };
+    } catch (err) {
+      console.error("Failed to generate dev bypass token:", err);
+    }
+  }
 
   // If logged in and visiting /, redirect to /admin dashboard
   // Unless ?public=1 is set (explicit public view request)
   if (path === "/") {
     const wantsPublic = request.nextUrl.searchParams.get("public") === "1";
-    if (!wantsPublic) {
-      const token = request.cookies.get("lifeos_token")?.value;
-      if (token) {
-        const verified = await verifyToken(token);
-        if (verified) {
-          return NextResponse.redirect(new URL("/admin", request.url));
-        }
+    if (!wantsPublic && verified) {
+      const response = NextResponse.redirect(new URL("/admin", request.url));
+      if (bypassToken) {
+        response.cookies.set("lifeos_token", bypassToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/",
+        });
       }
+      return response;
     }
     return NextResponse.next();
   }
 
   // If already logged in and visiting /admin/login, redirect to /admin
   if (path === "/admin/login") {
-    const token = request.cookies.get("lifeos_token")?.value;
-    if (token) {
-      const verified = await verifyToken(token);
-      if (verified) {
-        return NextResponse.redirect(new URL("/admin", request.url));
+    if (verified) {
+      const response = NextResponse.redirect(new URL("/admin", request.url));
+      if (bypassToken) {
+        response.cookies.set("lifeos_token", bypassToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/",
+        });
       }
+      return response;
     }
     return NextResponse.next();
   }
@@ -51,24 +79,12 @@ export default async function proxy(request: NextRequest) {
     path.startsWith("/api/warranty") ||
     path.startsWith("/api/expense-spaces");
 
-  if (isProtectedPath) {
-    const token = request.cookies.get("lifeos_token")?.value;
-
-    if (!token) {
-      if (path.startsWith("/api")) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      // Redirect to admin login
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+  if (isProtectedPath && !verified) {
+    if (path.startsWith("/api")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const verifiedToken = await verifyToken(token);
-    if (!verifiedToken) {
-      if (path.startsWith("/api")) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
+    // Redirect to admin login
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   // CSRF protection: validate Origin header on state-mutating requests
@@ -93,6 +109,31 @@ export default async function proxy(request: NextRequest) {
     } catch {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+  }
+
+  if (bypassToken) {
+    const requestHeaders = new Headers(request.headers);
+    const existingCookie = request.headers.get("cookie");
+    const cookiePart = `lifeos_token=${bypassToken}`;
+    requestHeaders.set(
+      "cookie",
+      existingCookie ? `${existingCookie}; ${cookiePart}` : cookiePart,
+    );
+
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+
+    response.cookies.set("lifeos_token", bypassToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
+    return response;
   }
 
   return NextResponse.next();
