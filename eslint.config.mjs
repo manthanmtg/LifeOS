@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "coverage/**",
+    // Local git worktrees and their build artifacts are not source files.
+    ".worktrees/**",
+    "**/.next/**",
   ]),
 ]);
 
