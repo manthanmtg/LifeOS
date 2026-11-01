@@ -14,6 +14,20 @@ describe("public expense space", () => {
     expect(response.status).toBe(404);
     expect(getDb).not.toHaveBeenCalled();
   });
+  it("accepts a six-character code for lookup", async () => {
+    const findOne = vi.fn().mockResolvedValue(null);
+    vi.mocked(getDb).mockResolvedValue({
+      collection: () => ({ findOne }),
+    } as never);
+    const response = await GET(
+      new Request("http://localhost/api/shared/expense-space/aB3_xZ"),
+      { params: Promise.resolve({ token: "aB3_xZ" }) },
+    );
+    expect(response.status).toBe(404);
+    expect(findOne).toHaveBeenCalledWith(
+      expect.objectContaining({ paused: false, tokenHash: expect.any(String) }),
+    );
+  });
   it("returns the same unavailable response for paused or unknown shares", async () => {
     vi.mocked(getDb).mockResolvedValue({
       collection: () => ({ findOne: vi.fn().mockResolvedValue(null) }),

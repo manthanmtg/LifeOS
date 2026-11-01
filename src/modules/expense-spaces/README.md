@@ -133,7 +133,9 @@ Sharing is opt-in per space. The admin-only `/api/expense-spaces/shares`
 endpoint manages one link per space; the Expense Spaces home page and each
 space provide controls. A random nonce and token hash are stored in the
 `expense_space_shares` collection. The bearer token is derived from the nonce
-and `JWT_SECRET` so the owner can copy it again without storing the token.
+and `JWT_SECRET` so the owner can copy it again without storing the token. New
+links use six-character codes, which offer substantially less protection from
+guessing; a unique index prevents collisions. Existing longer links still work.
 Changing `JWT_SECRET` prevents reconstruction of existing links: delete and
 recreate them to copy new links. Existing holders retain access until the link
 is paused or deleted.

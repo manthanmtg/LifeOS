@@ -7,6 +7,7 @@ import {
 } from "@/lib/expense-spaces/server";
 import {
   createShareToken,
+  createShortShareToken,
   hashShareToken,
   newShareNonce,
 } from "@/lib/expense-spaces/share-token";
@@ -16,6 +17,7 @@ type Share = {
   _id: ObjectId;
   nonce: string;
   tokenHash: string;
+  tokenVersion?: number;
   paused: boolean;
   createdAt: string;
 };
@@ -56,7 +58,10 @@ export async function GET() {
       shares
         .filter((s) => names.has(String(s._id)))
         .map((s) => {
-          const token = createShareToken(s.nonce, secret());
+          const token =
+            s.tokenVersion === 2
+              ? createShortShareToken(s.nonce, secret())
+              : createShareToken(s.nonce, secret());
           return {
             spaceId: String(s._id),
             name: names.get(String(s._id)),
@@ -94,24 +99,43 @@ export async function POST(request: Request) {
         ))
     )
       return ApiError("Space not found", 404);
-    const nonce = newShareNonce();
-    const token = createShareToken(nonce, secret());
     const shares = db.collection<Share>("expense_space_shares");
-    const result = await shares.updateOne(
-      { _id: id },
-      {
-        $setOnInsert: {
-          nonce,
-          tokenHash: hashShareToken(token),
-          paused: false,
-          createdAt: new Date().toISOString(),
-        },
-      },
-      { upsert: true },
-    );
-    if (!result.upsertedCount)
-      return ApiError("A share already exists for this space", 409);
-    return ApiSuccess({ token }, 201);
+    // The unique index prevents two spaces from ever resolving to one code,
+    // including when links are created concurrently on different servers.
+    await shares.createIndex({ tokenHash: 1 }, { unique: true });
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const nonce = newShareNonce();
+      const token = createShortShareToken(nonce, secret());
+      try {
+        const result = await shares.updateOne(
+          { _id: id },
+          {
+            $setOnInsert: {
+              nonce,
+              tokenHash: hashShareToken(token),
+              tokenVersion: 2,
+              paused: false,
+              createdAt: new Date().toISOString(),
+            },
+          },
+          { upsert: true },
+        );
+        if (!result.upsertedCount)
+          return ApiError("A share already exists for this space", 409);
+        return ApiSuccess({ token }, 201);
+      } catch (error) {
+        if (
+          typeof error !== "object" ||
+          error === null ||
+          !("code" in error) ||
+          error.code !== 11000
+        )
+          throw error;
+        if (await shares.findOne({ _id: id }))
+          return ApiError("A share already exists for this space", 409);
+      }
+    }
+    return ApiError("Could not generate a unique link. Please try again.", 503);
   } catch (error) {
     logExpenseSpacesRouteError("shares", "POST", error);
     return ApiError("Failed to create share", 500);

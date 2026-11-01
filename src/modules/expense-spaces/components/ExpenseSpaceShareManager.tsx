@@ -111,7 +111,9 @@ export default function ExpenseSpaceShareManager({ spaces, spaceId }: Props) {
           <h2 className="text-xl font-bold text-zinc-50">Public shares</h2>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
             Anyone with an active link can view this space’s full ledger,
-            budget, and documents, including future changes.
+            budget, and documents, including future changes. Short links can be
+            guessed, so only share spaces whose contents you are comfortable
+            exposing.
           </p>
         </div>
       </div>

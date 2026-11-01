@@ -1,12 +1,27 @@
 import type { Metadata } from "next";
 import SharedExpenseSpace from "@/modules/expense-spaces/components/SharedExpenseSpace";
+import { resolveShare } from "@/lib/expense-spaces/public-share";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-  title: "Shared expense space",
-  robots: { index: false, follow: false },
-  referrer: "no-referrer",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  const { token } = await params;
+  let title = "Shared expense space";
+  try {
+    const share = await resolveShare(token);
+    if (share?.space.name) title = share.space.name;
+  } catch {
+    // The page will show its own unavailable state if the share cannot load.
+  }
+  return {
+    title,
+    robots: { index: false, follow: false },
+    referrer: "no-referrer",
+  };
+}
 export default async function Page({
   params,
 }: {

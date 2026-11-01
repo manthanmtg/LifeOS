@@ -55,6 +55,8 @@ Open **Share this space** inside a space, or use **Public shares** on the
 Expense Spaces home page to generate a link. Anyone with the link can see the
 live budget, ledger, receipts, and documents, including future changes. They
 cannot edit the space, but they can forward the link or save its contents.
+New links use six-character codes, which can be guessed; use them only for
+spaces whose contents you are comfortable exposing.
 
 Use the manager to copy or open a link, pause it temporarily, resume the same
 link, or delete it permanently. Creating a link after deletion gives it a new

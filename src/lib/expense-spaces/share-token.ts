@@ -5,11 +5,14 @@ export function createShareToken(nonce: string, secret: string): string {
     .update(`expense-space-share:${nonce}`)
     .digest("base64url");
 }
+export function createShortShareToken(nonce: string, secret: string): string {
+  return createShareToken(nonce, secret).slice(0, 6);
+}
 export function hashShareToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 export function isShareToken(token: string): boolean {
-  return /^[A-Za-z0-9_-]{43}$/.test(token);
+  return /^(?:[A-Za-z0-9_-]{6}|[A-Za-z0-9_-]{43})$/.test(token);
 }
 export function newShareNonce(): string {
   return randomBytes(32).toString("hex");
