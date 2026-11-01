@@ -15,6 +15,13 @@ describe("shared expense space metadata", () => {
       params: Promise.resolve({ token: "share-token" }),
     });
     expect(metadata.title).toBe("Home renovation");
+    expect(metadata.description).toBe(
+      "View the shared expense ledger, budget and documents.",
+    );
+    expect(metadata.openGraph).toMatchObject({
+      title: "Home renovation",
+      description: metadata.description,
+    });
     expect(resolveShare).toHaveBeenCalledWith("share-token");
     expect(metadata.robots).toEqual({ index: false, follow: false });
     expect(metadata.referrer).toBe("no-referrer");
@@ -26,6 +33,9 @@ describe("shared expense space metadata", () => {
       params: Promise.resolve({ token: "invalid" }),
     });
     expect(metadata.title).toBe("Shared expense space");
+    expect(metadata.description).toBe(
+      "View the shared expense ledger, budget and documents.",
+    );
   });
 
   it("keeps the title generic if the share cannot be loaded", async () => {
@@ -36,5 +46,8 @@ describe("shared expense space metadata", () => {
       params: Promise.resolve({ token: "valid" }),
     });
     expect(metadata.title).toBe("Shared expense space");
+    expect(metadata.description).toBe(
+      "View the shared expense ledger, budget and documents.",
+    );
   });
 });

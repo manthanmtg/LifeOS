@@ -16,8 +16,11 @@ export async function generateMetadata({
   } catch {
     // The page will show its own unavailable state if the share cannot load.
   }
+  const description = "View the shared expense ledger, budget and documents.";
   return {
     title,
+    description,
+    openGraph: { title, description, type: "website" },
     robots: { index: false, follow: false },
     referrer: "no-referrer",
   };
