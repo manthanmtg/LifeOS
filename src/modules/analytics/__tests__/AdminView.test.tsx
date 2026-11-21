@@ -5,6 +5,13 @@ import AnalyticsAdminView, {
   getDeviceData,
 } from "../AdminView";
 
+vi.mock("next/dynamic", () => ({
+  default: () => {
+    const MockDynamic = () => null;
+    return MockDynamic;
+  },
+}));
+
 describe("AnalyticsAdminView", () => {
   beforeEach(() => {
     vi.resetAllMocks();
