@@ -577,7 +577,7 @@ export const IdeaSchema = z.object({
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   promoted_to_portfolio: z.boolean().default(false),
   promoted_at: z.string().datetime().optional(),
-  order: z.number().int().optional(),
+  order: z.number().int().min(0).optional(),
 });
 
 // --- 8. SNIPPET BOX ---
@@ -960,8 +960,16 @@ export const PersonSchema = z.object({
         name: z.string().trim().min(1, "Document name is required").max(200),
         filename: z.string().trim().min(1, "Filename is required").max(255),
         content_type: MimeTypeSchema,
-        data: z.string().min(1), // base64
-        size: z.number().int().min(0),
+        data: z
+          .string()
+          .trim()
+          .min(1)
+          .max(6_990_508, "Document exceeds the 5 MB limit"), // base64
+        size: z
+          .number()
+          .int()
+          .min(0)
+          .max(5 * 1024 * 1024, "Document exceeds the 5 MB limit"),
         added_at: z
           .string()
           .datetime()
