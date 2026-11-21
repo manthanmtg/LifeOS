@@ -369,7 +369,7 @@ const ExpenseSpaceTagsSchema = z
 
 const ExpenseSpaceReceiptAttachmentSchema = z.object({
   filename: z.string().trim().min(1).max(255),
-  content_type: z.string().trim().min(1).max(255),
+  content_type: MimeTypeSchema,
   data: z.string().trim().min(1).max(7_000_000),
   size: z
     .number()
@@ -551,7 +551,12 @@ const BookSchema = z.object({
   status: z
     .enum(["want_to_read", "reading", "completed", "abandoned"])
     .default("want_to_read"),
-  total_pages: z.number().int().positive().optional(),
+  total_pages: z
+    .number()
+    .int()
+    .positive()
+    .max(50000, "Total pages is unrealistically high")
+    .optional(),
   current_page: z.number().int().min(0).default(0),
   rating: z.number().int().min(1).max(5).optional(),
   started_at: z.string().datetime().optional(),
@@ -602,6 +607,7 @@ const HabitSchema = z.object({
         count: z.number().int().min(0).default(1),
       }),
     )
+    .max(3660, "Completions cannot exceed 10 years of daily entries")
     .default([]),
 });
 

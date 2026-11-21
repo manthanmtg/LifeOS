@@ -300,6 +300,27 @@ describe("schemas", () => {
       });
     });
 
+    it("rejects receipt attachments with malformed content types", () => {
+      const result = ExpenseSpaceEntryInputSchema.safeParse({
+        amount: 10,
+        description: "Vet visit",
+        paid_to: "Clinic",
+        category_id: categoryId,
+        date: "2026-08-19",
+        tags: [],
+        receipts: [
+          {
+            filename: "receipt.pdf",
+            content_type: "not a mime type",
+            data: "YQ==",
+            size: 1,
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
     it("registers both private domain payload discriminators", () => {
       expect(SchemaRegistry.expense_space).toBe(ExpenseSpaceSchema);
       expect(SchemaRegistry.expense_space_entry).toBe(ExpenseSpaceEntrySchema);
@@ -815,6 +836,72 @@ describe("schemas", () => {
       };
 
       const result = SchemaRegistry.habit.safeParse(habit);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts a valid 10-year daily completion history", () => {
+      const completionDate = (index: number) => {
+        const year = 2016 + Math.floor(index / 366);
+        const month = String((index % 12) + 1).padStart(2, "0");
+        const day = String((index % 28) + 1).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+      const habit = {
+        name: "Morning walk",
+        completions: Array.from({ length: 3660 }, (_, index) => ({
+          date: completionDate(index),
+          count: 1,
+        })),
+      };
+
+      const result = SchemaRegistry.habit.safeParse(habit);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects more than 10 years of daily completions", () => {
+      const completionDate = (index: number) => {
+        const year = 2015 + Math.floor(index / 366);
+        const month = String((index % 12) + 1).padStart(2, "0");
+        const day = String((index % 28) + 1).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+      const habit = {
+        name: "Morning walk",
+        completions: Array.from({ length: 3661 }, (_, index) => ({
+          date: completionDate(index),
+          count: 1,
+        })),
+      };
+
+      const result = SchemaRegistry.habit.safeParse(habit);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("BookSchema", () => {
+    it("accepts a book with an extreme but plausible page count", () => {
+      const book = {
+        title: "The collected works",
+        author: "Someone prolific",
+        total_pages: 50000,
+      };
+
+      const result = SchemaRegistry.book.safeParse(book);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects implausible page counts", () => {
+      const book = {
+        title: "Impossible tome",
+        author: "Unknown",
+        total_pages: 50001,
+      };
+
+      const result = SchemaRegistry.book.safeParse(book);
 
       expect(result.success).toBe(false);
     });

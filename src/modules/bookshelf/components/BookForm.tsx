@@ -335,6 +335,7 @@ export default function BookForm({
                 id="book-total-pages"
                 type="number"
                 min={0}
+                max={50000}
                 value={totalPages}
                 onChange={(e) => setTotalPages(e.target.value)}
                 placeholder="300"
