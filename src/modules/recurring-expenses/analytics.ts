@@ -62,6 +62,26 @@ export interface BuildRecurringAnalyticsOptions {
   now: number;
 }
 
+export type RenewalShiftDirection = 1 | -1;
+
+export function shiftRenewalDate(
+  current: Date,
+  cycle: BillingCycle,
+  direction: RenewalShiftDirection,
+): Date {
+  const next = new Date(current);
+
+  if (cycle === "daily") next.setDate(current.getDate() + direction);
+  else if (cycle === "weekly") next.setDate(current.getDate() + direction * 7);
+  else if (cycle === "monthly") next.setMonth(current.getMonth() + direction);
+  else if (cycle === "quarterly")
+    next.setMonth(current.getMonth() + direction * 3);
+  else if (cycle === "yearly")
+    next.setFullYear(current.getFullYear() + direction);
+
+  return next;
+}
+
 export function monthlyEquivalent(
   cost: number,
   cycle: BillingCycle | string,

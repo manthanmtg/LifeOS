@@ -55,7 +55,7 @@ import {
   normalizeNotificationOffsetsDays,
   resolveRecurringExpenseNotificationPreferences,
 } from "@/lib/notifications/recurring-preferences";
-import { monthlyEquivalent } from "./analytics";
+import { monthlyEquivalent, shiftRenewalDate } from "./analytics";
 import {
   BILLING_CYCLES,
   RECURRING_EXPENSE_CURRENCIES,
@@ -509,123 +509,131 @@ export default function RecurringExpensesAdminView() {
     "all" | "overdue" | "warning" | "inactive"
   >("all");
 
-  const fetchSubs = useCallback(async (showLoading = false) => {
-    const requestId = ++latestLoadRequestRef.current;
-    if (showLoading) setLoading(true);
-    setLoadError(null);
+  const fetchSubs = useCallback(
+    async (showLoading = false) => {
+      const requestId = ++latestLoadRequestRef.current;
+      if (showLoading) setLoading(true);
+      setLoadError(null);
 
-    try {
-      const res = await fetch("/api/content?module_type=recurring_expense");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to fetch expenses");
-      const unsorted = (data.data || []) as RecurringExpense[];
+      try {
+        const res = await fetch("/api/content?module_type=recurring_expense");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch expenses");
+        const unsorted = (data.data || []) as RecurringExpense[];
 
-      let sorted: RecurringExpense[] = [];
+        let sorted: RecurringExpense[] = [];
 
-      switch (sortBy) {
-        case "name-asc":
-          sorted = [...unsorted].sort((a, b) =>
-            a.payload.name.localeCompare(b.payload.name),
-          );
-          break;
-        case "name-desc":
-          sorted = [...unsorted].sort((a, b) =>
-            b.payload.name.localeCompare(a.payload.name),
-          );
-          break;
-        case "cost-asc":
-          sorted = [...unsorted].sort(
-            (a, b) => a.payload.cost - b.payload.cost,
-          );
-          break;
-        case "cost-desc":
-          sorted = [...unsorted].sort(
-            (a, b) => b.payload.cost - a.payload.cost,
-          );
-          break;
-        case "monthly-eq-asc":
-          sorted = [...unsorted].sort(
-            (a, b) =>
-              monthlyEquivalent(a.payload.cost, a.payload.billing_cycle) -
-              monthlyEquivalent(b.payload.cost, b.payload.billing_cycle),
-          );
-          break;
-        case "monthly-eq-desc":
-          sorted = [...unsorted].sort(
-            (a, b) =>
-              monthlyEquivalent(b.payload.cost, b.payload.billing_cycle) -
-              monthlyEquivalent(a.payload.cost, a.payload.billing_cycle),
-          );
-          break;
-        case "renewal-asc":
-          sorted = [...unsorted].sort(
-            (a, b) =>
-              renewalTimestamp(a.payload.next_renewal_date) -
-              renewalTimestamp(b.payload.next_renewal_date),
-          );
-          break;
-        case "renewal-desc":
-          sorted = [...unsorted].sort(
-            (a, b) =>
-              renewalTimestamp(b.payload.next_renewal_date) -
-              renewalTimestamp(a.payload.next_renewal_date),
-          );
-          break;
-        case "category":
-          sorted = [...unsorted].sort((a, b) => {
-            const catCompare = a.payload.category.localeCompare(
-              b.payload.category,
+        switch (sortBy) {
+          case "name-asc":
+            sorted = [...unsorted].sort((a, b) =>
+              a.payload.name.localeCompare(b.payload.name),
             );
-            if (catCompare !== 0) return catCompare;
-            return a.payload.name.localeCompare(b.payload.name);
-          });
-          break;
-        case "custom":
-        default:
-          sorted = [...unsorted].sort((a, b) => {
-            if (a.payload.order !== undefined && b.payload.order !== undefined)
-              return a.payload.order - b.payload.order;
-            return (
-              renewalTimestamp(b.payload.next_renewal_date) -
-              renewalTimestamp(a.payload.next_renewal_date)
+            break;
+          case "name-desc":
+            sorted = [...unsorted].sort((a, b) =>
+              b.payload.name.localeCompare(a.payload.name),
             );
-          });
-          break;
-      }
-
-      if (requestId !== latestLoadRequestRef.current) return;
-
-      // Save new order to database if not custom sort
-      if (sortBy !== "custom" && sorted.length > 0) {
-        try {
-          await Promise.all(
-            sorted.map((s, i) => {
-              const payload = { ...s.payload, order: i };
-              return fetch(`/api/content/${s._id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  module_type: "recurring_expense",
-                  payload,
-                }),
-              });
-            }),
-          );
-        } catch (error: unknown) {
-          console.error("Failed to save new order:", error);
+            break;
+          case "cost-asc":
+            sorted = [...unsorted].sort(
+              (a, b) => a.payload.cost - b.payload.cost,
+            );
+            break;
+          case "cost-desc":
+            sorted = [...unsorted].sort(
+              (a, b) => b.payload.cost - a.payload.cost,
+            );
+            break;
+          case "monthly-eq-asc":
+            sorted = [...unsorted].sort(
+              (a, b) =>
+                monthlyEquivalent(a.payload.cost, a.payload.billing_cycle) -
+                monthlyEquivalent(b.payload.cost, b.payload.billing_cycle),
+            );
+            break;
+          case "monthly-eq-desc":
+            sorted = [...unsorted].sort(
+              (a, b) =>
+                monthlyEquivalent(b.payload.cost, b.payload.billing_cycle) -
+                monthlyEquivalent(a.payload.cost, a.payload.billing_cycle),
+            );
+            break;
+          case "renewal-asc":
+            sorted = [...unsorted].sort(
+              (a, b) =>
+                renewalTimestamp(a.payload.next_renewal_date) -
+                renewalTimestamp(b.payload.next_renewal_date),
+            );
+            break;
+          case "renewal-desc":
+            sorted = [...unsorted].sort(
+              (a, b) =>
+                renewalTimestamp(b.payload.next_renewal_date) -
+                renewalTimestamp(a.payload.next_renewal_date),
+            );
+            break;
+          case "category":
+            sorted = [...unsorted].sort((a, b) => {
+              const catCompare = a.payload.category.localeCompare(
+                b.payload.category,
+              );
+              if (catCompare !== 0) return catCompare;
+              return a.payload.name.localeCompare(b.payload.name);
+            });
+            break;
+          case "custom":
+          default:
+            sorted = [...unsorted].sort((a, b) => {
+              if (
+                a.payload.order !== undefined &&
+                b.payload.order !== undefined
+              )
+                return a.payload.order - b.payload.order;
+              return (
+                renewalTimestamp(b.payload.next_renewal_date) -
+                renewalTimestamp(a.payload.next_renewal_date)
+              );
+            });
+            break;
         }
-      }
 
-      if (requestId !== latestLoadRequestRef.current) return;
-      setSubs(sorted);
-    } catch (err: unknown) {
-      if (requestId !== latestLoadRequestRef.current) return;
-      console.error("fetchSubs failed:", err);
-      setLoadError("Couldn't load your recurring expenses. Please try again.");
-    } finally {
-      if (requestId === latestLoadRequestRef.current) setLoading(false);
-    }
-  }, [sortBy]);
+        if (requestId !== latestLoadRequestRef.current) return;
+
+        // Save new order to database if not custom sort
+        if (sortBy !== "custom" && sorted.length > 0) {
+          try {
+            await Promise.all(
+              sorted.map((s, i) => {
+                const payload = { ...s.payload, order: i };
+                return fetch(`/api/content/${s._id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    module_type: "recurring_expense",
+                    payload,
+                  }),
+                });
+              }),
+            );
+          } catch (error: unknown) {
+            console.error("Failed to save new order:", error);
+          }
+        }
+
+        if (requestId !== latestLoadRequestRef.current) return;
+        setSubs(sorted);
+      } catch (err: unknown) {
+        if (requestId !== latestLoadRequestRef.current) return;
+        console.error("fetchSubs failed:", err);
+        setLoadError(
+          "Couldn't load your recurring expenses. Please try again.",
+        );
+      } finally {
+        if (requestId === latestLoadRequestRef.current) setLoading(false);
+      }
+    },
+    [sortBy],
+  );
 
   useEffect(() => {
     void fetchSubs(true);
@@ -778,21 +786,16 @@ export default function RecurringExpensesAdminView() {
     [fetchSubs],
   );
 
-  const handleRenew = useCallback(
-    async (s: RecurringExpense) => {
+  const handleShiftRenewal = useCallback(
+    async (s: RecurringExpense, direction: 1 | -1) => {
       setIsProcessingId(s._id);
+      const verb = direction > 0 ? "Renewal" : "De-renewal";
       try {
-        const current = new Date(s.payload.next_renewal_date);
-        const cycle = s.payload.billing_cycle;
-        const next = new Date(current);
-
-        if (cycle === "daily") next.setDate(current.getDate() + 1);
-        else if (cycle === "weekly") next.setDate(current.getDate() + 7);
-        else if (cycle === "monthly") next.setMonth(current.getMonth() + 1);
-        else if (cycle === "quarterly") next.setMonth(current.getMonth() + 3);
-        else if (cycle === "yearly")
-          next.setFullYear(current.getFullYear() + 1);
-
+        const next = shiftRenewalDate(
+          new Date(s.payload.next_renewal_date),
+          s.payload.billing_cycle,
+          direction,
+        );
         const payload = { ...s.payload, next_renewal_date: next.toISOString() };
         const res = await fetch(`/api/content/${s._id}`, {
           method: "PUT",
@@ -800,10 +803,13 @@ export default function RecurringExpensesAdminView() {
           body: JSON.stringify({ payload }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Renewal failed");
+        if (!res.ok) throw new Error(data.error || `${verb} failed`);
         await fetchSubs();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to renew";
+        const message =
+          err instanceof Error
+            ? err.message
+            : `Failed to ${verb.toLowerCase()}`;
         alert(message);
       } finally {
         setIsProcessingId(null);
@@ -812,39 +818,14 @@ export default function RecurringExpensesAdminView() {
     [fetchSubs],
   );
 
+  const handleRenew = useCallback(
+    (s: RecurringExpense) => handleShiftRenewal(s, 1),
+    [handleShiftRenewal],
+  );
+
   const handleDeRenew = useCallback(
-    async (s: RecurringExpense) => {
-      setIsProcessingId(s._id);
-      try {
-        const current = new Date(s.payload.next_renewal_date);
-        const cycle = s.payload.billing_cycle;
-        const prev = new Date(current);
-
-        if (cycle === "daily") prev.setDate(current.getDate() - 1);
-        else if (cycle === "weekly") prev.setDate(current.getDate() - 7);
-        else if (cycle === "monthly") prev.setMonth(current.getMonth() - 1);
-        else if (cycle === "quarterly") prev.setMonth(current.getMonth() - 3);
-        else if (cycle === "yearly")
-          prev.setFullYear(current.getFullYear() - 1);
-
-        const payload = { ...s.payload, next_renewal_date: prev.toISOString() };
-        const res = await fetch(`/api/content/${s._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ payload }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "De-renewal failed");
-        await fetchSubs();
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to de-renew";
-        alert(message);
-      } finally {
-        setIsProcessingId(null);
-      }
-    },
-    [fetchSubs],
+    (s: RecurringExpense) => handleShiftRenewal(s, -1),
+    [handleShiftRenewal],
   );
 
   const handleDuplicate = useCallback(
