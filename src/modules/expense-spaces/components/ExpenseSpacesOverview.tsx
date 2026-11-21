@@ -27,16 +27,24 @@ interface Props {
   onOpenAnalytics: () => void;
 }
 
+const moneyFormatterCache = new Map<string, Intl.NumberFormat>();
+
 export function formatExpenseMoney(
   amount: number,
   currency: string,
   format: "western" | "indian" = "western",
 ) {
-  return new Intl.NumberFormat(format === "indian" ? "en-IN" : "en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
+  const cacheKey = `${format}:${currency}`;
+  let formatter = moneyFormatterCache.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(format === "indian" ? "en-IN" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    });
+    moneyFormatterCache.set(cacheKey, formatter);
+  }
+  return formatter.format(amount);
 }
 
 export default function ExpenseSpacesOverview({
