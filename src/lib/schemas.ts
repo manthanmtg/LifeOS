@@ -451,7 +451,7 @@ export const ExpenseSpaceEntrySchema = z.object({
 export const ExpenseSpaceDocumentSchema = z.object({
   space_key: z.string().uuid(),
   filename: z.string().trim().min(1, "Filename is required").max(255),
-  content_type: z.string().trim().min(1).max(255),
+  content_type: MimeTypeSchema,
   data: z.string().trim().min(1, "Document data is required").max(7_000_000),
   size: z
     .number()
@@ -812,7 +812,15 @@ export const RainEntrySchema = z.object({
 
 // --- 15. PORTFOLIO RESUME ---
 const ResumeSchema = z.object({
-  filename: z.string().trim().min(1, "Filename is required").max(255),
+  filename: z
+    .string()
+    .trim()
+    .min(1, "Filename is required")
+    .max(255)
+    .refine(
+      (filename) => !/[\\/\u0000-\u001F\u007F]/.test(filename),
+      "Filename cannot contain path separators or control characters",
+    ),
   content: z.string().min(1, "Resume content is required").max(10485760), // Base64 PDF data, 10MB limit
   is_active: z.boolean().default(false),
   uploaded_at: z
@@ -1171,8 +1179,16 @@ const GenericAttachmentSchema = z.object({
     .min(1, "Filename is required")
     .max(255, "Filename is too long"),
   content_type: MimeTypeSchema,
-  data: z.string().trim().min(1, "Attachment data is required"), // base64
-  size: z.number().int().min(0),
+  data: z
+    .string()
+    .trim()
+    .min(1, "Attachment data is required")
+    .max(6_990_508, "Attachment exceeds the 5 MB limit"), // base64
+  size: z
+    .number()
+    .int()
+    .min(0)
+    .max(5 * 1024 * 1024, "Attachment exceeds the 5 MB limit"),
   uploaded_at: z
     .string()
     .datetime()

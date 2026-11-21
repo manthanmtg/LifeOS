@@ -21,6 +21,7 @@ import {
   ExpenseSpaceUpdateInputSchema,
   ExpenseSpaceEntrySchema,
   ExpenseSpaceEntryInputSchema,
+  ExpenseSpaceDocumentSchema,
   SchemaRegistry,
 } from "../schemas";
 
@@ -319,6 +320,30 @@ describe("schemas", () => {
       });
 
       expect(result.success).toBe(false);
+    });
+
+    it("rejects expense space documents with malformed content types", () => {
+      const result = ExpenseSpaceDocumentSchema.safeParse({
+        space_key: validSpace.space_key,
+        filename: "invoice.pdf",
+        content_type: "not a mime type",
+        data: "YQ==",
+        size: 1,
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts the application/octet-stream fallback for document uploads", () => {
+      const result = ExpenseSpaceDocumentSchema.safeParse({
+        space_key: validSpace.space_key,
+        filename: "invoice.pdf",
+        content_type: "application/octet-stream",
+        data: "YQ==",
+        size: 1,
+      });
+
+      expect(result.success).toBe(true);
     });
 
     it("registers both private domain payload discriminators", () => {
@@ -965,6 +990,97 @@ describe("schemas", () => {
       const result = BillFolderSchema.safeParse(folder);
 
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("Portfolio resume schema", () => {
+    it("rejects filenames with path separators or control characters", () => {
+      for (const filename of [
+        "../resume.pdf",
+        "resume\n.pdf",
+        "resume\u0000.pdf",
+      ]) {
+        const result = SchemaRegistry.portfolio_resume.safeParse({
+          filename,
+          content: "YQ==",
+        });
+
+        expect(result.success).toBe(false);
+      }
+    });
+
+    it("accepts a plain resume filename", () => {
+      const result = SchemaRegistry.portfolio_resume.safeParse({
+        filename: "resume-2026.pdf",
+        content: "YQ==",
+      });
+
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe("Generic attachment limits", () => {
+    it("rejects bill attachments whose base64 data exceeds the 5 MB cap", () => {
+      const bill = {
+        name: "Internet bill",
+        bill_date: new Date().toISOString(),
+        attachments: [
+          {
+            id: crypto.randomUUID(),
+            filename: "oversized.pdf",
+            content_type: "application/pdf",
+            data: "a".repeat(6_990_509),
+            size: 5 * 1024 * 1024,
+            uploaded_at: new Date().toISOString(),
+          },
+        ],
+      };
+
+      const result = BillSchema.safeParse(bill);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects bill attachments whose decoded size exceeds the 5 MB cap", () => {
+      const bill = {
+        name: "Internet bill",
+        bill_date: new Date().toISOString(),
+        attachments: [
+          {
+            id: crypto.randomUUID(),
+            filename: "oversized.pdf",
+            content_type: "application/pdf",
+            data: "YQ==",
+            size: 5 * 1024 * 1024 + 1,
+            uploaded_at: new Date().toISOString(),
+          },
+        ],
+      };
+
+      const result = BillSchema.safeParse(bill);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts bill attachments within the 5 MB cap", () => {
+      const bill = {
+        name: "Internet bill",
+        bill_date: new Date().toISOString(),
+        attachments: [
+          {
+            id: crypto.randomUUID(),
+            filename: "receipt.pdf",
+            content_type: "application/pdf",
+            data: "YQ==",
+            size: 5 * 1024 * 1024,
+            uploaded_at: new Date().toISOString(),
+          },
+        ],
+      };
+
+      const result = BillSchema.safeParse(bill);
+
+      expect(result.success).toBe(true);
     });
   });
 });
