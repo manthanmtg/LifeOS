@@ -382,7 +382,20 @@ export async function GET(request: Request) {
         "payload.service_records": 1,
         "payload.fuel_logs": 1,
       },
-      bill: { "payload.attachments": 1, created_at: 1 },
+      // Attachment metadata only — never project the base64 `data` blobs.
+      bill: {
+        "payload.name": 1,
+        "payload.bill_date": 1,
+        "payload.amount": 1,
+        "payload.currency": 1,
+        "payload.attachments.id": 1,
+        "payload.attachments.filename": 1,
+        "payload.attachments.size": 1,
+        "payload.attachments.content_type": 1,
+        "payload.attachments.uploaded_at": 1,
+        created_at: 1,
+        updated_at: 1,
+      },
     };
 
     const query: Record<string, unknown> = { module_type };

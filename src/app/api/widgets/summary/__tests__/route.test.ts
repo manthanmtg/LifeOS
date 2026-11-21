@@ -531,6 +531,24 @@ describe("GET /api/widgets/summary", () => {
     expect(mockCountDocuments).toHaveBeenCalledWith({
       module_type: "bill_folder",
     });
+    expect(mockFind).toHaveBeenCalledWith(
+      { module_type: "bill" },
+      {
+        projection: {
+          "payload.name": 1,
+          "payload.bill_date": 1,
+          "payload.amount": 1,
+          "payload.currency": 1,
+          "payload.attachments.id": 1,
+          "payload.attachments.filename": 1,
+          "payload.attachments.size": 1,
+          "payload.attachments.content_type": 1,
+          "payload.attachments.uploaded_at": 1,
+          created_at: 1,
+          updated_at: 1,
+        },
+      },
+    );
   });
 
   it("returns summary for book module", async () => {
