@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-export interface DeliveryDedupeKeyParts {
+interface DeliveryDedupeKeyParts {
   module_type: string;
   document_id: string;
   event: string;

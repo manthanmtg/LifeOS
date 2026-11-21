@@ -7,7 +7,7 @@ export interface ModuleSettingsBrowserCache<T extends object> {
   write(settings: T): void;
 }
 
-export interface UpdateResult {
+interface UpdateResult {
   status: "idle" | "saving" | "success" | "error";
   message?: string;
 }

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Dialog from "@/components/ui/Dialog";
-import { ExpenseSpacesApiError } from "../api";
 import { EXPENSE_SPACE_CURRENCIES } from "../constants";
 import type {
   ExpenseSpaceCategory,
@@ -633,8 +632,4 @@ export default function ExpenseSpaceSettings({
       </Dialog>
     </div>
   );
-}
-
-export function isStaleExpenseSpaceError(error: unknown) {
-  return error instanceof ExpenseSpacesApiError && error.status === 409;
 }
