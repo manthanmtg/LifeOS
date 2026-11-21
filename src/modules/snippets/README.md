@@ -156,3 +156,15 @@ const { data } = await response.json();
 - `components/SnippetsMetrics.tsx` - Admin metrics and smart distributions.
 - `components/SnippetsSettings.tsx` - Per-module language and line number settings.
 - `components/SnippetsFilters.tsx` - Search, language, and favorites filters.
+- `components/SnippetSkeleton.tsx` - Shimmer skeleton shown while the admin view loads.
+- `__tests__/` - Unit, a11y, theme-contract, and widget-contract tests for the module.
+
+## Tests
+
+The module's test suite in `__tests__/` covers admin CRUD behavior and helper
+functions, accessibility checks for cards and filters, theme-contract
+compliance, widget-contract compliance, and widget rendering. Run it with:
+
+```bash
+pnpm test src/modules/snippets
+```
