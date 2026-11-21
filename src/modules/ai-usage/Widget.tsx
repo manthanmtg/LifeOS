@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
+  AlertTriangle,
   Bot,
   TrendingUp,
   TrendingDown,
@@ -50,13 +51,27 @@ function formatProviderName(provider: string) {
 export default function AiUsageWidget() {
   const [summary, setSummary] = useState<AiUsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetch("/api/widgets/summary?module_type=ai_usage")
-      .then((r) => r.json())
-      .then((d) => setSummary(d.data || null))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    const controller = new AbortController();
+    fetch("/api/widgets/summary?module_type=ai_usage", {
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const body = await response.json();
+        if (controller.signal.aborted) return;
+        if (!response.ok) throw new Error(body.error || "Summary unavailable");
+        setSummary(body.data ?? null);
+        setFailed(false);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setFailed(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, []);
 
   const { totalCount, totalThisMonth, trend, topProvider, thisMonthLength } =
@@ -103,15 +118,29 @@ export default function AiUsageWidget() {
       accentColor={accentColor}
     >
       <div className="space-y-3">
-        <WidgetStat
-          value={`$${formatNumber(totalThisMonth, "western", 2)}`}
-          label={`this month · ${thisMonthLength} calls`}
-        />
-        <WidgetHighlight
-          icon={highlight.icon}
-          text={highlight.text}
-          variant={highlight.variant}
-        />
+        {failed ? (
+          <>
+            <WidgetStat value="—" label="usage summary unavailable" />
+            <WidgetHighlight
+              icon={AlertTriangle}
+              text="Unable to load usage summary"
+              subtext="Open AI Usage to retry"
+              variant="warning"
+            />
+          </>
+        ) : (
+          <>
+            <WidgetStat
+              value={`$${formatNumber(totalThisMonth, "western", 2)}`}
+              label={`this month · ${thisMonthLength} calls`}
+            />
+            <WidgetHighlight
+              icon={highlight.icon}
+              text={highlight.text}
+              variant={highlight.variant}
+            />
+          </>
+        )}
       </div>
     </WidgetCard>
   );
