@@ -72,10 +72,12 @@ Checklist toggle and status update events are sent through `trackEvent` with the
 
 `CompassMetrics.tsx` summarizes the active board with In Progress, Review, Completion, and Attention cards. Attention combines P1 tasks and In Progress tasks that have not been updated for more than seven days.
 
-`Widget.tsx` follows the dashboard widget contract by fetching the compact summary endpoint:
+`Widget.tsx` follows the dashboard widget contract (Layout B: `WidgetStat` + `WidgetMiniStats`) by fetching the compact summary endpoint:
 
 ```ts
 fetch("/api/widgets/summary?module_type=compass_task");
 ```
 
-The summary returns `total`, `inProgressCount`, `criticalCount`, and `reviewCount`. The widget shows the In Progress count as the hero metric, then highlights critical path items, review work, or a no-attention-needed state.
+The summary returns `total`, `inProgressCount`, `criticalCount`, and `reviewCount`, where `criticalCount` counts P1 tasks only while they are in progress. The widget shows the In Progress count as the hero metric, then renders three mini stat cells: in review (`warning`), critical (`danger`), and total.
+
+The fetch is cancelled with an `AbortController` on unmount. On load failure the widget falls back to a `WidgetHighlight` warning state ("Unable to load compass summary") instead of showing stale zeros.
