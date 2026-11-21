@@ -30,7 +30,7 @@ export default function NewFolderInlineCard({
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-4 flex items-center gap-4 backdrop-blur-sm"
+      className="rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-4 flex items-center gap-4 backdrop-blur-md shadow-lg shadow-black/10"
     >
       <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
         <FolderPlus className="w-6 h-6 text-accent" />
