@@ -190,9 +190,3 @@ export const TelegramChannelUpdateSchema = z
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one channel field is required",
   });
-
-export const NotificationDispatchRequestSchema = z
-  .object({
-    batchSize: z.number().int().min(1).max(10).optional(),
-  })
-  .strict();
