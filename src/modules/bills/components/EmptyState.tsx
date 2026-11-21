@@ -18,7 +18,7 @@ export default function EmptyState({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col items-center justify-center py-24 text-center"
+      className="flex flex-col items-center justify-center py-24 px-6 text-center bg-zinc-900/20 border-2 border-dashed border-zinc-900 rounded-[3rem]"
     >
       <div className="relative mb-8">
         <div className="w-20 h-20 rounded-[2rem] bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-2xl">
