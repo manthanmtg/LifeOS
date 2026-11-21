@@ -1,9 +1,11 @@
-import { useState, useCallback, useRef } from "react";
-import Cropper, { type Area } from "react-easy-crop";
+import { useState, useCallback, useRef, Suspense } from "react";
+import type { Area } from "react-easy-crop";
+import dynamic from "next/dynamic";
 import { X, Check } from "lucide-react";
 import getCroppedImg from "@/lib/cropImage";
 import { createPortal } from "react-dom";
 import { useDialogAccessibility } from "./Dialog";
+import { SkeletonBlock } from "./Skeletons";
 
 interface ImageCropperProps {
   imageSrc: string;
@@ -11,6 +13,13 @@ interface ImageCropperProps {
   onCropComplete: (base64Data: string, mimeType: string) => void;
   mimeType?: string;
 }
+
+type CropperComponent = typeof import("react-easy-crop").default;
+
+const Cropper = dynamic(
+  () => import("react-easy-crop").then((mod) => mod.default),
+  { ssr: false },
+) as unknown as CropperComponent;
 
 export default function ImageCropper({
   imageSrc,
@@ -83,17 +92,23 @@ export default function ImageCropper({
         </div>
 
         <div className="relative w-full h-[min(300px,42dvh)] sm:h-[400px] bg-zinc-950 shrink-0">
-          <Cropper
-            image={imageSrc}
-            crop={crop}
-            zoom={zoom}
-            aspect={1}
-            cropShape="round"
-            showGrid={false}
-            onCropChange={setCrop}
-            onCropComplete={onCropCompleteHandler}
-            onZoomChange={setZoom}
-          />
+          <Suspense
+            fallback={
+              <SkeletonBlock className="absolute inset-0 rounded-none" />
+            }
+          >
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              cropShape="round"
+              showGrid={false}
+              onCropChange={setCrop}
+              onCropComplete={onCropCompleteHandler}
+              onZoomChange={setZoom}
+            />
+          </Suspense>
         </div>
 
         <div className="p-6 space-y-6 shrink-0 bg-zinc-950 border-t border-zinc-900">
