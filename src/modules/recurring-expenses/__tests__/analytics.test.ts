@@ -3,6 +3,7 @@ import {
   buildRecurringAnalytics,
   monthlyEquivalent,
   selectInitialAnalyticsCurrency,
+  shiftRenewalDate,
 } from "../analytics";
 import type { RecurringExpense } from "../types";
 
@@ -36,6 +37,41 @@ describe("recurring expense analytics", () => {
     expect(monthlyEquivalent(10, "weekly")).toBe(43.3);
     expect(monthlyEquivalent(10, "daily")).toBeCloseTo(304.4);
     expect(monthlyEquivalent(100, "monthly")).toBe(100);
+  });
+
+  it("shifts renewal dates by one billing cycle in each direction without mutating the input", () => {
+    const base = new Date("2026-01-31T00:00:00.000Z");
+
+    expect(shiftRenewalDate(base, "daily", 1).toISOString()).toBe(
+      "2026-02-01T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "daily", -1).toISOString()).toBe(
+      "2026-01-30T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "weekly", 1).toISOString()).toBe(
+      "2026-02-07T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "weekly", -1).toISOString()).toBe(
+      "2026-01-24T00:00:00.000Z",
+    );
+    // Documented JS Date overflow: Jan 31 + 1 month clamps into March (existing behavior).
+    expect(shiftRenewalDate(base, "monthly", 1).toISOString()).toBe(
+      "2026-03-03T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "monthly", -1).toISOString()).toBe(
+      "2025-12-31T00:00:00.000Z",
+    );
+    // Documented JS Date overflow: Jan 31 + 3 months overflows into May (existing behavior).
+    expect(shiftRenewalDate(base, "quarterly", 1).toISOString()).toBe(
+      "2026-05-01T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "yearly", 1).toISOString()).toBe(
+      "2027-01-31T00:00:00.000Z",
+    );
+    expect(shiftRenewalDate(base, "yearly", -1).toISOString()).toBe(
+      "2025-01-31T00:00:00.000Z",
+    );
+    expect(base.toISOString()).toBe("2026-01-31T00:00:00.000Z");
   });
 
   it("selects the default active currency or the first active ISO code", () => {
