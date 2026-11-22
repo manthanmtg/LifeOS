@@ -9,6 +9,8 @@ import {
   CONVERSION_TO_MM,
   getDefaultEntryDateTime,
   parseDateInputToISO,
+  UNIT_LABELS,
+  UNIT_OPTIONS,
 } from "../utils";
 import {
   actionClass,
@@ -227,14 +229,19 @@ export function RainEntryEditor({
   onSave: (payload: RainEntry["payload"]) => Promise<void>;
 }) {
   const firstField = useRef<HTMLInputElement>(null);
+  const unitFieldId = useId();
+  const [entryUnit, setEntryUnit] = useState(displayUnit);
+  const [draftAmount, setDraftAmount] = useState<string | null>(null);
   const [initialDateTime] = useState(() =>
     getDefaultEntryDateTime(entry ? new Date(entry.payload.date) : undefined),
   );
   const originalAmount = entry?.payload.rainfall_amount;
-  const initialAmount =
+  const unchangedAmount =
     originalAmount === undefined
-      ? undefined
-      : Number((originalAmount / CONVERSION_TO_MM[displayUnit]).toFixed(6));
+      ? ""
+      : String(
+          Number((originalAmount / CONVERSION_TO_MM[entryUnit]).toFixed(6)),
+        );
 
   return (
     <RainEditorDialog
@@ -248,16 +255,18 @@ export function RainEntryEditor({
         const date = String(data.get("date") ?? "");
         const time = String(data.get("time") || "00:00");
 
-        if (!Number.isFinite(amount) || amount < 0)
+        const amountMm =
+          originalAmount !== undefined && amount === Number(unchangedAmount)
+            ? originalAmount
+            : amount * CONVERSION_TO_MM[entryUnit];
+
+        if (!Number.isFinite(amountMm) || amountMm < 0)
           throw new Error("Enter a valid rainfall amount.");
         if (!date) throw new Error("Enter the date of the reading.");
 
         return onSave({
           area_id: area._id,
-          rainfall_amount:
-            originalAmount !== undefined && amount === initialAmount
-              ? originalAmount
-              : amount * CONVERSION_TO_MM[displayUnit],
+          rainfall_amount: amountMm,
           rainfall_unit: "mm",
           date:
             entry &&
@@ -270,20 +279,40 @@ export function RainEntryEditor({
         });
       }}
     >
-      <label className={labelClass}>
-        <span className="block">Rainfall ({displayUnit})</span>
-        <input
-          ref={firstField}
-          type="number"
-          name="amount"
-          min="0"
-          step="any"
-          inputMode="decimal"
-          required
-          defaultValue={initialAmount}
-          className={controlClass}
-        />
-      </label>
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(8.5rem,0.8fr)] gap-3">
+        <label className={labelClass}>
+          <span className="block">Rainfall</span>
+          <input
+            ref={firstField}
+            type="number"
+            name="amount"
+            min="0"
+            step="any"
+            inputMode="decimal"
+            required
+            value={draftAmount ?? unchangedAmount}
+            onChange={(event) => setDraftAmount(event.target.value)}
+            className={controlClass}
+          />
+        </label>
+        <div className={labelClass}>
+          <label htmlFor={unitFieldId} className="block">
+            Unit
+          </label>
+          <select
+            id={unitFieldId}
+            value={entryUnit}
+            onChange={(event) => setEntryUnit(event.target.value as RainUnit)}
+            className={controlClass}
+          >
+            {UNIT_OPTIONS.map((unit) => (
+              <option key={unit} value={unit}>
+                {UNIT_LABELS[unit]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-3 max-[360px]:grid-cols-1">
         <label className={labelClass}>
           <span className="block">Date</span>

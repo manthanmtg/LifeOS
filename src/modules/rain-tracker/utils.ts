@@ -19,6 +19,11 @@ export const DEFAULT_RAIN_SETTINGS: RainSettings = {
 };
 
 export const UNIT_OPTIONS: RainUnit[] = ["mm", "cm", "in"];
+export const UNIT_LABELS: Record<RainUnit, string> = {
+  mm: "Millimeters",
+  cm: "Centimeters",
+  in: "Inches",
+};
 export const CHART_OPTIONS: RainSettings["chartType"][] = ["bar", "area"];
 export const QUICK_FILTER_PRESETS: Array<{
   id: RainFilterPreset;

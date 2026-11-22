@@ -2,15 +2,9 @@
 
 import { useRef } from "react";
 import type { RainChartType, RainSettings, RainUnit } from "../types";
-import { CHART_OPTIONS, UNIT_OPTIONS } from "../utils";
+import { CHART_OPTIONS, UNIT_LABELS, UNIT_OPTIONS } from "../utils";
 import { RainEditorDialog } from "./RainEditorDialogs";
 import { controlClass } from "./styles";
-
-const unitLabels: Record<RainUnit, string> = {
-  mm: "Millimeters (mm)",
-  cm: "Centimeters (cm)",
-  in: "Inches (in)",
-};
 
 const chartLabels: Record<RainChartType, string> = {
   bar: "Bar chart",
@@ -55,7 +49,7 @@ export function RainTrackerPreferences({
         >
           {UNIT_OPTIONS.map((unit) => (
             <option key={unit} value={unit}>
-              {unitLabels[unit]}
+              {UNIT_LABELS[unit]} ({unit})
             </option>
           ))}
         </select>

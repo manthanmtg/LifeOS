@@ -90,6 +90,58 @@ describe("RainTrackerAdminView", () => {
     expect(opener).toHaveFocus();
   });
 
+  it("converts the entry to millimeters without changing the default unit", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockImplementation(
+      async (url) =>
+        ({
+          ok: true,
+          json: async () => ({
+            data: String(url).includes("module_type=rain_area")
+              ? [
+                  {
+                    _id: "area-1",
+                    payload: { name: "Backyard Garden", is_active: true },
+                  },
+                ]
+              : [],
+          }),
+        }) as Response,
+    );
+
+    render(<RainTrackerAdminView />);
+    const logButton = await screen.findByRole("button", {
+      name: "Log rainfall",
+    });
+    fireEvent.click(logButton);
+    const form = () =>
+      within(screen.getByRole("dialog", { name: "Log rainfall" }));
+    const unit = () => form().getByRole("combobox", { name: "Unit" });
+    const amount = () => form().getByRole("spinbutton", { name: "Rainfall" });
+
+    expect(unit()).toHaveValue("mm");
+    fireEvent.change(amount(), { target: { value: "1" } });
+    fireEvent.change(unit(), { target: { value: "in" } });
+    expect(amount()).toHaveValue(1);
+    fireEvent.click(form().getByRole("button", { name: "Save reading" }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Log rainfall" }),
+      ).not.toBeInTheDocument(),
+    );
+    const save = fetchMock.mock.calls.find(
+      ([, options]) => options?.method === "POST",
+    );
+    expect(save?.[0]).toBe("/api/content");
+    expect(JSON.parse(String(save?.[1]?.body))).toMatchObject({
+      module_type: "rain_entry",
+      payload: { rainfall_unit: "mm", rainfall_amount: 25.4 },
+    });
+
+    fireEvent.click(logButton);
+    expect(screen.getByRole("combobox", { name: "Unit" })).toHaveValue("mm");
+  });
+
   it("renders areas and entries when data is fetched", async () => {
     const mockAreas = [
       {
@@ -166,11 +218,20 @@ describe("RainTrackerAdminView", () => {
     editButton.focus();
     fireEvent.click(editButton);
     const dialog = screen.getByRole("dialog", { name: "Edit reading" });
-    expect(
-      within(dialog).getByRole("spinbutton", { name: /rainfall/i }),
-    ).toHaveValue(15);
+    const amount = within(dialog).getByRole("spinbutton", { name: "Rainfall" });
+    expect(amount).toHaveValue(15);
+    fireEvent.change(within(dialog).getByRole("combobox", { name: "Unit" }), {
+      target: { value: "cm" },
+    });
+    expect(screen.getByRole("spinbutton", { name: "Rainfall" })).toHaveValue(
+      1.5,
+    );
     fireEvent.keyDown(window, { key: "Escape" });
-    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "Edit reading" }),
+      ).not.toBeInTheDocument(),
+    );
     expect(editButton).toHaveFocus();
   });
 

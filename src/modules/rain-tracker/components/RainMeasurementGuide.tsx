@@ -21,7 +21,7 @@ const steps = [
   {
     title: "Log it and empty the gauge",
     detail:
-      "Check at about the same time each day. Log the depth, date, and time in Rain Tracker, then empty the gauge. Match your display unit to the gauge in Preferences.",
+      "Check at about the same time each day. Log the depth using the unit marked on your gauge, along with the date and time. Empty the gauge after you record the reading.",
   },
 ];
 
