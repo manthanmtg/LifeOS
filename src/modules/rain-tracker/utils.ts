@@ -8,6 +8,7 @@ import type {
   RainEntryListItem,
   RainFilters,
   RainFilterPreset,
+  RainDisplayUnit,
   RainSettings,
   RainSource,
   RainUnit,
@@ -18,12 +19,31 @@ export const DEFAULT_RAIN_SETTINGS: RainSettings = {
   chartType: "bar",
 };
 
-export const UNIT_OPTIONS: RainUnit[] = ["mm", "cm", "in"];
-export const UNIT_LABELS: Record<RainUnit, string> = {
+export const ENTRY_UNIT_OPTIONS: RainUnit[] = ["mm", "cm", "in"];
+export const UNIT_OPTIONS: RainDisplayUnit[] = [
+  "mm",
+  "cm",
+  "in",
+  "in-cents",
+  "cents",
+];
+export const UNIT_LABELS: Record<RainDisplayUnit, string> = {
   mm: "Millimeters",
   cm: "Centimeters",
-  in: "Inches",
+  in: "Inches (decimal)",
+  "in-cents": "Inches + cents",
+  cents: "Cents (0.01 in)",
 };
+export const DISPLAY_UNIT_LABELS: Record<RainDisplayUnit, string> = {
+  mm: "mm",
+  cm: "cm",
+  in: "in",
+  "in-cents": "in + cents",
+  cents: "cents",
+};
+export function getEntryUnitForDisplay(unit: RainDisplayUnit): RainUnit {
+  return unit === "in-cents" || unit === "cents" ? "in" : unit;
+}
 export const CHART_OPTIONS: RainSettings["chartType"][] = ["bar", "area"];
 export const QUICK_FILTER_PRESETS: Array<{
   id: RainFilterPreset;
@@ -43,10 +63,12 @@ export const CONVERSION_TO_MM: Record<RainUnit, number> = {
   in: 25.4,
 };
 
-export const CONVERSION_FROM_MM: Record<RainUnit, number> = {
+export const CONVERSION_FROM_MM: Record<RainDisplayUnit, number> = {
   mm: 1,
   cm: 0.1,
   in: 0.0393701,
+  "in-cents": 100 / 25.4,
+  cents: 100 / 25.4,
 };
 
 export function getDefaultEntryDateTime(now = new Date()) {
@@ -72,12 +94,27 @@ function formatRainSourceLabel(value: unknown) {
   return source.charAt(0).toUpperCase() + source.slice(1);
 }
 
-function formatRainValue(mmValue: number, unit: RainUnit, digits = 2) {
-  return Number((mmValue * CONVERSION_FROM_MM[unit]).toFixed(digits));
+function formatRainValue(mmValue: number, unit: RainDisplayUnit, digits = 2) {
+  const precision = unit === "in-cents" || unit === "cents" ? 0 : digits;
+  return Number((mmValue * CONVERSION_FROM_MM[unit]).toFixed(precision));
 }
 
-function formatRainAmount(mmValue: number, unit: RainUnit, digits = 2) {
-  return formatRainValue(mmValue, unit, digits).toFixed(digits);
+export function formatRainDisplay(value: number, unit: RainDisplayUnit) {
+  if (unit === "in-cents") {
+    const cents = Math.max(0, Math.round(value));
+    return `${Math.floor(cents / 100)} in ${String(cents % 100).padStart(2, "0")}¢`;
+  }
+  if (unit === "cents") {
+    return `${Math.max(0, Math.round(value))}¢`;
+  }
+  return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${DISPLAY_UNIT_LABELS[unit]}`;
+}
+
+function formatRainAmount(mmValue: number, unit: RainDisplayUnit, digits = 2) {
+  if (unit === "in-cents" || unit === "cents") {
+    return formatRainDisplay(formatRainValue(mmValue, unit, 6), unit);
+  }
+  return formatRainDisplay(formatRainValue(mmValue, unit, digits), unit);
 }
 
 export function getRainIntensity(mmAmount: number) {
@@ -119,7 +156,7 @@ export function getRainIntensity(mmAmount: number) {
 export function matchesRainFilters(
   entry: RainEntry,
   filters: RainFilters,
-  displayUnit: RainUnit,
+  displayUnit: RainDisplayUnit,
   now = new Date(),
 ) {
   let match = true;
@@ -202,7 +239,7 @@ export function getVisibleRainEntries(
   entries: RainEntry[],
   selectedAreaId: string | null,
   filters: RainFilters,
-  displayUnit: RainUnit,
+  displayUnit: RainDisplayUnit,
   searchQuery: string,
   now = new Date(),
 ) {
@@ -259,7 +296,7 @@ export function getVisibleRainEntries(
 export function buildRainAreaPortfolioSummary(
   areas: RainArea[],
   entries: RainEntry[],
-  displayUnit: RainUnit,
+  displayUnit: RainDisplayUnit,
   now = new Date(),
 ): RainAreaPortfolioSummary {
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -309,7 +346,7 @@ export function buildRainAreaPortfolioSummary(
         ? {
             label: "Wettest area",
             value: wettestAreaEntry.area.payload.name,
-            sublabel: `${formatRainAmount(wettestAreaEntry.totalMm, displayUnit)} ${displayUnit} total`,
+            sublabel: `${formatRainAmount(wettestAreaEntry.totalMm, displayUnit)} total`,
           }
         : undefined,
     staleAreaCount,
@@ -319,7 +356,7 @@ export function buildRainAreaPortfolioSummary(
 export function buildRainAnalytics(
   entries: RainEntry[],
   selectedAreaId: string | null,
-  displayUnit: RainUnit,
+  displayUnit: RainDisplayUnit,
   now = new Date(),
 ): RainAnalytics {
   const areaEntries = entries
@@ -440,7 +477,10 @@ export function buildRainAnalytics(
     latestEntry: latestEntry
       ? {
           label: "Latest reading",
-          value: `${formatRainAmount(latestEntry.payload.rainfall_amount, displayUnit)} ${displayUnit}`,
+          value: formatRainAmount(
+            latestEntry.payload.rainfall_amount,
+            displayUnit,
+          ),
           sublabel: new Date(latestEntry.payload.date).toLocaleDateString(
             undefined,
             {
@@ -454,7 +494,7 @@ export function buildRainAnalytics(
     wettestDay: wettestDayEntry
       ? {
           label: "Wettest day",
-          value: `${formatRainAmount(wettestDayEntry[1], displayUnit)} ${displayUnit}`,
+          value: formatRainAmount(wettestDayEntry[1], displayUnit),
           sublabel: new Date(
             `${wettestDayEntry[0]}T00:00:00`,
           ).toLocaleDateString(undefined, {
@@ -468,7 +508,7 @@ export function buildRainAnalytics(
       rainyDays.size > 0
         ? {
             label: "Average rainy day",
-            value: `${formatRainAmount(totalMm / rainyDays.size, displayUnit)} ${displayUnit}`,
+            value: formatRainAmount(totalMm / rainyDays.size, displayUnit),
             sublabel: `${rainyDays.size} ${rainyDays.size === 1 ? "day" : "days"} with rain`,
           }
         : undefined,
@@ -492,7 +532,7 @@ export function buildRainAnalytics(
     wettestMonth: wettestMonthEntry
       ? {
           label: "Wettest month",
-          value: `${formatRainAmount(wettestMonthEntry[1], displayUnit)} ${displayUnit}`,
+          value: formatRainAmount(wettestMonthEntry[1], displayUnit),
           sublabel: new Date(
             `${wettestMonthEntry[0]}-01T00:00:00`,
           ).toLocaleDateString(undefined, {

@@ -11,7 +11,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { RainAnalytics, RainChartType, RainUnit } from "../types";
+import type { RainAnalytics, RainChartType, RainDisplayUnit } from "../types";
+import { DISPLAY_UNIT_LABELS, formatRainDisplay } from "../utils";
 
 export function RainTrendChart({
   chartData,
@@ -20,7 +21,7 @@ export function RainTrendChart({
 }: {
   chartData: RainAnalytics["chartData"];
   chartType: RainChartType;
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
 }) {
   const Chart = chartType === "area" ? AreaChart : BarChart;
 
@@ -37,7 +38,7 @@ export function RainTrendChart({
         </div>
         {chartData.length > 0 && (
           <span className="text-xs font-medium text-zinc-500">
-            {displayUnit}
+            {DISPLAY_UNIT_LABELS[displayUnit]}
           </span>
         )}
       </div>
@@ -51,7 +52,7 @@ export function RainTrendChart({
             initialDimension={{ width: 300, height: 176 }}
           >
             <Chart
-              aria-label={`Monthly rainfall in ${displayUnit}`}
+              aria-label={`Monthly rainfall in ${DISPLAY_UNIT_LABELS[displayUnit]}`}
               data={chartData}
               margin={{ top: 6, right: 4, left: 0, bottom: 0 }}
             >
@@ -73,10 +74,15 @@ export function RainTrendChart({
                 tickMargin={8}
                 tickCount={4}
                 tickFormatter={(value: number) =>
-                  value.toLocaleString(undefined, {
-                    notation: Math.abs(value) >= 1000 ? "compact" : "standard",
-                    maximumFractionDigits: Math.abs(value) < 1 ? 4 : 2,
-                  })
+                  displayUnit === "in-cents" || displayUnit === "cents"
+                    ? value.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })
+                    : value.toLocaleString(undefined, {
+                        notation:
+                          Math.abs(value) >= 1000 ? "compact" : "standard",
+                        maximumFractionDigits: Math.abs(value) < 1 ? 4 : 2,
+                      })
                 }
               />
               <Tooltip
@@ -94,7 +100,7 @@ export function RainTrendChart({
                 }}
                 itemStyle={{ color: "var(--color-zinc-100)" }}
                 formatter={(value) => [
-                  `${value ?? 0} ${displayUnit}`,
+                  formatRainDisplay(Number(value ?? 0), displayUnit),
                   "Rainfall",
                 ]}
               />

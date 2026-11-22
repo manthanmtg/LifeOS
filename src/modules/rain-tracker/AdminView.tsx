@@ -41,6 +41,7 @@ import {
   buildRainAnalytics,
   DEFAULT_RAIN_SETTINGS,
   getAreaListItems,
+  getEntryUnitForDisplay,
   getLast30Trend,
   getVisibleRainEntries,
 } from "./utils";
@@ -231,7 +232,7 @@ export default function RainTrackerAdminView() {
                   setEditor({
                     type: "entry",
                     area: selectedArea,
-                    unit: displayUnit,
+                    unit: getEntryUnitForDisplay(displayUnit),
                   })
                 }
                 className={cn(actionClass, primaryClass, "sm:px-4")}
@@ -375,7 +376,7 @@ export default function RainTrackerAdminView() {
                 type: "entry",
                 area: selectedArea,
                 entry,
-                unit: displayUnit,
+                unit: getEntryUnitForDisplay(displayUnit),
               })
             }
             onDeleteEntry={async (id) => {

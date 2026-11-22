@@ -2,7 +2,7 @@
 
 import { Edit3, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RainEntry, RainEntryListItem, RainUnit } from "../types";
+import type { RainEntry, RainEntryListItem } from "../types";
 import { getRainIntensity } from "../utils";
 import { iconActionClass } from "./styles";
 
@@ -11,12 +11,10 @@ const rowColumns =
 
 export function RainEntryList({
   entries,
-  displayUnit,
   onEditEntry,
   onDeleteEntry,
 }: {
   entries: RainEntryListItem[];
-  displayUnit: RainUnit;
   onEditEntry: (entry: RainEntry) => void;
   onDeleteEntry: (id: string) => void;
 }) {
@@ -63,10 +61,7 @@ export function RainEntryList({
               </time>
               <div className="min-w-0">
                 <p className="break-words text-sm font-semibold tabular-nums text-zinc-100">
-                  {item.displayAmount}{" "}
-                  <span className="text-xs font-normal text-zinc-500">
-                    {displayUnit}
-                  </span>
+                  {item.displayAmount}
                 </p>
                 <p className={cn("mt-0.5 text-xs font-medium", color)}>
                   {intensity}

@@ -6,9 +6,9 @@ import type {
   RainEntry,
   RainEntryListItem,
   RainFilters,
-  RainUnit,
+  RainDisplayUnit,
 } from "../types";
-import { QUICK_FILTER_PRESETS } from "../utils";
+import { DISPLAY_UNIT_LABELS, QUICK_FILTER_PRESETS } from "../utils";
 import { RainEntryList } from "./RainEntryList";
 import { actionClass, controlClass, secondaryClass } from "./styles";
 
@@ -28,7 +28,7 @@ export function RainEntriesPanel({
 }: {
   entries: RainEntryListItem[];
   entryCount: number;
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
   filters: RainFilters;
   searchQuery: string;
   showFilters: boolean;
@@ -121,7 +121,9 @@ export function RainEntriesPanel({
         <div hidden={!showFilters} id="rain-advanced-filters">
           <div className="grid grid-cols-2 gap-3 rounded-lg bg-zinc-900/60 p-3 @2xl/rain-log:grid-cols-[1fr_1fr_1.5fr]">
             <label className="min-w-0 space-y-1.5 text-xs font-medium text-zinc-400">
-              <span className="block">Minimum ({displayUnit})</span>
+              <span className="block">
+                Minimum ({DISPLAY_UNIT_LABELS[displayUnit]})
+              </span>
               <input
                 type="number"
                 min="0"
@@ -134,7 +136,9 @@ export function RainEntriesPanel({
               />
             </label>
             <label className="min-w-0 space-y-1.5 text-xs font-medium text-zinc-400">
-              <span className="block">Maximum ({displayUnit})</span>
+              <span className="block">
+                Maximum ({DISPLAY_UNIT_LABELS[displayUnit]})
+              </span>
               <input
                 type="number"
                 min="0"
@@ -175,7 +179,6 @@ export function RainEntriesPanel({
       {entries.length > 0 ? (
         <RainEntryList
           entries={entries}
-          displayUnit={displayUnit}
           onEditEntry={onEditEntry}
           onDeleteEntry={onDeleteEntry}
         />

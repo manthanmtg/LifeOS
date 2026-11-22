@@ -8,16 +8,15 @@ import {
   WidgetHighlight,
   WidgetStat,
 } from "@/components/dashboard/widget-primitives";
-import type { RainSummary } from "./types";
-
-const CONVERSION_FROM_MM: Record<"mm" | "cm" | "in", number> = {
-  mm: 1,
-  cm: 0.1,
-  in: 0.0393701,
-};
+import type { RainDisplayUnit, RainSummary } from "./types";
+import {
+  CONVERSION_FROM_MM,
+  DISPLAY_UNIT_LABELS,
+  formatRainDisplay,
+} from "./utils";
 
 export default function RainTrackerWidget() {
-  const { settings } = useModuleSettings<{ defaultUnit: "mm" | "cm" | "in" }>(
+  const { settings } = useModuleSettings<{ defaultUnit: RainDisplayUnit }>(
     "rainTrackerSettings",
     { defaultUnit: "mm" },
   );
@@ -40,14 +39,14 @@ export default function RainTrackerWidget() {
     const rate = CONVERSION_FROM_MM[displayUnit];
     if (!data)
       return {
-        last7: "0.0",
-        last30: "0.0",
+        last7: formatRainDisplay(0, displayUnit),
+        last30: formatRainDisplay(0, displayUnit),
         latestEntryLabel: "None",
         rainyDaysLabel: "0 rainy days",
       };
     return {
-      last7: (data.last7Mm * rate).toFixed(1),
-      last30: (data.last30Mm * rate).toFixed(1),
+      last7: formatRainDisplay(data.last7Mm * rate, displayUnit),
+      last30: formatRainDisplay(data.last30Mm * rate, displayUnit),
       latestEntryLabel: data.latestEntryDate
         ? new Date(data.latestEntryDate).toLocaleDateString(undefined, {
             month: "short",
@@ -68,13 +67,13 @@ export default function RainTrackerWidget() {
       <div className="space-y-3">
         <WidgetStat
           value={stats.last7}
-          label={`Last 7 days (${displayUnit})`}
+          label={`Last 7 days (${DISPLAY_UNIT_LABELS[displayUnit]})`}
         />
         {data?.latestEntryDate ? (
           <WidgetHighlight
             icon={Droplets}
             text={`Latest log ${stats.latestEntryLabel}`}
-            subtext={`${stats.last30} ${displayUnit} over ${stats.rainyDaysLabel}`}
+            subtext={`${stats.last30} over ${stats.rainyDaysLabel}`}
             variant="accent"
           />
         ) : (

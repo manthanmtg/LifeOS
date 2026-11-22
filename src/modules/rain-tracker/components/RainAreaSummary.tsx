@@ -4,8 +4,9 @@ import { ChevronDown } from "lucide-react";
 import type {
   RainAreaListItem,
   RainAreaPortfolioSummary,
-  RainUnit,
+  RainDisplayUnit,
 } from "../types";
+import { formatRainDisplay } from "../utils";
 import { disclosureClass } from "./styles";
 
 export function RainAreaSummary({
@@ -15,7 +16,7 @@ export function RainAreaSummary({
 }: {
   areas: RainAreaListItem[];
   summary: RainAreaPortfolioSummary;
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
 }) {
   return (
     <details className="@container/rain-areas group rounded-2xl border border-zinc-800 px-5 sm:px-6">
@@ -36,7 +37,7 @@ export function RainAreaSummary({
         <div>
           <dt className="text-xs text-zinc-500">Rainfall logged in 7 days</dt>
           <dd className="mt-1 text-sm font-medium tabular-nums text-zinc-100">
-            {summary.last7Total.toLocaleString()} {displayUnit}
+            {formatRainDisplay(summary.last7Total, displayUnit)}
           </dd>
         </div>
         <div>

@@ -1,9 +1,10 @@
 "use client";
 
 import { ChevronDown, Droplet } from "lucide-react";
-import type { RainAnalytics, RainChartType, RainUnit } from "../types";
+import type { RainAnalytics, RainChartType, RainDisplayUnit } from "../types";
 import { RainTrendChart } from "./RainTrendChart";
 import { disclosureClass } from "./styles";
+import { DISPLAY_UNIT_LABELS, formatRainDisplay } from "../utils";
 
 export function RainOverview({
   analytics,
@@ -13,10 +14,10 @@ export function RainOverview({
 }: {
   analytics: RainAnalytics;
   last30Trend?: { value: number; label: string };
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
   chartType: RainChartType;
 }) {
-  const amount = (value: number) => `${value.toLocaleString()} ${displayUnit}`;
+  const amount = (value: number) => formatRainDisplay(value, displayUnit);
   const recentStats = [
     { label: "Last 7 days", value: amount(analytics.last7) },
     { label: "All-time total", value: amount(analytics.total) },
@@ -57,10 +58,14 @@ export function RainOverview({
             </dt>
             <dd className="mt-2 flex flex-wrap items-baseline gap-x-2 text-zinc-50">
               <span className="text-5xl leading-none font-semibold tracking-[-0.07em] tabular-nums">
-                {analytics.last30.toLocaleString()}
+                {displayUnit === "in-cents" || displayUnit === "cents"
+                  ? formatRainDisplay(analytics.last30, displayUnit)
+                  : analytics.last30.toLocaleString()}
               </span>
               <span className="text-lg font-medium text-zinc-500">
-                {displayUnit}
+                {displayUnit === "in-cents" || displayUnit === "cents"
+                  ? ""
+                  : DISPLAY_UNIT_LABELS[displayUnit]}
               </span>
             </dd>
           </dl>

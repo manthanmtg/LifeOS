@@ -1,4 +1,5 @@
 export type RainUnit = "mm" | "cm" | "in";
+export type RainDisplayUnit = RainUnit | "in-cents" | "cents";
 export type RainChartType = "bar" | "area";
 export type RainSource = "manual" | "sensor" | "imported";
 
@@ -27,7 +28,7 @@ export interface RainEntry {
 }
 
 export interface RainSettings {
-  defaultUnit: RainUnit;
+  defaultUnit: RainDisplayUnit;
   chartType: RainChartType;
   [key: string]: unknown;
 }

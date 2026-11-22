@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import type { RainChartType, RainSettings, RainUnit } from "../types";
+import type { RainChartType, RainDisplayUnit, RainSettings } from "../types";
 import { CHART_OPTIONS, UNIT_LABELS, UNIT_OPTIONS } from "../utils";
 import { RainEditorDialog } from "./RainEditorDialogs";
 import { controlClass } from "./styles";
@@ -17,7 +17,7 @@ export function RainTrackerPreferences({
   onClose,
   onSave,
 }: {
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
   chartType: RainChartType;
   onClose: () => void;
   onSave: (settings: Partial<RainSettings>) => Promise<void>;
@@ -31,7 +31,7 @@ export function RainTrackerPreferences({
       onClose={onClose}
       onSave={(data) =>
         onSave({
-          defaultUnit: data.get("unit") as RainUnit,
+          defaultUnit: data.get("unit") as RainDisplayUnit,
           chartType: data.get("chart") as RainChartType,
         })
       }
@@ -49,7 +49,7 @@ export function RainTrackerPreferences({
         >
           {UNIT_OPTIONS.map((unit) => (
             <option key={unit} value={unit}>
-              {UNIT_LABELS[unit]} ({unit})
+              {UNIT_LABELS[unit]}
             </option>
           ))}
         </select>

@@ -3,14 +3,14 @@
 import { useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import Dialog from "@/components/ui/Dialog";
 import { cn } from "@/lib/utils";
-import type { RainArea, RainEntry, RainUnit } from "../types";
+import type { RainArea, RainEntry, RainDisplayUnit, RainUnit } from "../types";
 import {
   coerceRainSource,
   CONVERSION_TO_MM,
   getDefaultEntryDateTime,
   parseDateInputToISO,
   UNIT_LABELS,
-  UNIT_OPTIONS,
+  ENTRY_UNIT_OPTIONS,
 } from "../utils";
 import {
   actionClass,
@@ -224,13 +224,15 @@ export function RainEntryEditor({
 }: {
   area: RainArea;
   entry?: RainEntry;
-  displayUnit: RainUnit;
+  displayUnit: RainDisplayUnit;
   onClose: () => void;
   onSave: (payload: RainEntry["payload"]) => Promise<void>;
 }) {
   const firstField = useRef<HTMLInputElement>(null);
   const unitFieldId = useId();
-  const [entryUnit, setEntryUnit] = useState(displayUnit);
+  const [entryUnit, setEntryUnit] = useState<RainUnit>(
+    displayUnit === "in-cents" || displayUnit === "cents" ? "in" : displayUnit,
+  );
   const [draftAmount, setDraftAmount] = useState<string | null>(null);
   const [initialDateTime] = useState(() =>
     getDefaultEntryDateTime(entry ? new Date(entry.payload.date) : undefined),
@@ -305,7 +307,7 @@ export function RainEntryEditor({
             onChange={(event) => setEntryUnit(event.target.value as RainUnit)}
             className={controlClass}
           >
-            {UNIT_OPTIONS.map((unit) => (
+            {ENTRY_UNIT_OPTIONS.map((unit) => (
               <option key={unit} value={unit}>
                 {UNIT_LABELS[unit]}
               </option>
