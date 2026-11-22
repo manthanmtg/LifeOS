@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import RainTrackerAdminView from "../AdminView";
@@ -23,85 +29,6 @@ class ResizeObserver {
   disconnect() {}
 }
 global.ResizeObserver = ResizeObserver;
-
-// Mock lucide-react
-vi.mock("lucide-react", () => ({
-  CloudRain: () => <span data-testid="cloud-rain-icon" />,
-  RefreshCcw: () => <span data-testid="refresh-icon" />,
-  Settings2: () => <span data-testid="settings-icon" />,
-  Plus: () => <span data-testid="plus-icon" />,
-  MoreVertical: () => <span data-testid="more-icon" />,
-  Droplets: () => <span data-testid="droplets-icon" />,
-  Search: () => <span data-testid="search-icon" />,
-  Calendar: () => <span data-testid="calendar-icon" />,
-  Trash2: () => <span data-testid="trash-icon" />,
-  Edit2: () => <span data-testid="edit-icon" />,
-  Edit3: () => <span data-testid="edit3-icon" />,
-  X: () => <span data-testid="x-icon" />,
-  AlertCircle: () => <span data-testid="alert-icon" />,
-  Check: () => <span data-testid="check-icon" />,
-  Activity: () => <span data-testid="activity-icon" />,
-  TrendingUp: () => <span data-testid="trending-up-icon" />,
-  TrendingDown: () => <span data-testid="trending-down-icon" />,
-  Minus: () => <span data-testid="minus-icon" />,
-  MapPin: () => <span data-testid="map-pin-icon" />,
-  AlignLeft: () => <span data-testid="align-left-icon" />,
-  Info: () => <span data-testid="info-icon" />,
-  ChevronLeft: () => <span data-testid="chevron-left-icon" />,
-  ChevronRight: () => <span data-testid="chevron-right-icon" />,
-  Radar: () => <span data-testid="radar-icon" />,
-  Filter: () => <span data-testid="filter-icon" />,
-  Clock: () => <span data-testid="clock-icon" />,
-  CloudLightning: () => <span data-testid="cloud-lightning-icon" />,
-}));
-
-function sanitizeMotionProps(props: Record<string, unknown>) {
-  const validProps = { ...props };
-  ["initial", "animate", "exit", "transition", "variants", "layoutId"].forEach(
-    (key) => {
-      delete validProps[key];
-    },
-  );
-  return validProps;
-}
-
-// Mock framer-motion to avoid animation issues in tests
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      ...props
-    }: { children: React.ReactNode } & Record<string, unknown>) => {
-      // Avoid passing Framer Motion specific props to standard HTML elements
-      const validProps = sanitizeMotionProps(props);
-      return <div {...validProps}>{children}</div>;
-    },
-    button: ({
-      children,
-      ...props
-    }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const validProps = sanitizeMotionProps(props);
-      return <button {...validProps}>{children}</button>;
-    },
-    aside: ({
-      children,
-      ...props
-    }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const validProps = sanitizeMotionProps(props);
-      return <aside {...validProps}>{children}</aside>;
-    },
-    section: ({
-      children,
-      ...props
-    }: { children: React.ReactNode } & Record<string, unknown>) => {
-      const validProps = sanitizeMotionProps(props);
-      return <section {...validProps}>{children}</section>;
-    },
-  },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-}));
 
 describe("RainTrackerAdminView", () => {
   beforeEach(() => {
@@ -129,11 +56,38 @@ describe("RainTrackerAdminView", () => {
     render(<RainTrackerAdminView />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No Area Selected/i)).toBeDefined();
+      expect(screen.getByText(/No areas yet/i)).toBeDefined();
       expect(
-        screen.getByText(/Select an existing area or create a new one/i),
+        screen.getByText(/Add an area to start logging rainfall/i),
       ).toBeDefined();
     });
+  });
+
+  it("opens the measurement guide before any area is configured and restores focus", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: [] }),
+    } as Response);
+
+    render(<RainTrackerAdminView />);
+
+    const opener = await screen.findByRole("button", {
+      name: "How to measure",
+    });
+    opener.focus();
+    fireEvent.click(opener);
+
+    const guide = screen.getByRole("dialog", {
+      name: "How to measure rainfall",
+    });
+    expect(within(guide).getByText("12 mm")).toBeVisible();
+    expect(
+      within(guide).getByRole("button", { name: "Close measurement guide" }),
+    ).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(guide).not.toBeInTheDocument());
+    expect(opener).toHaveFocus();
   });
 
   it("renders areas and entries when data is fetched", async () => {
@@ -184,9 +138,11 @@ describe("RainTrackerAdminView", () => {
 
     render(<RainTrackerAdminView />);
 
-    await waitFor(() => {
-      expect(screen.getAllByText("Backyard Garden").length).toBeGreaterThan(0);
-    });
+    expect(await screen.findByRole("combobox", { name: "Area" })).toHaveValue(
+      "area-1",
+    );
+    expect(screen.getByRole("button", { name: "Log rainfall" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Rainfall log" })).toBeVisible();
 
     // Check if the area details are displayed
     expect(screen.getAllByText("South Side").length).toBeGreaterThan(0);
@@ -195,6 +151,27 @@ describe("RainTrackerAdminView", () => {
     // Check if entry amount is displayed (15mm)
     expect(screen.getAllByText("15.00").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Heavy downpour").length).toBeGreaterThan(0);
+
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: "Search readings" }),
+      {
+        target: { value: "absent reading" },
+      },
+    );
+    expect(screen.getByText("No matching readings")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(screen.getByText("Heavy downpour")).toBeVisible();
+
+    const editButton = screen.getByRole("button", { name: /^Edit reading/ });
+    editButton.focus();
+    fireEvent.click(editButton);
+    const dialog = screen.getByRole("dialog", { name: "Edit reading" });
+    expect(
+      within(dialog).getByRole("spinbutton", { name: /rainfall/i }),
+    ).toHaveValue(15);
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    expect(editButton).toHaveFocus();
   });
 
   it("shows a retryable error instead of an empty state when the initial load fails", async () => {
@@ -216,10 +193,10 @@ describe("RainTrackerAdminView", () => {
     expect(
       screen.getByRole("button", { name: "Retry loading rain tracker" }),
     ).toBeVisible();
-    expect(screen.queryByText(/No Area Selected/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No areas yet/i)).not.toBeInTheDocument();
   });
 
-  it("shows the 'New Area' form when the plus button is clicked in the sidebar", async () => {
+  it("opens a labeled area editor and focuses its first field", async () => {
     vi.spyOn(global, "fetch").mockImplementation(() =>
       Promise.resolve({
         ok: true,
@@ -230,14 +207,14 @@ describe("RainTrackerAdminView", () => {
     render(<RainTrackerAdminView />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No Area Selected/i)).toBeDefined();
+      expect(screen.getByText(/No areas yet/i)).toBeDefined();
     });
 
-    // Test form opening logic isn't easily doable just by the button role if not perfectly accessible,
-    // but we can look for the Add Area button in the sidebar (which is tested by components integration).
-    // The Sidebar has an "Add area" or similar aria-label.
-    screen.getAllByRole("button");
-    // Just verifying render succeeded up to empty state is good enough for happy path test.
-    // The previous test verified area+entry rendering.
+    fireEvent.click(screen.getByRole("button", { name: "Add area" }));
+    const dialog = screen.getByRole("dialog", { name: "Add area" });
+    expect(within(dialog).getByRole("textbox", { name: "Name" })).toHaveFocus();
+    expect(
+      within(dialog).getByRole("button", { name: "Save area" }),
+    ).toBeVisible();
   });
 });

@@ -1,88 +1,84 @@
 "use client";
 
-import { CloudRain, MapPin, Radar } from "lucide-react";
-import type { RainAreaPortfolioSummary, RainUnit } from "../types";
-
-interface RainAreaSummaryProps {
-  summary: RainAreaPortfolioSummary;
-  displayUnit: RainUnit;
-}
+import { ChevronDown } from "lucide-react";
+import type {
+  RainAreaListItem,
+  RainAreaPortfolioSummary,
+  RainUnit,
+} from "../types";
+import { disclosureClass } from "./styles";
 
 export function RainAreaSummary({
+  areas,
   summary,
   displayUnit,
-}: RainAreaSummaryProps) {
+}: {
+  areas: RainAreaListItem[];
+  summary: RainAreaPortfolioSummary;
+  displayUnit: RainUnit;
+}) {
   return (
-    <div className="border-b border-zinc-800/80 p-4">
-      <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Areas
-          </p>
-          <p className="mt-1 text-lg font-semibold tabular-nums text-zinc-100">
-            {summary.totalAreas}
-          </p>
-          <p className="text-xs text-zinc-500">{summary.activeAreas} active</p>
+    <details className="@container/rain-areas group rounded-2xl border border-zinc-800 px-5 sm:px-6">
+      <summary className={disclosureClass}>
+        Across all areas
+        <ChevronDown
+          aria-hidden="true"
+          className="size-4 text-zinc-500 group-open:rotate-180"
+        />
+      </summary>
+      <dl className="grid grid-cols-2 gap-4 border-t border-zinc-800 py-4 @2xl/rain-areas:grid-cols-4">
+        <div>
+          <dt className="text-xs text-zinc-500">Active areas</dt>
+          <dd className="mt-1 text-sm font-medium tabular-nums text-zinc-100">
+            {summary.activeAreas} of {summary.totalAreas}
+          </dd>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Last 7d
-          </p>
-          <p className="mt-1 text-lg font-semibold tabular-nums text-zinc-100">
-            {summary.last7Total}
-          </p>
-          <p className="text-xs text-zinc-500">{displayUnit} logged</p>
+        <div>
+          <dt className="text-xs text-zinc-500">Rainfall logged in 7 days</dt>
+          <dd className="mt-1 text-sm font-medium tabular-nums text-zinc-100">
+            {summary.last7Total.toLocaleString()} {displayUnit}
+          </dd>
         </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Quiet
-          </p>
-          <p className="mt-1 text-lg font-semibold tabular-nums text-zinc-100">
+        <div>
+          <dt className="text-xs text-zinc-500">
+            Areas without a reading in 7 days
+          </dt>
+          <dd className="mt-1 text-sm font-medium tabular-nums text-zinc-100">
             {summary.staleAreaCount}
-          </p>
-          <p className="text-xs text-zinc-500">need fresh logs</p>
+          </dd>
         </div>
-      </div>
-
-      <div className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
-        {summary.wettestArea ? (
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg border border-accent/20 bg-accent/10 p-2 text-accent">
-              <CloudRain className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                {summary.wettestArea.label}
-              </p>
-              <p className="truncate text-sm font-semibold text-zinc-100">
-                {summary.wettestArea.value}
-              </p>
-              <p className="truncate text-xs text-zinc-500">
-                {summary.wettestArea.sublabel}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 text-zinc-500">
-            <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2">
-              <Radar className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-zinc-300">
-                No rainfall totals yet
-              </p>
-              <p className="text-xs text-zinc-500">
-                Start logging entries to compare areas.
-              </p>
-            </div>
+        {summary.wettestArea && (
+          <div className="min-w-0">
+            <dt className="text-xs text-zinc-500">
+              {summary.wettestArea.label}
+            </dt>
+            <dd className="mt-1 text-sm font-medium break-words text-zinc-100">
+              {summary.wettestArea.value}
+            </dd>
+            <dd className="text-xs text-zinc-500">
+              {summary.wettestArea.sublabel}
+            </dd>
           </div>
         )}
-
-        <div className="mt-3 flex items-center gap-2 text-xs text-zinc-500">
-          <MapPin className="h-3.5 w-3.5 text-zinc-600" />
-          Area cards below keep the latest reading and entry count visible.
-        </div>
-      </div>
-    </div>
+      </dl>
+      {areas.length > 1 && (
+        <ul className="divide-y divide-zinc-800 border-t border-zinc-800">
+          {areas.map(({ area, entryCount, lastRainLabel }) => (
+            <li
+              key={area._id}
+              className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 text-sm"
+            >
+              <span className="min-w-0 font-medium break-words text-zinc-300">
+                {area.payload.name}
+              </span>
+              <span className="text-xs tabular-nums text-zinc-500">
+                {entryCount} {entryCount === 1 ? "reading" : "readings"}
+                {lastRainLabel && ` · Latest ${lastRainLabel}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </details>
   );
 }

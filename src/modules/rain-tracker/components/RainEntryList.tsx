@@ -1,128 +1,110 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Clock, CloudRain, Edit3, Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RainEntry, RainEntryListItem, RainUnit } from "../types";
 import { getRainIntensity } from "../utils";
+import { iconActionClass } from "./styles";
 
-interface RainEntryListProps {
-  entries: RainEntryListItem[];
-  displayUnit: RainUnit;
-  onEditEntry: (entry: RainEntry) => void;
-  onDeleteEntry: (id: string) => void;
-}
+const rowColumns =
+  "@2xl/rain-log:grid-cols-[minmax(8.5rem,1fr)_minmax(7rem,0.9fr)_minmax(4.5rem,0.7fr)_minmax(0,1.5fr)_5.5rem]";
 
 export function RainEntryList({
   entries,
   displayUnit,
   onEditEntry,
   onDeleteEntry,
-}: RainEntryListProps) {
-  if (entries.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
-          <CloudRain className="h-8 w-8 text-zinc-700" />
-        </div>
-        <p className="text-sm text-zinc-500">
-          No entries match the current view.
-        </p>
-        <p className="text-xs text-zinc-600">
-          Log a new reading or clear the filters to broaden the list.
-        </p>
-      </div>
-    );
-  }
-
+}: {
+  entries: RainEntryListItem[];
+  displayUnit: RainUnit;
+  onEditEntry: (entry: RainEntry) => void;
+  onDeleteEntry: (id: string) => void;
+}) {
   return (
-    <div className="space-y-1.5 p-2">
-      <AnimatePresence initial={false}>
-        {entries.map((item, index) => {
-          const intensity = getRainIntensity(
+    <>
+      <div
+        aria-hidden="true"
+        className={cn(
+          "hidden gap-3 border-b border-zinc-800 bg-zinc-900/50 px-5 py-2.5 text-xs font-medium text-zinc-500 sm:px-6 @2xl/rain-log:grid",
+          rowColumns,
+        )}
+      >
+        <span>Date</span>
+        <span>Rainfall</span>
+        <span>Source</span>
+        <span>Notes</span>
+      </div>
+      <ul aria-label="Rainfall readings" className="divide-y divide-zinc-800">
+        {entries.map((item) => {
+          const { label: intensity, color } = getRainIntensity(
             item.entry.payload.rainfall_amount,
           );
-          const IntensityIcon = intensity.icon;
-
+          const notes = item.entry.payload.notes;
           return (
-            <motion.div
+            <li
               key={item.entry._id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, delay: index * 0.02 }}
-              className="group flex items-center gap-3 rounded-xl border border-zinc-800/60 bg-zinc-900/40 p-3 transition-all hover:border-zinc-700/60 hover:bg-zinc-900/70"
+              className={cn(
+                "grid grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)_5.5rem] items-start gap-x-3 gap-y-1 px-4 py-3 hover:bg-zinc-900/35 sm:px-6 @2xl/rain-log:items-center",
+                rowColumns,
+              )}
             >
-              <div className="hidden min-w-[54px] flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 py-1.5 sm:flex">
-                <span className="text-xs font-medium leading-none text-zinc-500">
-                  {item.monthLabel}
-                </span>
-                <span className="text-sm font-bold leading-tight text-zinc-200">
-                  {item.dayLabel}
-                </span>
-              </div>
-
-              <div
-                className={cn(
-                  "shrink-0 rounded-lg border p-1.5",
-                  intensity.bgColor,
-                )}
+              <time
+                dateTime={item.entry.payload.date}
+                className="text-sm font-medium text-zinc-100"
               >
-                <IntensityIcon className={cn("h-3.5 w-3.5", intensity.color)} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="text-base font-bold tabular-nums text-zinc-100">
-                    {item.displayAmount}
+                {item.dateLabel}
+                <span className="mt-0.5 block text-xs font-normal text-zinc-500">
+                  {item.timeLabel}
+                  <span className="@2xl/rain-log:hidden">
+                    {" "}
+                    · {item.sourceLabel}
                   </span>
-                  <span className="text-xs font-medium text-zinc-500">
+                </span>
+              </time>
+              <div className="min-w-0">
+                <p className="break-words text-sm font-semibold tabular-nums text-zinc-100">
+                  {item.displayAmount}{" "}
+                  <span className="text-xs font-normal text-zinc-500">
                     {displayUnit}
                   </span>
-                  <span
-                    className={cn(
-                      "rounded border px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
-                      intensity.bgColor,
-                      intensity.color,
-                    )}
-                  >
-                    {intensity.label}
-                  </span>
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-zinc-600">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-2.5 w-2.5" />
-                    {item.dateLabel} at {item.timeLabel}
-                  </span>
-                  <span>{item.sourceLabel}</span>
-                  {item.entry.payload.notes ? (
-                    <span className="truncate">{item.entry.payload.notes}</span>
-                  ) : null}
-                </div>
+                </p>
+                <p className={cn("mt-0.5 text-xs font-medium", color)}>
+                  {intensity}
+                </p>
               </div>
-
-              <div className="flex shrink-0 items-center gap-1 opacity-100 transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+              <span className="hidden text-sm text-zinc-400 @2xl/rain-log:block">
+                {item.sourceLabel}
+              </span>
+              <p
+                className={cn(
+                  "col-span-3 row-start-2 break-words text-sm text-zinc-400 @2xl/rain-log:col-span-1 @2xl/rain-log:row-start-auto",
+                  !notes && "hidden @2xl/rain-log:block",
+                )}
+              >
+                {notes || "—"}
+              </p>
+              <div className="col-start-3 row-start-1 -my-1.5 flex justify-end @2xl/rain-log:col-start-auto @2xl/rain-log:row-start-auto">
                 <button
                   type="button"
                   onClick={() => onEditEntry(item.entry)}
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:text-accent sm:p-1.5"
-                  aria-label={`Edit ${item.dateLabel} entry`}
+                  className={iconActionClass}
+                  aria-label={`Edit reading from ${item.dateLabel} at ${item.timeLabel}`}
                 >
-                  <Edit3 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                  <Edit3 aria-hidden="true" className="size-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onDeleteEntry(item.entry._id)}
-                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:text-danger sm:p-1.5"
-                  aria-label={`Delete ${item.dateLabel} entry`}
+                  className={cn(iconActionClass, "hover:text-danger")}
+                  aria-label={`Delete reading from ${item.dateLabel} at ${item.timeLabel}`}
                 >
-                  <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+                  <Trash2 aria-hidden="true" className="size-4" />
                 </button>
               </div>
-            </motion.div>
+            </li>
           );
         })}
-      </AnimatePresence>
-    </div>
+      </ul>
+    </>
   );
 }

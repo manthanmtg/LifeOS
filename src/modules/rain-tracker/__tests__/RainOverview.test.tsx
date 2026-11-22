@@ -3,41 +3,25 @@ import { describe, expect, it } from "vitest";
 import { RainOverview } from "../components/RainOverview";
 import { buildRainAnalytics } from "../utils";
 
-describe("RainOverview responsive layout", () => {
-  it("uses the overview width instead of viewport breakpoints for dense grids", () => {
+describe("RainOverview", () => {
+  it("keeps the trend visible while secondary statistics start collapsed", () => {
     const analytics = buildRainAnalytics(
       [],
       null,
       "mm",
       new Date("2026-08-20T00:00:00.000Z"),
     );
-    const { container } = render(
+    render(
       <RainOverview analytics={analytics} displayUnit="mm" chartType="bar" />,
     );
 
-    const overview = container.firstElementChild;
-    const summaryGrid = screen.getByText("Total").closest(".grid");
-    const insightsGrid = screen.getByText("Rainfall Trend").closest(".grid");
-    const detailGrid = screen.getByText("Max Single").closest(".grid");
-    const trendCard = screen
-      .getByText("Rainfall Trend")
-      .closest(".rounded-2xl");
-
-    expect(overview).toHaveClass("@container/rain-overview");
-    expect(summaryGrid).toHaveClass(
-      "@sm/rain-overview:grid-cols-2",
-      "@3xl/rain-overview:grid-cols-4",
-    );
-    expect(summaryGrid).not.toHaveClass("sm:grid-cols-2", "xl:grid-cols-4");
-    expect(insightsGrid).toHaveClass("@5xl/rain-overview:grid-cols-5");
-    expect(insightsGrid).not.toHaveClass("lg:grid-cols-5");
-    expect(detailGrid).toHaveClass(
-      "@sm/rain-overview:grid-cols-2",
-      "@3xl/rain-overview:grid-cols-3",
-      "@5xl/rain-overview:col-span-2",
-    );
-    expect(detailGrid).not.toHaveClass("sm:grid-cols-3", "lg:col-span-2");
-    expect(trendCard).toHaveClass("@5xl/rain-overview:col-span-3");
-    expect(trendCard).not.toHaveClass("lg:col-span-3");
+    expect(
+      screen.getByRole("heading", { name: "Monthly rainfall" }),
+    ).toBeVisible();
+    expect(screen.getByText("Last 30 days")).toBeVisible();
+    expect(screen.getByText("Largest reading")).not.toBeVisible();
+    expect(
+      screen.getByText("Rainfall statistics").closest("details"),
+    ).not.toHaveAttribute("open");
   });
 });

@@ -24,17 +24,13 @@ export const QUICK_FILTER_PRESETS: Array<{
   id: RainFilterPreset;
   label: string;
 }> = [
-  { id: "all", label: "All" },
-  { id: "last7", label: "Last 7d" },
-  { id: "last30", label: "Last 30d" },
+  { id: "all", label: "All readings" },
+  { id: "last7", label: "Last 7 days" },
+  { id: "last30", label: "Last 30 days" },
   { id: "heavy", label: "Heavy rain" },
-  { id: "sensor", label: "Sensor" },
+  { id: "sensor", label: "Sensor readings" },
 ];
-const RAIN_SOURCE_OPTIONS: RainSource[] = [
-  "manual",
-  "sensor",
-  "imported",
-];
+const RAIN_SOURCE_OPTIONS: RainSource[] = ["manual", "sensor", "imported"];
 
 export const CONVERSION_TO_MM: Record<RainUnit, number> = {
   mm: 1,
@@ -49,10 +45,10 @@ export const CONVERSION_FROM_MM: Record<RainUnit, number> = {
 };
 
 export function getDefaultEntryDateTime(now = new Date()) {
-  const iso = now.toISOString();
+  const pad = (value: number) => String(value).padStart(2, "0");
   return {
-    date: iso.slice(0, 10),
-    time: iso.slice(11, 16),
+    date: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+    time: `${pad(now.getHours())}:${pad(now.getMinutes())}`,
   };
 }
 

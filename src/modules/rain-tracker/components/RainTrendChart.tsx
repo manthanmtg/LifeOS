@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Area,
   AreaChart,
@@ -12,182 +11,121 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CloudRain } from "lucide-react";
 import type { RainAnalytics, RainChartType, RainUnit } from "../types";
 
-interface RainTrendChartProps {
-  analytics: RainAnalytics;
-  chartType: RainChartType;
-  displayUnit: RainUnit;
-}
-
 export function RainTrendChart({
-  analytics,
+  chartData,
   chartType,
   displayUnit,
-}: RainTrendChartProps) {
+}: {
+  chartData: RainAnalytics["chartData"];
+  chartType: RainChartType;
+  displayUnit: RainUnit;
+}) {
+  const Chart = chartType === "area" ? AreaChart : BarChart;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.2 }}
-      className="flex min-h-[18rem] flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 p-5 @5xl/rain-overview:col-span-3"
-    >
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="min-w-0 px-5 py-5 sm:px-6">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold tracking-wide text-zinc-300">
-            Rainfall Trend
-          </h3>
-          <p className="text-xs text-zinc-600">
-            Monthly totals across the last 12 months
+          <h2 className="text-base font-semibold tracking-tight text-zinc-100">
+            Monthly rainfall
+          </h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Most recent months with readings, up to 12
           </p>
         </div>
-        <span className="text-xs font-medium text-zinc-600">
-          Displaying {displayUnit}
-        </span>
+        {chartData.length > 0 && (
+          <span className="text-xs font-medium text-zinc-500">
+            {displayUnit}
+          </span>
+        )}
       </div>
-
-      {analytics.chartData.length > 0 ? (
-        <div className="min-h-[220px] w-full flex-1">
-          <ResponsiveContainer width="100%" height="100%">
-            {chartType === "area" ? (
-              <AreaChart
-                data={analytics.chartData}
-                margin={{ top: 10, right: 8, left: -16, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="rainGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="var(--color-accent)"
-                      stopOpacity={0.3}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="var(--color-accent)"
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-zinc-800)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="name"
-                  stroke="var(--color-zinc-600)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="var(--color-zinc-600)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  cursor={{ stroke: "var(--color-zinc-700)" }}
-                  contentStyle={{
-                    backgroundColor: "var(--color-zinc-950)",
-                    borderColor: "var(--color-zinc-800)",
-                    borderRadius: "12px",
-                    fontSize: "12px",
-                    boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.6)",
-                  }}
-                  itemStyle={{
-                    color: "var(--color-zinc-100)",
-                    fontWeight: 600,
-                  }}
-                  formatter={(value) => [
-                    `${value ?? 0} ${displayUnit}`,
-                    "Rainfall",
-                  ]}
-                />
+      {chartData.length > 0 ? (
+        <div className="h-44 w-full @2xl/rain-overview:h-48">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={0}
+            initialDimension={{ width: 300, height: 176 }}
+          >
+            <Chart
+              aria-label={`Monthly rainfall in ${displayUnit}`}
+              data={chartData}
+              margin={{ top: 6, right: 4, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid stroke="var(--color-zinc-800)" vertical={false} />
+              <XAxis
+                dataKey="name"
+                tick={{ fill: "var(--color-zinc-500)", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={14}
+                tickMargin={9}
+                height={25}
+              />
+              <YAxis
+                tick={{ fill: "var(--color-zinc-500)", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                width={46}
+                tickMargin={8}
+                tickCount={4}
+                tickFormatter={(value: number) =>
+                  value.toLocaleString(undefined, {
+                    notation: Math.abs(value) >= 1000 ? "compact" : "standard",
+                    maximumFractionDigits: Math.abs(value) < 1 ? 4 : 2,
+                  })
+                }
+              />
+              <Tooltip
+                cursor={{
+                  fill: "var(--color-zinc-900)",
+                  stroke: "var(--color-zinc-700)",
+                  strokeOpacity: 0.4,
+                }}
+                contentStyle={{
+                  backgroundColor: "var(--color-zinc-950)",
+                  borderColor: "var(--color-zinc-800)",
+                  borderRadius: "8px",
+                  color: "var(--color-zinc-100)",
+                  fontSize: "12px",
+                }}
+                itemStyle={{ color: "var(--color-zinc-100)" }}
+                formatter={(value) => [
+                  `${value ?? 0} ${displayUnit}`,
+                  "Rainfall",
+                ]}
+              />
+              {chartType === "area" ? (
                 <Area
                   type="monotone"
                   dataKey="displayAmount"
                   stroke="var(--color-accent)"
-                  fill="url(#rainGradient)"
+                  fill="var(--color-accent)"
+                  fillOpacity={0.12}
                   strokeWidth={2}
+                  dot={chartData.length === 1}
+                  isAnimationActive={false}
                 />
-              </AreaChart>
-            ) : (
-              <BarChart
-                data={analytics.chartData}
-                margin={{ top: 10, right: 8, left: -16, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="var(--color-accent)"
-                      stopOpacity={0.9}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="var(--color-accent)"
-                      stopOpacity={0.4}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-zinc-800)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="name"
-                  stroke="var(--color-zinc-600)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="var(--color-zinc-600)"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(255, 255, 255, 0.02)" }}
-                  contentStyle={{
-                    backgroundColor: "var(--color-zinc-950)",
-                    borderColor: "var(--color-zinc-800)",
-                    borderRadius: "12px",
-                    fontSize: "12px",
-                    boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.6)",
-                  }}
-                  itemStyle={{
-                    color: "var(--color-zinc-100)",
-                    fontWeight: 600,
-                  }}
-                  formatter={(value) => [
-                    `${value ?? 0} ${displayUnit}`,
-                    "Rainfall",
-                  ]}
-                />
+              ) : (
                 <Bar
                   dataKey="displayAmount"
-                  fill="url(#barGradient)"
-                  radius={[6, 6, 0, 0]}
-                  maxBarSize={48}
+                  fill="var(--color-accent)"
+                  radius={[3, 3, 0, 0]}
+                  maxBarSize={42}
+                  isAnimationActive={false}
                 />
-              </BarChart>
-            )}
+              )}
+            </Chart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
-            <CloudRain className="h-8 w-8 text-zinc-700" />
-          </div>
-          <p className="text-sm text-zinc-600">
-            Add more entries to unlock the monthly chart.
-          </p>
+        <div className="grid min-h-36 place-items-center rounded-lg border border-dashed border-zinc-800 px-4 text-center text-sm text-zinc-500 @2xl/rain-overview:min-h-48">
+          Monthly totals appear after the first reading.
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -1,34 +1,48 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { CloudRain, RefreshCcw, Settings2 } from "lucide-react";
+import {
+  BookOpen,
+  CloudRain,
+  Edit3,
+  MapPin,
+  Plus,
+  RefreshCcw,
+  Settings2,
+} from "lucide-react";
 import { AdminModuleSkeleton } from "@/components/ui/Skeletons";
 import { useModuleSettings } from "@/hooks/useModuleSettings";
 import { cn } from "@/lib/utils";
-import { AreaSidebar } from "./components/AreaSidebar";
+import { RainAreaSummary } from "./components/RainAreaSummary";
+import {
+  RainAreaEditor,
+  RainEntryEditor,
+} from "./components/RainEditorDialogs";
 import { RainEntriesPanel } from "./components/RainEntriesPanel";
+import { RainMeasurementGuide } from "./components/RainMeasurementGuide";
 import { RainOverview } from "./components/RainOverview";
 import { RainTrackerPreferences } from "./components/RainTrackerPreferences";
+import {
+  actionClass,
+  controlClass,
+  iconActionClass,
+  primaryClass,
+  secondaryClass,
+} from "./components/styles";
 import type {
   RainArea,
   RainEntry,
   RainFilters,
   RainSettings,
-  RainSource,
+  RainUnit,
 } from "./types";
 import {
   buildRainAreaPortfolioSummary,
   buildRainAnalytics,
-  coerceRainSource,
-  CONVERSION_FROM_MM,
-  CONVERSION_TO_MM,
   DEFAULT_RAIN_SETTINGS,
   getAreaListItems,
-  getDefaultEntryDateTime,
   getLast30Trend,
   getVisibleRainEntries,
-  parseDateInputToISO,
 } from "./utils";
 
 const EMPTY_FILTERS: RainFilters = {
@@ -38,134 +52,90 @@ const EMPTY_FILTERS: RainFilters = {
   preset: "all",
 };
 
-async function readResponseJson(response: Response) {
+type RainEditor =
+  | { type: "area"; area?: RainArea }
+  | { type: "entry"; area: RainArea; entry?: RainEntry; unit: RainUnit }
+  | { type: "preferences" }
+  | { type: "guide" };
+
+async function readResponseJson<T>(response: Response): Promise<T | undefined> {
   const body = (await response.json().catch(() => null)) as {
-    data?: unknown;
-    error?: { message?: string };
+    data?: T;
+    error?: string | { message?: string };
   } | null;
-
   if (!response.ok) {
-    throw new Error(body?.error?.message || "Request failed");
+    const error = body?.error;
+    throw new Error(
+      (typeof error === "string" ? error : error?.message) || "Request failed.",
+    );
   }
-
-  return body ?? {};
+  return body?.data;
 }
 
-function RainTrackerLoadError({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      role="alert"
-      aria-labelledby="rain-tracker-load-error-message"
-      className="flex flex-col gap-3 rounded-2xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger sm:flex-row sm:items-center sm:justify-between"
-    >
-      <span id="rain-tracker-load-error-message">{message}</span>
-      <button
-        type="button"
-        onClick={onRetry}
-        aria-label="Retry loading rain tracker"
-        className="inline-flex items-center gap-2 self-start rounded-lg border border-danger/20 px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-danger/10 sm:self-auto"
-      >
-        <RefreshCcw className="h-3 w-3" />
-        Retry
-      </button>
-    </div>
+async function saveRecord(
+  moduleType: "rain_area" | "rain_entry",
+  payload: RainArea["payload"] | RainEntry["payload"],
+  id?: string,
+) {
+  const response = await fetch(id ? `/api/content/${id}` : "/api/content", {
+    method: id ? "PUT" : "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(
+      id ? { payload } : { module_type: moduleType, is_public: false, payload },
+    ),
+  });
+  return readResponseJson<{ _id: string }>(response);
+}
+
+async function deleteRecord(id: string) {
+  await readResponseJson(
+    await fetch(`/api/content/${id}`, { method: "DELETE" }),
   );
 }
 
 export default function RainTrackerAdminView() {
-  const { settings, updateSettings } = useModuleSettings<RainSettings>(
+  const { settings, updateSettings, loaded } = useModuleSettings<RainSettings>(
     "rainTrackerSettings",
     DEFAULT_RAIN_SETTINGS,
   );
-
   const displayUnit = settings.defaultUnit || "mm";
   const chartType = settings.chartType || "bar";
-  const defaultEntryDateTime = useMemo(() => getDefaultEntryDateTime(), []);
 
   const [areas, setAreas] = useState<RainArea[]>([]);
   const [entries, setEntries] = useState<RainEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
-
-  const [showAreaForm, setShowAreaForm] = useState(false);
-  const [editingAreaId, setEditingAreaId] = useState<string | null>(null);
-  const [areaName, setAreaName] = useState("");
-  const [areaLocation, setAreaLocation] = useState("");
-  const [areaDescription, setAreaDescription] = useState("");
-  const [areaIsActive, setAreaIsActive] = useState(true);
-  const [areaFormError, setAreaFormError] = useState("");
-  const [isSavingArea, setIsSavingArea] = useState(false);
-
-  const [showEntryForm, setShowEntryForm] = useState(false);
-  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
-  const [entryAmount, setEntryAmount] = useState("");
-  const [entryDate, setEntryDate] = useState(defaultEntryDateTime.date);
-  const [entryTime, setEntryTime] = useState(defaultEntryDateTime.time);
-  const [entryNotes, setEntryNotes] = useState("");
-  const [entrySource, setEntrySource] = useState<RainSource>("manual");
-  const [entryFormError, setEntryFormError] = useState("");
-  const [isSavingEntry, setIsSavingEntry] = useState(false);
-
+  const [editor, setEditor] = useState<RainEditor | null>(null);
   const [filters, setFilters] = useState<RainFilters>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const resetAreaForm = useCallback(() => {
-    setEditingAreaId(null);
-    setAreaName("");
-    setAreaLocation("");
-    setAreaDescription("");
-    setAreaIsActive(true);
-    setAreaFormError("");
-  }, []);
-
-  const resetEntryForm = useCallback((now = new Date()) => {
-    const defaults = getDefaultEntryDateTime(now);
-    setEditingEntryId(null);
-    setEntryAmount("");
-    setEntryDate(defaults.date);
-    setEntryTime(defaults.time);
-    setEntryNotes("");
-    setEntrySource("manual");
-    setEntryFormError("");
-  }, []);
-
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (preferredAreaId?: string) => {
     setLoadError("");
-
     try {
-      const [areasResponse, entriesResponse] = await Promise.all([
-        fetch("/api/content?module_type=rain_area"),
-        fetch("/api/content?module_type=rain_entry"),
+      const [nextAreas = [], nextEntries = []] = await Promise.all([
+        fetch("/api/content?module_type=rain_area").then(
+          readResponseJson<RainArea[]>,
+        ),
+        fetch("/api/content?module_type=rain_entry").then(
+          readResponseJson<RainEntry[]>,
+        ),
       ]);
-
-      const [areasBody, entriesBody] = await Promise.all([
-        readResponseJson(areasResponse),
-        readResponseJson(entriesResponse),
-      ]);
-
-      const nextAreas = (areasBody.data as RainArea[] | undefined) ?? [];
-      const nextEntries = (entriesBody.data as RainEntry[] | undefined) ?? [];
-
       setAreas(nextAreas);
       setEntries(nextEntries);
       setSelectedAreaId((current) => {
-        if (current && nextAreas.some((area) => area._id === current)) {
-          return current;
-        }
-        return nextAreas[0]?._id ?? null;
+        const desired = preferredAreaId ?? current;
+        return nextAreas.some((area) => area._id === desired)
+          ? desired
+          : (nextAreas[0]?._id ?? null);
       });
     } catch (error) {
       setLoadError(
-        error instanceof Error ? error.message : "Failed to load rain data.",
+        error instanceof Error
+          ? error.message
+          : "Failed to load rainfall data.",
       );
     } finally {
       setLoading(false);
@@ -176,21 +146,14 @@ export default function RainTrackerAdminView() {
     void fetchData();
   }, [fetchData]);
 
-  const retryFetchData = useCallback(() => {
-    setLoading(true);
-    void fetchData();
-  }, [fetchData]);
-
   const areaListItems = useMemo(
     () => getAreaListItems(areas, entries),
     [areas, entries],
   );
-
-  const selectedArea = useMemo(
-    () => areas.find((area) => area._id === selectedAreaId),
-    [areas, selectedAreaId],
+  const selectedAreaItem = areaListItems.find(
+    ({ area }) => area._id === selectedAreaId,
   );
-
+  const selectedArea = selectedAreaItem?.area;
   const selectedAreaEntries = useMemo(
     () =>
       getVisibleRainEntries(
@@ -202,450 +165,325 @@ export default function RainTrackerAdminView() {
       ),
     [displayUnit, entries, filters, searchQuery, selectedAreaId],
   );
-
   const portfolioSummary = useMemo(
     () => buildRainAreaPortfolioSummary(areas, entries, displayUnit),
-    [areas, displayUnit, entries],
+    [areas, entries, displayUnit],
   );
-
   const analytics = useMemo(
     () => buildRainAnalytics(entries, selectedAreaId, displayUnit),
     [displayUnit, entries, selectedAreaId],
   );
+  const editingArea = editor?.type === "area" ? editor.area : undefined;
+  const last30Trend = getLast30Trend(analytics.last30, analytics.prevLast30);
 
-  const last30Trend = useMemo(
-    () => getLast30Trend(analytics.last30, analytics.prevLast30),
-    [analytics.last30, analytics.prevLast30],
-  );
-
-  const openNewArea = useCallback(() => {
-    resetAreaForm();
-    setShowAreaForm(true);
-  }, [resetAreaForm]);
-
-  const openEditArea = useCallback((area: RainArea) => {
-    setAreaName(area.payload.name);
-    setAreaLocation(area.payload.location || "");
-    setAreaDescription(area.payload.description || "");
-    setAreaIsActive(area.payload.is_active ?? true);
-    setEditingAreaId(area._id);
-    setAreaFormError("");
-    setShowAreaForm(true);
-  }, []);
-
-  const closeAreaForm = useCallback(() => {
-    setShowAreaForm(false);
-    setAreaFormError("");
-  }, []);
-
-  const openNewEntry = useCallback(() => {
-    resetEntryForm();
-    setShowEntryForm(true);
-  }, [resetEntryForm]);
-
-  const openEditEntry = useCallback(
-    (entry: RainEntry) => {
-      setEntryAmount(
-        String(entry.payload.rainfall_amount * CONVERSION_FROM_MM[displayUnit]),
-      );
-
-      const parsedDate = new Date(entry.payload.date);
-      const isoDate = parsedDate.toISOString();
-
-      setEntryDate(isoDate.slice(0, 10));
-      setEntryTime(isoDate.slice(11, 16));
-      setEntryNotes(entry.payload.notes || "");
-      setEntrySource(coerceRainSource(entry.payload.source));
-      setEditingEntryId(entry._id);
-      setEntryFormError("");
-      setShowEntryForm(true);
-    },
-    [displayUnit],
-  );
-
-  const closeEntryForm = useCallback(() => {
-    setShowEntryForm(false);
-    setEntryFormError("");
-  }, []);
-
-  const handleSaveArea = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      setAreaFormError("");
-
-      if (!areaName.trim()) {
-        setAreaFormError("Area name is required.");
-        return;
-      }
-
-      const payload = {
-        name: areaName.trim(),
-        location: areaLocation.trim() || undefined,
-        description: areaDescription.trim() || undefined,
-        is_active: areaIsActive,
-      };
-
-      try {
-        setIsSavingArea(true);
-
-        if (editingAreaId) {
-          await readResponseJson(
-            await fetch(`/api/content/${editingAreaId}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ payload }),
-            }),
-          );
-        } else {
-          await readResponseJson(
-            await fetch("/api/content", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                module_type: "rain_area",
-                is_public: false,
-                payload,
-              }),
-            }),
-          );
-        }
-
-        setShowAreaForm(false);
-        resetAreaForm();
-        await fetchData();
-      } catch (error) {
-        setAreaFormError(
-          error instanceof Error ? error.message : "Failed to save area.",
-        );
-      } finally {
-        setIsSavingArea(false);
-      }
-    },
-    [
-      areaDescription,
-      areaIsActive,
-      areaLocation,
-      areaName,
-      editingAreaId,
-      fetchData,
-      resetAreaForm,
-    ],
-  );
-
-  const handleDeleteArea = useCallback(
-    async (id: string) => {
-      if (
-        !confirm(
-          "Delete this area? Existing rain entries will stay in the database until you remove them separately.",
-        )
-      ) {
-        return;
-      }
-
-      try {
-        await readResponseJson(
-          await fetch(`/api/content/${id}`, { method: "DELETE" }),
-        );
-        if (selectedAreaId === id) {
-          setSelectedAreaId(null);
-        }
-        await fetchData();
-      } catch (error) {
-        setLoadError(
-          error instanceof Error ? error.message : "Failed to delete area.",
-        );
-      }
-    },
-    [fetchData, selectedAreaId],
-  );
-
-  const handleSaveEntry = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      setEntryFormError("");
-
-      if (!selectedAreaId) {
-        setEntryFormError("Select an area before logging rainfall.");
-        return;
-      }
-
-      const amountDisplay = Number.parseFloat(entryAmount);
-      if (!Number.isFinite(amountDisplay) || amountDisplay < 0) {
-        setEntryFormError("Enter a valid rainfall amount.");
-        return;
-      }
-
-      if (!entryDate) {
-        setEntryFormError("Date is required.");
-        return;
-      }
-
-      const payload = {
-        area_id: selectedAreaId,
-        rainfall_amount: amountDisplay * CONVERSION_TO_MM[displayUnit],
-        rainfall_unit: "mm" as const,
-        date: parseDateInputToISO(entryDate, entryTime),
-        notes: entryNotes.trim() || undefined,
-        source: entrySource,
-      };
-
-      try {
-        setIsSavingEntry(true);
-
-        if (editingEntryId) {
-          await readResponseJson(
-            await fetch(`/api/content/${editingEntryId}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ payload }),
-            }),
-          );
-        } else {
-          await readResponseJson(
-            await fetch("/api/content", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                module_type: "rain_entry",
-                is_public: false,
-                payload,
-              }),
-            }),
-          );
-        }
-
-        setShowEntryForm(false);
-        resetEntryForm();
-        await fetchData();
-      } catch (error) {
-        setEntryFormError(
-          error instanceof Error ? error.message : "Failed to save entry.",
-        );
-      } finally {
-        setIsSavingEntry(false);
-      }
-    },
-    [
-      displayUnit,
-      editingEntryId,
-      entryAmount,
-      entryDate,
-      entryNotes,
-      entrySource,
-      entryTime,
-      fetchData,
-      resetEntryForm,
-      selectedAreaId,
-    ],
-  );
-
-  const handleDeleteEntry = useCallback(
-    async (id: string) => {
-      if (!confirm("Delete this rainfall entry?")) {
-        return;
-      }
-
-      try {
-        await readResponseJson(
-          await fetch(`/api/content/${id}`, { method: "DELETE" }),
-        );
-        await fetchData();
-      } catch (error) {
-        setLoadError(
-          error instanceof Error ? error.message : "Failed to delete entry.",
-        );
-      }
-    },
-    [fetchData],
-  );
-
-  if (loading) {
-    return <AdminModuleSkeleton />;
+  function clearFilters() {
+    setFilters(EMPTY_FILTERS);
+    setSearchQuery("");
   }
 
+  if (loading) return <AdminModuleSkeleton />;
+
   return (
-    <div className="-mx-6 -mb-6 flex flex-col gap-4 overflow-hidden px-4 pb-4 lg:-mx-8 lg:-mb-8 lg:h-[calc(100vh-7rem)] lg:flex-row lg:px-6 lg:pb-6">
-      <AreaSidebar
-        areas={areaListItems}
-        summary={portfolioSummary}
-        displayUnit={displayUnit}
-        selectedAreaId={selectedAreaId}
-        showAreaForm={showAreaForm}
-        areaFormError={areaFormError}
-        isSavingArea={isSavingArea}
-        areaName={areaName}
-        areaLocation={areaLocation}
-        areaDescription={areaDescription}
-        areaIsActive={areaIsActive}
-        editingAreaId={editingAreaId}
-        onSelectArea={setSelectedAreaId}
-        onOpenNewArea={openNewArea}
-        onEditArea={openEditArea}
-        onDeleteArea={handleDeleteArea}
-        onCloseAreaForm={closeAreaForm}
-        onSaveArea={handleSaveArea}
-        onAreaNameChange={setAreaName}
-        onAreaLocationChange={setAreaLocation}
-        onAreaDescriptionChange={setAreaDescription}
-        onAreaIsActiveChange={setAreaIsActive}
-      />
-
-      {selectedArea ? (
-        <motion.div
-          key={selectedArea._id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden"
-        >
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl border border-accent/20 bg-accent/10 p-2">
-                <CloudRain className="h-5 w-5 text-accent" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold tracking-tight text-zinc-100">
-                  {selectedArea.payload.name}
-                </h2>
-                <p className="text-xs text-zinc-500">
-                  {selectedArea.payload.location || "No location added"}
-                </p>
-                {selectedArea.payload.description ? (
-                  <p className="mt-1 max-w-2xl text-sm text-zinc-400">
-                    {selectedArea.payload.description}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
+    <div className="space-y-5 pb-4 sm:space-y-6">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-x-4">
+        <h1 className="text-3xl font-semibold tracking-[-0.045em] text-zinc-50 sm:text-4xl">
+          Rain Tracker
+        </h1>
+        <div className="contents sm:flex sm:items-center sm:gap-2">
+          {selectedArea && (
             <button
               type="button"
-              onClick={() => {
-                setShowSettings((current) => !current);
-                setShowFilters(false);
-              }}
+              onClick={() => setEditor({ type: "preferences" })}
+              disabled={!loaded}
+              aria-label="Rain Tracker preferences"
+              aria-haspopup="dialog"
+              title="Preferences"
               className={cn(
-                "rounded-xl border p-2 transition-all",
-                showSettings
-                  ? "border-accent/30 bg-accent/10 text-accent"
-                  : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300",
+                iconActionClass,
+                "col-start-2 row-start-1 border border-zinc-800 disabled:opacity-50",
               )}
-              aria-label="Toggle preferences"
             >
-              <Settings2 className="h-4 w-4" />
+              <Settings2 aria-hidden="true" className="size-4" />
             </button>
+          )}
+          <div className="col-span-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => setEditor({ type: "guide" })}
+              className={cn(
+                actionClass,
+                secondaryClass,
+                "gap-1.5 px-2.5 sm:gap-2 sm:px-3",
+              )}
+            >
+              <BookOpen
+                aria-hidden="true"
+                className="size-4 max-[350px]:hidden"
+              />
+              How to measure
+            </button>
+            {selectedArea && (
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() =>
+                  setEditor({
+                    type: "entry",
+                    area: selectedArea,
+                    unit: displayUnit,
+                  })
+                }
+                className={cn(actionClass, primaryClass, "sm:px-4")}
+              >
+                <Plus aria-hidden="true" className="size-4" />
+                Log rainfall
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {loadError && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-muted/20 px-4 py-3 text-sm text-danger"
+        >
+          <span>{loadError}</span>
+          <button
+            type="button"
+            aria-label="Retry loading rain tracker"
+            className={cn(
+              actionClass,
+              "border border-danger/30 hover:bg-danger/10",
+            )}
+            onClick={() => {
+              if (!selectedArea) setLoading(true);
+              void fetchData();
+            }}
+          >
+            <RefreshCcw aria-hidden="true" className="size-4" />
+            Retry
+          </button>
+        </div>
+      )}
+      {actionError && (
+        <p
+          role="alert"
+          className="rounded-xl border border-danger/30 bg-danger-muted/20 p-4 text-sm text-danger"
+        >
+          {actionError}
+        </p>
+      )}
+
+      {selectedArea && selectedAreaItem ? (
+        <>
+          <div className="grid gap-3 border-y border-zinc-800 py-3 sm:flex sm:items-center sm:justify-between sm:gap-5">
+            <div className="flex min-w-0 items-center gap-2">
+              <label className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial sm:gap-3">
+                <span className="text-xs font-medium text-zinc-500">Area</span>
+                <select
+                  value={selectedArea._id}
+                  onChange={(event) => {
+                    setSelectedAreaId(event.target.value);
+                    setActionError("");
+                    clearFilters();
+                    setShowFilters(false);
+                  }}
+                  className={cn(
+                    controlClass,
+                    "font-medium sm:min-w-32 sm:max-w-64",
+                  )}
+                >
+                  {areas.map((area) => (
+                    <option key={area._id} value={area._id}>
+                      {area.payload.name}
+                      {area.payload.is_active === false ? " (inactive)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`Edit ${selectedArea.payload.name}`}
+                title="Edit area"
+                onClick={() => setEditor({ type: "area", area: selectedArea })}
+                className={iconActionClass}
+              >
+                <Edit3 aria-hidden="true" className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                onClick={() => setEditor({ type: "area" })}
+                aria-label="Add area"
+                title="Add area"
+                className={cn(
+                  actionClass,
+                  secondaryClass,
+                  "max-[440px]:w-11 max-[440px]:px-0",
+                )}
+              >
+                <Plus aria-hidden="true" className="size-4" />
+                <span className="max-[440px]:hidden">Add area</span>
+              </button>
+            </div>
+            {(selectedArea.payload.location ||
+              selectedArea.payload.description) && (
+              <div className="min-w-0 text-sm break-words text-zinc-500 sm:text-right">
+                {selectedArea.payload.location && (
+                  <p className="flex items-start gap-1.5 text-zinc-300 sm:justify-end">
+                    <MapPin
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0 text-zinc-500"
+                    />
+                    <span className="min-w-0">
+                      {selectedArea.payload.location}
+                    </span>
+                  </p>
+                )}
+                {selectedArea.payload.description && (
+                  <p className="mt-0.5">{selectedArea.payload.description}</p>
+                )}
+              </div>
+            )}
           </div>
 
-          {loadError ? (
-            <RainTrackerLoadError
-              message={loadError}
-              onRetry={retryFetchData}
-            />
-          ) : null}
-
-          <RainTrackerPreferences
-            open={showSettings}
+          <RainOverview
+            analytics={analytics}
+            last30Trend={last30Trend}
             displayUnit={displayUnit}
             chartType={chartType}
-            onClose={() => setShowSettings(false)}
-            onDisplayUnitChange={(unit) =>
-              void updateSettings({ defaultUnit: unit })
-            }
-            onChartTypeChange={(option) =>
-              void updateSettings({ chartType: option })
-            }
           />
 
-          <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)]">
-            <div className="min-h-0 space-y-4 overflow-y-auto pr-0 xl:pr-1 no-scrollbar">
-              <RainOverview
-                analytics={analytics}
-                last30Trend={last30Trend}
-                displayUnit={displayUnit}
-                chartType={chartType}
-              />
-            </div>
-            <RainEntriesPanel
-              entries={selectedAreaEntries}
-              displayUnit={displayUnit}
-              showFilters={showFilters}
-              activePreset={filters.preset}
-              searchQuery={searchQuery}
-              filterAmountMin={filters.amountMin}
-              filterAmountMax={filters.amountMax}
-              filterNotes={filters.notes}
-              showEntryForm={showEntryForm}
-              editingEntryId={editingEntryId}
-              entryAmount={entryAmount}
-              entryDate={entryDate}
-              entryTime={entryTime}
-              entrySource={entrySource}
-              entryNotes={entryNotes}
-              entryFormError={entryFormError}
-              isSavingEntry={isSavingEntry}
-              onToggleFilters={() => setShowFilters((current) => !current)}
-              onPresetChange={(preset) =>
-                setFilters((current) => ({ ...current, preset }))
+          <RainEntriesPanel
+            entries={selectedAreaEntries}
+            entryCount={selectedAreaItem.entryCount}
+            displayUnit={displayUnit}
+            filters={filters}
+            showFilters={showFilters}
+            searchQuery={searchQuery}
+            onToggleFilters={() => setShowFilters((current) => !current)}
+            onFiltersChange={(next) =>
+              setFilters((current) => ({ ...current, ...next }))
+            }
+            onSearchQueryChange={setSearchQuery}
+            onClearFilters={clearFilters}
+            onEditEntry={(entry) =>
+              setEditor({
+                type: "entry",
+                area: selectedArea,
+                entry,
+                unit: displayUnit,
+              })
+            }
+            onDeleteEntry={async (id) => {
+              if (!window.confirm("Delete this rainfall reading?")) return;
+              setActionError("");
+              try {
+                await deleteRecord(id);
+                await fetchData();
+              } catch (error) {
+                setActionError(
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to delete the reading.",
+                );
               }
-              onSearchQueryChange={setSearchQuery}
-              onFilterAmountMinChange={(value) =>
-                setFilters((current) => ({ ...current, amountMin: value }))
-              }
-              onFilterAmountMaxChange={(value) =>
-                setFilters((current) => ({ ...current, amountMax: value }))
-              }
-              onFilterNotesChange={(value) =>
-                setFilters((current) => ({ ...current, notes: value }))
-              }
-              onClearFilters={() => setFilters({ ...EMPTY_FILTERS })}
-              onOpenNewEntry={openNewEntry}
-              onCloseEntryForm={closeEntryForm}
-              onSaveEntry={handleSaveEntry}
-              onEntryAmountChange={setEntryAmount}
-              onEntryDateChange={setEntryDate}
-              onEntryTimeChange={setEntryTime}
-              onEntrySourceChange={(value) =>
-                setEntrySource(coerceRainSource(value))
-              }
-              onEntryNotesChange={setEntryNotes}
-              onEditEntry={openEditEntry}
-              onDeleteEntry={handleDeleteEntry}
-            />
-          </div>
-        </motion.div>
-      ) : loadError ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/30 p-4"
-        >
-          <div className="w-full max-w-md">
-            <RainTrackerLoadError
-              message={loadError}
-              onRetry={retryFetchData}
-            />
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/30"
-        >
-          <div className="relative mb-6">
-            <div className="absolute inset-0 scale-150 rounded-full bg-accent/5 blur-3xl" />
-            <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <CloudRain className="h-10 w-10 text-zinc-600" />
-            </div>
-          </div>
-          <h3 className="text-lg font-semibold text-zinc-400">
-            No Area Selected
-          </h3>
-          <p className="mt-2 max-w-xs text-center text-sm text-zinc-600">
-            Select an existing area or create a new one to view rainfall
-            history.
+            }}
+          />
+          <RainAreaSummary
+            areas={areaListItems}
+            summary={portfolioSummary}
+            displayUnit={displayUnit}
+          />
+        </>
+      ) : !loadError ? (
+        <section className="flex flex-col items-center rounded-2xl border border-dashed border-zinc-800 px-5 py-14 text-center">
+          <CloudRain aria-hidden="true" className="mb-4 size-7 text-accent" />
+          <h2 className="text-lg font-semibold text-zinc-100">No areas yet</h2>
+          <p className="mt-1 text-sm text-zinc-500">
+            Add an area to start logging rainfall.
           </p>
-        </motion.div>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            onClick={() => setEditor({ type: "area" })}
+            className={cn(actionClass, primaryClass, "mt-5")}
+          >
+            <Plus aria-hidden="true" className="size-4" />
+            Add area
+          </button>
+        </section>
+      ) : null}
+
+      {editor?.type === "area" && (
+        <RainAreaEditor
+          area={editor.area}
+          onClose={() => setEditor(null)}
+          onSave={async (payload) => {
+            const saved = await saveRecord(
+              "rain_area",
+              payload,
+              editor.area?._id,
+            );
+            if (!editor.area) clearFilters();
+            await fetchData(editor.area ? undefined : saved?._id);
+            setEditor(null);
+          }}
+          onDelete={
+            editingArea &&
+            (async () => {
+              if (
+                !window.confirm(
+                  "Delete this area? Its rainfall readings will stay in the database.",
+                )
+              )
+                return;
+              await deleteRecord(editingArea._id);
+              clearFilters();
+              await fetchData();
+              setEditor(null);
+            })
+          }
+        />
+      )}
+      {editor?.type === "entry" && (
+        <RainEntryEditor
+          area={editor.area}
+          entry={editor.entry}
+          displayUnit={editor.unit}
+          onClose={() => setEditor(null)}
+          onSave={async (payload) => {
+            await saveRecord("rain_entry", payload, editor.entry?._id);
+            if (!editor.entry) clearFilters();
+            await fetchData();
+            setEditor(null);
+          }}
+        />
+      )}
+      {editor?.type === "guide" && (
+        <RainMeasurementGuide onClose={() => setEditor(null)} />
+      )}
+      {editor?.type === "preferences" && (
+        <RainTrackerPreferences
+          displayUnit={displayUnit}
+          chartType={chartType}
+          onClose={() => setEditor(null)}
+          onSave={async (updates) => {
+            if (!(await updateSettings(updates)))
+              throw new Error("Could not save preferences. Try again.");
+            if (updates.defaultUnit !== displayUnit) {
+              setFilters((current) => ({
+                ...current,
+                amountMin: "",
+                amountMax: "",
+              }));
+            }
+            setEditor(null);
+          }}
+        />
       )}
     </div>
   );
