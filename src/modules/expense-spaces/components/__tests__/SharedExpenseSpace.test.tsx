@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import SharedExpenseSpace from "../SharedExpenseSpace";
 
@@ -11,6 +17,18 @@ const result = {
     categories: [{ id: "food", name: "Food", subcategories: [] }],
   },
   summary: { total: 20, month: 20, count: 1 },
+  breakdown: [
+    {
+      category: "Food",
+      currency: "USD",
+      amount: 60,
+      count: 3,
+      subcategories: [
+        { name: "Restaurants", amount: 40, count: 2 },
+        { name: "No subcategory", amount: 20, count: 1 },
+      ],
+    },
+  ],
   entries: [
     {
       id: "entry",
@@ -61,6 +79,32 @@ describe("shared expense space", () => {
       expect(fetcher.mock.calls.at(-1)?.[0]).toContain("category=food"),
     );
     expect(fetcher.mock.calls.at(-1)?.[0]).toContain("search=Lunch");
+  });
+  it("opens and closes the whole-space spending breakdown", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, json: async () => result }),
+    );
+    render(<SharedExpenseSpace token="abcdef" />);
+    const button = await screen.findByRole("button", {
+      name: "Spending breakdown",
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    button.focus();
+    fireEvent.click(button);
+    const dialog = screen.getByRole("dialog", { name: "Spending breakdown" });
+    expect(
+      within(dialog).getByRole("row", { name: /Food 3 \$60/ }),
+    ).toBeVisible();
+    expect(
+      within(dialog).getByRole("row", { name: /Restaurants 2 \$40/ }),
+    ).toBeVisible();
+    expect(
+      within(dialog).getByRole("row", { name: /No subcategory 1 \$20/ }),
+    ).toBeVisible();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    expect(button).toHaveFocus();
   });
   it("hides budget and remaining when the space has no budget", async () => {
     vi.stubGlobal(

@@ -17,6 +17,14 @@ export interface ExpenseSpaceSubcategory {
   is_active: boolean;
 }
 
+export interface SharedExpenseBreakdownCategory {
+  category: string;
+  currency: string;
+  amount: number;
+  count: number;
+  subcategories: { name: string; amount: number; count: number }[];
+}
+
 export interface ExpenseSpaceCategory {
   id: string;
   name: string;

@@ -6,6 +6,7 @@ import {
 import type {
   ExpenseSpaceEntryPayload,
   ExpenseSpaceDocumentPayload,
+  SharedExpenseBreakdownCategory,
 } from "@/modules/expense-spaces/types";
 import { escapeRegex } from "@/lib/expense-spaces/validation";
 
@@ -96,6 +97,11 @@ export async function GET(request: Request, { params }: Params) {
         collection.countDocuments(docFilter),
         collection
           .aggregate<{
+            _id: {
+              categoryId: string;
+              subcategoryId: string | null;
+              currency: string;
+            };
             total: number;
             month: number;
             count: number;
@@ -103,7 +109,11 @@ export async function GET(request: Request, { params }: Params) {
             { $match: entryFilter },
             {
               $group: {
-                _id: null,
+                _id: {
+                  categoryId: "$payload.category_id",
+                  subcategoryId: { $ifNull: ["$payload.subcategory_id", null] },
+                  currency: { $ifNull: ["$payload.currency", space.currency] },
+                },
                 total: { $sum: "$payload.amount" },
                 count: { $sum: 1 },
                 month: {
@@ -125,6 +135,51 @@ export async function GET(request: Request, { params }: Params) {
           ])
           .toArray(),
       ]);
+    const summary = { total: 0, month: 0, count: 0 };
+    const categories = new Map<string, SharedExpenseBreakdownCategory>();
+    for (const { _id, total, month, count } of totals) {
+      summary.total += total;
+      summary.month += month;
+      summary.count += count;
+
+      const { categoryId, subcategoryId, currency } = _id;
+      const category = space.categories.find(({ id }) => id === categoryId);
+      const key = JSON.stringify([categoryId, currency]);
+      let group = categories.get(key);
+      if (!group) {
+        group = {
+          category: category?.name ?? "Uncategorized",
+          currency,
+          amount: 0,
+          count: 0,
+          subcategories: [],
+        };
+        categories.set(key, group);
+      }
+      group.amount += total;
+      group.count += count;
+      const subcategory = category?.subcategories.find(
+        ({ id }) => id === subcategoryId,
+      );
+      group.subcategories.push({
+        name:
+          subcategory?.name ??
+          (subcategoryId ? "Unknown subcategory" : "No subcategory"),
+        amount: total,
+        count,
+      });
+    }
+    const breakdown = [...categories.values()].sort(
+      (a, b) =>
+        a.currency.localeCompare(b.currency) ||
+        b.amount - a.amount ||
+        a.category.localeCompare(b.category),
+    );
+    for (const { subcategories } of breakdown) {
+      subcategories.sort(
+        (a, b) => b.amount - a.amount || a.name.localeCompare(b.name),
+      );
+    }
     return Response.json(
       {
         space: {
@@ -135,7 +190,8 @@ export async function GET(request: Request, { params }: Params) {
           budget: space.budget,
           categories: space.categories,
         },
-        summary: totals[0] ?? { total: 0, month: 0, count: 0 },
+        summary,
+        breakdown,
         entries: entries.map((entry) => {
           const p = entry.payload as ExpenseSpaceEntryPayload;
           return {

@@ -51,7 +51,13 @@ it("reads fresh, space-scoped entries and exposes only public fields", async () 
       name: "Trip",
       currency: "USD",
       number_format: "western",
-      categories: [],
+      categories: [
+        {
+          id: "food",
+          name: "Food",
+          subcategories: [{ id: "restaurants", name: "Restaurants" }],
+        },
+      ],
       internal: "secret",
     },
   };
@@ -98,8 +104,27 @@ it("reads fresh, space-scoped entries and exposes only public fields", async () 
     findOne: vi.fn().mockResolvedValue(parent),
     find,
     countDocuments: vi.fn().mockResolvedValue(1),
-    aggregate: vi.fn(() => ({
-      toArray: async () => [{ total: amount, month: 0, count: 1 }],
+    aggregate: vi.fn<
+      (pipeline: object[]) => { toArray: () => Promise<unknown[]> }
+    >(() => ({
+      toArray: async () => [
+        {
+          _id: {
+            categoryId: "food",
+            subcategoryId: "restaurants",
+            currency: "USD",
+          },
+          total: 40,
+          month: 0,
+          count: 2,
+        },
+        {
+          _id: { categoryId: "food", subcategoryId: null, currency: "USD" },
+          total: amount,
+          month: 0,
+          count: 1,
+        },
+      ],
     })),
   };
   const shares = { findOne: vi.fn().mockResolvedValue({ _id: id }) };
@@ -108,10 +133,31 @@ it("reads fresh, space-scoped entries and exposes only public fields", async () 
   } as never);
   const params = { params: Promise.resolve({ token }) };
   const first = await GET(
-    new Request("http://localhost/api/shared/expense-space/token"),
+    new Request(
+      "http://localhost/api/shared/expense-space/token?page=2&category=food&search=Dinner",
+    ),
     params,
   );
   const body = await first.json();
+  expect(content.aggregate.mock.calls[0]?.[0][0]).toEqual({
+    $match: {
+      module_type: "expense_space_entry",
+      "payload.space_key": "space-a",
+    },
+  });
+  expect(body.summary).toEqual({ total: 60, month: 0, count: 3 });
+  expect(body.breakdown).toEqual([
+    {
+      category: "Food",
+      currency: "USD",
+      amount: 60,
+      count: 3,
+      subcategories: [
+        { name: "Restaurants", amount: 40, count: 2 },
+        { name: "No subcategory", amount: 20, count: 1 },
+      ],
+    },
+  ]);
   expect(body.entries[0].amount).toBe(20);
   expect(body.entries[0].receipts).toEqual([
     { filename: "receipt.pdf", index: 0 },

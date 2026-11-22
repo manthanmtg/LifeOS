@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { FileDown, ReceiptText, WalletCards } from "lucide-react";
+import Dialog from "@/components/ui/Dialog";
 import type {
   ExpenseSpaceBudget,
   ExpenseSpaceCategory,
   ExpenseSpaceNumberFormat,
+  SharedExpenseBreakdownCategory,
 } from "../types";
 import { formatExpenseMoney } from "./ExpenseSpacesOverview";
 
@@ -35,6 +37,7 @@ type Data = {
     categories: ExpenseSpaceCategory[];
   };
   summary: { total: number; month: number; count: number };
+  breakdown: SharedExpenseBreakdownCategory[];
   entries: Entry[];
   total: number;
   page: number;
@@ -52,6 +55,7 @@ export default function SharedExpenseSpace({ token }: { token: string }) {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
   const [docsPage, setDocsPage] = useState(1);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   useEffect(() => {
     const controller = new AbortController();
     const params = new URLSearchParams({
@@ -173,6 +177,104 @@ export default function SharedExpenseSpace({ token }: { token: string }) {
             </>
           )}
         </section>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className="min-h-11 rounded-xl border border-zinc-700 bg-zinc-900 px-4 text-sm font-semibold hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            aria-haspopup="dialog"
+            onClick={() => setBreakdownOpen(true)}
+          >
+            Spending breakdown
+          </button>
+        </div>
+        <Dialog
+          isOpen={breakdownOpen}
+          onClose={() => setBreakdownOpen(false)}
+          aria-labelledby="spending-breakdown-title"
+          aria-describedby="spending-breakdown-description"
+          className="flex max-h-[calc(100dvh-2rem)] max-w-2xl flex-col"
+        >
+          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-800 p-4 sm:p-6">
+            <div>
+              <h2 id="spending-breakdown-title" className="text-xl font-bold">
+                Spending breakdown
+              </h2>
+              <p
+                id="spending-breakdown-description"
+                className="mt-1 text-sm text-zinc-400"
+              >
+                All expenses in this space
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setBreakdownOpen(false)}
+              className="min-h-11 rounded-xl border border-zinc-700 px-3 text-sm font-medium hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Close
+            </button>
+          </header>
+          <div className="overflow-auto px-4 pb-4 sm:px-6 sm:pb-6">
+            {data.breakdown.length === 0 ? (
+              <p className="py-8 text-center text-sm text-zinc-400">
+                No expenses have been added yet.
+              </p>
+            ) : (
+              <table
+                aria-labelledby="spending-breakdown-title"
+                className="w-full text-left text-sm"
+              >
+                <thead className="sticky top-0 bg-zinc-950 text-zinc-400">
+                  <tr className="border-b border-zinc-800">
+                    <th scope="col" className="py-3 pr-2">
+                      Category / subcategory
+                    </th>
+                    <th scope="col" className="px-2 py-3 text-right">
+                      Expenses
+                    </th>
+                    <th scope="col" className="py-3 pl-2 text-right">
+                      Total spent
+                    </th>
+                  </tr>
+                </thead>
+                {data.breakdown.map((category, index) => (
+                  <tbody
+                    key={index}
+                    className="border-b border-zinc-800 last:border-b-0"
+                  >
+                    <tr className="bg-zinc-900 font-semibold">
+                      <th scope="rowgroup" className="break-words py-2 pr-2">
+                        {category.category}
+                      </th>
+                      <td className="px-2 py-2 text-right tabular-nums">
+                        {category.count}
+                      </td>
+                      <td className="whitespace-nowrap py-2 pl-2 text-right tabular-nums">
+                        {money(category.amount, category.currency)}
+                      </td>
+                    </tr>
+                    {category.subcategories.map((subcategory, subIndex) => (
+                      <tr key={subIndex}>
+                        <th
+                          scope="row"
+                          className="break-words py-2 pr-2 pl-3 font-normal text-zinc-300"
+                        >
+                          {subcategory.name}
+                        </th>
+                        <td className="px-2 py-2 text-right tabular-nums">
+                          {subcategory.count}
+                        </td>
+                        <td className="whitespace-nowrap py-2 pl-2 text-right tabular-nums">
+                          {money(subcategory.amount, category.currency)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                ))}
+              </table>
+            )}
+          </div>
+        </Dialog>
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 sm:p-7">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
