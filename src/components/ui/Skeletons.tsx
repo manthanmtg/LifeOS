@@ -9,8 +9,6 @@ const BLOG_GRID_KEYS = [...Array(4).keys()];
 const BLOG_POST_DETAIL_WIDTHS = [95, 100, 88, 100, 92, 85, 100, 78];
 const BLOG_POST_META_WIDTHS = [100, 90, 82, 100, 75, 95];
 const PUBLIC_MODULE_KEYS = [...Array(6).keys()];
-const PORTFOLIO_SOCIAL_LINK_KEYS = [...Array(4).keys()];
-const PORTFOLIO_SKILL_KEYS = [...Array(8).keys()];
 
 /** Shimmer overlay for skeleton elements */
 function Shimmer() {
@@ -258,58 +256,27 @@ export function PublicModuleSkeleton() {
 /** Skeleton for the public portfolio / showcase page */
 export function PortfolioSkeleton() {
   return (
-    <div className="flex-1 relative overflow-hidden pb-10">
-      {/* Background blurs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-[48rem] bg-accent/10 blur-[140px] rounded-full" />
+    <div
+      aria-hidden="true"
+      className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8"
+    >
+      <div className="grid items-center gap-[clamp(2rem,5vw,4.5rem)] py-[clamp(2.75rem,6vw,5.5rem)] motion-safe:animate-pulse min-[900px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <div className="space-y-6">
+          <SkeletonBlock className="h-7 w-36 rounded-full" />
+          <SkeletonBlock className="h-16 w-5/6 rounded-lg lg:h-24" />
+          <SkeletonBlock className="h-6 w-2/3 rounded-md" />
+          <div className="flex gap-3">
+            <SkeletonBlock className="h-12 w-36 rounded-full" />
+            <SkeletonBlock className="h-12 w-28 rounded-full" />
+          </div>
+        </div>
+        <SkeletonBlock className="aspect-[1.23] w-full max-w-[40rem] rounded-xl" />
       </div>
-
-      <section className="relative z-10 pt-20 md:pt-32 px-6">
-        <div className="max-w-5xl mx-auto animate-pulse space-y-8">
-          {/* Hire badge */}
-          <SkeletonBlock className="h-7 w-44 rounded-full" />
-          {/* Hero title */}
-          <SkeletonBlock className="h-16 md:h-24 w-4/5 rounded-xl" />
-          {/* Sub-headline */}
-          <SkeletonBlock className="h-6 w-2/3 rounded-lg" />
-          {/* Social links */}
-          <div className="flex flex-wrap gap-3 pt-4">
-            {PORTFOLIO_SOCIAL_LINK_KEYS.map((i) => (
-              <SkeletonBlock key={i} className="h-10 w-28 rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Bio section */}
-      <section className="relative z-10 px-6 mt-20 md:mt-32">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12 animate-pulse">
-          <div className="space-y-4">
-            <SkeletonBlock className="h-3 w-20" />
-            <SkeletonBlock className="h-px w-12" />
-          </div>
-          <div className="space-y-3">
-            <SkeletonBlock className="h-5 w-full" />
-            <SkeletonBlock className="h-5 w-4/5" />
-            <SkeletonBlock className="h-5 w-3/5" />
-          </div>
-        </div>
-      </section>
-
-      {/* Skills grid */}
-      <section className="relative z-10 px-6 mt-20 md:mt-32">
-        <div className="max-w-5xl mx-auto animate-pulse">
-          <div className="flex items-center gap-3 mb-10">
-            <SkeletonBlock className="h-3 w-24" />
-            <div className="h-px flex-1 bg-zinc-800 hidden md:block" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {PORTFOLIO_SKILL_KEYS.map((i) => (
-              <SkeletonBlock key={i} className="h-16 rounded-2xl" />
-            ))}
-          </div>
-        </div>
-      </section>
+      <div className="flex gap-8 border-y border-zinc-800 py-5 motion-safe:animate-pulse">
+        <SkeletonBlock className="h-3 w-14" />
+        <SkeletonBlock className="h-3 w-12" />
+        <SkeletonBlock className="h-3 w-16" />
+      </div>
     </div>
   );
 }

@@ -13,10 +13,12 @@ export default async function Home() {
         initialUserName={site.userName}
         publicModules={site.publicModules}
       />
-      <PortfolioView
-        profile={site.profile}
-        resumeAvailable={site.resumeAvailable}
-      />
+      <main className="flex flex-1 flex-col">
+        <PortfolioView
+          profile={site.profile}
+          resumeAvailable={site.resumeAvailable}
+        />
+      </main>
       <PublicFooter socialLinks={site.socialLinks} />
     </div>
   );

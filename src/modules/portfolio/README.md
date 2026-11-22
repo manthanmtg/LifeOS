@@ -59,9 +59,9 @@ Resume payloads are validated by `ResumeSchema`.
 - Suggested skill and social-platform shortcuts for faster profile setup.
 - Resume manager for uploading PDFs up to 5MB, activating one resume, and
   deleting old files.
-- Public `PortfolioShowcase` with animated hero, social links, skills grid,
-  biography section, hiring badge, and an optional resume link when the root
-  portfolio view finds an active resume.
+- Public `PortfolioShowcase` with an illustrated hero, section navigation,
+  biography, skills, social links, and hiring availability. Both public routes
+  show the resume link when an active public resume is available.
 - `/resume` viewer that embeds the active PDF resume served by
   `/api/portfolio/resume` with a profile-derived filename when available.
 - Dashboard widget that follows the widget contract with one hero metric
@@ -120,11 +120,10 @@ curl -L /api/portfolio/resume --output resume.pdf
 ## Implementation Notes
 
 - `AdminView.tsx` owns profile editing and resume management.
-- `View.tsx` fetches the public profile and active resume for the root
-  portfolio page; when a resume exists, `PortfolioShowcase` links to `/resume`.
+- `View.tsx` renders the public profile and handles the empty state. The page
+  passes resume availability from `getPublicSiteData`.
 - `PublicView.tsx` normalizes generic public module items before rendering
-  `PortfolioShowcase`; it does not fetch resume documents, so `/portfolio`
-  only shows the profile fields provided through the public module payload.
+  the shared portfolio view at `/portfolio`.
 - `PortfolioShowcase.tsx` is the shared public renderer.
 - `src/app/resume/page.tsx` hosts the resume viewer, while
   `src/app/api/portfolio/resume/route.ts` streams the active PDF.

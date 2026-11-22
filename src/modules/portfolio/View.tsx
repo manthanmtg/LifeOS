@@ -16,12 +16,9 @@ export default function PortfolioView({
         <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
           <Briefcase className="w-7 h-7 text-zinc-500" />
         </div>
-        <h2 className="text-2xl font-bold text-zinc-50 mb-2">
-          Portfolio Not Set Up
-        </h2>
-        <p className="text-zinc-500 text-sm max-w-md">
-          Head to the admin panel to set up your portfolio profile.
-        </p>
+        <h1 className="text-2xl font-semibold text-zinc-50">
+          Portfolio coming soon
+        </h1>
       </div>
     );
   }

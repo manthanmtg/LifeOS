@@ -24,6 +24,7 @@ export default async function PublicModulePage({
       publicModules={site.publicModules}
       socialLinks={site.socialLinks}
       items={items}
+      resumeAvailable={site.resumeAvailable}
     />
   );
 }

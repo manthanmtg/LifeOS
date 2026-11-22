@@ -1,0 +1,101 @@
+.hero {
+  display: grid;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding-block: clamp(2.75rem, 6vw, 5.5rem);
+}
+
+.title {
+  color: var(--zinc-50);
+  font-size: clamp(3.25rem, 8vw, 6.5rem);
+  font-weight: 650;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.artwork {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 40rem;
+  aspect-ratio: 1.23;
+  overflow: hidden;
+  border: 1px solid var(--zinc-700);
+  border-radius: 0.75rem;
+  background: var(--zinc-900);
+  box-shadow: 0 1.25rem 3.5rem -2.5rem
+    color-mix(in srgb, var(--accent) 48%, transparent);
+}
+
+.artwork::after {
+  position: absolute;
+  inset: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  border-radius: 0.3rem;
+  pointer-events: none;
+  content: "";
+}
+
+.detail {
+  display: grid;
+  gap: 1.25rem;
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+  border-bottom: 1px solid var(--zinc-800);
+  scroll-margin-top: calc(5rem + env(safe-area-inset-top));
+}
+
+.sectionTitle {
+  color: var(--zinc-50);
+  font-size: clamp(1.625rem, 3vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.contact {
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 2rem;
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  padding: clamp(1.5rem, 5vw, 3.75rem);
+  border: 1px solid var(--zinc-800);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(
+      ellipse at 100% 0,
+      color-mix(in srgb, var(--accent) 13%, transparent),
+      transparent 65%
+    ),
+    var(--zinc-900);
+  scroll-margin-top: calc(5rem + env(safe-area-inset-top));
+}
+
+.contactMark {
+  display: none;
+  width: clamp(4.5rem, 12vw, 9rem);
+  height: auto;
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .detail {
+    grid-template-columns: minmax(9rem, 1fr) minmax(0, 3fr);
+  }
+
+  .contact {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .contactMark {
+    display: block;
+  }
+}
+
+@media (min-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+}

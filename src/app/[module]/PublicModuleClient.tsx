@@ -6,7 +6,7 @@ import PublicHeader from "@/components/shell/PublicHeader";
 import PublicFooter from "@/components/shell/PublicFooter";
 import { moduleRegistry } from "@/registry";
 import { Briefcase } from "lucide-react";
-import { SkeletonBlock } from "@/components/ui/Skeletons";
+import { PortfolioSkeleton, SkeletonBlock } from "@/components/ui/Skeletons";
 import type { PublicModuleLink } from "@/lib/public-data";
 import type { SocialLink } from "@/components/shell/footer-links";
 
@@ -42,7 +42,7 @@ function ViewLoadingFallback() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const publicViews: Record<string, ComponentType<any>> = {
   portfolio: dynamic(() => import("@/modules/portfolio/PublicView"), {
-    loading: () => <ViewLoadingFallback />,
+    loading: () => <PortfolioSkeleton />,
   }),
   bookshelf: dynamic(() => import("@/modules/bookshelf/PublicView"), {
     loading: () => <ViewLoadingFallback />,
@@ -89,7 +89,6 @@ const moduleDescriptions: Record<string, string> = {
   calculators:
     "A rich collection of calculators for money, planning, and everyday conversions.",
   blog: "Thoughts, guides, and stories.",
-  portfolio: "About me, skills, and social links.",
   analytics: "Site analytics and visitor insights.",
   whiteboard: "Sketches, diagrams, and visual brainstorms.",
   slides: "Presentation decks — upload or link to your slides.",
@@ -101,6 +100,7 @@ interface Props {
   publicModules: PublicModuleLink[];
   socialLinks: SocialLink[];
   items: Record<string, unknown>[];
+  resumeAvailable?: boolean;
 }
 
 export default function PublicModuleClient({
@@ -109,29 +109,41 @@ export default function PublicModuleClient({
   publicModules,
   socialLinks,
   items,
+  resumeAvailable = false,
 }: Props) {
   const modConfig = moduleRegistry[slug];
   if (!modConfig) return null;
 
   const PublicView = publicViews[slug];
+  const isPortfolio = slug === "portfolio";
 
   return (
     <div className="min-h-dvh flex flex-col">
       <PublicHeader initialUserName={userName} publicModules={publicModules} />
-      <main className="flex-1 py-16 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
-              {modConfig.name}
-            </h1>
-            {moduleDescriptions[slug] && (
-              <p className="text-zinc-500 mt-1">{moduleDescriptions[slug]}</p>
-            )}
-          </div>
+      <main className={isPortfolio ? "flex-1" : "flex-1 py-16 px-6"}>
+        <div className={isPortfolio ? undefined : "max-w-5xl mx-auto"}>
+          {!isPortfolio && (
+            <div className="mb-10">
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
+                {modConfig.name}
+              </h1>
+              {moduleDescriptions[slug] && (
+                <p className="text-zinc-500 mt-1">{moduleDescriptions[slug]}</p>
+              )}
+            </div>
+          )}
 
-          <Suspense key={slug} fallback={<ViewLoadingFallback />}>
+          <Suspense
+            key={slug}
+            fallback={
+              isPortfolio ? <PortfolioSkeleton /> : <ViewLoadingFallback />
+            }
+          >
             {PublicView ? (
-              <PublicView items={items} />
+              <PublicView
+                items={items}
+                resumeAvailable={isPortfolio && resumeAvailable}
+              />
             ) : /* Fallback for modules without a dedicated public view */
             items.length === 0 ? (
               <div className="text-center text-zinc-500 py-20">

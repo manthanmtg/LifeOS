@@ -1,9 +1,7 @@
 "use client";
 
-import { Briefcase } from "lucide-react";
-import PortfolioShowcase, {
-  PortfolioProfile,
-} from "@/modules/portfolio/PortfolioShowcase";
+import type { PortfolioProfile } from "./PortfolioShowcase";
+import PortfolioView from "./View";
 
 function normalizeProfile(
   raw: Partial<PortfolioProfile> | null | undefined,
@@ -32,20 +30,13 @@ function normalizeProfile(
 
 export default function PortfolioPublicView({
   items,
+  resumeAvailable = false,
 }: {
   items: Record<string, unknown>[];
+  resumeAvailable?: boolean;
 }) {
   const first = items[0] as { payload?: Partial<PortfolioProfile> } | undefined;
   const profile = normalizeProfile(first?.payload);
 
-  if (!profile) {
-    return (
-      <div className="text-center text-zinc-500 py-20">
-        <Briefcase className="w-10 h-10 mx-auto mb-3 opacity-30" />
-        <p>Portfolio profile is not available yet.</p>
-      </div>
-    );
-  }
-
-  return <PortfolioShowcase profile={profile} />;
+  return <PortfolioView profile={profile} resumeAvailable={resumeAvailable} />;
 }
