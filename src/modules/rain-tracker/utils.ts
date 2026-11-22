@@ -102,10 +102,10 @@ function formatRainValue(mmValue: number, unit: RainDisplayUnit, digits = 2) {
 export function formatRainDisplay(value: number, unit: RainDisplayUnit) {
   if (unit === "in-cents") {
     const cents = Math.max(0, Math.round(value));
-    return `${Math.floor(cents / 100)} in ${String(cents % 100).padStart(2, "0")}¢`;
+    return `${Math.floor(cents / 100)} in ${String(cents % 100).padStart(2, "0")}ce`;
   }
   if (unit === "cents") {
-    return `${Math.max(0, Math.round(value))}¢`;
+    return `${Math.max(0, Math.round(value))}ce`;
   }
   return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${DISPLAY_UNIT_LABELS[unit]}`;
 }
